@@ -1,0 +1,58 @@
+{
+  "name": "@supplybiz/api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "ts-node src/main.ts",
+    "dev:worker": "ts-node src/worker.ts",
+    "openapi:generate": "ts-node scripts/generate-openapi.ts",
+    "infra:check": "node scripts/check-local-infra.mjs",
+    "prisma:generate": "prisma generate --schema src/prisma/schema.prisma",
+    "prisma:migrate:dev": "prisma migrate dev --schema src/prisma/schema.prisma",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema src/prisma/schema.prisma",
+    "prisma:seed": "prisma db seed --schema src/prisma/schema.prisma",
+    "lint": "echo \"TODO(T-004): add eslint configuration\"",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.4.13",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^10.4.13",
+    "@nestjs/platform-express": "^10.4.13",
+    "@nestjs/swagger": "^7.4.2",
+    "@nestjs/throttler": "^5.2.0",
+    "@opentelemetry/api": "^1.10.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.82.0",
+    "@opentelemetry/sdk-node": "^0.300.0",
+    "@prisma/client": "^5.22.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "js-yaml": "^4.1.0",
+    "pino": "^9.5.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^10.4.13",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.10.1",
+    "@types/supertest": "^6.0.2",
+    "jest": "^29.7.0",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  },
+  "prisma": {
+    "seed": "ts-node src/prisma/seed.ts"
+  }
+}

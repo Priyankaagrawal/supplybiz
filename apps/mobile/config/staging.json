@@ -1,0 +1,5 @@
+{
+  "ENV_NAME": "staging",
+  "API_BASE_URL": "https://staging-api.supplybiz.example/api/v1",
+  "FIREBASE_ENABLED": false
+}

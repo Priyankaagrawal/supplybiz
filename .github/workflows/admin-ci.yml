@@ -1,0 +1,60 @@
+name: admin-ci
+
+on:
+  pull_request:
+    paths:
+      - "apps/admin/**"
+      - "packages/ts-client/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/admin-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/admin/**"
+      - "packages/ts-client/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/admin-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter admin lint
+
+      - name: Typecheck
+        run: pnpm --filter admin typecheck
+
+      - name: Unit tests
+        run: pnpm --filter admin test
+
+      - name: Build
+        run: pnpm --filter admin build
+
+      - name: TS client checks
+        run: |
+          pnpm --filter @supplybiz/ts-client lint
+          pnpm --filter @supplybiz/ts-client test

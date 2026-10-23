@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum user_language {
+  EN
+  HI
+}
+
+enum user_status {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum user_role_type {
+  CUSTOMER
+  VENDOR
+}
+
+enum consent_doc_type {
+  TERMS
+  PRIVACY
+}
+
+enum session_status {
+  ACTIVE
+  REVOKED
+}
+
+enum device_platform {
+  ANDROID
+  IOS
+  WEB
+}
+
+enum admin_user_status {
+  ACTIVE
+  DISABLED
+}
+
+enum category_type {
+  SUPPLY
+  BILL
+}
+
+enum category_status {
+  ENABLED
+  COMING_SOON
+  HIDDEN
+}
+
+enum plan_code {
+  BASIC
+  STANDARD
+  BUSINESS
+  PREMIUM
+}
+
+enum plan_price_duration {
+  MONTHLY
+  HALF_YEARLY
+  YEARLY
+}
+
+enum plan_status {
+  ACTIVE
+  INACTIVE
+}
+
+enum outbox_event_status {
+  PENDING
+  DISPATCHED
+  FAILED
+}
+
+model users {
+  id          String          @id @default(uuid()) @db.Uuid
+  mobile      String          @unique
+  name        String?         @db.VarChar(120)
+  email       String?         @db.VarChar(254)
+  photo_media_id String?      @db.Uuid
+  language    user_language   @default(EN)
+  active_role user_role_type  @default(CUSTOMER)
+  status      user_status     @default(ACTIVE)
+  created_at  DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime        @updatedAt @db.Timestamptz(6)
+
+  roles       user_roles[]
+  consents    consents[]
+  sessions    sessions[]
+  devices     devices[]
+  preferences user_preferences?
+}
+
+model user_roles {
+  user_id     String         @db.Uuid
+  role        user_role_type
+  created_at  DateTime       @default(now()) @db.Timestamptz(6)
+
+  user        users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, role])
+  @@index([role])
+}
+
+model consents {
+  user_id      String         @db.Uuid
+  doc_type     consent_doc_type
+  doc_version  String         @db.VarChar(50)
+  accepted_at  DateTime       @default(now()) @db.Timestamptz(6)
+  ip           String?        @db.VarChar(64)
+
+  user         users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, doc_type, doc_version])
+  @@index([user_id])
+}
+
+model sessions {
+  id                 String         @id @default(uuid()) @db.Uuid
+  user_id            String         @db.Uuid
+  refresh_token_hash String         @db.VarChar(255)
+  family_id          String         @db.Uuid
+  device_id          String?        @db.Uuid
+  expires_at         DateTime       @db.Timestamptz(6)
+  revoked_at         DateTime?      @db.Timestamptz(6)
+  last_used_at       DateTime?      @db.Timestamptz(6)
+  status             session_status @default(ACTIVE)
+  created_at         DateTime       @default(now()) @db.Timestamptz(6)
+
+  user               users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([family_id])
+}
+
+model devices {
+  id            String          @id @default(uuid()) @db.Uuid
+  user_id       String          @db.Uuid
+  platform      device_platform
+  app_version   String?         @db.VarChar(64)
+  os_version    String?         @db.VarChar(64)
+  push_token    String?         @unique
+  push_enabled  Boolean         @default(true)
+  last_seen_at  DateTime?       @db.Timestamptz(6)
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime        @updatedAt @db.Timestamptz(6)
+
+  user          users           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model user_preferences {
+  user_id             String   @id @db.Uuid
+  notification_prefs  Json
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime @updatedAt @db.Timestamptz(6)
+
+  user                users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model admin_users {
+  id               String            @id @default(uuid()) @db.Uuid
+  email            String            @unique @db.VarChar(254)
+  password_hash    String            @db.VarChar(255)
+  totp_secret_enc  String?           @db.VarChar(512)
+  role             String            @db.VarChar(64)
+  status           admin_user_status @default(ACTIVE)
+  last_login_at    DateTime?         @db.Timestamptz(6)
+  created_at       DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime          @updatedAt @db.Timestamptz(6)
+}
+
+model categories {
+  id            String          @id @default(uuid()) @db.Uuid
+  code          String          @unique @db.VarChar(64)
+  name_en       String          @db.VarChar(120)
+  name_hi       String          @db.VarChar(120)
+  icon          String?         @db.VarChar(120)
+  type          category_type
+  status        category_status @default(ENABLED)
+  sort_order    Int             @default(0)
+  product_types Json?
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime        @updatedAt @db.Timestamptz(6)
+}
+
+model plans {
+  id             String       @id @default(uuid()) @db.Uuid
+  code           plan_code    @unique
+  name           String       @db.VarChar(120)
+  customer_limit Int
+  features       String[]
+  is_popular     Boolean      @default(false)
+  status         plan_status  @default(ACTIVE)
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime     @updatedAt @db.Timestamptz(6)
+
+  prices         plan_prices[]
+}
+
+model plan_prices {
+  id               String              @id @default(uuid()) @db.Uuid
+  plan_id          String              @db.Uuid
+  duration         plan_price_duration
+  price_paise      BigInt
+  store_product_id String?             @db.VarChar(200)
+  created_at       DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime            @updatedAt @db.Timestamptz(6)
+
+  plan             plans               @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+
+  @@unique([plan_id, duration])
+  @@index([duration])
+}
+
+model idempotency_keys {
+  idempotency_key String   @id @db.VarChar(120)
+  user_id         String?  @db.Uuid
+  method          String   @db.VarChar(10)
+  path            String   @db.VarChar(255)
+  request_hash    String   @db.VarChar(64)
+  response_status Int
+  response_body   Json
+  expires_at      DateTime @db.Timestamptz(6)
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([expires_at])
+}
+
+model outbox_events {
+  id             String             @id @default(uuid()) @db.Uuid
+  aggregate_type String             @db.VarChar(100)
+  aggregate_id   String?            @db.Uuid
+  event_type     String             @db.VarChar(120)
+  payload        Json
+  status         outbox_event_status @default(PENDING)
+  attempt_count  Int                @default(0)
+  available_at   DateTime           @default(now()) @db.Timestamptz(6)
+  dispatched_at  DateTime?          @db.Timestamptz(6)
+  last_error     String?            @db.VarChar(500)
+  created_at     DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime           @updatedAt @db.Timestamptz(6)
+
+  @@index([status, available_at])
+}

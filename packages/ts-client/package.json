@@ -1,0 +1,12 @@
+{
+  "name": "@supplybiz/ts-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/generated/openapi.ts",
+  "scripts": {
+    "lint": "echo \"No ts-client lint checks yet\"",
+    "test": "echo \"No ts-client tests yet\"",
+    "build": "echo \"No ts-client build yet\""
+  }
+}

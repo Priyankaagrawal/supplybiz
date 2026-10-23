@@ -1,0 +1,16 @@
+name: supplybiz_api_client
+description: Generated Dart API client for Supply Biz
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

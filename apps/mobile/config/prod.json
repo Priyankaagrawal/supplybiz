@@ -1,0 +1,5 @@
+{
+  "ENV_NAME": "prod",
+  "API_BASE_URL": "https://api.supplybiz.example/api/v1",
+  "FIREBASE_ENABLED": false
+}

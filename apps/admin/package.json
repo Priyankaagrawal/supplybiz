@@ -1,0 +1,12 @@
+{
+  "name": "@supplybiz/admin",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "echo \"TODO(T-150): Admin app scaffold pending\"",
+    "lint": "echo \"No admin lint checks yet\"",
+    "test": "echo \"No admin tests yet\"",
+    "build": "echo \"No admin build yet\"",
+    "typecheck": "echo \"No admin typecheck yet\""
+  }
+}

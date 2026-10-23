@@ -1,0 +1,87 @@
+openapi: 3.0.0
+paths:
+  /api/v1/version:
+    get:
+      operationId: VersionController_getVersion
+      summary: Get build metadata
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                    example: api
+                  version:
+                    type: string
+                    example: 0.1.0
+                  nodeEnv:
+                    type: string
+                    example: development
+                  buildTime:
+                    type: string
+                    nullable: true
+                  gitSha:
+                    type: string
+                    nullable: true
+                required:
+                  - service
+                  - version
+                  - nodeEnv
+      tags:
+        - Version
+  /api/v1/health/live:
+    get:
+      operationId: HealthController_getLive
+      summary: Liveness probe
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  timestamp:
+                    type: string
+                    format: date-time
+                required:
+                  - status
+                  - timestamp
+      tags:
+        - Health
+  /api/v1/health/ready:
+    get:
+      operationId: HealthController_getReady
+      summary: Readiness probe
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '503':
+          description: Service dependencies unavailable
+      tags:
+        - Health
+info:
+  title: Supply Biz API
+  description: ''
+  version: 0.1.0
+  contact: {}
+tags: []
+servers:
+  - url: http://localhost:3000
+components:
+  schemas: {}

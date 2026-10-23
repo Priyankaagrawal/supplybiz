@@ -1,0 +1,82 @@
+name: api-ci
+
+on:
+  pull_request:
+    paths:
+      - "apps/api/**"
+      - "contracts/**"
+      - "packages/ts-client/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "tools/codegen.sh"
+      - ".github/workflows/api-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/api/**"
+      - "contracts/**"
+      - "packages/ts-client/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "tools/codegen.sh"
+      - ".github/workflows/api-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter api lint
+
+      - name: Typecheck
+        run: pnpm --filter api typecheck
+
+      - name: Unit tests
+        run: pnpm --filter api test
+
+      - name: E2E tests
+        run: pnpm --filter api test:e2e
+
+      - name: OpenAPI + client generation diff check
+        run: |
+          tools/codegen.sh
+          if [ -n "$(git status --porcelain -- contracts/openapi.yaml packages/ts-client/src/generated/openapi.ts packages/api_client)" ]; then
+            echo "Generated contract/clients are out of date. Run tools/codegen.sh and commit changes."
+            git status --short -- contracts/openapi.yaml packages/ts-client/src/generated/openapi.ts packages/api_client
+            exit 1
+          fi
+
+      - name: Prisma migrate diff check
+        run: |
+          if [ -f apps/api/src/prisma/schema.prisma ]; then
+            pnpm --filter api prisma migrate diff --from-empty --to-schema-datamodel apps/api/src/prisma/schema.prisma
+          else
+            echo "Skipping Prisma diff: schema not scaffolded yet."
+          fi

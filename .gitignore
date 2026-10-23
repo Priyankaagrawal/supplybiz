@@ -1,0 +1,35 @@
+# Node / pnpm
+node_modules/
+.pnpm-store/
+
+# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.fvm/
+build/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.iml
+
+# OS
+.DS_Store
+
+# Build cache
+.turbo/
+**/.turbo/
+
+# Android local config
+**/local.properties
+
+# Env files
+*.env
+*.env.local
+*.env.*.local
+
+# Generated clients
+packages/api_client/.openapi-generator/

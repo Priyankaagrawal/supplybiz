@@ -1,0 +1,18 @@
+name: supplybiz
+repository: .
+
+packages:
+  - apps/mobile
+  - packages/ui_kit
+  - packages/api_client
+
+scripts:
+  analyze:
+    run: dart run melos exec -c 1 -- "if [ -f pubspec.yaml ]; then if command -v fvm >/dev/null 2>&1; then fvm flutter analyze; else flutter analyze; fi; fi"
+    description: Analyze Flutter packages.
+  test:
+    run: dart run melos exec -c 1 -- "if [ -f pubspec.yaml ]; then if command -v fvm >/dev/null 2>&1; then fvm flutter test; else flutter test; fi; fi"
+    description: Run Flutter package tests.
+  build_runner:
+    run: dart run melos exec -c 1 -- "if [ -f pubspec.yaml ] && grep -q \"build_runner\" pubspec.yaml; then if command -v fvm >/dev/null 2>&1; then fvm flutter pub run build_runner build --delete-conflicting-outputs; else flutter pub run build_runner build --delete-conflicting-outputs; fi; else echo \"Skipping build_runner for $(basename $(pwd))\"; fi"
+    description: Run Dart code generation.

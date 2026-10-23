@@ -1,0 +1,66 @@
+name: mobile-ci
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "melos.yaml"
+      - ".fvmrc"
+      - ".github/workflows/mobile-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/mobile/**"
+      - "packages/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - "melos.yaml"
+      - ".fvmrc"
+      - ".github/workflows/mobile-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get (workspace root)
+        run: flutter pub get
+
+      - name: Melos bootstrap
+        run: dart run melos bootstrap
+
+      - name: Build runner
+        run: dart run melos run build_runner
+
+      - name: Dart format check
+        run: dart format --set-exit-if-changed .
+
+      - name: Analyze
+        run: dart run melos run analyze
+
+      - name: Tests
+        run: dart run melos run test
+
+      - name: Build debug APK smoke
+        run: |
+          if [ -d apps/mobile/android/app ]; then
+            cd apps/mobile
+            flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json
+          else
+            echo "Skipping APK smoke build: Android app scaffold not created yet."
+          fi
