@@ -261,6 +261,9 @@
 | TC-504 | Outbox app kill | Kill during SENDING → on restart resent with same key; no duplicate | NFR-007 | E |
 | TC-505 | IDOR suite | Each endpoint with another tenant's ID → 404 | AUTH_SECURITY §3 | A |
 | TC-506 | Log redaction | Logs contain no mobile/OTP/token/PAN/bank patterns | AUTH_SECURITY §6 | U, A |
+| TC-507 | UI kit golden catalogs | All shared components render in EN/HI, widths 320/390dp, text scale 1.0/1.3, using bundled fonts | T-009, DESIGN §9 | W |
+| TC-508 | UI kit control interactions | Quantity bounds/repeat, loading suppression, search debounce/disposal, chart table access | T-009 | W |
+| TC-509 | Upload client preflight | Invalid type/size never reaches upload callback; valid metadata accepted; does not replace server TC-503 | T-009 | W |
 
 ## 23. Non-Functional
 | ID | Scenario | Expected | Refs | Level |

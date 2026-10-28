@@ -8,7 +8,14 @@
 | Related | [ROADMAP](ROADMAP.md), [AGENTS](AGENTS.md), [SRS](../02-requirements/SRS.md), [TEST_CASES](../07-testing/TEST_CASES.md) |
 
 ## 1. How to Use
-- Pick the lowest-numbered `TODO` task whose dependencies are `DONE`. Update **Status** in the same PR (`TODO → IN_PROGRESS → DONE`, or `BLOCKED (Q-xx)`).
+- **Default delivery cycle:** `TODO → IN_PROGRESS → READY_FOR_VERIFY → DONE`; use `BLOCKED (Q-xx)` when required decisions are unresolved.
+- **FAST implementation:** follow [PROMPTS.md](PROMPTS.md) §1; implement the smallest runnable slice and run targeted checks only. Do not mark DONE until manual verification and required DoD checks.
+- **RUN / VERIFY:** follow PROMPTS §4 to start the affected service/app; verify the task's `Done when` behavior manually. Fix defects with PROMPTS §5.
+- **FINALIZE:** after manual PASS, follow PROMPTS §6 for remaining tests, appropriate regression checks, docs and DONE status.
+- **Dependency policy:** downstream tasks may start only when prerequisite tasks are DONE or READY_FOR_VERIFY, unless explicitly approved for a stubbed integration.
+- **Agent efficiency:** inspect only the selected row, direct dependencies and linked requirement sections; avoid loading the entire documentation set.
+
+- Pick the lowest-numbered `TODO` task whose dependencies are `DONE` or `READY_FOR_VERIFY`. Update **Status** as work progresses (`TODO → IN_PROGRESS → READY_FOR_VERIFY → DONE`, or `BLOCKED (Q-xx)`).
 - **Done when** criteria are in addition to the global Definition of Done in [AGENTS §6](AGENTS.md#6-definition-of-done-every-task).
 - Layers: API = backend, MOB = Flutter, ADM = admin, OPS = infra/CI.
 - Number ranges are reserved per milestone; gaps are intentional for later insertion.
@@ -23,9 +30,9 @@
 | T-005 | Prisma schema v1 for identity tables + migrations + seed (categories, plans) | API | DATA_DESIGN §3.1, §3.8, §7 | T-004 | Migration applies; seed idempotent | DONE |
 | T-006 | Idempotency interceptor + `idempotency_keys` + outbox_events dispatcher | API | ARCHITECTURE §7 | T-005 | TC-500, TC-501 pass | DONE |
 | T-007 | OpenAPI generation + CI diff + Dart & TS client generation | OPS/API | ADR-013 | T-004 | `tools/codegen.sh` produces clients; CI fails on drift | DONE |
-| T-008 | Flutter app skeleton: flavors (dev/staging/prod), bootstrap, error zones, Firebase per flavor | MOB | MOBILE_STRATEGY §2 | T-001 | App runs on Android & iOS for 3 flavors | IN_PROGRESS |
-| T-009 | `ui_kit`: tokens, theme, fonts (Noto + Devanagari), core components (§4 of UI_UX_GUIDELINES) with goldens | MOB | UI_UX_GUIDELINES, DESIGN | T-008 | Golden tests EN/HI pass; a11y guideline tests pass | TODO |
-| T-010 | l10n setup (ARB en/hi), formatters (INR, IST dates) | MOB | ADR-019, RULE-01 | T-008 | Unit tests for `formatInr` (TC-502) | TODO |
+| T-008 | Flutter app skeleton: flavors (dev/staging/prod), bootstrap, error zones, Firebase per flavor | MOB | MOBILE_STRATEGY §2 | T-001 | App runs on Android & iOS for 3 flavors | READY_FOR_VERIFY (targeted checks pass; native runs and real Firebase configuration verification pending) |
+| T-009 | `ui_kit`: tokens, theme, fonts (Noto + Devanagari), core components (§4 of UI_UX_GUIDELINES) with goldens | MOB | UI_UX_GUIDELINES, DESIGN | T-008 | Golden tests EN/HI pass; a11y guideline tests pass | IN_PROGRESS (implemented; final Hindi contrast verification and golden refresh pending execution permission) |
+| T-010 | l10n setup (ARB en/hi), formatters (INR, IST dates) | MOB | ADR-019, RULE-01 | T-008 | Unit tests for `formatInr` (TC-502) | READY_FOR_VERIFY (focused formatter/localization tests pass; device verification pending) |
 | T-011 | Core network: dio, auth interceptor single-flight refresh, idempotency header, error mapping | MOB | MODULE_DESIGN §3.1, QUALITY §2.1 | T-007, T-008 | Unit tests for refresh race & mapping | TODO |
 | T-012 | Secure storage + drift DB with SQLCipher + migrations framework | MOB | ADR-006 | T-008 | DB opens encrypted; wipe on logout | TODO |
 | T-013 | Router with guards, shells placeholders, deep-link parser | MOB | MOBILE_STRATEGY §3–4 | T-008 | Guard unit tests; deep link test routes | TODO |

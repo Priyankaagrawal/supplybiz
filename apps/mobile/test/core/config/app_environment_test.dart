@@ -23,6 +23,40 @@ void main() {
       );
     });
 
+    test('rejects a missing environment name', () {
+      expect(
+        () => AppEnvironment.dev.validateCompileTimeConfig(
+          configuredName: '',
+          configuredApiBaseUrl: 'http://localhost:3000/api/v1',
+        ),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('rejects a native flavor different from the Dart entrypoint', () {
+      expect(
+        () => AppEnvironment.dev.validateCompileTimeConfig(
+          configuredName: 'dev',
+          configuredApiBaseUrl: 'http://localhost:3000/api/v1',
+          nativeFlavor: 'prod',
+        ),
+        throwsA(isA<StateError>()),
+      );
+    });
+
+    test('accepts matching native flavor, entrypoint and config', () {
+      for (final environment in AppEnvironment.values) {
+        expect(
+          () => environment.validateCompileTimeConfig(
+            configuredName: environment.name,
+            configuredApiBaseUrl: 'https://api.supplybiz.example/api/v1',
+            nativeFlavor: environment.name,
+          ),
+          returnsNormally,
+        );
+      }
+    });
+
     test('rejects a missing or non-HTTP API URL', () {
       expect(
         () => AppEnvironment.dev.validateCompileTimeConfig(

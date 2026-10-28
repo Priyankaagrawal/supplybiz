@@ -4,6 +4,13 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 ### Added
+- T-009 UI kit implementation (verification in progress): shared design tokens and light theme,
+  subset Noto Sans/Devanagari fonts (400–700), localized EN/HI controls, status badges,
+  cards, selectors, global states, uploads and accessible bar/pie charts.
+  Added component, accessibility and eight catalog golden tests; final Hindi helper/error
+  contrast verification and golden refresh remain pending execution permission.
+- Applied the UI kit theme/localization delegates to the mobile shell. Pinned Flutter
+  3.35.7 / minimum Dart 3.9 to match the existing workspace lockfile and golden toolchain.
 - Monorepo foundation scaffolding for T-001:
   - Root workspace/tooling files: `.editorconfig`, `.fvmrc`, `.nvmrc`, `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `melos.yaml`.
   - Folder skeleton aligned to `FOLDER_STRUCTURE` for `apps/`, `packages/`, `contracts/`, `infra/`, and `tools/`.

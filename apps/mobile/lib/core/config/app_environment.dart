@@ -17,14 +17,18 @@ enum AppEnvironment {
   void validateCompileTimeConfig({
     String? configuredName,
     String? configuredApiBaseUrl,
+    String? nativeFlavor,
   }) {
     final environmentName =
         configuredName ?? const String.fromEnvironment('ENV_NAME');
     final baseUrl = configuredApiBaseUrl ?? apiBaseUrl;
-    if (environmentName.isNotEmpty && environmentName != name) {
+    if (environmentName != name) {
       throw StateError(
-        'The $name flavor cannot start with ENV_NAME=$environmentName.',
+        'Set ENV_NAME to match the $name entrypoint.',
       );
+    }
+    if (nativeFlavor != null && nativeFlavor != name) {
+      throw StateError('The native flavor must match the $name entrypoint.');
     }
 
     final apiUri = Uri.tryParse(baseUrl);

@@ -64,6 +64,11 @@ Font: **Noto Sans** + **Noto Sans Devanagari** (bundled, subset). Respect OS tex
 | labelSmall | 12/16 | 500 | Badges, captions (min size) |
 | amountLarge | 24/32 | 700, tabular figures | Totals, metric values |
 
+Implementation note (T-009): status badges, bottom navigation labels, and field
+helper/error/counter text use 14 sp / 20 sp at weight 600 for Hindi legibility.
+The 12 sp token remains available for captions. All Material text styles,
+including field helper/error styles, inherit the bundled locale font and fallback.
+
 ### 3.4 Spacing, shape, elevation
 - 4-pt grid: 4, 8, 12, 16, 20, 24, 32. Screen padding 16; card padding 12–16; list gap 12.
 - Radius: cards 16, buttons 12, inputs 12, chips 20 (pill), bottom sheets 24 (top).

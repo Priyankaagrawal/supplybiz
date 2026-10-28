@@ -1,109 +1,98 @@
-# PROMPTS — Reusable Prompts for AI Agents
+# PROMPTS — Fast, Token-Efficient AI Implementation Workflow
 
-| Field | Value |
-|---|---|
-| Status | Draft v0.1 |
-| Owner | Technical Architect |
-| Last updated | 2026-10-19 |
-| Related | [AGENTS](AGENTS.md), [TASKS](TASKS.md) |
+## Operating rules (apply to every prompt)
+- Default to **FAST mode**: implement the smallest working scope, run targeted checks, then STOP for manual verification.
+- Read `AGENTS.md` only if not already loaded; consult `CONTEXT.md` or other documents only for specific missing requirements. Read relevant sections, never entire documentation trees.
+- Read the selected task row, its dependencies and only directly relevant FR/US/RULE/ADR/screen sections. Search for IDs before opening files.
+- Inspect existing implementation before proposing changes. Reuse patterns, utilities, generated clients, and UI kit.
+- No speculative architecture, unrelated refactors, broad repository scans, dependency upgrades, or repeated summaries.
+- Do not regenerate API clients unless the contract changed. Do not run all tests, golden matrices, builds for every platform, or CI locally unless requested.
+- Never silently bypass security, authorization, validation, migrations, data integrity, or required error handling. Use fakes only where already supported and clearly label them.
+- Commands: choose the narrowest available analyze/lint/test/build/run command. Report commands not executed honestly.
+- If a blocking requirement is unclear, ask one focused question; otherwise state a reasonable reversible assumption.
+- Limit final response to: result, files changed, commands/results, how to verify, blockers (max ~12 lines).
 
-Replace `{{…}}` placeholders. All prompts assume the agent follows [AGENTS](AGENTS.md).
-
-## 1. Implement a Task
-```
-You are implementing {{T-xxx}} in the Supply Biz monorepo.
-1. Read docs/05-ai-development/CONTEXT.md and AGENTS.md.
-2. Read the task row in docs/05-ai-development/TASKS.md and every referenced FR/US/RULE/S/ADR.
-3. List any open questions (Q-xx) that affect this task. If any block the core behaviour, stop and ask.
-4. Propose a short plan: files to create/modify (per FOLDER_STRUCTURE), API changes, DB migrations, tests (with TC IDs).
-5. Implement: contract/schema first → backend → codegen → mobile/admin.
-6. Add tests: unit, widget/e2e, authZ/IDOR, edge cases from SCREEN_SPECIFICATIONS §5.
-7. Run: {{commands from AGENTS §5}}. Fix all failures.
-8. Update TASKS status, CHANGELOG (Unreleased), and any doc whose behaviour changed.
-Output: summary, files changed, test results, remaining questions.
-```
-
-## 2. Implement a Screen
-```
-Implement screen {{S-X-nn}} for feature {{feature}}.
-Inputs: SCREEN_SPECIFICATIONS entry {{S-X-nn}}, UI_UX_GUIDELINES, DESIGN.md, related FR/US.
-Requirements:
-- Use only ui_kit Sb* components and theme tokens; no hex/magic numbers.
-- Implement loading (skeleton), empty, error (retry), offline, locked-by-plan, permission states as applicable.
-- Riverpod controller in presentation/controllers; repository via provider; no data-source calls from widgets.
-- Strings in app_en.arb and app_hi.arb; semantics labels; 48dp targets; text scale 200% safe.
-- Widget tests for each state + golden tests (EN/HI, 320dp & 390dp).
-- Add analytics events listed in QUALITY_OBSERVABILITY §4 for this screen.
+## 1. FAST — Implement one task (default)
+```text
+Implement {{T-xxx}} from TASKS.md in FAST mode.
+1. Read only its row, prerequisites, and directly relevant requirement sections; inspect existing code in the affected module.
+2. If blocked by a genuine missing decision or prerequisite, stop and say exactly what is needed.
+3. Implement the smallest complete, runnable vertical slice satisfying the task's core behavior; reuse existing conventions. For API changes, include required migration/contract updates and minimum auth/validation/idempotency safeguards where applicable.
+4. Add or update only focused tests needed for changed logic and critical failure/security cases. Run targeted formatter/analyzer/tests; fix failures caused by your changes.
+5. Do NOT run full suites, broad golden tests, unrelated codegen, comprehensive documentation updates, or extensive planning. Do not mark DONE yet.
+6. Update task status to READY_FOR_VERIFY when runnable; otherwise IN_PROGRESS or BLOCKED. Give exact commands and 3-5 manual verification steps.
+STOP. Wait for my verification before finalizing.
 ```
 
-## 3. Implement an API Endpoint
-```
-Implement {{METHOD path}} in module {{module}} per API_SPECIFICATION §{{n}} and SRS {{FR}}.
-- DTOs with class-validator (whitelist, forbidNonWhitelisted); Swagger decorators.
-- Derive vendorId/userId from token; never from body. Apply role, plan and KYC guards as specified.
-- Require Idempotency-Key for state-changing mobile endpoints.
-- Use Prisma transaction for multi-table writes; emit domain events via outbox.
-- Map business rule violations to the documented error codes.
-- Tests: unit (service rules RULE-xx), e2e (happy path, validation, 401/403, IDOR other-tenant → 404, idempotent replay, version conflict).
-- Regenerate contracts/openapi.yaml and clients.
+## 2. FAST — Implement one screen
+```text
+Implement screen {{S-X-nn}} for task {{T-xxx}} in FAST mode.
+Read only its screen spec, linked FR/US and relevant ui_kit examples. Reuse Sb* components, Riverpod and theme tokens. Wire to the existing repository/provider; do not invent APIs.
+Implement core happy path plus applicable loading, empty and error states; add offline/permission/plan states only when relevant. Use EN/HI l10n and basic accessibility semantics.
+Add one or two focused widget/controller tests; run targeted analyze/test. Do not run golden matrices or unrelated E2E now.
+Provide run route, verification steps and any known gaps. Set READY_FOR_VERIFY; STOP.
 ```
 
-## 4. Fix a Bug
-```
-Bug: {{description}} (observed in {{env/version/platform}}, steps: {{steps}}).
-1. Reproduce with a failing automated test first (unit/widget/e2e) referencing the related TC/FR.
-2. Identify root cause; explain it in 2–3 sentences.
-3. Apply the minimal fix consistent with docs; do not refactor unrelated code.
-4. Confirm the test passes and the full suite is green.
-5. If the docs were wrong or ambiguous, propose the doc fix in the same PR.
-Output: root cause, fix summary, tests added.
+## 3. FAST — Implement one API endpoint
+```text
+Implement {{METHOD path}} for {{T-xxx}} per relevant API spec/FR.
+Inspect existing module, DTO, guards and Prisma patterns. Implement DTO validation, authZ/tenant isolation, documented errors, and transaction/idempotency/outbox where relevant. Update schema/migration and OpenAPI/generated clients ONLY if changed.
+Add focused service/e2e tests: success, invalid input, unauthorized/other-tenant, and relevant replay/conflict cases. Run only related tests and typecheck. Provide curl/example request and verification steps. STOP before broad regression.
 ```
 
-## 5. Refactor
-```
-Refactor {{area}} to {{goal}} without changing behaviour.
-- Confirm existing tests cover the behaviour; add characterization tests if not.
-- Keep public interfaces stable unless the goal requires otherwise (then update all callers).
-- Respect module boundaries (MODULE_DESIGN §2.1, §3 rules).
-- No functional changes, no new dependencies unless justified.
-Output: before/after structure, test evidence.
+## 4. RUN — Start and troubleshoot
+```text
+Run/check {{T-xxx}} on {{platform/environment}} using existing project scripts.
+First inspect the relevant package scripts/README. Execute the minimum commands to start it. Fix only blockers introduced by this task or preventing local run. Do not refactor or add features.
+Report exact commands, process/result, URL/device route, and anything I must configure manually. If execution is unavailable, give precise commands without claiming success.
 ```
 
-## 6. Write Tests for Existing Code
-```
-Write tests for {{file/module}} covering TC IDs {{TC-xxx…}} from TEST_CASES.md.
-- Cover happy path, boundaries, invalid input, authZ, offline/retry where applicable.
-- Use fakes for integrations (FakeKyc, ConsoleOtp, FakeBilling, LogPush).
-- Deterministic: inject clock (IST), no real network, no sleeps.
-Report coverage before/after.
+## 5. FIX — After manual testing
+```text
+Fix this observed issue in {{T-xxx}}: {{steps, expected, actual, logs}}.
+Inspect only implicated code; reproduce with one focused test when feasible; apply the minimal fix; rerun targeted checks. Do not modify unrelated files or expand scope. Report root cause, changed files and how to retest.
 ```
 
-## 7. Database Migration
-```
-Create a Prisma migration for {{change}} per DATA_DESIGN.
-- Expand/contract for destructive changes; backfill script if needed.
-- Add indexes/constraints from DATA_DESIGN; keep ledger append-only grants intact.
-- Update DATA_DESIGN.md if the model changes. Provide rollback notes.
-```
-
-## 8. Review a Pull Request
-```
-Review PR {{link/diff}} against AGENTS.md DoD and CODING_STANDARDS.md.
-Check: requirement coverage (FR/US/TC IDs), security (authZ, IDOR, input validation, PII in logs), money in paise, idempotency, l10n EN/HI, accessibility, states, tests quality, generated code untouched, docs updated.
-Output: blocking issues, non-blocking suggestions, questions.
+## 6. FINALIZE — Only after I confirm manual verification
+```text
+Finalize {{T-xxx}} after manual verification PASS.
+Review the task's Done when criteria and relevant AGENTS DoD. Add missing high-value tests, required security/edge cases and applicable widget/golden/E2E checks; run the appropriate broader checks for changed layers. Update CHANGELOG and affected docs only when necessary. Mark DONE only if criteria and checks are satisfied; otherwise report remaining gaps and keep READY_FOR_VERIFY/IN_PROGRESS.
+Summarize results concisely.
 ```
 
-## 9. Clarify a Requirement
-```
-I found ambiguity in {{doc §}} regarding {{topic}}.
-Options: A) … B) … C) …
-Impact on: {{FR/US/T/TC}}.
-Recommendation: {{option}} because {{reason}}.
-Please confirm; I will record the decision in SCOPE (Q-xx) or DECISIONS (ADR).
+## 7. Focused refactor
+```text
+Refactor {{area}} for {{goal}} with no behavior change. Inspect only affected code, preserve interfaces, run relevant existing tests, and report changed files and results. Avoid unrelated cleanup.
 ```
 
-## 10. Generate Release Notes
+## 8. Focused tests
+```text
+Add focused tests for {{file/module}} covering {{TC IDs}}. Prioritize core behavior, boundary and security cases. Use existing fakes, deterministic clocks and no real network. Run only these tests; report results and uncovered gaps.
 ```
-Generate release notes for {{version}} from CHANGELOG.md Unreleased and merged PR titles.
-Produce: (1) CHANGELOG section (Keep a Changelog), (2) store "What's new" text ≤ 500 chars in EN and HI, user-facing only, no internal IDs.
+
+## 9. Migration
+```text
+Implement Prisma migration for {{change}} according to the relevant DATA_DESIGN section. Include constraints/indexes, safe backfill/expand-contract if needed, and rollback notes. Run targeted migration validation. Do not rewrite unrelated schema.
 ```
+
+## 10. Review
+```text
+Review {{diff/PR}} for functional regressions, authZ/IDOR, input validation, money precision, idempotency, localization and tests. Inspect changed files and directly related code only. Return blockers first with file/line, then concise suggestions.
+```
+
+## 11. Clarify
+```text
+Clarify {{Q-xx/topic}} using only the relevant spec sections. State the ambiguity, 2-3 options, impact, and recommended reversible choice. Ask for one decision; do not implement until resolved if core behavior is blocked.
+```
+
+## 12. Release notes
+```text
+Generate {{version}} release notes from CHANGELOG Unreleased and provided merged PRs. Include concise changelog and EN/HI user-facing store text (max 500 chars each). Do not scan unrelated git history.
+```
+
+## Suggested daily usage
+1. `Implement T-xxx from TASKS.md using PROMPTS.md section 1. Stop when ready to run.`
+2. `Run T-xxx using PROMPTS.md section 4.`
+3. Test manually; use section 5 for any bugs.
+4. `Manual verification PASS. Finalize T-xxx using PROMPTS.md section 6.`
+

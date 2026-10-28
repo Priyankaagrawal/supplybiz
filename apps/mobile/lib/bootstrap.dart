@@ -2,43 +2,45 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'core/config/app_environment.dart';
+import 'core/utils/dates.dart';
 
 Future<void> bootstrap(AppEnvironment environment) async {
-  runZonedGuarded(
+  await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      FlutterError.onError = (details) {
-        FlutterError.presentError(details);
+      FlutterError.onError = (_) {
+        debugPrint('Supply Biz: framework error.');
       };
 
       try {
-        environment.validateCompileTimeConfig();
+        environment.validateCompileTimeConfig(nativeFlavor: appFlavor);
+        await initializeDateFormatters();
         if (environment.firebaseEnabled) {
           try {
             await Firebase.initializeApp();
-          } catch (error, stackTrace) {
+          } catch (_, stackTrace) {
             Error.throwWithStackTrace(
               StateError(
                 'Firebase initialization failed for the ${environment.name} '
-                'flavor. Verify its native Firebase configuration: $error',
+                'flavor. Verify its native Firebase configuration.',
               ),
               stackTrace,
             );
           }
         }
         runApp(SupplyBizApp(environment: environment));
-      } catch (error, stackTrace) {
-        debugPrint('Application startup failed: $error');
-        debugPrintStack(stackTrace: stackTrace);
-        runApp(StartupFailureApp(error: error));
+      } catch (_) {
+        // Error payloads can contain tokens, URLs or provider details.
+        debugPrint('Supply Biz: application startup failed.');
+        runApp(const StartupFailureApp());
       }
     },
-    (error, stackTrace) {
-      debugPrint('Uncaught application error: $error');
-      debugPrintStack(stackTrace: stackTrace);
+    (_, __) {
+      debugPrint('Supply Biz: uncaught application error.');
     },
   );
 }

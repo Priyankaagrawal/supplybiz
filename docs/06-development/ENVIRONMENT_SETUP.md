@@ -11,7 +11,7 @@
 | Tool | Version | Notes |
 |---|---|---|
 | macOS (for iOS) / Linux / Windows (Android + backend only) | — | iOS builds require macOS |
-| FVM | latest | Flutter version pinned in `.fvmrc` (stable at M0) |
+| FVM | latest | Flutter 3.35.7 pinned in `.fvmrc`; Dart 3.9 required by the workspace/Melos lockfile |
 | Flutter / Dart | pinned | via `fvm flutter` |
 | Xcode | latest stable supported by pinned Flutter | + CocoaPods |
 | Android Studio + SDK | latest stable; compileSdk = latest; minSdk 24 | JDK 17 |
@@ -78,7 +78,7 @@ Validated at startup with zod; app refuses to start on missing/invalid keys or i
 `API_BASE_URL`, `SESSION_SECRET` (secret), `SENTRY_DSN`.
 
 ### 4.3 Mobile (`apps/mobile/config/<flavor>.json`, **non-secret only**)
-`API_BASE_URL`, `LINK_DOMAIN`, `ENV_NAME`, `FIREBASE_ENABLED`, `SENTRY/Crashlytics flags`, `MAPS_API_KEY` (restricted by package/bundle ID — treated as public), `CERT_PINS` (release). Firebase is disabled in the checked-in flavor configs. To enable it for a configured Firebase project, set `FIREBASE_ENABLED` to `true` and provide that flavor's native config: `android/app/src/<flavor>/google-services.json` and `ios/config/<flavor>/GoogleService-Info.plist`. Android applies Google Services when all three flavor files exist. Never create placeholder Firebase credentials; a Firebase-enabled app without valid native config displays a startup error.
+`API_BASE_URL`, `LINK_DOMAIN`, `ENV_NAME`, `FIREBASE_ENABLED`, `SENTRY/Crashlytics flags`, `MAPS_API_KEY` (restricted by package/bundle ID — treated as public), `CERT_PINS` (release). Firebase is disabled in the checked-in flavor configs. To enable it for a configured Firebase project, set `FIREBASE_ENABLED` to `true` and provide that flavor's native config: `android/app/src/<flavor>/google-services.json` and `ios/config/<flavor>/GoogleService-Info.plist`. Android applies Google Services when any flavor file exists and processes only flavors with a configuration file. Never create placeholder Firebase credentials; a Firebase-enabled app without valid native config displays a startup error.
 
 Android application IDs are `in.supplybiz.mobile.dev`, `in.supplybiz.mobile.staging`, and `in.supplybiz.mobile`. iOS uses matching bundle IDs and shared `dev`, `staging`, and `prod` schemes.
 

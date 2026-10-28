@@ -1,0 +1,8 @@
+{
+  "@@locale": "en",
+  "appName": "Supply Biz",
+  "developmentEnvironment": "Development environment",
+  "stagingEnvironment": "Staging environment",
+  "productionEnvironment": "Production environment",
+  "startupError": "Something went wrong. Please try again."
+}

@@ -1,0 +1,9 @@
+{
+  "@@locale": "hi",
+  "@@x-reviewNeeded": true,
+  "appName": "Supply Biz",
+  "developmentEnvironment": "डेवलपमेंट परिवेश",
+  "stagingEnvironment": "स्टेजिंग परिवेश",
+  "productionEnvironment": "प्रोडक्शन परिवेश",
+  "startupError": "कुछ गलत हुआ। कृपया फिर कोशिश करें।"
+}

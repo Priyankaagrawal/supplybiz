@@ -92,3 +92,13 @@ Ask a concise question listing options and your recommendation. Record answers i
 - Implementing anything before the documentation set is approved.
 - Implementing features marked blocked by Q-03, Q-05, Q-06, Q-07, Q-14 beyond stubs/flags.
 - Publishing builds to stores or deploying to production.
+
+## 10. Admin UI Rules (`apps/admin`)
+- These rules apply only to the Next.js admin app; they do not apply to the Flutter mobile app or NestJS API.
+- Use strict TypeScript and explicit types for component props and function parameters. Do not use `any` or broad types to bypass the compiler.
+- Use Next.js App Router Server Components by default. Add `"use client"` only to the smallest component boundary that needs browser interactivity.
+- Use Tailwind utility classes for styling; do not add raw inline CSS styles.
+- Keep components focused and reusable. Keep UI presentation separate from API/data-access utilities; use the generated TypeScript client through the documented server-side data-access patterns.
+- Do not expose admin tokens to the browser. Follow the session-cookie/BFF and authorization requirements in [DECISIONS](DECISIONS.md) and [CODING_STANDARDS](../06-development/CODING_STANDARDS.md).
+- Use the workspace package manager (`pnpm`), not `npm`, for admin commands. The current admin scripts are placeholders; do not treat them as verification until T-150 implements real checks. Run the available package scripts after that task is complete.
+- Never push directly to `main` or `master`; prepare a descriptive pull request and follow the repository's commit and PR conventions in §7.

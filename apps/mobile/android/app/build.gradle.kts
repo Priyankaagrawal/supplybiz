@@ -8,8 +8,18 @@ plugins {
 val firebaseConfigs = listOf("dev", "staging", "prod").map {
     file("src/$it/google-services.json")
 }
-if (firebaseConfigs.all { it.isFile }) {
+if (firebaseConfigs.any { it.isFile }) {
     pluginManager.apply("com.google.gms.google-services")
+    tasks.configureEach {
+        if (name.startsWith("process") && name.endsWith("GoogleServices")) {
+            val flavor = listOf("dev", "staging", "prod").firstOrNull {
+                name.startsWith("process" + it.replaceFirstChar { char -> char.uppercase() })
+            }
+            if (flavor != null) {
+                enabled = file("src/$flavor/google-services.json").isFile
+            }
+        }
+    }
 }
 
 android {
