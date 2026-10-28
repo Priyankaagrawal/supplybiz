@@ -35,7 +35,7 @@
 | T-010 | l10n setup (ARB en/hi), formatters (INR, IST dates) | MOB | ADR-019, RULE-01 | T-008 | Unit tests for `formatInr` (TC-502) | READY_FOR_VERIFY (focused formatter/localization tests pass; device verification pending) |
 | T-011 | Core network: dio, auth interceptor single-flight refresh, idempotency header, error mapping | MOB | MODULE_DESIGN §3.1, QUALITY §2.1 | T-007, T-008 | Unit tests for refresh race & mapping | READY_FOR_VERIFY (focused network/localization checks pass; live session integration belongs to T-015) |
 | T-012 | Secure storage + drift DB with SQLCipher + migrations framework | MOB | ADR-006 | T-008 | DB opens encrypted; wipe on logout | READY_FOR_VERIFY (6 focused storage tests and targeted analysis pass; native encryption/wipe verification pending) |
-| T-013 | Router with guards, shells placeholders, deep-link parser | MOB | MOBILE_STRATEGY §3–4 | T-008 | Guard unit tests; deep link test routes | TODO |
+| T-013 | Router with guards, shells placeholders, deep-link parser | MOB | MOBILE_STRATEGY §3–4 | T-008 | Guard unit tests; deep link test routes | READY_FOR_VERIFY (20 focused router/app-shell tests and targeted analysis pass; provisional A-17 customer tabs approved; native link registration awaits Q-33) |
 | T-014 | OTP providers adapters (console, SMS, WhatsApp) + OTP service + rate limits | API | FR-001–FR-003, AUTH_SECURITY §2.1 | T-005 | TC-001–TC-006 pass (API) | TODO |
 | T-015 | Sessions: tokens, refresh rotation, reuse detection, logout/all, `/me`, roles, active role, consent | API | FR-005, FR-006, FR-009 | T-014 | TC-007–TC-010 pass | TODO |
 | T-016 | Mobile auth flow S-COM-01–S-COM-05, language select, consent | MOB | US-001–US-005, US-007 | T-009–T-015 | Patrol E2E login both platforms | TODO |

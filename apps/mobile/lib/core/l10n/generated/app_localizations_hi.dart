@@ -65,4 +65,83 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get networkServer =>
       'सेवा अभी उपलब्ध नहीं है। कृपया कुछ देर बाद फिर कोशिश करें।';
+
+  @override
+  String get routeLoading => 'लोड हो रहा है';
+
+  @override
+  String get routeLanguage => 'अपनी भाषा चुनें';
+
+  @override
+  String get routeLogin => 'साइन इन करें';
+
+  @override
+  String get routeOtp => 'मोबाइल नंबर सत्यापित करें';
+
+  @override
+  String get routeRole => 'अपनी भूमिका चुनें';
+
+  @override
+  String get routeOnboarding => 'अपना व्यवसाय सेट अप करें';
+
+  @override
+  String get routeUpdate => 'अपडेट आवश्यक है';
+
+  @override
+  String get routeLegal => 'नियम और गोपनीयता';
+
+  @override
+  String get routeNotifications => 'सूचनाएँ';
+
+  @override
+  String get routeSettings => 'सेटिंग्स';
+
+  @override
+  String get routeSwitchRole => 'भूमिका बदलें';
+
+  @override
+  String get routeSwitchMessage =>
+      'यह लिंक खोलने के लिए आवश्यक भूमिका में स्विच करें।';
+
+  @override
+  String get routeHomeAction => 'होम पर वापस जाएँ';
+
+  @override
+  String get routePlaceholder => 'यह स्क्रीन तैयार की जा रही है।';
+
+  @override
+  String get navHome => 'होम';
+
+  @override
+  String get navOrders => 'ऑर्डर';
+
+  @override
+  String get navProducts => 'उत्पाद';
+
+  @override
+  String get navCustomers => 'ग्राहक';
+
+  @override
+  String get navMore => 'अधिक';
+
+  @override
+  String get navKhata => 'Khata';
+
+  @override
+  String get navServices => 'सेवाएँ';
+
+  @override
+  String get navProfile => 'प्रोफ़ाइल';
+
+  @override
+  String get routeOrder => 'ऑर्डर विवरण';
+
+  @override
+  String get routeSubscription => 'सदस्यता विवरण';
+
+  @override
+  String get routeVendor => 'विक्रेता विवरण';
+
+  @override
+  String get routeLedger => 'विक्रेता Khata';
 }

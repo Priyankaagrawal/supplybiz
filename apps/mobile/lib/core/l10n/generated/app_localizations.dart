@@ -199,6 +199,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The service is temporarily unavailable. Please try again later.'**
   String get networkServer;
+
+  /// No description provided for @routeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get routeLoading;
+
+  /// No description provided for @routeLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your language'**
+  String get routeLanguage;
+
+  /// No description provided for @routeLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get routeLogin;
+
+  /// No description provided for @routeOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify mobile number'**
+  String get routeOtp;
+
+  /// No description provided for @routeRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your role'**
+  String get routeRole;
+
+  /// No description provided for @routeOnboarding.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your business'**
+  String get routeOnboarding;
+
+  /// No description provided for @routeUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get routeUpdate;
+
+  /// No description provided for @routeLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy'**
+  String get routeLegal;
+
+  /// No description provided for @routeNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get routeNotifications;
+
+  /// No description provided for @routeSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get routeSettings;
+
+  /// No description provided for @routeSwitchRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch role'**
+  String get routeSwitchRole;
+
+  /// No description provided for @routeSwitchMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to the required role to open this link.'**
+  String get routeSwitchMessage;
+
+  /// No description provided for @routeHomeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to home'**
+  String get routeHomeAction;
+
+  /// No description provided for @routePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen is being prepared.'**
+  String get routePlaceholder;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get navOrders;
+
+  /// No description provided for @navProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get navProducts;
+
+  /// No description provided for @navCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers'**
+  String get navCustomers;
+
+  /// No description provided for @navMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get navMore;
+
+  /// No description provided for @navKhata.
+  ///
+  /// In en, this message translates to:
+  /// **'Khata'**
+  String get navKhata;
+
+  /// No description provided for @navServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get navServices;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @routeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order details'**
+  String get routeOrder;
+
+  /// No description provided for @routeSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription details'**
+  String get routeSubscription;
+
+  /// No description provided for @routeVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor details'**
+  String get routeVendor;
+
+  /// No description provided for @routeLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor Khata'**
+  String get routeLedger;
 }
 
 class _AppLocalizationsDelegate

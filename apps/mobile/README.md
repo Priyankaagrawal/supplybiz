@@ -157,3 +157,55 @@ T-012 manual verification:
 3. Launch the dev flavor; restart and confirm startup succeeds with the same DB.
 4. Review the native test's wipe assertions: DB/sidecars and secure secrets are
    removed. End-to-end logout button verification follows T-015/T-016.
+
+T-013 navigation foundation:
+- `SupplyBizApp` uses `MaterialApp.router` and owns/disposes its router. Inject
+  one `RoutingController` to supply immutable `RouteAccess` updates from the
+  real session/config integrations in T-015/T-016/T-017. The default state is
+  signed out with no language selected; launch shows the language placeholder.
+  Screens are placeholders, with no fake sign-in, onboarding or role changes.
+- Guards enforce force-update, initialization, language/auth, selected role,
+  vendor onboarding resume step, and active-role matching. Legal is accessible
+  without sign-in; force-update still blocks it. The mismatch placeholder offers
+  Back to home; the session owner must explicitly change the active role before
+  a pending link can resume. API ownership/authZ remains enforced server-side.
+- Both roles have five stateful branches. The A-17 customer tabs were explicitly
+  approved as provisional placeholders for this task; Q-10 remains open for
+  final product navigation. Switching tabs retains each stack, reselecting pops
+  that branch to its root, and Back at a non-Home root selects Home.
+- Use generated typed routes from `core/router/routes.dart` in widgets.
+  External/push links enter through `RoutingController.openLink(raw)`; parser
+  targets and the router accept `/o/{uuid}`, `/v/{uuid}`, `/s/{uuid}` and
+  `/khata/{uuid}`, plus `supplybiz://` equivalents. Pending navigation stays in
+  memory through login/role/onboarding gates, is consumed once, and is cleared
+  on logout. It is not persisted across process death. IDs never grant ownership.
+- Q-33: HTTPS links are disabled until exact hosts are supplied through
+  `DeepLinkParser(trustedHosts: {...})`. No production domain, assetlinks/AASA or
+  native URL registration is invented. Malformed/unknown links resolve Home
+  through the guards. Q-14 referral attribution remains a Home fallback stub.
+- Added dependencies: go_router 16.2.5, go_router_builder 3.0.0 and build_runner
+  2.5.4 (BSD-3-Clause), pinned in the workspace lockfile. They implement the
+  architecture's typed router choice with Dart 3.9-compatible tooling. The
+  generator/build runner are development-only; native bundle impact is not
+  measured. Dependency updates require normal review.
+
+Executed commands from `apps/mobile` using the cached Flutter 3.35.7 SDK
+(`/tmp/supplybiz-sdk/flutter/bin`, `PUB_CACHE=/tmp/supplybiz-pub-cache`):
+```sh
+flutter pub get
+dart run build_runner build --build-filter=lib/core/router/routes.g.dart
+flutter gen-l10n
+dart analyze lib/app.dart lib/core/router test/core/router
+flutter test --no-pub test/core/router test/widget_test.dart --reporter expanded
+```
+Results: generated route/l10n output, clean targeted analysis, 20 passing tests.
+T-013 manual verification (native app execution has not been performed):
+1. Run the existing dev flavor command; confirm the localized language
+   placeholder and environment label. Authentication UI follows T-016.
+2. Run the focused router tests; verify all four link types reach the correct
+   role's detail placeholders and pending links resume after the guards clear.
+3. Check the tab-history test: navigate to an order, switch Home/Orders,
+   reselect Orders, then Back; confirm retained detail, branch root, then Home.
+4. Check mismatch and malformed-link tests: no automatic role change, cancel
+   returns Home, and invalid IDs/unknown links never show raw URLs or errors.
+5. Check the Hindi/200% widget test and 48dp/labelled-target accessibility checks.
