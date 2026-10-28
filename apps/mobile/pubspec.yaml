@@ -13,11 +13,24 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  dio: ^5.9.0
+  uuid: ^4.5.1
+  drift: 2.31.0
+  encrypted_drift:
+    git:
+      url: https://github.com/simolus3/drift.git
+      ref: c1ebd28c4a0e5fc85290b64b37adfe25afd1f42b
+      path: extras/encryption
+  flutter_secure_storage: ^10.0.0
+  path: ^1.9.1
+  path_provider: ^2.1.5
   firebase_core: ^3.15.2
   ui_kit:
     path: ../../packages/ui_kit
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0

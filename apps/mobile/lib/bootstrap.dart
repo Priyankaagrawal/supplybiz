@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'core/config/app_environment.dart';
+import 'core/storage/app_storage.dart';
 import 'core/utils/dates.dart';
 
 Future<void> bootstrap(AppEnvironment environment) async {
@@ -19,6 +20,7 @@ Future<void> bootstrap(AppEnvironment environment) async {
       try {
         environment.validateCompileTimeConfig(nativeFlavor: appFlavor);
         await initializeDateFormatters();
+        await AppStorage.instance.initialize();
         if (environment.firebaseEnabled) {
           try {
             await Firebase.initializeApp();

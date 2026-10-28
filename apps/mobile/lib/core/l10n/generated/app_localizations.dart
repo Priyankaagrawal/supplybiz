@@ -127,6 +127,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong. Please try again.'**
   String get startupError;
+
+  /// No description provided for @networkUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your internet connection and try again.'**
+  String get networkUnavailable;
+
+  /// No description provided for @networkTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The request timed out. Please try again.'**
+  String get networkTimeout;
+
+  /// No description provided for @networkUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again to continue.'**
+  String get networkUnauthorized;
+
+  /// No description provided for @networkForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have access to this action.'**
+  String get networkForbidden;
+
+  /// No description provided for @networkPlanLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade your plan to use this feature.'**
+  String get networkPlanLocked;
+
+  /// No description provided for @networkNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This item is no longer available.'**
+  String get networkNotFound;
+
+  /// No description provided for @networkConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This item has changed. Refresh and try again.'**
+  String get networkConflict;
+
+  /// No description provided for @networkVersionConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A newer version is available. Refresh and try again.'**
+  String get networkVersionConflict;
+
+  /// No description provided for @networkValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the entered details and try again.'**
+  String get networkValidation;
+
+  /// No description provided for @networkBusinessRule.
+  ///
+  /// In en, this message translates to:
+  /// **'This action could not be completed. Check the details and try again.'**
+  String get networkBusinessRule;
+
+  /// No description provided for @networkRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait and try again.'**
+  String get networkRateLimited;
+
+  /// No description provided for @networkServer.
+  ///
+  /// In en, this message translates to:
+  /// **'The service is temporarily unavailable. Please try again later.'**
+  String get networkServer;
 }
 
 class _AppLocalizationsDelegate
