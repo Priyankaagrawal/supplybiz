@@ -67,6 +67,17 @@ REST contract between the Flutter app / admin panel and the NestJS API. The mach
 | PUT | `/me/active-role` | `{ role }` |
 | PUT | `/me/devices/current` | push token, notification permission, app/os version |
 | POST | `/me/deletion` | `{ otp }` → schedules deletion |
+
+T-014 send boundary: `Idempotency-Key` and `X-Device-Id` (stable installation
+identifier, 1–128 ASCII letters/digits/hyphens/underscores) are required headers.
+Mobile accepts the ten Indian digits or the same number prefixed by `+91`.
+The server uses the socket IP rather than a client-supplied forwarded-IP header.
+Rate rejection returns `429 RATE_LIMITED` with a `Retry-After` seconds header.
+Until Q-09 is resolved, real SMS/WhatsApp delivery returns
+`503 OTP_PROVIDER_UNAVAILABLE`; explicitly enabled development/test console mode
+simulates delivery without exposing OTPs. Redis failures return `503 OTP_UNAVAILABLE`.
+OTP verification is an internal, single-use service in T-014; the public verify
+endpoint, user/session creation and tokens belong to T-015.
 | GET | `/config` | public: minVersion, feature flags, categories, legal versions (cacheable) |
 
 ### 4.2 Vendor onboarding, settings (FR-010–FR-018, FR-075, FR-082–FR-085, FR-130–FR-132)

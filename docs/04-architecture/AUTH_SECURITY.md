@@ -31,7 +31,7 @@ sequenceDiagram
 | Control | Value |
 |---|---|
 | OTP generation | CSPRNG 6 digits; stored as HMAC-SHA256 with server pepper; never logged |
-| Limits | RULE-19 + per-IP 20 sends/hour + per-device limits; exponential lockout |
+| Limits | RULE-19 + per-IP 20 sends/hour + per-device 5 sends/hour; after an OTP exhausts its 5 attempts, mobile send lockout is 30 s × 2 per exhaustion, capped at 1 h; escalation resets after 1 h without another exhaustion. Device/base/cap are configurable (T-014 defaults approved 2026-10-28). |
 | Anti-enumeration | Same response for new/existing numbers |
 | SMS pumping protection | Allow only +91 numbers; per-prefix anomaly alerting; CAPTCHA/Play Integrity/App Attest challenge on abuse (proposed) |
 | Autofill | Android SMS Retriever (11-char app hash in template); iOS `oneTimeCode` content type |

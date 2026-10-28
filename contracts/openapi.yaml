@@ -75,6 +75,43 @@ paths:
           description: Service dependencies unavailable
       tags:
         - Health
+  /api/v1/auth/otp/send:
+    post:
+      operationId: OtpController_send
+      summary: Send OTP (development simulation until Q-09 is resolved)
+      parameters:
+        - name: X-Device-Id
+          in: header
+          description: Stable installation identifier, 1–128 ASCII letters, digits, hyphens or underscores.
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendOtpDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendOtpResponse'
+        '400':
+          description: Invalid request or missing device/idempotency header.
+        '429':
+          description: RATE_LIMITED; Retry-After header is seconds until retry.
+        '503':
+          description: OTP delivery disabled or unavailable.
+      tags:
+        - auth
 info:
   title: Supply Biz API
   description: ''
@@ -84,4 +121,37 @@ tags: []
 servers:
   - url: http://localhost:3000
 components:
-  schemas: {}
+  schemas:
+    SendOtpDto:
+      type: object
+      properties:
+        mobile:
+          type: string
+          pattern: ^(?:\+91)?[6-9]\d{9}$
+        channel:
+          type: string
+          enum:
+            - SMS
+            - WHATSAPP
+          description: Defaults to SMS.
+        appHash:
+          type: string
+          pattern: ^[A-Za-z0-9+/]{11}$
+      required:
+        - mobile
+    SendOtpResponse:
+      type: object
+      properties:
+        resendAfterSec:
+          type: integer
+          minimum: 30
+          maximum: 30
+          example: 30
+        expiresInSec:
+          type: integer
+          minimum: 300
+          maximum: 300
+          example: 300
+      required:
+        - resendAfterSec
+        - expiresInSec

@@ -1,10 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { Request, Response } from "express";
 import { REQUEST_ID_HEADER } from "./request-id.middleware";
 
@@ -34,6 +28,15 @@ export class ProblemDetailsFilter implements ExceptionFilter {
       const title = this.getTitle(status, responseBody);
       const code = this.getCode(status, responseBody);
       const detail = this.getDetail(responseBody);
+      const retryAfter = responseBody.retryAfterSec;
+      if (
+        status === HttpStatus.TOO_MANY_REQUESTS &&
+        typeof retryAfter === "number" &&
+        Number.isInteger(retryAfter) &&
+        retryAfter > 0
+      ) {
+        response.setHeader("Retry-After", String(retryAfter));
+      }
 
       response.status(status).json({
         type: `https://docs.supplybiz.app/errors/${code}`,

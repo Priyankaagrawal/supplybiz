@@ -14,6 +14,7 @@ import { IdempotencyService } from "./modules/idempotency/idempotency.service";
 import { IdempotencyTestController } from "./modules/idempotency/idempotency-test.controller";
 import { IdempotencyTestService } from "./modules/idempotency/idempotency-test.service";
 import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
+import { AuthModule } from "./modules/auth/auth.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
       },
     }),
     HealthModule,
+    AuthModule,
   ],
   controllers: [VersionController, IdempotencyTestController],
   providers: [

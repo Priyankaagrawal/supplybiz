@@ -10,6 +10,7 @@ on:
       - "pnpm-workspace.yaml"
       - "package.json"
       - "tools/codegen.sh"
+      - "tools/openapi/**"
       - ".github/workflows/api-ci.yml"
   push:
     branches:
@@ -22,6 +23,7 @@ on:
       - "pnpm-workspace.yaml"
       - "package.json"
       - "tools/codegen.sh"
+      - "tools/openapi/**"
       - ".github/workflows/api-ci.yml"
   workflow_dispatch:
 
@@ -48,6 +50,13 @@ jobs:
         uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
+
+      - name: Setup Flutter for generated client serializers
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          channel: stable
+          cache: true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

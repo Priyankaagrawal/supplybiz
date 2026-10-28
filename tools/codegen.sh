@@ -64,8 +64,27 @@ if [ "$ts_only" = false ]; then
     -g dart-dio \
     -i "$OPENAPI_SPEC" \
     -o "$DART_OUT" \
+    --template-dir "$ROOT_DIR/tools/openapi/dart-dio" \
+    --global-property=apiTests=false,modelTests=false \
     --skip-validate-spec \
-    --additional-properties=pubName=supplybiz_api_client,pubVersion=0.1.0,serializationLibrary=json_serializable
+    --additional-properties=pubName=supplybiz_api_client,pubVersion=0.1.0,serializationLibrary=json_serializable,skipCopyWith=true
+
+  if command -v fvm >/dev/null 2>&1; then
+    flutter_runner=(fvm flutter)
+    dart_runner=(fvm dart)
+  elif command -v flutter >/dev/null 2>&1; then
+    flutter_runner=(flutter)
+    dart_runner=(dart)
+  else
+    echo "Flutter is required to resolve and generate Dart serializers. Use --ts-only to skip Dart." >&2
+    exit 1
+  fi
+  "${flutter_runner[@]}" pub get
+  (
+    cd "$DART_OUT"
+    "${dart_runner[@]}" run build_runner build --build-filter='lib/src/model/*.g.dart'
+  )
+  "${dart_runner[@]}" format "$DART_OUT/lib"
 fi
 
 echo "Code generation complete."

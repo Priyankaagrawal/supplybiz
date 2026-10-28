@@ -55,10 +55,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/otp/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send OTP (development simulation until Q-09 is resolved) */
+        post: operations["OtpController_send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        SendOtpDto: {
+            mobile: string;
+            /**
+             * @description Defaults to SMS.
+             * @enum {string}
+             */
+            channel?: "SMS" | "WHATSAPP";
+            appHash?: string;
+        };
+        SendOtpResponse: {
+            /** @example 30 */
+            resendAfterSec: number;
+            /** @example 300 */
+            expiresInSec: number;
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;
@@ -139,6 +172,54 @@ export interface operations {
                 };
             };
             /** @description Service dependencies unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OtpController_send: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Stable installation identifier, 1–128 ASCII letters, digits, hyphens or underscores. */
+                "X-Device-Id": string;
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SendOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SendOtpResponse"];
+                };
+            };
+            /** @description Invalid request or missing device/idempotency header. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description RATE_LIMITED; Retry-After header is seconds until retry. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description OTP delivery disabled or unavailable. */
             503: {
                 headers: {
                     [name: string]: unknown;
