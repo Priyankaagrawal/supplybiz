@@ -1,5 +1,74 @@
 # Supply Biz API
 
+## T-015 sessions (Dart generation pending)
+
+Session source implements `POST /auth/otp/verify`, `/auth/refresh`, `/auth/logout`,
+`GET /me`, `POST /me/roles`, and `PUT /me/active-role` under `/api/v1`.
+Verify accepts `{mobile, code, device:{platform, appVersion?, osVersion?},
+consent?:{termsVersion, privacyVersion}}`. New accounts require both consent
+versions; server timestamps are recorded atomically with account creation.
+New users have no held role and return `activeRole:null` until their first role
+selection. Adding the first role selects it; switching requires a held role.
+
+Access tokens are Ed25519 JWTs with a 15-minute lifetime. Configure
+`AUTH_SIGNING_PRIVATE_KEY` as a PEM Ed25519 private key and `AUTH_SIGNING_KEY_ID`
+as its public identifier through local secret configuration. Development/test
+can use a process-local ephemeral key; persistent keys are required across
+replicas/restarts and mandatory in staging/production. Rotate keys every 90 days;
+retain still-valid public PEM keys in `AUTH_PREVIOUS_PUBLIC_KEYS` (JSON object
+keyed by key ID). Public JWKS: `GET /api/v1/auth/.well-known/jwks.json`.
+
+Refresh tokens contain 256 random bits, are stored only as SHA-256 hashes and
+rotate with a sliding 30-day expiry. Consumed token records are retained for
+family reuse detection. Reuse commits family revocation before returning 401
+`REFRESH_REUSED`. Guards check live session/account state on every call.
+`POST /auth/logout?all=true` revokes every session for the caller; default logout
+revokes only the current family. All mutations require `Idempotency-Key`, but
+these credential-sensitive endpoints deliberately bypass persistent response
+caching. Retrying a consumed refresh token revokes its family, including when
+the same idempotency key is reused. Clients must use single-flight refresh.
+
+No persistent services were started. API typecheck and generated TypeScript
+typecheck pass. The session/OTP service tests pass (17 tests); session/OTP HTTP
+tests also pass (8 tests, using temporary Supertest loopback sockets outside the
+sandbox). The production-key test explicitly isolates Jest's `NODE_ENV=test`
+when verifying that production rejects an absent signing key.
+The focused Swagger contract test also passes (1 test; 4 HTTP tests excluded
+by its name filter), confirming optional logout scope and mutation-only headers.
+The runtime specialist attempted API startup and received Prisma `P1001` because
+PostgreSQL was unreachable at `localhost:5432`; no API process was left running.
+
+Executed commands:
+```sh
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api test -- --runTestsByPath src/modules/auth/sessions.service.spec.ts src/modules/auth/otp.service.spec.ts
+# HTTP suites passed in the focused four-file run; its service suite was
+# subsequently corrected and passed in the two-file run above.
+pnpm --filter @supplybiz/api test -- --runTestsByPath src/modules/auth/sessions.service.spec.ts src/modules/auth/sessions.http.spec.ts src/modules/auth/otp.service.spec.ts src/modules/auth/otp.http.spec.ts
+pnpm --filter @supplybiz/api test -- --runTestsByPath src/modules/auth/sessions.http.spec.ts --testNamePattern=Swagger
+pnpm --filter @supplybiz/api exec tsc --noEmit --skipLibCheck --strict --target es2021 --moduleResolution node ../../packages/ts-client/src/generated/openapi.ts
+```
+
+`tools/codegen.sh` regenerated OpenAPI, TypeScript types and Dart source, then
+failed at Flutter SDK cache writes denied by the sandbox. Permission for the
+outside-sandbox retry was declined without a stated reason. Dart serializers
+and formatting remain incomplete; generated files were not edited manually.
+T-015 remains IN_PROGRESS until `tools/codegen.sh` finishes and `dart analyze
+lib` passes in `packages/api_client`. Generated output currently includes
+unformatted code/Markdown whitespace and missing serializers for new models.
+Swagger source now marks logout's `all` query optional and limits required
+idempotency headers to mutations. Those two corrections also await regeneration
+in the partially generated contract/clients.
+API source whitespace checks pass; the API lint script is only a placeholder,
+and no TypeScript formatter is configured.
+
+These checks used installed Node 26.13.0, pnpm 9.12.0 (repository version) and
+Flutter 3.47.8/Dart 3.13.7. The repository pins Node 20 and Flutter 3.35.7;
+repeat final client generation/checks with that toolchain when available.
+Then verify real PostgreSQL transactions and concurrent refresh/reuse; two-device
+logout-all; first signup consent records; and held-role switch persistence.
+Real Redis verification remains pending; real provider login awaits Q-09.
+
 ## T-014 OTP foundation
 
 `POST /api/v1/auth/otp/send` accepts `{mobile, channel?, appHash?}`. Both
@@ -42,9 +111,10 @@ its send budget/cooldown to prevent unlimited retry abuse. Redis/provider errors
 are sanitized and fail closed. Runtime Redis errors are never logged with command
 arguments. The Redis namespace defaults to `OTP_REDIS_PREFIX=otp`.
 
-T-015 consumes `OtpService.verify(mobile, code)` before issuing a real session.
-Public `/auth/otp/verify`, user creation, consent and token issuance are deferred
-to T-015. TC-003 is covered here only for OTP comparison/consumption, not tokens.
+T-015 source consumes `OtpService.verify(mobile, code)` before issuing a real
+session and implements public `/auth/otp/verify`, user creation, consent and token
+issuance. Its focused checks pass; Dart client generation remains incomplete as
+described above. T-014's TC-003 coverage is limited to OTP comparison/consumption.
 
 Dependency rationale: `redis` (MIT, resolved 5.12.1) is the official maintained
 Node Redis client for architecture ADR-011 and atomic shared OTP/rate state.
@@ -84,4 +154,4 @@ Manual verification:
    the two timing fields, an immediate resend with a fresh idempotency key gets
    429/Retry-After, and changing the number format cannot bypass mobile limits.
 5. Verify staging/production rejects console configuration. Real delivery awaits
-   Q-09 provider/DLT details; end-to-end login and tokens await T-015.
+   Q-09 provider/DLT details; end-to-end login/token verification remains pending.

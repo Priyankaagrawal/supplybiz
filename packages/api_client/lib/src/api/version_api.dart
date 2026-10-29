@@ -12,12 +12,13 @@ import 'package:dio/dio.dart';
 import 'package:supplybiz_api_client/src/model/version_controller_get_version200_response.dart';
 
 class VersionApi {
+
   final Dio _dio;
 
   const VersionApi(this._dio);
 
   /// Get build metadata
-  ///
+  /// 
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -29,8 +30,7 @@ class VersionApi {
   ///
   /// Returns a [Future] containing a [Response] with a [VersionControllerGetVersion200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<VersionControllerGetVersion200Response>>
-      versionControllerGetVersion({
+  Future<Response<VersionControllerGetVersion200Response>> versionControllerGetVersion({ 
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -62,13 +62,9 @@ class VersionApi {
     VersionControllerGetVersion200Response? _responseData;
 
     try {
-      final rawData = _response.data;
-      _responseData = rawData == null
-          ? null
-          : deserialize<VersionControllerGetVersion200Response,
-                  VersionControllerGetVersion200Response>(
-              rawData, 'VersionControllerGetVersion200Response',
-              growable: true);
+final rawData = _response.data;
+_responseData = rawData == null ? null : deserialize<VersionControllerGetVersion200Response, VersionControllerGetVersion200Response>(rawData, 'VersionControllerGetVersion200Response', growable: true);
+
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -90,4 +86,5 @@ class VersionApi {
       extra: _response.extra,
     );
   }
+
 }

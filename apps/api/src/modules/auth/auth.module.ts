@@ -2,6 +2,10 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { OtpController } from "./otp.controller";
 import { OtpService } from "./otp.service";
+import { PrismaService } from "../../prisma/prisma.service";
+import { SessionsService } from "./sessions.service";
+import { SessionTokensService } from "./session-tokens.service";
+import { MeController, SessionGuard, SessionsController } from "./sessions.controller";
 import { RedisOtpStore } from "./redis-otp.store";
 import { ConsoleOtpProvider, SmsOtpProvider, WhatsAppOtpProvider } from "./otp.providers";
 import {
@@ -14,8 +18,12 @@ import {
 } from "./otp.types";
 
 @Module({
-  controllers: [OtpController],
+  controllers: [OtpController, SessionsController, MeController],
   providers: [
+    PrismaService,
+    SessionsService,
+    SessionTokensService,
+    SessionGuard,
     OtpService,
     RedisOtpStore,
     { provide: OTP_STORE, useExisting: RedisOtpStore },
@@ -41,6 +49,6 @@ import {
       },
     },
   ],
-  exports: [OtpService],
+  exports: [OtpService, SessionsService, SessionGuard],
 })
 export class AuthModule {}

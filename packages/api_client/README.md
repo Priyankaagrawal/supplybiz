@@ -69,22 +69,40 @@ All URIs are relative to *http://localhost:3000*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json | 
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout | 
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerRefresh**](doc/AuthApi.md#sessionscontrollerrefresh) | **POST** /api/v1/auth/refresh | 
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerVerify**](doc/AuthApi.md#sessionscontrollerverify) | **POST** /api/v1/auth/otp/verify | 
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
+[*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role | 
+[*MeApi*](doc/MeApi.md) | [**meControllerAddRole**](doc/MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles | 
+[*MeApi*](doc/MeApi.md) | [**meControllerMe**](doc/MeApi.md#mecontrollerme) | **GET** /api/v1/me | 
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
 ## Documentation For Models
 
+ - [ConsentDto](doc/ConsentDto.md)
+ - [DeviceDto](doc/DeviceDto.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [MeResponse](doc/MeResponse.md)
+ - [RefreshDto](doc/RefreshDto.md)
+ - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)
+ - [TokensResponse](doc/TokensResponse.md)
+ - [VerifyOtpDto](doc/VerifyOtpDto.md)
  - [VersionControllerGetVersion200Response](doc/VersionControllerGetVersion200Response.md)
 
 
 ## Documentation For Authorization
 
-Endpoints do not require authorization.
+
+Authentication schemes defined for the API:
+### bearer
+
+- **Type**: HTTP Bearer Token authentication (JWT)
 
 
 ## Author

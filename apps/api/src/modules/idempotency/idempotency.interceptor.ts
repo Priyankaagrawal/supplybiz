@@ -9,7 +9,7 @@ import { Observable, from, of } from "rxjs";
 import { mergeMap } from "rxjs/operators";
 import { Request, Response } from "express";
 import { IdempotencyService } from "./idempotency.service";
-import { IDEMPOTENCY_HEADER } from "../../common/idempotency.constants";
+import { IDEMPOTENCY_HEADER, NO_IDEMPOTENCY_CACHE } from "../../common/idempotency.constants";
 
 @Injectable()
 export class IdempotencyInterceptor implements NestInterceptor {
@@ -33,6 +33,11 @@ export class IdempotencyInterceptor implements NestInterceptor {
         detail: "Idempotency-Key header is required for mutation requests.",
         errors: [{ field: "Idempotency-Key", code: "REQUIRED", message: "Header is required" }],
       });
+    }
+
+    if (Reflect.getMetadata(NO_IDEMPOTENCY_CACHE, context.getHandler()) ||
+        Reflect.getMetadata(NO_IDEMPOTENCY_CACHE, context.getClass())) {
+      return next.handle();
     }
 
     const requestHash = this.idempotencyService.hashRequestBody(request.body ?? {});

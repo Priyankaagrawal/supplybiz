@@ -112,6 +112,174 @@ paths:
           description: OTP delivery disabled or unavailable.
       tags:
         - auth
+  /api/v1/auth/otp/verify:
+    post:
+      operationId: SessionsController_verify
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOtpDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensResponse'
+        '400':
+          description: VALIDATION_FAILED, including missing consent for first login.
+        '422':
+          description: OTP_INVALID or OTP_ATTEMPTS_EXCEEDED.
+      tags:
+        - auth
+  /api/v1/auth/refresh:
+    post:
+      operationId: SessionsController_refresh
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokensResponse'
+        '401':
+          description: UNAUTHENTICATED or REFRESH_REUSED (family revoked).
+      tags:
+        - auth
+  /api/v1/auth/logout:
+    post:
+      operationId: SessionsController_logout
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: all
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Revoked current family, or all sessions with ?all=true.
+      tags:
+        - auth
+      security:
+        - bearer: []
+  /api/v1/auth/.well-known/jwks.json:
+    get:
+      operationId: SessionsController_jwks
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - auth
+  /api/v1/me:
+    get:
+      operationId: MeController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          description: 'UNAUTHENTICATED: missing, invalid, expired or revoked session.'
+      tags:
+        - me
+      security:
+        - bearer: []
+  /api/v1/me/roles:
+    post:
+      operationId: MeController_addRole
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '400':
+          description: 'VALIDATION_FAILED: invalid role or missing Idempotency-Key.'
+        '401':
+          description: 'UNAUTHENTICATED: missing, invalid, expired or revoked session.'
+      tags:
+        - me
+      security:
+        - bearer: []
+  /api/v1/me/active-role:
+    put:
+      operationId: MeController_activeRole
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '400':
+          description: 'VALIDATION_FAILED: invalid role or missing Idempotency-Key.'
+        '401':
+          description: 'UNAUTHENTICATED: missing, invalid, expired or revoked session.'
+        '403':
+          description: ROLE_NOT_HELD.
+      tags:
+        - me
+      security:
+        - bearer: []
 info:
   title: Supply Biz API
   description: ''
@@ -121,6 +289,11 @@ tags: []
 servers:
   - url: http://localhost:3000
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
   schemas:
     SendOtpDto:
       type: object
@@ -155,3 +328,116 @@ components:
       required:
         - resendAfterSec
         - expiresInSec
+    DeviceDto:
+      type: object
+      properties:
+        platform:
+          type: string
+          enum:
+            - ANDROID
+            - IOS
+            - WEB
+        appVersion:
+          type: string
+        osVersion:
+          type: string
+      required:
+        - platform
+    ConsentDto:
+      type: object
+      properties:
+        termsVersion:
+          type: string
+        privacyVersion:
+          type: string
+      required:
+        - termsVersion
+        - privacyVersion
+    VerifyOtpDto:
+      type: object
+      properties:
+        mobile:
+          type: string
+          pattern: ^(?:\+91)?[6-9]\d{9}$
+        code:
+          type: string
+          pattern: ^\d{6}$
+        device:
+          $ref: '#/components/schemas/DeviceDto'
+        consent:
+          $ref: '#/components/schemas/ConsentDto'
+      required:
+        - mobile
+        - code
+        - device
+    MeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mobile:
+          type: string
+        name:
+          type: string
+          nullable: true
+        language:
+          type: string
+          enum:
+            - EN
+            - HI
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+              - CUSTOMER
+              - VENDOR
+        activeRole:
+          type: string
+          enum:
+            - CUSTOMER
+            - VENDOR
+          nullable: true
+      required:
+        - id
+        - mobile
+        - name
+        - language
+        - roles
+        - activeRole
+    TokensResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        expiresInSec:
+          type: integer
+          example: 900
+        user:
+          $ref: '#/components/schemas/MeResponse'
+      required:
+        - accessToken
+        - refreshToken
+        - expiresInSec
+        - user
+    RefreshDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{43}$
+      required:
+        - refreshToken
+    RoleDto:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+            - CUSTOMER
+            - VENDOR
+      required:
+        - role

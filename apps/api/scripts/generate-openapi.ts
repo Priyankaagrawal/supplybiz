@@ -19,6 +19,7 @@ async function main(): Promise<void> {
   const config = new DocumentBuilder()
     .setTitle("Supply Biz API")
     .setVersion("0.1.0")
+    .addBearerAuth()
     .addServer("http://localhost:3000")
     .build();
 
