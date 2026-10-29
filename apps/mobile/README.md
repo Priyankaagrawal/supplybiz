@@ -7,7 +7,7 @@ flavor; see
 [`ENVIRONMENT_SETUP.md`](../../docs/06-development/ENVIRONMENT_SETUP.md) for
 required native configuration files.
 
-From this directory, run each flavor on an Android emulator or iOS simulator:
+From this directory, run each flavor on an Android emulator or Android device only (select `-d <android-device-id>`):
 
 ```sh
 fvm flutter run --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json
@@ -23,7 +23,7 @@ in a local copy of that flavor's JSON. Android only processes Google Services
 for flavors with a config file. Do not add placeholder credentials.
 
 T-008 manual verification:
-1. Run all three flavors on Android and iOS; confirm the environment label.
+1. Run all three flavors on Android only; confirm the environment label.
 2. Confirm dev/staging/prod install with distinct app identifiers and names.
 3. Use a mismatched entrypoint/config; confirm a localized error screen appears
    without raw configuration or provider error text.
@@ -37,12 +37,9 @@ fvm flutter test --no-pub test/core/config/app_environment_test.dart test/widget
 ```
 
 T-010 localization and formatting:
-- Edit `lib/l10n/app_en.arb` and `app_hi.arb`, then run `fvm flutter gen-l10n`.
+- Edit `lib/l10n/app_en.arb`, then run `fvm flutter gen-l10n`.
   Commit the generated files in `lib/core/l10n/generated`; do not edit them.
-  Hindi machine translations carry `@@x-reviewNeeded` for copy review.
-- Use `context.l10n` for app strings. The device locale selects EN/HI;
-  other languages fall back to English. Language selection/persistence belongs
-  to T-016.
+- Use `context.l10n` for app strings. The delivery baseline supports English only with INR/IST formatting; T-183 removes obsolete locale selection and assets.
 - Import `core/utils/money.dart` for the existing shared `formatInr(int paise)`.
   Import `core/utils/dates.dart` for `formatIstDate`, `formatIstDateTime`, and
   `istDateKey`. Pass an instant (UTC or with an explicit offset); omit device-local
@@ -51,7 +48,7 @@ T-010 localization and formatting:
 - Date display accepts `locale: context.l10n.localeName`; business-date keys
   always use Gregorian `yyyy-MM-dd`. These are display helpers, not cutoff logic.
 - `flutter_localizations` (Flutter SDK) and `intl` (BSD-3-Clause) are the
-  ADR-019/ARCHITECTURE choices, already present in the workspace lockfile;
+  ADR-023/ARCHITECTURE choices, already present in the workspace lockfile;
   this task declares direct imports without upgrading dependencies.
 
 ```sh
@@ -63,14 +60,14 @@ fvm flutter test --no-pub test/core/utils test/widget_test.dart
 T-010 manual verification (use the dev run command above):
 1. With the device language set to English, launch and confirm
    “Development environment”.
-2. Switch the device language to Hindi and relaunch; confirm “डेवलपमेंट परिवेश”.
-3. Increase device text size to 200%; confirm the Hindi shell remains readable.
+2. Confirm no language selector appears after T-183; device locales fall back to English.
+3. Increase device text size to 200%; confirm the English shell remains readable.
 4. Switch to an unsupported language (for example French) and relaunch;
    confirm the shell falls back to English.
 
 T-011 network foundation:
 - Construct `NetworkClient` with the environment API URL, one shared
-  `NetworkSession`, and a current `language` callback returning `en` or `hi`.
+  `NetworkSession`, and a current `language` callback returning `en`.
   `request<T>()` throws `AppFailure`; pass `.dio` to generated clients and map
   their `DioException` with `mapDioFailure` at repository boundaries.
 - T-015 implements `NetworkSession`: access tokens stay in memory; refresh
@@ -90,7 +87,7 @@ T-011 network foundation:
   replay, persist and supply the original `Idempotency-Key` yourself. Keys are
   preserved case-insensitively. `X-Request-Id` and `Accept-Language` accompany
   requests. API requests stay within the configured origin/path; redirects are
-  disabled. Use a separate unauthenticated transport for presigned uploads.
+  disabled. Use authenticated multipart upload and authorized content streaming per LOCAL_FILE_STORAGE.
 - UI uses `failure.toMessage(context.l10n)`. Field errors retain field names and
   codes, never provider messages. Unknown codes use a safe localized fallback.
   No network logger is installed; do not log Dio options, headers or bodies.
@@ -112,7 +109,7 @@ T-011 verification (fake transports; no API, credentials or native launch needed
    with one refresh and the original POST body/key preserved.
 2. Confirm refresh rejection, transient failure, cancellation and second-401
    tests pass without loops or unwanted mutation retries.
-3. Confirm Problem Details mapping and EN/HI message tests pass; raw server text
+3. Confirm Problem Details mapping and English message tests pass; raw server text
    must not appear in localized failure messages.
 4. Confirm origin checks, public-request headers, multipart replay and GET
    backoff tests pass. Live authenticated verification follows T-015 integration.
@@ -151,7 +148,7 @@ fvm flutter test integration_test/storage_test.dart -d <device-id> --flavor dev 
 T-012 manual verification:
 1. Run the focused unit tests: initialization serialization, missing-key
    rejection, plaintext rejection, logout cleanup and interrupted-wipe recovery.
-2. Run the native test on Android and iOS: confirm encrypted bytes, persisted
+2. Run the native test on Android only (iOS native tests after Android release): confirm encrypted bytes, persisted
    data/refresh token after reopen, wrong-key rejection and new key after wipe.
    Test secrets and database use a separate namespace/directory.
 3. Launch the dev flavor; restart and confirm startup succeeds with the same DB.
@@ -162,9 +159,9 @@ T-013 navigation foundation:
 - `SupplyBizApp` uses `MaterialApp.router` and owns/disposes its router. Inject
   one `RoutingController` to supply immutable `RouteAccess` updates from the
   real session/config integrations in T-015/T-016/T-017. The default state is
-  signed out with no language selected; launch shows the language placeholder.
+  signed out; after T-183, launch goes directly to auth/consent without language selection.
   Screens are placeholders, with no fake sign-in, onboarding or role changes.
-- Guards enforce force-update, initialization, language/auth, selected role,
+- Guards enforce force-update, initialization, auth, selected role,
   vendor onboarding resume step, and active-role matching. Legal is accessible
   without sign-in; force-update still blocks it. The mismatch placeholder offers
   Back to home; the session owner must explicitly change the active role before
@@ -208,4 +205,10 @@ T-013 manual verification (native app execution has not been performed):
    reselect Orders, then Back; confirm retained detail, branch root, then Home.
 4. Check mismatch and malformed-link tests: no automatic role change, cancel
    returns Home, and invalid IDs/unknown links never show raw URLs or errors.
-5. Check the Hindi/200% widget test and 48dp/labelled-target accessibility checks.
+5. Check the English/200% widget checks and 48dp/labelled-target accessibility checks.
+
+## Revised delivery baseline (2026-10-29)
+ADR-023 and T-183 supersede extra-language and snapshot-generation behavior in existing source. This documentation edit does not change implementation. Run lightweight build/analyze/smoke per task and comprehensive integrated tests at module completion. Android is the active runtime verification target; all iOS build/run/testing stays deferred until after Android production release (ADR-025). App media uploads and reads use authenticated API requests, not direct cloud storage. Follow ROADMAP for priority and report incomplete reconciliation honestly.
+
+## Android release first
+ADR-025: no iOS builds/runs/simulator/device/native-storage/VoiceOver/E2E testing, signing or TestFlight work before actual Android production release T-179. Keep `ios/` and platform settings intact. Android module gates include encrypted storage/logout, TalkBack, offline/replay, authentication and payment claims. T-185 handles iOS validation afterward; current success means Android evidence only, never implicit iOS support verification.

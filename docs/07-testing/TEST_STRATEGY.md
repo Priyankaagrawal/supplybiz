@@ -1,86 +1,57 @@
-# TEST STRATEGY
+# TEST STRATEGY — task checks and module gates
 
-| Field | Value |
-|---|---|
-| Status | Draft v0.1 |
-| Owner | QA Engineer |
-| Last updated | 2026-10-19 |
-| Related | [TEST_CASES](TEST_CASES.md), [SRS](../02-requirements/SRS.md), [GIT_CICD](../06-development/GIT_CICD.md) |
+Updated 2026-10-29. Accepted cadence: ADR-023. Coverage inventory: TEST_CASES; module membership/deadlines: ROADMAP G0–G6. This revision describes planned checks; existing CI and placeholder scripts must be reconciled by T-184/T-150.
 
-## 1. Objectives
-Verify every FR/NFR and acceptance criterion, protect financial correctness (ledger, subscriptions), ensure security/privacy, and confirm usability on low-end devices in EN and HI.
+## 1. After every task
+Run the affected layer's lightweight build or compile/typecheck, lint/analyze/format and a runnable smoke of the changed path. Run focused tests for changed critical business rules and security failures. Smoke must verify real responses and persisted state where relevant; a mocked widget alone cannot prove UI/API/DB wiring. Report exact commands/results and unavailable checks. No comprehensive integration/regression/E2E suite or percentage coverage gate after each task.
 
-## 2. Test Pyramid & Tools
-| Level | Scope | Tools | Owner | Gate |
-|---|---|---|---|---|
-| Unit (mobile) | Controllers, repositories, mappers, formatters, validators, outbox | flutter_test, mocktail | Dev/agent | PR |
-| Widget & golden | Screens & `Sb*` components, all states, EN/HI, text scale | flutter_test, alchemist (goldens) | Dev/agent | PR |
-| Unit (API) | Services, business rules (RULE-xx), state machines, generation eligibility | Jest | Dev/agent | PR |
-| Integration/e2e (API) | HTTP → DB with real Postgres/Redis; authZ/IDOR; idempotency | Jest + Supertest + Testcontainers | Dev/agent | PR |
-| Contract | OpenAPI conformance & client compatibility | OpenAPI diff, Schemathesis (nightly fuzz) | CI | PR/nightly |
-| Mobile E2E | Critical journeys on real/emulated devices incl. native dialogs | Patrol (+ Firebase Test Lab) | QA | Nightly/RC |
-| Admin E2E | Login/TOTP, KYC review, suspend, CMS | Playwright | QA | PR (mocked) / nightly (staging) |
-| Performance | App start, frames, memory; API load | Flutter DevTools/`flutter drive --profile`, Firebase Perf; k6 | QA/Dev | M6, RC |
-| Security | SAST, DAST, mobile static analysis, pen test | CodeQL, Semgrep, ZAP, MobSF, external | Security | PR/nightly/M6 |
-| Accessibility | Automated guidelines + manual screen readers | `meetsGuideline` (androidTapTargetGuideline, iOSTapTargetGuideline, textContrastGuideline, labeledTapTargetGuideline), TalkBack, VoiceOver | QA | PR/RC |
-| Exploratory & UAT | Real vendors/customers in launch city | Beta builds | PM/QA | M6 |
-
-## 3. Coverage Targets (NFR-018)
-- ≥ 80% lines for API services & mobile domain/controllers; ≥ 60% overall.
-- 100% of RULE-xx have unit tests; 100% of endpoints have authZ + IDOR e2e tests.
-- 100% of P0 user stories have at least one automated E2E or e2e-API test.
-
-## 4. Critical Areas (risk-based)
-| Area | Why | Extra testing |
+| Layer | Lightweight checks | Smoke |
 |---|---|---|
-| Subscription generation (FR-074) | Financial & trust (R-07) | Property-based tests over random calendars (weekdays × pauses × skips × holidays × start/end); clock-injected; idempotency re-runs; DST-free IST boundary tests at 21:59/22:00/00:00 |
-| Ledger (FR-110–FR-116) | Money correctness | Invariant tests: Σentries = balance; reversal symmetry; concurrency (parallel payments) |
-| Offline outbox (NFR-007) | Data loss/duplication | Airplane-mode E2E; app kill during sync; duplicate replay; conflict 409 rollback |
-| Auth/OTP | Abuse & account takeover | Rate limit, reuse detection, enumeration |
-| KYC/PII | Compliance | Masking, encryption at rest, access logs, log redaction tests |
-| Plan gating | Revenue | Every gated endpoint tested per plan tier |
+| API | `pnpm --filter @supplybiz/api build`, `typecheck`, real `lint` once T-184 replaces placeholder; focused Jest checks | Readiness plus affected request against native PostgreSQL; inspect/reload resulting state |
+| Flutter | Targeted `fvm dart analyze`, format check, existing targeted widget/controller checks; one debug Android build for affected app changes | Run affected route, submit/reload via real API; include loading/error behavior |
+| Admin | Real lint/typecheck/build implemented in T-150; placeholder scripts never count | Login and affected page action via API to DB and refreshed UI |
+| Documentation only | Diff/whitespace, Markdown links/references and requirement/dependency consistency | No application tests needed |
 
-## 5. Regression
-- Automated suite runs nightly on `main` and on each release candidate.
-- Manual regression checklist for RC: journeys J-01–J-08 (USER_FLOWS §4) on Android ref low-end + iPhone SE + one latest device, EN and HI.
-- Bugs fixed get a regression test referencing the bug ID.
+Task READY_FOR_VERIFY requires runnable behavior and check evidence. DONE still requires manual verification PASS per AGENTS/PROMPTS. Task completion is separate from module completion.
 
-## 6. Accessibility Testing
-- Automated guideline checks in widget tests for every screen.
-- Manual per release: TalkBack (Android), VoiceOver (iOS) for J-01, J-02, J-03, J-06; text scale 200%; colour-blind simulation for status badges.
+## 2. After every completed module
+Run comprehensive integration, regression and end-to-end tests once the integrated module is ready, and rerun relevant suites after module-gate defect fixes. Gate progression requires prerequisite modules passed; prepare tests during implementation, execute the comprehensive suite at module completion. No nightly/per-PR full-suite mandate during this delivery window.
 
-## 7. Device & OS Matrix
-| Platform | Device class | OS | Frequency |
-|---|---|---|---|
-| Android | Low-end 3 GB (reference) | Android 10/11 | Every RC (manual + perf) |
-| Android | Mid (Samsung A/Redmi Note) | 12–14 | Every RC |
-| Android | Pixel latest | 15/16 | Every RC |
-| Android | Emulator | API 24 (min) | Nightly smoke |
-| Android | Firebase Test Lab matrix (5–8 popular Indian devices) | mixed | Nightly E2E |
-| iOS | iPhone SE (2nd/3rd gen) small screen | latest-1 | Every RC |
-| iOS | iPhone 13–16 | latest | Every RC |
-| iOS | Simulator | min supported (13) or lowest available | Nightly smoke |
-Network conditions: 3G profile (400 kbps, 300 ms RTT), offline, flaky (packet loss) via device network link conditioner/emulator settings.
-
-## 8. Test Data & Environments
-| Env | Data | Integrations |
+| Level | Coverage / tools | Gate |
 |---|---|---|
-| Local/CI | Factories (no real PII); seeded categories/plans | Fakes (ConsoleOtp, FakeKyc, FakeBilling, LogPush, FakeGeo) |
-| Staging | Synthetic vendors/customers; test OTP allow-list | Provider sandboxes |
-| Prod | No testing except post-deploy smoke with dedicated internal accounts | Real |
-Clock is injectable in API & mobile for date/cutoff tests.
+| API integration | Jest/Supertest → dedicated native PostgreSQL/PostGIS test DB; migrations/seeds, authZ/IDOR for every protected endpoint, errors and transactions | Each module |
+| Mobile E2E | Existing Patrol tooling or documented repeatable device journey; real API/database, both roles, reload/restart; fake provider limitations explicit | Each module |
+| Admin E2E | Playwright or documented repeatable browser journey, real API/database; TOTP, RBAC, KYC and audit | Relevant modules |
+| Regression | Completed-module scenarios plus affected earlier modules; release candidate runs all retained scope | Each module + G6 |
+| Contract/schema | Generated-client compatibility; source/contract drift and clean migration apply | Each relevant module; targeted checks after contract changes |
+| Accessibility | Widget semantics/target assertions, TalkBack, 200% text scale and narrow-screen layouts | Each UI module; G6 consolidated review |
+| Security/operations | Tenant isolation, unsafe input, secret/log redaction, dependency audit, file access, backup/restore, representative load | Relevant module + G6 |
 
-## 9. Entry/Exit Criteria
-| Phase | Entry | Exit |
-|---|---|---|
-| Milestone demo | Tasks DONE | All TCs of the milestone pass; no open P0/P1 bugs |
-| RC | Code freeze | Regression pass; crash-free ≥ 99.5% (beta); perf budgets met; a11y checks pass |
-| Launch | RC approved | Pen-test highs fixed; store approvals; monitoring/alerts live |
+Screenshot baseline generation, refresh and related dependencies are removed. Use behavioral/widget assertions and manual visual review. Prefer existing tools; do not add a test framework solely to meet a gate.
 
-## 10. Defect Severity
-| Sev | Definition | Example |
-|---|---|---|
-| P0 | Data loss, money error, security breach, crash in core flow | Duplicate subscription orders; ledger mismatch |
-| P1 | Core flow blocked with no workaround | Cannot accept orders |
-| P2 | Degraded with workaround | Filter wrong count |
-| P3 | Cosmetic | Alignment in HI |
+## 3. Required risk coverage
+- Ledger: integer paise, sum(entries)=balance, immutable entries, reversals, concurrent payment/claim confirmation, delivered-order/stock/debit atomicity and duplicate replay.
+- Orders/POS: server-calculated totals and prices, vendor/customer isolation, stock/capacity, cancellation and exact-once financial effects.
+- Subscriptions: deterministic IST clock, weekday/pause/skip/holiday boundaries, 21:00 cutoff and 22:00 generation, uniqueness, restart/catch-up, concurrent worker claims and bounded retries.
+- Auth: mobile/IP/device shared rate limits, wrong attempts, expiry, concurrent single-use OTP, refresh rotation/reuse, logout/revocation, consent, blocked accounts and admin TOTP/CSRF/RBAC.
+- Offline: airplane mode, pending mutation replay, app kill during sync, duplicate replay and 409 conflict recovery; no lost or duplicated money/stock.
+- Media/KYC: LOCAL_FILE_STORAGE validation/isolation cases TC-503/508, masking before persistence, no unauthorized private reads, audit and paired DB/file restore.
+- Entitlements: server limits and feature gates; no client role/vendor/price trust. Active trial/expiry/visibility rules remain Q-04/Q-18 and must not be invented. Automated billing rules are post-delivery SR-03 and do not block manual-plan gates.
+- Privacy/deletion: consent, reference-safe retention/erasure and immutable financial records per approved policy.
+
+Coverage is risk-based: every retained business rule and protected endpoint has its critical positive and negative cases by its module gate; all retained P0 stories have an integrated automated or recorded repeatable end-to-end journey. Track uncovered cases explicitly. Do not replace financial/security cases with a broad line-coverage number. NFR-018 uses this policy.
+
+## 4. Environments and devices
+Native PostgreSQL/PostGIS dedicated test databases and separate temporary upload directories use synthetic fixtures only; never real customer PII. Fakes are allowed for isolated tests and labeled development demos. Provider sandboxes/live readiness must be verified for retained provider features before production; a fake pass is not a production pass.
+
+Android is the active runtime/device/E2E platform under the existing 2026-10-29 scope: emulator plus one representative low-end physical device where available, English, small-screen/200% text, offline and flaky/3G network checks. iOS source/configuration stays supported, but all builds/runs/testing/signing/distribution remain explicitly DEFERRED until after Android production release (T-185) and is never reported as passed. Broad device farms and independent external audit scheduling are deferred by approved SR-06; baseline security checks remain mandatory.
+
+## 5. Evidence and exit criteria
+Record gate result, task/TC IDs, commands, commit/environment, provider mode, device, observed outcome and outstanding gaps in TASKS §10. All gates begin NOT RUN after this replan. Fix P0 (money/data/security/crash) and P1 (blocked core flow) defects before a module passes. Reproduce fixed defects with meaningful focused regression coverage.
+
+Day 15 handoff requires G0–G6 for the explicitly agreed scope, no open P0/P1 or high/critical security defects, backup/restore evidence and a reproducible end-to-end demo. Approved SR-01–SR-06 deferrals are excluded from G5 and all gate counts, never marked PASS; any additional unapproved omission still leaves its gate incomplete. Production launch additionally requires real provider readiness, privacy/legal content, hosting/security/backup target approval, store/distribution approval where needed and release authorization. No deadline overrides these gates.
+
+## 6. Post-Android-release test phase
+All current mobile build/run/native-storage/device/accessibility/E2E checks are Android only. iOS simulator/device builds, signing, OTP autofill, secure storage, APNs, Universal Links, UPI fallback, VoiceOver and iOS E2E are T-185 after documented Android production release T-179 (ADR-025), not an automatic Day 15 job. Keep iOS source/configuration and record checks as DEFERRED, outside Android denominators. Server/admin integration tests remain active regardless of mobile platform.
+
+SR-01–SR-06 are approved under ADR-024. Run TC-509–TC-512 for actual manual KYC/plan workflows and reduced-scope UI/CSV boundaries. Cases labeled POST-DELIVERY describe future scope only and are not expected to execute or pass now.

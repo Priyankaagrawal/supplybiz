@@ -4,7 +4,7 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Technical Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [MODULE_DESIGN](MODULE_DESIGN.md), [CODING_STANDARDS](../06-development/CODING_STANDARDS.md), [ENVIRONMENT_SETUP](../06-development/ENVIRONMENT_SETUP.md) |
 
 ## 1. Purpose
@@ -27,7 +27,7 @@ supplybiz/
 │   ├── api_client/              # Generated Dart client (do not edit by hand)
 │   └── ts-client/               # Generated TypeScript client for admin
 ├── infra/
-│   ├── docker/                  # docker-compose for local Postgres, Redis, MinIO
+│   ├── host/                    # native process and backup runbooks (planned)
 │   └── terraform/               # IaC (provider TBD, Q-02)
 ├── tools/                       # scripts: codegen, seed, release helpers
 ├── .github/workflows/           # CI/CD pipelines
@@ -59,9 +59,8 @@ apps/mobile/
 │   │   └── customer/{home,discovery,cart,orders,subscriptions,khata,money,
 │   │                bills,grocery_assist,profile}/
 │   └── l10n/
-│       ├── app_en.arb
-│       └── app_hi.arb
-├── test/                        # mirrors lib/ (unit + widget + golden)
+│       └── app_en.arb
+├── test/                        # mirrors lib/ (unit + widget)
 ├── integration_test/            # Patrol E2E flows
 ├── android/ (flavors: dev, staging, prod)
 ├── ios/ (schemes: dev, staging, prod)
@@ -97,7 +96,7 @@ Screen files include the screen ID in a top comment, e.g. `// S-V-09 Order detai
 apps/api/
 ├── src/
 │   ├── main.ts                  # HTTP entry
-│   ├── worker.ts                # BullMQ worker + scheduler entry
+│   ├── worker.ts                # PostgreSQL-backed worker + scheduler entry
 │   ├── app.module.ts
 │   ├── config/                  # typed config, env validation (zod)
 │   ├── common/                  # errors, guards, interceptors, pagination, money, time, outbox
@@ -110,14 +109,14 @@ apps/api/
 │   │       ├── <module>.service.ts
 │   │       ├── <module>.repository.ts
 │   │       ├── dto/                           # class-validator DTOs
-│   │       ├── jobs/                          # BullMQ processors
+│   │       ├── jobs/                          # durable PostgreSQL jobs
 │   │       └── <module>.service.spec.ts
 │   └── prisma/
 │       ├── schema.prisma
 │       ├── migrations/
 │       └── seed.ts
-├── test/                        # e2e (supertest + testcontainers)
-└── Dockerfile
+├── test/                        # e2e (supertest + a dedicated PostgreSQL test database)
+└── README.md
 ```
 
 ## 5. Admin (`apps/admin`)
@@ -127,9 +126,9 @@ apps/admin/
 │   ├── app/                     # App Router routes (S-A-xx)
 │   ├── components/              # shadcn/ui based
 │   ├── lib/                     # api client wrapper, auth, rbac
-│   └── i18n/                    # EN (HI optional, TBD)
+│   └── i18n/                    # English only
 ├── tests/                       # Playwright
-└── Dockerfile
+└── README.md
 ```
 
 ## 6. File Responsibility Rules
@@ -139,3 +138,5 @@ apps/admin/
 | Secrets | Never in repo; `.env.example` documents keys only |
 | Docs | Requirement or design changes update `docs/` in the same PR |
 | Tests | Live next to code (TS) or mirrored under `test/` (Dart) |
+
+Approved SR-01–SR-06 applicability is defined in DELIVERY_SCOPE/ADR-024. Preserve security and shared iOS source/configuration; current mobile builds/runs/tests/releases are Android-only until Android production release, with iOS validation tracked separately in T-185 (ADR-025). Do not add deferred provider, telemetry, navigation or platform prerequisites. This revision changes documentation only.

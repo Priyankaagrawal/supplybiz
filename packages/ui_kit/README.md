@@ -1,59 +1,9 @@
 # Supply Biz UI kit (T-009)
 
-Shared Flutter components from UI_UX_GUIDELINES §3–5. Import
-`package:ui_kit/ui_kit.dart`, install `SbLocalizations.delegates` and
-`SbLocalizations.supportedLocales` on `MaterialApp`, and use
-`sbLightTheme(Localizations.localeOf(context))` below the app's localization boundary.
-The v1 theme is light only.
+Shared Flutter components from UI_UX_GUIDELINES. Import `package:ui_kit/ui_kit.dart`, install `SbLocalizations.delegates` and `SbLocalizations.supportedLocales` on MaterialApp, and use the shared light theme. Consumers supply feature labels through English strings; currency calculations use integer paise and accessible charts include table alternatives. Selection widgets remain controlled by callers. Server validation is authoritative for uploads.
 
-Package copy lives in `lib/l10n/ui_en.arb` and `ui_hi.arb`. The package delegate
-loads the ARB assets; consumers supply localized feature labels, slot labels,
-weekday names, plan descriptions and error details. Hindi copy is machine
-translated and marked `@@x-reviewNeeded` pending T-174. No feature screen or
-server integration is implemented here. Upload validation is a client-side
-preflight; server validation remains authoritative (TC-503).
+ADR-023 sets an English-only baseline using `lib/l10n/ui_en.arb` and Noto Sans, with INR/IST formatting and accessibility intact. T-183 removes extra locale/font assets and visual snapshot generation/refresh code, dependencies and baselines. This documentation-only revision leaves package source unchanged; do not assume cleanup or current verification has passed. Prior implementation evidence is retained in Git history.
 
-All amounts are integer paise, formatted by `formatInr` / `SbAmountText`.
-The date selector accepts business calendar dates, not UTC instants; T-010 owns
-instant-to-IST formatting. Selection widgets are controlled by their callers.
-Charts convert integer display values to doubles only at the chart rendering
-boundary; calculations and formatted currency remain integer based.
+After each UI task run targeted analyze, lightweight app build, focused behavior/widget checks and screen smoke. At module completion verify representative widths, 200% text, 48dp targets, semantic labels and TalkBack along with comprehensive integrated journeys. No screenshot baseline regeneration is required. Use the actual test scripts/files available after T-183 and record unavailable checks honestly.
 
-`fl_chart` 0.69.2 is the chart dependency already selected in ARCHITECTURE §3.
-It is MIT licensed, pure Dart, maintained upstream, and adds no native SDK.
-Both chart variants include an accessible table. Nonessential chart animation
-and skeleton animation are disabled. Buttons have minimum 48dp targets; large
-CTAs have minimum 52dp height and grow with text. Medium/small variants use
-44/36dp minimum visual height with Material's padded 48dp hit area. Small buttons
-are restricted to non-primary variants.
-
-Fonts: Noto Sans and Noto Sans Devanagari, weights 400/500/600/700, bundled
-under SIL OFL (`assets/fonts/OFL.txt`). Source:
-https://github.com/notofonts/noto-fonts/tree/main/hinted/ttf
-Subsets retain Latin-1, Devanagari, joiners, INR and common punctuation, including
-OpenType shaping closure. Combined font payload is under 900KB. Package font
-families include the package prefix; fonts never require a network request.
-Rounded Material icons use Flutter's existing icon font and release tree shaking.
-
-Verification (from this package):
-
-```sh
-flutter test test/src/components_test.dart
-flutter test test/src/golden_test.dart
-# After visually reviewing an intentional design change:
-flutter test --update-goldens test/src/golden_test.dart
-```
-
-Golden catalogs cover every component in EN/HI × 320/390dp × 1.0/1.3 text scale.
-Widget checks cover TC-502 and TC-610/611/613, plus client-side upload preflight,
-quantity bounds, loading-button suppression, search cancellation and chart tables.
-Manual TalkBack/VoiceOver journeys (TC-612) remain part of T-172.
-
-Verification status: a complete 19-test UI run passed before final global font
-fallback changes. Real-font checks then exposed Hindi helper-text contrast;
-the 14sp semibold fix is implemented but its rerun was denied execution permission.
-Refresh and visually inspect the eight committed goldens before marking T-009 done;
-their current images precede that final helper/error/counter style change.
-Workspace analysis, TS checks, API unit/e2e tests and the no-op Dart codegen check
-passed earlier. Full OpenAPI client codegen stopped at the missing Java runtime
-after generating unchanged OpenAPI/TS outputs; T-009 changes no API/schema.
+Approved SR-01–SR-06 applicability is defined in DELIVERY_SCOPE/ADR-024. Preserve security and shared iOS source/configuration; current mobile builds/runs/tests/releases are Android-only until Android production release, with iOS validation tracked separately in T-185 (ADR-025). Do not add deferred provider, telemetry, navigation or platform prerequisites. This revision changes documentation only.

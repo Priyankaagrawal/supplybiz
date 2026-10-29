@@ -4,16 +4,16 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Product Manager + Technical Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [AGENTS](AGENTS.md), [VISION](../01-business/VISION.md), [DECISIONS](DECISIONS.md) |
 
 ## 1. One-Paragraph Context
-Supply Biz is a two-sided marketplace for India's local milk vendors (and other local suppliers) and households. One Flutter app (Android/iOS) serves both **Vendors** (catalog, orders, POS, daily subscriptions, deliveries, Khata ledger, reports, SaaS plans) and **Customers** (discover vendors, order/subscribe, track delivery, Khata, personal money tracker, bill payments, voice/image grocery orders). A NestJS + PostgreSQL backend and a Next.js admin panel complete the system. Customers pay vendors directly; the app only records payments. Vendors pay Supply Biz a SaaS plan.
+Supply Biz is a two-sided marketplace for India's local milk vendors (and other local suppliers) and households. One Flutter app (Android release first; iOS validation after Android release) serves both **Vendors** (catalog, orders, POS, daily subscriptions, deliveries, Khata ledger, reports, SaaS plans) and **Customers** (discover vendors, order/subscribe, track delivery, vendor/personal Khata, payment claims, profile and service directory; separate Money, bill payments and recognition are post-delivery SR-01/SR-02). A NestJS + PostgreSQL backend and a Next.js admin panel complete the system. Customers pay vendors directly; the app only records payments. Vendor plans are assigned manually with audit and server-side entitlements; automated SaaS checkout/invoices are post-delivery SR-03.
 
 ## 2. Glossary
 | Term | Meaning |
 |---|---|
-| **Khata** | Traditional Indian credit ledger ("account book"). Per vendor–customer running balance of debits (goods given) and credits (payments). Kept as "Khata" in both languages |
+| **Khata** | Traditional Indian credit ledger ("account book"). Per vendor–customer running balance of debits (goods given) and credits (payments). Kept as "Khata" in English |
 | **Ledger entry** | One immutable DEBIT or CREDIT line in a Khata |
 | **Due / Payable / Receivable** | Due = debits − credits. For the vendor it is *receivable*; for the customer it is *payable* |
 | **Payment claim** | Customer's statement that they paid; becomes a CREDIT only after vendor confirms |
@@ -86,3 +86,6 @@ Supply Biz is a two-sided marketplace for India's local milk vendors (and other 
 - `SupplyBiz_Milk_Vendor_Customer_App_Project_Document.docx` (v1.0, Oct 2026) — referenced as "DOC".
 - `Wireframe.png` — 12 customer screens, referenced as "WF-1…WF-12".
 - Stakeholder decisions of 2026-10-19 (framework, backend, packaging, scope, payments, KYC, admin, tracking, brand/languages, auth) — recorded in SCOPE and DECISIONS.
+
+## 7. Delivery baseline
+As of 2026-10-29 use ADR-023, ROADMAP and TASKS: English-only, native processes/PostgreSQL/PostGIS, persistent local-file uploads, per-task build/lint/smoke and comprehensive module testing. Existing source/configuration is reconciled in T-180–T-184. Essential vendor/customer/admin flows and financial/security rules remain required; SR-01–SR-06 are approved (ADR-024); DELIVERY_SCOPE maps active/simplified and post-delivery requirements. Android-only build/run/testing/release continues through Android production release; T-185 validates iOS afterward (ADR-025).

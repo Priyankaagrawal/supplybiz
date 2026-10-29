@@ -1,10 +1,14 @@
 # SCREEN SPECIFICATIONS
 
+> Active delivery: ADR-024/DELIVERY_SCOPE applies approved reductions. ADR-025 limits all mobile build/run/testing/signing/distribution to Android until after actual Android production release; iOS-specific columns/design below are preserved future reference for T-185, never current gate requirements.
+
+> Delivery baseline (2026-10-29): [ADR-023](../05-ai-development/DECISIONS.md#adr-023-15-day-delivery-baseline--accepted-2026-10-29) and [ROADMAP](../05-ai-development/ROADMAP.md) govern execution priority and testing cadence. SR-01–SR-06 are approved by the user on 2026-10-29; [SCOPE §9](../01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) and [release applicability](../05-ai-development/DELIVERY_SCOPE.md) distinguish active, simplified and post-delivery requirements. This is a documentation-only replan; current source/contracts are reconciled by T-180–T-184.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | UX Designer + Business Analyst |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [USER_FLOWS](USER_FLOWS.md), [UI_UX_GUIDELINES](UI_UX_GUIDELINES.md), [SRS](../02-requirements/SRS.md), `Wireframe.png` (customer screens 1–12) |
 
 ## 1. Purpose
@@ -35,12 +39,12 @@ Lists: paginated (cursor, 20 per page), infinite scroll with footer loader, pull
 | ID | Screen | FR | Notes |
 |---|---|---|---|
 | S-COM-01 | Splash | — | Checks config (force update), session, role; ≤ 1 s beyond native splash |
-| S-COM-02 | Language select | FR-007 | English / हिन्दी cards; persisted locally and to profile after login |
+| S-COM-02 | Retired screen ID | FR-007 | English is the only supported locale; route first launch directly to auth/consent |
 | S-COM-03 | Mobile number | FR-001, FR-009 | +91 fixed prefix; numeric keyboard; "Send OTP" + "Continue with WhatsApp"; consent checkbox with Terms/Privacy links; trust messages (Secure Registration • Quick & Easy Setup • Start Supplying Today) |
 | S-COM-04 | OTP | FR-003, FR-004 | 6 boxes, autofill; resend timer 30 s; "Change number"; errors: wrong OTP (remaining attempts), expired, too many requests (show wait time) |
 | S-COM-05 | Role select | FR-005 | Two cards: "I want to buy" (Customer) / "I sell / supply" (Vendor) |
 | S-COM-06 | Force update | FR-408 | Blocking; "Update" opens store |
-| S-COM-07 | Maintenance / no service | — | Remote-config driven message |
+| S-COM-07 | Maintenance / no service | — | Basic API-config driven message |
 | S-COM-08 | Legal/FAQ webview | FR-134 | Rendered CMS markdown, not external browser |
 | S-COM-09 | Notification permission pre-prompt | FR-101 | Shown after first meaningful action, not at launch |
 | S-COM-10 | Account deletion | FR-008 | Consequences list, OTP confirmation |
@@ -75,7 +79,7 @@ Lists: paginated (cursor, 20 per page), infinite scroll with footer loader, pull
 | S-V-25 | Record payment / opening balance sheet | FR-112, FR-113 | — |
 | S-V-26 | Payments & collection (incl. claims) | FR-114, FR-115 | DOC §3.12 |
 | S-V-27 | Plans | FR-120 | DOC §3.13 |
-| S-V-28 | Plan checkout & status / invoices | FR-121, FR-124, FR-126 | — |
+| S-V-28 | Assigned plan status & validity (checkout/invoices deferred SR-03) | FR-121, FR-124, FR-126 | — |
 | S-V-29 | Help & FAQ | FR-133 | DOC §3.11 |
 | S-V-30 | Service area | FR-018 | DOC §3.13 |
 | S-V-31 | Delivery settings | FR-132 | — |
@@ -107,21 +111,21 @@ Lists: paginated (cursor, 20 per page), infinite scroll with footer loader, pull
 | S-C-18 | Vendor ledger | FR-251 | WF-11 |
 | S-C-19 | Add personal entry / contact | FR-252 | — |
 | S-C-20 | Settle payment sheet | FR-253 | WF-11 |
-| S-C-21 | Money | FR-260–FR-262 | DOC §4.3 |
-| S-C-22 | Add transaction | FR-261 | — |
-| S-C-23 | Bill payments | FR-271 | DOC §4.8 |
-| S-C-24 | Bill pay flow | FR-272 | — (TBD Q-07) |
-| S-C-25 | Grocery voice/image order | FR-280–FR-283 | DOC §4.8 |
+| S-C-21 | POST-DELIVERY (SR-01): Money | FR-260–FR-262 | DOC §4.3; absent from active navigation/routes |
+| S-C-22 | POST-DELIVERY (SR-01): Add transaction | FR-261 | —; absent from active navigation/routes |
+| S-C-23 | POST-DELIVERY (SR-02): Bill payments | FR-271 | DOC §4.8; absent from active navigation/routes |
+| S-C-24 | POST-DELIVERY (SR-02): Bill pay flow | FR-272 | — (TBD Q-07); absent from active navigation/routes |
+| S-C-25 | POST-DELIVERY (SR-01): Grocery voice/image order | FR-280–FR-283 | DOC §4.8; absent from active navigation/routes |
 | S-C-26 | Notifications | FR-100–FR-102 | DOC §4.8 |
 | S-C-27 | Profile | FR-290 | WF-12, DOC §4.5 |
 | S-C-28 | Addresses | FR-291 | DOC §4.8 |
 | S-C-29 | Add/Edit address | FR-291 | — |
-| S-C-30 | Payment methods | FR-292 | (Q-22) |
-| S-C-31 | Invite & earn | FR-293 | (Q-14) |
-| S-C-32 | Reports & insights | FR-294 | — |
+| S-C-30 | POST-DELIVERY (SR-02): Payment methods | FR-292 | (Q-22); absent from active navigation/routes |
+| S-C-31 | POST-DELIVERY (SR-02): Invite & earn | FR-293 | (Q-14); absent from active navigation/routes |
+| S-C-32 | POST-DELIVERY (SR-01): Reports & insights | FR-294 | —; absent from active navigation/routes |
 | S-C-33 | App settings | FR-295, FR-103 | — |
 | S-C-34 | Help & support | FR-296 | — |
-| S-C-35 | Write review | FR-213 | — |
+| S-C-35 | POST-DELIVERY (SR-05): Write review | FR-213 | —; absent from active navigation/routes |
 | S-C-36 | Edit profile | FR-290 | — |
 | S-C-37 | Favorites | FR-214 | — |
 | S-C-38 | Link vendor account prompt | FR-064 | — |
@@ -138,12 +142,12 @@ Lists: paginated (cursor, 20 per page), infinite scroll with footer loader, pull
 | S-A-07 | Customers list/detail | FR-404 |
 | S-A-08 | Categories | FR-405 |
 | S-A-09 | Plans | FR-406 |
-| S-A-10 | Vendor plan subscriptions & payments | FR-406 |
-| S-A-11 | Banners & coupons | FR-407 |
+| S-A-10 | Vendor plan assignments & audit (billing deferred SR-03) | FR-406 |
+| S-A-11 | POST-DELIVERY (SR-05): Banners & coupons | FR-407; absent from active navigation/routes |
 | S-A-12 | CMS (FAQ, legal) | FR-408 |
 | S-A-13 | App config & feature flags | FR-408 |
-| S-A-14 | Broadcast notifications | FR-409 |
-| S-A-15 | Review moderation | FR-410 |
+| S-A-14 | POST-DELIVERY (SR-05): Broadcast notifications | FR-409; absent from active navigation/routes |
+| S-A-15 | POST-DELIVERY (SR-05): Review moderation | FR-410; absent from active navigation/routes |
 | S-A-16 | Audit log | FR-411 |
 | S-A-17 | Admin users & roles | FR-400 |
 | S-A-18 | Data-subject requests | FR-412 |
@@ -172,7 +176,7 @@ Lists: paginated (cursor, 20 per page), infinite scroll with footer loader, pull
 Stepper header shows step 2 of 4. Primary CTA "Save & Continue" (saves draft server-side).
 
 ### S-V-03 KYC & bank
-Sections: Aadhaar (front/back upload; app shows mask guidance and applies auto-masking where detectable — manual masking tool fallback), PAN (upload + PAN number `^[A-Z]{5}\d{4}[A-Z]$`), Bank (holder name, IFSC → bank/branch lookup, account no. + confirm, masked display after save), UPI ID (`^[\w.\-]{2,256}@[a-zA-Z]{2,64}$`). Security note: "Used only for verification". Screenshots blocked on this screen (Android FLAG_SECURE; iOS blur on app switcher). CTA "Submit for verification".
+Sections: Aadhaar (front/back upload; app shows mask guidance and applies auto-masking where detectable — manual masking tool fallback), PAN (upload + PAN number `^[A-Z]{5}\d{4}[A-Z]$`), Bank (holder name, IFSC validation and manual bank/branch fields, account no. + confirm, masked display after save), UPI ID (`^[\w.\-]{2,256}@[a-zA-Z]{2,64}$`). Security note: "Used only for verification". Screenshots blocked on this screen (Android FLAG_SECURE; iOS blur on app switcher). CTA "Submit for verification".
 
 ### S-V-05 Dashboard
 Header (photo, shop name, location, Verified badge), date chip (Today ▾), 4 primary metric tiles (pastel backgrounds) in 2×2 grid, 3 secondary tiles, quick-action grid, KYC/plan banners when applicable. Tiles are tappable → filtered lists. States: offline cached; unverified banner; plan expired banner.
@@ -196,10 +200,10 @@ Date selector (default today), status tabs with counts, cards sorted by slot the
 Toggle "Accepting deliveries today"; "Pause deliveries" (with optional resume date); "Mark Holiday" (date picker ≥ today, reason ≤ 100 chars) → confirm dialog shows affected order count; Upcoming holidays list with delete.
 
 ### S-C-01 Home (WF-1)
-Header: logo, location selector, bell. Search bar. Hero banner carousel (admin). Category grid (8 tiles: Milk & Dairy, Water Can, Tiffin, Laundry, Grocery, Fruits & Veg, Food & Restaurant, More). Milk sub-grid (Cow Milk, Buffalo Milk, Toned Milk, Curd, Paneer, Ghee) as in WF-1. "Today's Delivery" list (product, vendor, slot, status chip) + View All. Empty: "No deliveries today — Order now".
+Header: logo, location selector, bell. Search bar. Category grid (8 tiles: Milk & Dairy, Water Can, Tiffin, Laundry, Grocery, Fruits & Veg, Food & Restaurant, More). Milk sub-grid (Cow Milk, Buffalo Milk, Toned Milk, Curd, Paneer, Ghee) as in WF-1. "Today's Delivery" list (product, vendor, slot, status chip) + View All. Empty: "No deliveries today — Order now".
 
 ### S-C-06 Vendor details (WF-3)
-Cover image, favorite heart, name, rating (count), distance, badges; tabs Products | Subscription | Reviews | About. Products tab rows with −/+ steppers. Sticky CTA "View Subscription Plans".
+Cover, name, distance, approved badges and Products/Subscription/About tabs. No ratings/review counts, Rating sort, Reviews tab or review CTA. Product quantities/cart/subscription actions remain wired to real API state (SR-05).
 
 ### S-C-09 Subscription plans (WF-6)
 Radio cards: 1 L Daily (₹/month, ₹/day, "Most Popular"), 500 ml Daily, 2 L Daily, Custom Plan. Feature list (Free delivery*, Pause or skip anytime, Monthly billing, Manage from app). CTA "Continue" → S-C-10. *Shown only if delivery charge = 0.
@@ -216,17 +220,27 @@ Order no., product, date, status chip; 4-step timeline Confirmed → Packed → 
 ### S-C-18 Vendor ledger (WF-11)
 Month selector; summary tiles Total Payable (red tint) / Total Paid (green tint); entries grouped by date (product, qty, amount, Pending/Paid). CTA "Settle Payment" → S-C-20 (amount default = payable, editable per RULE-18).
 
-### S-C-25 Grocery voice/image
-Top segmented: Search | Voice Order | Image to Order. Voice: large mic button, waveform, live transcript, language chip (EN/HI). Image: camera/gallery. Detected Items list: name, matched product, qty stepper, remove; unmatched rows with "Find" action. CTA "Add All to Cart (n)".
+### S-C-25 Grocery voice/image — POST-DELIVERY (SR-01)
+Future design reference only; no active route, navigation or speech/OCR permissions.
+Top segmented: Search | Voice Order | Image to Order. Voice: large mic button, waveform, live transcript, English transcript. Image: camera/gallery. Detected Items list: name, matched product, qty stepper, remove; unmatched rows with "Find" action. CTA "Add All to Cart (n)".
 
 ## 5. Edge Cases Checklist
 - [ ] Vendor suspended while customer on vendor page → order placement returns `VENDOR_UNAVAILABLE`.
 - [ ] Price changed between cart and placement → server re-prices; app shows "Prices updated" and requires re-confirm.
 - [ ] Order cancelled by customer while vendor viewing → action returns 409; UI refreshes.
 - [ ] Role switch with pending vendor outbox → sync continues in background; switch allowed.
-- [ ] Very long Hindi strings → wrap to 2 lines, never truncate amounts.
+- [ ] Very long English strings → wrap to 2 lines, never truncate amounts.
 - [ ] Device date/time wrong → server time used for cutoffs; app displays server-provided cutoff.
 - [ ] Notification for other role → confirm role switch.
 
 ## 6. Open Questions
 Q-10, Q-22, Q-35; CTA wording "Place Order" vs "Proceed to Pay"; receipt sharing for Quick Sale.
+
+## 7. Approved simplified screens
+- S-V-30, S-C-02 and S-C-29: manual address/pincode and numeric coordinate inputs, optional GPS fill, validation/error states; no interactive maps/places/autocomplete provider (SR-04).
+- S-V-17: accurate summary and daily/product-wise tables with authorized CSV download/share. No PDF selector or chart-polish requirement (SR-04).
+- S-V-27/S-V-28: catalog/current assignment, validity, limits and support-assisted change guidance; no checkout, purchase link or invoice button. S-A-09/S-A-10 assign/extend plans with permission checks, reason, dates and audit (SR-03).
+- S-A-03/S-A-04 and S-V-04: manual-review queue/status, provider checks NOT_RUN, audited reviewer decision, rejection reason/resubmission, private document access. No automated-verification claim (SR-03).
+- S-C-04: supply categories open discovery; unsupported categories may show unavailable text with no bill-payment action. S-C-27 profile hides Money, insights, saved payment methods and referral entries. S-C-11 has no coupon CTA (SR-01/SR-02).
+- S-A-13/S-COM-06 use basic API config/min-version behavior; no advanced Remote Config campaigns (SR-06).
+All unmarked retained screens remain active. POST-DELIVERY screens and their future detail sections are excluded from acceptance and navigation; no implementation stubs are required.

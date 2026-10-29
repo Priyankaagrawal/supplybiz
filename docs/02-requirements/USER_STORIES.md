@@ -1,15 +1,17 @@
 # USER STORIES — Stories, Business Rules, Acceptance Criteria
 
+> Delivery baseline (2026-10-29): [ADR-023](../05-ai-development/DECISIONS.md#adr-023-15-day-delivery-baseline--accepted-2026-10-29) and [ROADMAP](../05-ai-development/ROADMAP.md) govern execution priority and testing cadence. SR-01–SR-06 are approved by the user on 2026-10-29; [SCOPE §9](../01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) and [release applicability](../05-ai-development/DELIVERY_SCOPE.md) distinguish active, simplified and post-delivery requirements. This is a documentation-only replan; current source/contracts are reconciled by T-180–T-184.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Business Analyst + Product Manager |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [SRS](SRS.md), [USER_FLOWS](../03-ux/USER_FLOWS.md), [TEST_CASES](../07-testing/TEST_CASES.md), [TASKS](../05-ai-development/TASKS.md) |
 
 ## 1. Conventions
 - Format: **US-xxx** — story — `FR refs` · priority. Acceptance criteria (AC) use Given/When/Then and are directly testable; each AC maps to at least one `TC-xxx`.
-- Global ACs apply to every story unless stated: loading/empty/error states per [SCREEN_SPECIFICATIONS §2](../03-ux/SCREEN_SPECIFICATIONS.md#2-global-state-patterns); EN/HI strings; accessibility per NFR-010.
+- Global ACs apply to every story unless stated: loading/empty/error states per [SCREEN_SPECIFICATIONS §2](../03-ux/SCREEN_SPECIFICATIONS.md#2-global-state-patterns); English strings; accessibility per NFR-010.
 
 ## 2. Business Rules
 | ID | Rule | FR |
@@ -25,7 +27,7 @@
 | RULE-09 | Ledger entries are append-only; corrections use a reversal entry referencing the original with a reason. | FR-116 |
 | RULE-10 | DEBIT is posted when an order becomes DELIVERED or a customer quick sale completes; CREDIT is posted when a payment is recorded or a claim confirmed. If payment is collected at delivery, both entries are posted. | FR-111 |
 | RULE-11 | Walk-in POS sales must be fully paid (Paid = Total). | FR-053 |
-| RULE-12 | Active linked customers per vendor ≤ plan customer limit; exceeding attempts return `PLAN_CUSTOMER_LIMIT` with upgrade prompt. | FR-061, FR-122 |
+| RULE-12 | Active linked customers per vendor ≤ plan customer limit; exceeding attempts return `PLAN_CUSTOMER_LIMIT` with support-assisted plan-change guidance (no checkout). | FR-061, FR-122 |
 | RULE-13 | Customers see only vendors that are VERIFIED, not suspended, with active plan, serving the selected location. | FR-017, FR-210 |
 | RULE-14 | Subscription orders use subscription price (else selling price). | FR-036 |
 | RULE-15 | Orders store a price snapshot; later product price changes do not alter existing orders or subscriptions' generated orders. Subscriptions use the price current at generation time. | FR-032 |
@@ -34,7 +36,7 @@
 | RULE-18 | Payment claim amount must be > 0 and ≤ current due to that vendor. | FR-253 |
 | RULE-19 | OTP: 6 digits, 5 min TTL, resend after 30 s, ≤ 5 sends/hour/number, ≤ 5 attempts/OTP. | FR-003 |
 | RULE-20 | A holiday or delivery pause cancels NEW/ACCEPTED/PREPARING orders on affected dates; OUT_FOR_DELIVERY orders are unaffected. | FR-083, FR-084 |
-| RULE-21 | One review per DELIVERED order; reviewer must be the order's customer. | FR-213 |
+| RULE-21 | POST-DELIVERY SR-05:  One review per DELIVERED order; reviewer must be the order's customer. | FR-213 |
 | RULE-22 | Editing verified KYC/bank/business-name fields sets KYC to PENDING. | FR-131 |
 | RULE-23 | A user cannot place orders with their own vendor business. | FR-225 |
 | RULE-24 | Business dates (delivery date, holidays, reports) use IST; storage uses UTC. | All |
@@ -56,8 +58,8 @@
 - AC1: Given first login, then I see role selection; choosing Vendor starts onboarding; choosing Customer opens Home.
 - AC2: Given I hold both roles, when I tap "Switch to Vendor/Customer", then the shell changes without re-login and the role is remembered on next launch.
 
-**US-004** As a user, I want to use the app in Hindi so that I understand everything. — FR-007 · P0
-- AC1: On first launch I pick English or हिन्दी; all UI text, dates and numbers render in that locale; changing language in settings applies instantly.
+**US-004** As a user, I want clear English text and familiar INR/IST formatting. — FR-007 · P0
+- AC1: All app text is English; INR uses Indian digit grouping and business dates use IST. No language selector is shown.
 
 **US-005** As a user, I want to stay logged in securely and log out from all devices. — FR-006 · P0
 - AC1: Given an expired access token, when the app calls the API, then it refreshes silently; given a reused refresh token, then all sessions are revoked and I'm logged out.
@@ -75,12 +77,12 @@
 
 **US-011** As a vendor, I want to enter my business information and shop photo. — FR-011, FR-012, FR-016 · P0
 - AC1: Required fields validated inline; GSTIN validated only if entered; pincode 6 digits.
-- AC2: Files > 5 MB or other types are rejected with a message; images are compressed before upload.
+- AC2: Files > 5 MB or other types are rejected with a message; images are compressed before upload. Server validates bytes/type/decode, stores under the configured local root, and returns an opaque media ID; authorized UI reload displays the attachment. Traversal, cross-tenant and quarantined-file access are rejected.
 - AC3: If I close the app mid-way, I resume at the same step with data preserved.
 
 **US-012** As a vendor, I want to submit KYC and bank details so that I become verified. — FR-013–FR-015 · P0
-- AC1: Account number must match its confirmation; IFSC format validated; bank name auto-filled from IFSC when available.
-- AC2: On submit, status becomes PENDING; on API success it becomes VERIFIED and I get a notification; on API failure it moves to MANUAL_REVIEW.
+- AC1: Account number must match its confirmation; IFSC format validated; bank name entered manually; an existing local lookup may be reused, with no new provider integration.
+- AC2: On submit, the case enters MANUAL_REVIEW; authorized admin approval/rejection is audited with method MANUAL_REVIEW and notifies me. Provider checks show NOT_RUN; no automated verification is claimed (SR-03).
 - AC3: If REJECTED, I see the reason and can resubmit.
 
 **US-013** As a vendor, I want to know that I'm not visible to customers until verified. — FR-017 · P0
@@ -155,7 +157,7 @@
 - AC1: Paused subscriptions generate no orders; changes follow RULE-08; customer is notified.
 
 **US-073** As a vendor, I want subscription settings (auto-accept, availability window, caps, pause all). — FR-075 · P0
-- AC1: Auto-accept toggle is locked below BUSINESS with upgrade prompt; Pause all stops generation for all subscriptions.
+- AC1: Auto-accept toggle is locked below BUSINESS with support-assisted plan-change guidance (no checkout); Pause all stops generation for all subscriptions.
 
 **US-074** As a customer, I want to subscribe to daily milk from a vendor. — FR-230, FR-231, FR-076 · P0
 - AC1: Plans show computed monthly and per-day prices; Custom Plan lets me pick product, qty, days.
@@ -180,10 +182,10 @@
 ### Epic E-10 Reports
 **US-090** As a vendor, I want sales reports for a date range. — FR-090–FR-093, FR-095 · P1
 - AC1: Summary values equal the sums of underlying records for the range (IST).
-- AC2: Chart and product-wise table are locked below BUSINESS with upgrade prompt.
+- AC2: Daily sales and product-wise tables/CSV export are locked below BUSINESS with support-assisted plan-change guidance; no purchase CTA. Chart polish is deferred (SR-03/SR-04).
 
 **US-091** As a vendor, I want to download and share a report. — FR-094 · P1
-- AC1: Download generates a file in the agreed format (Q-23) and opens the share sheet.
+- AC1: Download generates authorized CSV only (Q-23 resolved), correctly escapes untrusted cells and opens the share sheet; PDF is deferred (SR-04).
 
 ### Epic E-11 Notifications
 **US-100** As a user, I want push and in-app notifications for important events. — FR-100–FR-102, FR-104 · P0
@@ -210,11 +212,11 @@
 - AC1: Correction creates a reversal entry; original remains visible; audit log records actor and reason.
 
 ### Epic E-13 Vendor Plans
-**US-120** As a vendor, I want to choose and pay for a plan. — FR-120, FR-121, FR-126 · P1
-- AC1: Plans show prices for 3 durations, limits and features; entitlement activates only after server-verified payment; invoice available.
+**US-120** As a vendor, I want to see my assigned plan, validity, limits and available plan tiers. — FR-120, FR-121, FR-126 · P1
+- AC1: Plans show catalog and current assignment/validity/limits/features; authorized admin assignment/extension updates server entitlements and writes audit with reason/dates. No checkout/payment-link/receipt/invoice CTA or fake payment (SR-03).
 
 **US-121** As a vendor, I want to know when I hit plan limits or my plan expires. — FR-122–FR-125 · P1
-- AC1: Locked features show an upgrade prompt; reminders at 7/3/1 days before expiry.
+- AC1: Locked features explain the assigned-tier limit and support-assisted plan change; reminders at 7/3/1 days remain. Expiry/trial behavior follows approved Q-04 rules; no billing screen dependency.
 
 ### Epic E-14 Vendor Settings & Help
 **US-130** As a vendor, I want to manage business, KYC/bank, delivery and notification settings. — FR-130–FR-132 · P1
@@ -225,7 +227,7 @@
 
 ### Epic E-15 Customer Home & Discovery
 **US-200** As a customer, I want the app to know my location. — FR-200 · P0
-- AC1: With permission, location auto-detects; without it, I can search a city/address; content updates for the selected location.
+- AC1: With permission, GPS may populate coordinates; without it, manual address/pincode/coordinate fields work. Server validates coverage; no map/search provider is needed (SR-04).
 
 **US-201** As a customer, I want a home screen with categories and today's deliveries. — FR-201, FR-203 · P0
 - AC1: Today's Delivery shows my orders for today with live status; disabled categories show "Coming soon".
@@ -234,12 +236,13 @@
 - AC1: Results only include serviceable vendors (RULE-13); empty state suggests changing location.
 
 **US-210** As a customer, I want to browse milk vendors nearby. — FR-210, FR-214 · P0
-- AC1: Sorting by Nearby/Popular/Rating works; favorites appear first; outside-area vendors never appear.
+- AC1: Sorting by Nearby/Popular works; Rating sort, ratings and review counts are absent (SR-05); favorites appear first; outside-area vendors never appear.
 
 **US-211** As a customer, I want vendor and product details. — FR-211, FR-212 · P0
-- AC1: Tabs Products/Subscription/Reviews/About load; qty stepper respects MOQ; Add to Cart updates cart badge.
+- AC1: Tabs Products/Subscription/About load; Reviews is absent (SR-05); qty stepper respects MOQ; Add to Cart updates cart badge.
 
 **US-212** As a customer, I want to rate a vendor after delivery. — FR-213 · P1
+> **POST-DELIVERY — SR-05**. Following ACs are future scope and do not block this delivery.
 - AC1: Rating prompt appears for DELIVERED orders; one review per order (RULE-21); vendor average updates.
 
 ### Epic E-16 Cart, Checkout & Orders
@@ -252,6 +255,7 @@
 - AC1: Tabs Milk & Dairy / Water Can; One Time adds to cart with date/slot; Subscription goes to subscription setup.
 
 **US-222** As a customer, I want to apply a coupon. — FR-222 · P2
+> **POST-DELIVERY — SR-02**. Following ACs are future scope and do not block this delivery.
 - AC1: Blocked until Q-06 is answered; hidden while flag off.
 
 **US-240** As a customer, I want to see my orders and track status. — FR-240, FR-241 · P0
@@ -272,6 +276,7 @@
 - AC2: If no UPI app is available (or on iOS fallback), I see VPA, QR and Copy.
 
 **US-260** As a customer, I want to track monthly income and expenses. — FR-260–FR-262 · P1
+> **POST-DELIVERY — SR-01**. Following ACs are future scope and do not block this delivery.
 - AC1: Net Saving = Income − Expense for the month; pie chart percentages sum to 100%.
 
 ### Epic E-18 Services, Bills, Grocery
@@ -279,24 +284,28 @@
 - AC1: Supply categories open vendor lists; bill categories open bill payments (if enabled); others show "Coming soon".
 
 **US-271** As a customer, I want to pay utility bills. — FR-271, FR-272 · P2
+> **POST-DELIVERY — SR-02**. Following ACs are future scope and do not block this delivery.
 - AC1: Blocked pending Q-07; AC to be defined with BBPS partner.
 
 **US-280** As a customer, I want to order groceries by speaking or photographing my list. — FR-280–FR-283 · P2
+> **POST-DELIVERY — SR-01**. Following ACs are future scope and do not block this delivery.
 - AC1: Spoken "2 kilo chawal, 1 litre tel" yields 2 items with quantities; unmatched items are flagged.
 - AC2: Photo of a list yields editable detected items; Add All to Cart adds matched items only.
 - AC3: Denying mic/camera permission shows rationale and an option to open settings.
 
 ### Epic E-19 Profile
 **US-290** As a customer, I want to manage my profile and addresses. — FR-290, FR-291 · P0
-- AC1: Address requires house, area, city, pincode and map pin; one default address.
+- AC1: Address requires house, area, city, pincode and validated coordinates entered manually or via optional GPS; one default address.
 
 **US-291** As a customer, I want insights on my spending. — FR-294 · P1
+> **POST-DELIVERY — SR-01**. Following ACs are future scope and do not block this delivery.
 - AC1: Monthly totals by vendor/category match orders and Money data.
 
 **US-292** As a customer, I want to invite friends. — FR-293 · P2
+> **POST-DELIVERY — SR-02**. Following ACs are future scope and do not block this delivery.
 - AC1: Share link opens app (or store) with referral code attached; rewards TBD (Q-14).
 
-**US-293** As a customer, I want settings, help and about. — FR-292, FR-295–FR-297 · P1
+**US-293** As a customer, I want settings, help and about. — FR-295–FR-297 · P1 (FR-292 deferred under SR-02)
 - AC1: All menu items open their screens; Payment Methods per Q-22.
 
 ### Epic E-20 Admin Panel
@@ -309,14 +318,18 @@
 **US-402** As an admin, I want to manage vendors and customers. — FR-403, FR-404 · P0
 - AC1: Suspending a vendor hides them from discovery immediately and blocks new orders; action audit-logged.
 
-**US-403** As an admin, I want to manage categories, plans, banners, CMS and app config. — FR-405–FR-408 · P0/P1
-- AC1: Changes reflect in the app within 5 min (cache TTL); min-version change forces update on older apps.
+**US-403** As an admin, I want to manage categories, manually assigned plans, CMS and basic app config. — FR-405–FR-408 · P0/P1
+- AC1: Changes reflect in the app within 5 min; min-version changes force update. Plan assignment/extension is permission-checked, audited with reason/start/end, and reflected in server limits; grants do not create payments/invoices. Banners/coupons are deferred (SR-02/SR-03/SR-05).
 
 **US-404** As an admin, I want to broadcast notifications and moderate reviews. — FR-409, FR-410 · P1
+> **POST-DELIVERY — SR-05**. Following ACs are future scope and do not block this delivery.
 - AC1: Broadcast to a segment is delivered and logged; hidden reviews disappear from app and average.
 
 **US-405** As an admin, I want audit logs, data requests and reports. — FR-411–FR-413 · P0/P1
 - AC1: Every admin write appears in audit log; deletion requests processed within policy (Q-20).
+
+## 3.1 Approved applicability
+Whole stories marked POST-DELIVERY retain future ACs only. Mixed stories use the reduced ACs above: personal Khata US-251 stays active, independent Money US-260 does not. Manual KYC and plan grants are real audited workflows, not provider simulations. Basic security, privacy, financial and accessibility ACs remain mandatory. See DELIVERY_SCOPE for screens/tests/module mapping.
 
 ## 4. Traceability Summary
 | Epic | Stories | FRs | Tests |

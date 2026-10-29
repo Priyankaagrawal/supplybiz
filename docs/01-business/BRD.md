@@ -1,10 +1,12 @@
 # BRD — Business Requirements Document
 
+> Delivery baseline (2026-10-29): [ADR-023](../05-ai-development/DECISIONS.md#adr-023-15-day-delivery-baseline--accepted-2026-10-29) and [ROADMAP](../05-ai-development/ROADMAP.md) govern execution priority and testing cadence. SR-01–SR-06 are approved by the user on 2026-10-29; [SCOPE §9](../01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) and [release applicability](../05-ai-development/DELIVERY_SCOPE.md) distinguish active, simplified and post-delivery requirements. This is a documentation-only replan; current source/contracts are reconciled by T-180–T-184.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Business Analyst |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [VISION](VISION.md), [PRD](PRD.md), [SCOPE](SCOPE.md), [SRS](../02-requirements/SRS.md) |
 
 ## 1. Purpose and Scope
@@ -43,14 +45,14 @@ Captures the business problems, stakeholders, business requirements (`BR-xx`) an
 | BR-06 | Every sale and payment is reflected in a per-customer Khata ledger visible to both parties | P-01, P-02, P-03 | Must |
 | BR-07 | Payments from customers to vendors happen directly (cash/UPI/bank/wallet); the app records them | P-02 | Must |
 | BR-08 | Vendors view reports (sales, orders, milk sold, pending payments) and download them | P-04 | Must |
-| BR-09 | Customers discover verified nearby vendors by category, rating and distance | P-06, P-07 | Must |
+| BR-09 | Customers discover verified nearby vendors by category, serviceability and distance (reviews/ratings deferred SR-05) | P-06, P-07 | Must |
 | BR-10 | Customers place one-time orders and subscriptions and track delivery status | P-03 | Must |
-| BR-11 | Customers track personal income/expense ("Money") | P-05 | Must (per stakeholder) |
-| BR-12 | Customers pay utility bills inside the app | P-05 | Must (per stakeholder; provider TBD) |
-| BR-13 | Customers create grocery orders by voice or image of a list | P-05 | Must (per stakeholder) |
-| BR-14 | Vendors pay a SaaS plan (Basic/Standard/Business/Premium; monthly/half-yearly/yearly) limited by customer count and features | Revenue | Must |
+| BR-11 | POST-DELIVERY (SR-01): Customers track personal income/expense ("Money") | P-05 | DEFERRED (approved 2026-10-29) |
+| BR-12 | POST-DELIVERY (SR-02): Customers pay utility bills inside the app | P-05 | DEFERRED (approved 2026-10-29) |
+| BR-13 | POST-DELIVERY (SR-01): Customers create grocery orders by voice or image of a list | P-05 | DEFERRED (approved 2026-10-29) |
+| BR-14 | Vendors receive an audited admin-assigned SaaS plan with effective dates, customer limits and features. Automated collection/checkout/invoices are post-delivery (SR-03); grants do not imply payment | Revenue | Must |
 | BR-15 | Platform admins verify KYC, manage vendors, customers, categories, plans, content and notifications via a web Admin Panel | P-07 | Must |
-| BR-16 | App available in English and Hindi | Adoption | Must |
+| BR-16 | App available in English | Adoption | Must |
 | BR-17 | Comply with DPDP Act 2023, UIDAI Aadhaar handling rules, and app-store policies | Compliance | Must |
 
 ## 5. Revenue Model
@@ -71,7 +73,7 @@ Other potential revenue (bill-payment commissions, take-rate) — **TBD**; the s
 | Outcome | Target |
 |---|---|
 | Vendor completes onboarding in one session | TBD (proposed: median < 10 min excluding KYC review) |
-| KYC decision turnaround | TBD (proposed: automated < 5 min; manual < 24 h) |
+| KYC decision turnaround | TBD (proposed: manual < 24 h; automation deferred SR-03) |
 | Subscription delivery generation accuracy | 100% (zero missed/duplicate orders) |
 | Crash-free sessions | ≥ 99.5% |
 | Store rating | TBD (proposed ≥ 4.3) |
@@ -83,4 +85,6 @@ Consolidated in [SCOPE](SCOPE.md) (A-xx, C-xx, D-xx, R-xx) to avoid duplication.
 ## 8. Approval
 | Role | Name | Decision | Date |
 |---|---|---|---|
-| Product Owner | TBD | Pending | — |
+| User / Product Owner | User (conversation approval) | SR-01–SR-06 approved; Android-first execution approved; documentation changes only | 2026-10-29 |
+
+Current delivery does not collect SaaS payments or generate plan invoices; the pricing table is catalog context, not a checkout requirement. Q-04 active entitlement/expiry policy remains to be resolved; Q-03/Q-24 billing/tax integration decisions are post-delivery.

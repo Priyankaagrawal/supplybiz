@@ -4,10 +4,17 @@ Two-sided mobile marketplace for India's local milk vendors (and other local sup
 
 | | |
 |---|---|
-| **Apps** | One Flutter app (Android + iOS) with **Vendor** and **Customer** roles · Next.js **Admin Panel** · NestJS + PostgreSQL **API** |
-| **Languages** | English, हिन्दी |
-| **Status** | Monorepo foundations in progress (T-001) |
+| **Apps** | One Flutter app (Android first; iOS validation after Android release) with **Vendor** and **Customer** roles · Next.js **Admin Panel** · NestJS + PostgreSQL **API** |
+| **Languages** | English |
+| **Status** | Foundations in progress; 15-day delivery baseline documented (implementation reconciliation pending) |
 | **Sources** | `SupplyBiz_Milk_Vendor_Customer_App_Project_Document.docx` (v1.0), `Wireframe.png`, stakeholder decisions 2026-10-19 |
+
+## Delivery baseline
+[15-day execution plan](docs/05-ai-development/ROADMAP.md) · [prioritized tasks](docs/05-ai-development/TASKS.md) · [approved scope reductions](docs/01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) · [local file storage](docs/04-architecture/LOCAL_FILE_STORAGE.md).
+
+ADR-023 sets English-only UI, native PostgreSQL/processes, local server file storage and module-level comprehensive testing. This revision updates documentation only; existing runtime/source/configuration cleanup is tracked in T-180–T-184. Day 15 targets an integrated application handoff; SR-01–SR-06 are approved (ADR-024), deferred features are outside current gates, and all iOS builds/runs/testing follows Android production release (ADR-025/T-185). Android public-store/provider readiness has separate gates.
+
+[Active/simplified versus post-delivery scope](docs/05-ai-development/DELIVERY_SCOPE.md) defines requirement, screen, test and module applicability.
 
 ## Start Here
 - **Humans:** [VISION](docs/01-business/VISION.md) → [PRD](docs/01-business/PRD.md) → [SCOPE](docs/01-business/SCOPE.md) (open questions).
@@ -25,7 +32,7 @@ Two-sided mobile marketplace for India's local milk vendors (and other local sup
 | 3 UX | [USER_FLOWS](docs/03-ux/USER_FLOWS.md) | Personas, journeys, navigation |
 | | [SCREEN_SPECIFICATIONS](docs/03-ux/SCREEN_SPECIFICATIONS.md) | Screen inventory (S-xx), behaviour, validation, states |
 | | [UI_UX_GUIDELINES](docs/03-ux/UI_UX_GUIDELINES.md) | Design tokens, components, accessibility, platform guidelines |
-| 4 Architecture | [ARCHITECTURE](docs/04-architecture/ARCHITECTURE.md) | Stack, system/container/mobile/backend views |
+| 4 Architecture | [ARCHITECTURE](docs/04-architecture/ARCHITECTURE.md) | Stack, runtime/mobile/backend views |
 | | [MODULE_DESIGN](docs/04-architecture/MODULE_DESIGN.md) | Modules, responsibilities, interfaces, events |
 | | [FOLDER_STRUCTURE](docs/04-architecture/FOLDER_STRUCTURE.md) | Monorepo layout |
 | | [DATA_DESIGN](docs/04-architecture/DATA_DESIGN.md) | Schema, ER diagram, local DB, retention |

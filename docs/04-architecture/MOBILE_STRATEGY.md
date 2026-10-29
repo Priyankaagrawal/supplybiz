@@ -1,10 +1,12 @@
 # MOBILE STRATEGY
 
+> Active delivery: ADR-024/DELIVERY_SCOPE applies approved reductions. ADR-025 limits all mobile build/run/testing/signing/distribution to Android until after actual Android production release; iOS-specific columns/design below are preserved future reference for T-185, never current gate requirements.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Mobile Solution Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [ARCHITECTURE](ARCHITECTURE.md), [AUTH_SECURITY](AUTH_SECURITY.md), [USER_FLOWS](../03-ux/USER_FLOWS.md) |
 
 ## 1. Purpose
@@ -13,7 +15,7 @@ Flutter-specific strategy for lifecycle, navigation, state, offline, caching, de
 ## 2. App Lifecycle & Background Execution
 | Event | Behaviour |
 |---|---|
-| Cold start | Native splash → `bootstrap()` (Firebase init, open DB, read secure storage, Remote Config fetch with 3 s timeout using cached values) → router decides route (USER_FLOWS §2). Heavy init deferred until after first frame |
+| Cold start | Native splash → `bootstrap()` (Firebase init, open DB, read secure storage, basic API config fetch with bounded timeout using cached values) → router decides route (USER_FLOWS §2). Heavy init deferred until after first frame |
 | `resumed` | Refresh session if access token expired; trigger `SyncService.flush()`; refresh visible screen if data older than 60 s; re-check notification permission |
 | `paused` | Persist drafts (onboarding, quick sale, cart); stop timers |
 | `detached`/killed | Outbox persisted in DB → nothing lost |
@@ -44,16 +46,16 @@ Routes per [USER_FLOWS §5](../03-ux/USER_FLOWS.md#5-deep-link-entry-points). Ha
 | Forms | `Notifier` holding immutable form state (freezed) + validation; submit returns `AsyncValue` |
 | Session | `SessionController` (`keepAlive`) — tokens, user, activeRole |
 | Cart | `CartController` backed by drift `cart_items` |
-| Feature flags/config | `configProvider` (Remote Config + `/config`) |
+| Feature flags/config | `configProvider` (basic API `/config`; advanced campaigns deferred SR-06) |
 | Connectivity | `connectivityProvider` (connectivity_plus + API reachability) |
 Rules: `ref.watch` in build, `ref.read` in callbacks; no business logic in widgets; providers auto-dispose unless documented.
 
 ## 6. Offline Support & Sync
 | Capability | Vendor | Customer |
 |---|---|---|
-| Read cached data | Dashboard, orders/deliveries ±7 days, products, customers, Khata (90 d) | Orders, subscriptions, Khata, Money, addresses |
-| Offline writes (outbox) | Delivery transitions (start/delivered/failed), payment record, quick sale, stock adjustment | Personal Khata entries, Money transactions |
-| Online-only | Onboarding/KYC uploads, product create/edit with image, subscriptions, settings, plans, reports | Ordering, subscriptions, settle payment, bills, grocery parse |
+| Read cached data | Dashboard, orders/deliveries ±7 days, products, customers, Khata (90 d) | Orders, subscriptions, Khata, addresses |
+| Offline writes (outbox) | Delivery transitions (start/delivered/failed), payment record, quick sale, stock adjustment | Personal Khata entries |
+| Online-only | Onboarding/KYC uploads, product create/edit with image, subscriptions, settings, plans, reports | Ordering, subscriptions, settle payment |
 
 ### 6.1 Outbox algorithm
 ```mermaid
@@ -85,7 +87,7 @@ flowchart TD
 | Dashboard | drift `cached_dashboard` | Refresh on open; shows "updated hh:mm" |
 
 ## 8. Push Notifications
-- FCM for both platforms (APNs key uploaded to Firebase). Token registered via `PUT /me/devices/current` on login, token refresh, and app start.
+- FCM Android delivery now; APNs/iOS validation and keys are deferred until after Android production release in T-185. Token registered via `PUT /me/devices/current` on login, token refresh, and app start.
 - Permission: pre-prompt (S-COM-09) after first value moment; Android 13+ runtime permission; iOS authorization (alert, badge, sound).
 - **Android channels:** `orders` (high), `deliveries` (high), `payments` (default), `subscriptions` (default), `offers` (low), `system` (default). Names localized.
 - Payload: `notification` (title/body localized server-side by user language) + `data` { `type`, `deepLink`, `role`, `entityId` }. No sensitive data.
@@ -105,8 +107,8 @@ flowchart TD
 | Back navigation | System back / predictive back | Swipe back | `PopScope` |
 | File sharing (reports) | FileProvider | Share sheet | `share_plus` |
 | Screenshots of KYC | `FLAG_SECURE` | Blur on `inactive` | Platform channel / plugin |
-| Speech recognition | Google on-device/online (Hindi support varies by device) | SFSpeechRecognizer (hi-IN supported, may need network) | Feature check + graceful fallback to typing |
-| In-app purchase (plans) | Google Play Billing (if ADR-015 = store) | StoreKit 2 | `in_app_purchase` behind `BillingProvider` |
+| POST-DELIVERY SR-01: speech recognition | OS speech recognition (English) | SFSpeechRecognizer (English, may need network) | Feature check + graceful fallback to typing |
+| POST-DELIVERY SR-03: in-app purchase (plans) | Google Play Billing (if ADR-015 = store) | StoreKit 2 | `in_app_purchase` behind `BillingProvider` |
 | Min OS | API 24 | iOS 13 | A-13 |
 
 ## 10. Performance & Resource Budgets
@@ -128,7 +130,7 @@ flowchart TD
 | Latest Android | Pixel, Android 15/16 | Behaviour changes (edge-to-edge, predictive back) |
 | Oldest supported | Android 7.0 (API 24) emulator + one physical if available | Smoke |
 | iOS | iPhone SE (2nd gen) iOS latest-1, iPhone 13/15 latest | Small screen + modern |
-Full matrix in [TEST_STRATEGY §7](../07-testing/TEST_STRATEGY.md#7-device--os-matrix).
+Full matrix in [TEST_STRATEGY §7](../07-testing/TEST_STRATEGY.md#4-environments-and-devices).
 
 ## 12. App Updates
 - Remote `minVersion` per platform → force update screen (S-COM-06); `recommendedVersion` → dismissible banner.

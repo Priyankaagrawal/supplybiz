@@ -4,15 +4,15 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | UX Designer |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [USER_STORIES](../02-requirements/USER_STORIES.md), [SCREEN_SPECIFICATIONS](SCREEN_SPECIFICATIONS.md), [MOBILE_STRATEGY](../04-architecture/MOBILE_STRATEGY.md) |
 
 ## 1. Personas
 | Persona | Profile | Goals | Pain points | Design implications |
 |---|---|---|---|---|
-| **Rohit — milk vendor** (from mockup "Rohit Milk Center") | 38, runs a dairy with ~150 households, low-end Android, prefers Hindi, delivers 6–9 AM | Never miss a delivery; know dues; get paid on time | Paper diary errors, month-end billing disputes | Big touch targets, Hindi, offline delivery updates, one-tap actions |
+| **Rohit — milk vendor** (from mockup "Rohit Milk Center") | 38, runs a dairy with ~150 households, low-end Android, prefers simple text, delivers 6–9 AM | Never miss a delivery; know dues; get paid on time | Paper diary errors, month-end billing disputes | Big touch targets, simple English, offline delivery updates, one-tap actions |
 | **Ramesh — household customer** (mockup "Ramesh Kumar") | 42, family of 4, daily 2 L milk, UPI user | Reliable delivery; easy pause when travelling; clear bill | Doesn't know monthly due until vendor tells | Today's delivery on home, pause/skip in 2 taps, transparent Khata |
-| **Priya — multi-service customer** | 29, working professional, orders water cans, tiffin, groceries, pays bills | One app for local needs | Many apps/contacts | Services grid, voice/image grocery, bill payments |
+| **Priya — multi-service customer** | 29, working professional, orders water cans, tiffin and grocery catalog items | One app for local needs | Many apps/contacts | Services grid, catalog search and recurring orders (bills/recognition deferred) |
 | **Anita — ops admin** | Platform operations | Verify vendors quickly, resolve issues | Manual document checks | KYC queue with API results, audit trail |
 
 ## 2. App Entry & Role Flow
@@ -21,7 +21,7 @@ flowchart TD
     A[Launch] --> B{Force update needed?}
     B -- yes --> FU[S-COM-06 Force update]
     B -- no --> C{First launch?}
-    C -- yes --> L[S-COM-02 Language]
+    C -- yes --> L[Auth and consent]
     C -- no --> D{Session valid?}
     L --> M[S-COM-03 Mobile number]
     D -- no --> M
@@ -53,7 +53,7 @@ flowchart LR
     More[S-V-19 More] --> DL[S-V-16 Deliveries]
     More --> KH[S-V-23 Khata] --> LD[S-V-24 Ledger detail] --> RP[S-V-25 Record payment]
     More --> PAY[S-V-26 Payments]
-    More --> PL[S-V-27 Plans] --> PC[S-V-28 Plan checkout]
+    More --> PL[S-V-27 Plans] --> PC[S-V-28 Assigned plan validity]
     More --> ST[S-V-20 Settings]
     ST --> SS[S-V-21 Subscription settings]
     ST --> HO[S-V-22 Availability & holidays]
@@ -74,18 +74,12 @@ flowchart LR
     VD --> SP[S-C-09 Subscription plans] --> SC[S-C-10 Subscription setup]
     PD --> CART[S-C-11 Cart & checkout]
     Home --> NO[S-C-12 Place new order]
-    Orders[S-C-13 My orders] --> TR[S-C-14 Tracking] --> RV[S-C-35 Review]
+    Orders[S-C-13 My orders] --> TR[S-C-14 Tracking]
     Khata[S-C-17 Khata] --> VLD[S-C-18 Vendor ledger] --> SET[S-C-20 Settle]
     Khata --> KE[S-C-19 Add entry]
-    Khata --> MON[S-C-21 Money] --> MT[S-C-22 Add transaction]
     Services[S-C-04 Services] --> VL
-    Services --> BILL[S-C-23 Bill payments] --> BF[S-C-24 Bill pay]
-    Services --> GR[S-C-25 Grocery voice/image]
     Profile[S-C-27 Profile] --> MS[S-C-15 My subscriptions] --> MSD[S-C-16 Manage]
     Profile --> ADR[S-C-28 Addresses] --> ADE[S-C-29 Edit address]
-    Profile --> PM[S-C-30 Payment methods]
-    Profile --> INV[S-C-31 Invite]
-    Profile --> INS[S-C-32 Insights]
     Profile --> APS[S-C-33 Settings]
     Profile --> HLP[S-C-34 Help]
 ```
@@ -114,7 +108,7 @@ sequenceDiagram
     API-->>C: Push "Out for delivery"
     V->>API: Mark delivered (+payment collected?)
     API->>API: Post DEBIT (+CREDIT if paid), decrement stock
-    API-->>C: Push "Delivered" + review prompt
+    API-->>C: Push "Delivered" (no review prompt)
 ```
 Alternatives: vendor rejects (reason) → customer notified; customer cancels while NEW; delivery FAILED (reason) → no DEBIT.
 
@@ -159,7 +153,8 @@ sequenceDiagram
     API-->>C: Push "Payment recorded"
 ```
 
-### J-07 Grocery voice/image (US-280)
+### J-07 Grocery voice/image (US-280) — POST-DELIVERY SR-01
+Future journey reference only; not active navigation or acceptance.
 Services → Grocery → vendor → Voice Order or Image to Order → permission pre-prompt → capture → detected items list (edit) → Add All to Cart → Cart → checkout.
 
 ### J-08 Admin KYC review (US-401)
@@ -177,3 +172,6 @@ Unauthenticated deep links are stored and resumed after login. Details in [MOBIL
 
 ## 6. Open Questions
 Q-10 (customer nav), Q-16 (cancel after accept), Q-35 (vendor list "+" button).
+
+## 7. Approved delivery journeys
+SR-01–SR-06 are approved under ADR-024: the navigation diagrams above omit deferred screens; future J-07 is excluded. Manual KYC and admin plan assignment/extension are required before the discovery/order journey can pass. Plan changes show assigned validity/limits and support assistance, without a checkout. Reports show tables and CSV export; location/address flows use forms/optional GPS coordinates with server coverage validation. Android is the only runtime/test/release target; iOS validation follows actual Android release in T-185 (ADR-025).

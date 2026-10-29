@@ -1,10 +1,12 @@
 # UI/UX GUIDELINES — Design System
 
+> Active delivery: ADR-024/DELIVERY_SCOPE applies approved reductions. ADR-025 limits all mobile build/run/testing/signing/distribution to Android until after actual Android production release; iOS-specific columns/design below are preserved future reference for T-185, never current gate requirements.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | UX/UI Designer |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [DESIGN](../05-ai-development/DESIGN.md) (implementation guidance), [SCREEN_SPECIFICATIONS](SCREEN_SPECIFICATIONS.md) |
 
 ## 1. Purpose
@@ -12,7 +14,7 @@ Source of truth for design tokens, components, accessibility and platform conven
 
 ## 2. Principles
 1. **Clarity over density** — one primary action per screen, large numerals for money and quantities.
-2. **Hindi-first readiness** — layouts tolerate 30–40% longer strings; never truncate amounts.
+2. **Readable English layouts** — layouts tolerate 30–40% longer strings; never truncate amounts.
 3. **Status at a glance** — consistent colour + icon + text for every status (never colour alone).
 4. **Forgiving** — confirm destructive actions; undo where possible (e.g., removing cart item).
 5. **Fast on low-end devices** — flat layouts, cached images, minimal animation.
@@ -51,7 +53,7 @@ Header gradient: `primary` → `accent` at 20% opacity overlay (DOC §6). Dark m
 | PAUSED | onSurfaceVariant on #F2F4F7 | pause |
 
 ### 3.3 Typography
-Font: **Noto Sans** + **Noto Sans Devanagari** (bundled, subset). Respect OS text scaling up to 200%.
+Font: **Noto Sans** (bundled, subset). Respect OS text scaling up to 200%.
 
 | Style | Size/Line (sp) | Weight | Usage |
 |---|---|---|---|
@@ -65,7 +67,7 @@ Font: **Noto Sans** + **Noto Sans Devanagari** (bundled, subset). Respect OS tex
 | amountLarge | 24/32 | 700, tabular figures | Totals, metric values |
 
 Implementation note (T-009): status badges, bottom navigation labels, and field
-helper/error/counter text use 14 sp / 20 sp at weight 600 for Hindi legibility.
+helper/error/counter text use 14 sp / 20 sp at weight 600 for legibility.
 The 12 sp token remains available for captions. All Material text styles,
 including field helper/error styles, inherit the bundled locale font and fallback.
 
@@ -101,13 +103,13 @@ including field helper/error styles, inherit the bundled locale font and fallbac
 ## 5. Accessibility (NFR-010)
 - Contrast ≥ 4.5:1 text, ≥ 3:1 large text/icons/UI boundaries.
 - Touch targets ≥ 48×48 dp (Android) / 44×44 pt (iOS).
-- Every interactive element has a semantic label in both languages; images decorative unless informative.
+- Every interactive element has a semantic label in English; images decorative unless informative.
 - Amounts read as "eight hundred rupees"; statuses read with text, not colour.
 - Charts provide a "View as table" alternative.
 - Focus order follows visual order; errors announced via live region.
 - Support OS text scaling to 200%: layouts wrap; no fixed-height text containers.
 - Reduce-motion respected (disable non-essential animations).
-- Test with TalkBack and VoiceOver ([TEST_STRATEGY §6](../07-testing/TEST_STRATEGY.md)).
+- Test with TalkBack now; VoiceOver only after Android production release (ADR-025) ([TEST_STRATEGY §6](../07-testing/TEST_STRATEGY.md)).
 
 ## 6. Responsive Layout
 | Width (dp) | Behaviour |
@@ -125,13 +127,13 @@ Portrait-only on phones. Safe areas respected (notches, gesture bars). Keyboard 
 | Dialogs | Material `AlertDialog` | `CupertinoAlertDialog` (adaptive) |
 | Haptics | Light on stepper/confirm | Same (UIImpactFeedback light) |
 | Share | Android sharesheet | UIActivityViewController |
-| Permissions copy | Runtime rationale before system dialog | Info.plist purpose strings (EN/HI) |
-| Fonts | Bundled Noto | Bundled Noto (consistency for Hindi) |
+| Permissions copy | Runtime rationale before system dialog | Info.plist purpose strings (English) |
+| Fonts | Bundled Noto | Bundled Noto (consistent rendering) |
 
 ## 8. Content & Microcopy
-- Tone: friendly, simple, respectful ("आप"). Avoid jargon; "Khata" kept as-is in both languages.
+- Tone: friendly, simple, respectful. Avoid jargon; "Khata" kept as-is in English.
 - Numbers: Indian grouping; dates `12 Sep 2025` (EN) / `12 सित॰ 2025` (HI); time `7:00 AM`.
 - Error messages state what happened + what to do ("No internet. Your delivery update is saved and will sync automatically.").
 
 ## 9. Open Items
-Logo/illustrations, dark mode, Hindi copy review by native speaker, final CTA wording "Place Order".
+Logo/illustrations, dark mode, final CTA wording "Place Order".

@@ -3,12 +3,21 @@
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer (mobile `mobile-vX.Y.Z`, API `api-vX.Y.Z`, admin `admin-vX.Y.Z`; documentation `docs-vX.Y`).
 
 ## [Unreleased]
+### Changed — approved scope and platform sequence, 2026-10-29
+- Recorded user approval of all SR-01–SR-06 in ADR-024; applied deferred task/requirement/screen/test status, manual KYC and plan assignments, forms/GPS, table/CSV reports and basic diagnostics. Added DELIVERY_SCOPE applicability index and rebaselined G0–G6.
+- ADR-025 makes all current mobile builds/runs/testing/signing/distribution Android-only. Preserved iOS design/source/configuration; T-185 validates iOS only after actual Android production release T-179.
+- Documentation only: no application code, runtime config, manifests, dependencies, generated contracts or test results changed. Earlier pending-approval entries below are history superseded by this approval.
+
+### Changed — delivery planning, 2026-10-29
+- Documentation-only ADR-023 baseline: English, native PostgreSQL/processes, secure local-file storage, task build/lint/smoke and comprehensive module gates.
+- Reprioritized dependency-aware tasks, 15-day daily milestones, reconciliation tasks T-180–T-184 and approval-pending scope proposals SR-01–SR-06. No application code, runtime configuration, lockfile or generated client changed.
+- Previous implementation entries below are historical evidence, not current requirements. Their removed infrastructure/locale/snapshot dependencies await reconciliation tasks; prior pending snapshot refresh work is superseded, not a current gate.
+
 ### Added
 - T-009 UI kit implementation (verification in progress): shared design tokens and light theme,
   subset Noto Sans/Devanagari fonts (400–700), localized EN/HI controls, status badges,
   cards, selectors, global states, uploads and accessible bar/pie charts.
-  Added component, accessibility and eight catalog golden tests; final Hindi helper/error
-  contrast verification and golden refresh remain pending execution permission.
+  Added component, accessibility and eight catalog golden tests; previously pending visual verification is superseded by T-183 and ADR-023.
 - Applied the UI kit theme/localization delegates to the mobile shell. Pinned Flutter
   3.35.7 / minimum Dart 3.9 to match the existing workspace lockfile and golden toolchain.
 - Monorepo foundation scaffolding for T-001:
@@ -60,6 +69,6 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 - Customer v1 scope = all features in source document; vendor v1 excludes staff/delivery boys and support tickets/chat.
 - Customer→vendor payments off-platform (recorded only); KYC via API with manual fallback.
 - Web admin panel fully documented; status-based tracking (no live GPS) in v1.
-- Single brand "Supply Biz"; English + Hindi; OTP-only authentication.
+- Historical 2026-10-19 baseline: single brand "Supply Biz"; English + Hindi; OTP-only authentication. Language scope is superseded by ADR-023.
 ### Open
 - 35 open questions (SCOPE §8), including billing channel for vendor plans (ADR-015) and cloud provider (ADR-017).

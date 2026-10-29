@@ -1,10 +1,12 @@
 # SRS — Software Requirements Specification
 
+> Delivery baseline (2026-10-29): [ADR-023](../05-ai-development/DECISIONS.md#adr-023-15-day-delivery-baseline--accepted-2026-10-29) and [ROADMAP](../05-ai-development/ROADMAP.md) govern execution priority and testing cadence. SR-01–SR-06 are approved by the user on 2026-10-29; [SCOPE §9](../01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) and [release applicability](../05-ai-development/DELIVERY_SCOPE.md) distinguish active, simplified and post-delivery requirements. This is a documentation-only replan; current source/contracts are reconciled by T-180–T-184.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Business Analyst + Technical Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [PRD](../01-business/PRD.md), [USER_STORIES](USER_STORIES.md), [SCREEN_SPECIFICATIONS](../03-ux/SCREEN_SPECIFICATIONS.md), [API_SPECIFICATION](../04-architecture/API_SPECIFICATION.md), [TEST_CASES](../07-testing/TEST_CASES.md) |
 
 ## 1. Purpose and Conventions
@@ -31,11 +33,11 @@
 |---|---|---|
 | FR-001 | The app shall accept an Indian mobile number (+91 fixed, 10 digits, first digit 6–9). | P0 |
 | FR-002 | The system shall send a 6-digit OTP via SMS (default) or WhatsApp (user choice). | P0 |
-| FR-003 | OTP shall expire in 5 min; resend enabled after 30 s; max 5 sends per number per hour; max 5 wrong attempts per OTP, then OTP invalidated. Android shall auto-read OTP (SMS Retriever); iOS shall support one-time-code autofill. | P0 |
+| FR-003 | OTP shall expire in 5 min; resend enabled after 30 s; max 5 sends per number per hour; max 5 wrong attempts per OTP, then OTP invalidated. Android shall auto-read OTP (SMS Retriever); iOS one-time-code autofill is preserved design, with build/run/test acceptance only after Android release (ADR-025). | P0 |
 | FR-004 | The OTP screen shall allow changing the mobile number (returns to S-COM-03, keeps input). | P0 |
 | FR-005 | After first login the user shall choose a role (Customer / Vendor). A user may hold both roles and switch via Profile/More without re-login. The active role determines the navigation shell. | P0 |
 | FR-006 | Sessions shall use short-lived access tokens (15 min) and rotating refresh tokens (30 days, single-use, reuse detection). Users can log out and log out of all devices. | P0 |
-| FR-007 | The user shall select language (English / हिन्दी) at first launch and change it in settings; change applies immediately. | P0 |
+| FR-007 | The app shall use English only with externalized strings, INR formatting and IST dates; no language selection screen. | P0 |
 | FR-008 | The user shall request account deletion in-app; system confirms by OTP, deactivates immediately and purges/anonymizes per retention policy (Q-20). Vendors with outstanding receivables are warned. | P0 |
 | FR-009 | The user shall accept Terms and Privacy Policy (versioned) before account creation; consent with version & timestamp is stored. | P0 |
 
@@ -43,11 +45,11 @@
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-010 | Vendor shall select one business category: Dairy/Milk Supplier, Water Supplier, Tiffin & Restaurant, Flower Supplier, Grocery Supplier, Fruit & Vegetable Supplier, Laundry Supplier, Others (A-15). Categories are admin-managed. | P0 |
-| FR-011 | Vendor shall enter business info: Shop/Business Name (required, 2–80 chars), GST Number (optional, 15-char GSTIN format), Address line (required), City, State (list), Pincode (6 digits), and shop geo-location (map pin or GPS). | P0 |
-| FR-012 | Vendor shall upload a shop photo (JPG/PNG/PDF, ≤ 5 MB). Images are compressed client-side; PDFs uploaded as-is. | P0 |
-| FR-013 | Vendor shall upload Aadhaar (front/back) and PAN images (JPG/PNG/PDF, ≤ 5 MB each). Aadhaar images must be masked (first 8 digits hidden) before storage (A-10). | P0 |
+| FR-011 | Vendor enters business name, optional validated GSTIN, address/city/state/pincode and shop latitude/longitude via numeric form or optional GPS coordinates; no interactive map, places or reverse-geocoding provider (SR-04). | P0 |
+| FR-012 | Vendor shall upload a shop photo (JPG/PNG/PDF, ≤ 5 MB). Images are compressed client-side; PDFs uploaded as-is. Authenticated multipart upload persists validated files in configurable local server storage; authorized API reads enforce owner/tenant access (LOCAL_FILE_STORAGE, TC-503/508). | P0 |
+| FR-013 | Vendor shall upload Aadhaar (front/back) and PAN images (JPG/PNG/PDF, ≤ 5 MB each). Aadhaar images must be masked (first 8 digits hidden) before any persistence, including temporary files (A-10); private local directory access is authorized and audited for admin review. | P0 |
 | FR-014 | Vendor shall enter bank details: Account Holder Name, Bank Name, Account Number (9–18 digits, entered twice), IFSC (`^[A-Z]{4}0[A-Z0-9]{6}$`), and UPI ID (VPA, optional but required for customer UPI settlement, A-11). | P0 |
-| FR-015 | System shall verify KYC via third-party APIs (PAN, bank penny-drop, Aadhaar method TBD Q-08); on API failure/mismatch the case goes to manual admin review. Status machine in §4.2 (`NOT_SUBMITTED`, `PENDING`, `MANUAL_REVIEW`, `VERIFIED`, `REJECTED`); resubmission allowed after rejection. | P0 |
+| FR-015 | KYC submission enters MANUAL_REVIEW (PENDING may be a transient submission state). Authorized admin reviews masked documents and bank details and approves VERIFIED or rejects REJECTED with reason, audit and notification. Record verification method MANUAL_REVIEW; automated PAN/penny-drop/Aadhaar checks remain NOT_RUN and deferred (SR-03); resubmission is allowed. | P0 |
 | FR-016 | Onboarding progress shall be saved per step and resumable after app restart. | P0 |
 | FR-017 | Unverified vendors shall be hidden from customer discovery (A-04) and see a status banner with next steps. | P0 |
 | FR-018 | Vendor shall configure a service area as radius (1–20 km, default 3 km) from shop location and/or a list of pincodes. | P0 |
@@ -127,18 +129,18 @@
 |---|---|---|
 | FR-090 | Date range: Today/Weekly/Monthly/Custom (max 366 days). | P1 |
 | FR-091 | Summary cards: Total Sales, Total Orders, Delivered, Cancelled, Total Milk Sold (L), Total Earnings (payments received), Pending Payments (Khata receivable), Active Customers. | P1 |
-| FR-092 | Sales overview bar chart by day (by week if range > 62 days). | P1 |
+| FR-092 | Sales overview by day (by week if range > 62 days) is an accurate SQL-derived table. Chart polish/advanced visualization is deferred (SR-04). | P1 |
 | FR-093 | Product-wise table: quantity sold, sales amount. | P1 |
-| FR-094 | Download report (format TBD Q-23; proposed PDF + CSV) generated server-side; shared via OS share sheet. | P1 |
+| FR-094 | Generate a server-authorized CSV report for the selected range and share/download it; PDF is deferred. Preserve integer-paise calculations, IST dates, safe CSV text encoding and tenant access control (SR-04; Q-23 resolved). | P1 |
 | FR-095 | FR-092–FR-094 gated to BUSINESS+; FR-091 available to all plans (proposed). | P1 |
 
 ### 3.11 Notifications (F-11)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-100 | In-app notification center; vendor tabs All/Orders/Payments/Delivery/System; customer tabs All/Orders/Payments/Offers; each item shows title, body, relative timestamp, read state. | P0 |
-| FR-101 | Push events — Vendor: New Order, Order Cancelled by customer, Subscription request, Payment claim, Low Stock, Plan expiring, KYC status. Customer: Order Accepted/Rejected, Out for Delivery, Delivered, Delivery Failed, Payment recorded, Subscription approved/renewed/paused by vendor, Vendor holiday, Offers. | P0 |
+| FR-100 | In-app notification center; vendor tabs All/Orders/Payments/Delivery/System; customer tabs All/Orders/Payments/System; each item shows title, body, relative timestamp, read state. | P0 |
+| FR-101 | Push events — Vendor: New Order, Order Cancelled by customer, Subscription request, Payment claim, Low Stock, Plan expiring, KYC status. Customer: Order Accepted/Rejected, Out for Delivery, Delivered, Delivery Failed, Payment recorded, Subscription approved/renewed/paused by vendor, Vendor holiday, Offers are deferred (SR-05). | P0 |
 | FR-102 | Mark read on open; Mark all read; Clear all. Retained 90 days. | P0 |
-| FR-103 | Notification preferences per category (Orders, Payments, Delivery, Offers, System); transactional KYC/security cannot be disabled. | P1 |
+| FR-103 | Notification preferences per category (Orders, Payments, Delivery, System); transactional KYC/security cannot be disabled. | P1 |
 | FR-104 | Tapping a notification deep-links to the target screen and switches active role if needed (with confirmation). | P0 |
 
 ### 3.12 Vendor Khata & Payments (F-12)
@@ -155,18 +157,18 @@
 ### 3.13 Vendor SaaS Plans (F-13)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-120 | Show plan catalog (admin-managed) with price per duration, customer limit, features, "Most Popular" marker (BUSINESS). | P1 |
-| FR-121 | Vendor purchases/renews/upgrades a plan through the billing channel decided in ADR-015 (Q-03); entitlement activated only after server-verified payment. | P1 |
+| FR-120 | Show admin-managed plan catalog, features/limits and current assigned plan with start/end dates and expiry/locked state. Support-assisted assignment replaces in-app purchase: no checkout, external payment link, receipt verification or invoice CTA (SR-03). | P1 |
+| FR-121 | **POST-DELIVERY — SR-03**. Future requirement: Vendor purchases/renews/upgrades a plan through the billing channel decided in ADR-015 (Q-03); entitlement activated only after server-verified payment. | DEFERRED |
 | FR-122 | Customer-limit enforcement (RULE-12). | P1 |
 | FR-123 | Feature gating per [PRD §5](../01-business/PRD.md#5-plan-feature-gating), enforced server-side (`403 PLAN_FEATURE_LOCKED`). | P1 |
 | FR-124 | Expiry reminders at 7, 3, 1 days and on expiry; grace period and post-expiry behaviour TBD (Q-04). | P1 |
 | FR-125 | Free trial: TBD (Q-04). | P1 |
-| FR-126 | Plan invoices (GST treatment TBD Q-24) downloadable by vendor. | P1 |
+| FR-126 | **POST-DELIVERY — SR-03**. Future requirement: Plan invoices (GST treatment TBD Q-24) downloadable by vendor. | DEFERRED |
 
 ### 3.14 Vendor Settings & Help (F-14)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-130 | Settings menu: Profile, Business Information, KYC & Bank Details, Service Area, Delivery Settings, Notification Settings, Subscription Settings, Plan & Billing, Language, Privacy Policy, Terms, Help & Support, Switch to Customer, Logout, Delete Account. ("Security / Change Password" removed — OTP-only.) | P1 |
+| FR-130 | Settings menu: Profile, Business Information, KYC & Bank Details, Service Area, Delivery Settings, Notification Settings, Subscription Settings, Plan & Entitlements, Privacy Policy, Terms, Help & Support, Switch to Customer, Logout, Delete Account. ("Security / Change Password" removed — OTP-only.) | P1 |
 | FR-131 | Editing verified fields (business name, PAN, bank, Aadhaar) sets KYC to PENDING for re-verification; vendor remains discoverable with prior verified data until decision (proposed). | P1 |
 | FR-132 | Delivery settings: delivery charge (₹, default 0), minimum order value, time slots (default 7–8, 8–9, 9–10 AM), order cut-off for same-day orders (A-16). | P1 |
 | FR-133 | Help Center: FAQs (admin CMS) by topic (Orders, Payments, Delivery, Account/KYC), Call Support (number Q-30), email. Tickets/chat deferred. | P1 |
@@ -175,26 +177,26 @@
 ### 3.15 Customer Home, Location, Search (F-15)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-200 | Location: on first use ask for location permission (pre-prompt); if granted use GPS + reverse-geocode; else manual city/address search. Selected location shown in header; changeable anytime; saved addresses selectable. | P0 |
-| FR-201 | Home shows: location selector, notification bell with unread dot, search bar, hero banner(s) (admin-managed) with CTA, category grid (admin-managed; disabled categories show "Coming soon"), Today's Delivery list (status Delivered/On the way/Scheduled). | P0 |
+| FR-200 | Select location using manual address/city/pincode and validated latitude/longitude fields or optional device GPS. Permission denial leaves forms usable; no map/places/reverse-geocoding provider. Radius/pincode coverage remains server-enforced (SR-04). | P0 |
+| FR-201 | Home shows location selector, notification bell/unread dot, search, admin-managed supply categories and today’s delivery statuses. Marketing banners and their CTA are deferred (SR-05). Unsupported categories may show unavailable text without transaction actions. | P0 |
 | FR-202 | Search vendors and products by keyword within serviceable area; recent searches stored locally. | P0 |
 | FR-203 | Customer bottom navigation per A-17 (Q-10). | P0 |
 
 ### 3.16 Discovery & Vendor Details (F-16, F-24)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-210 | Vendor list per category: only VERIFIED vendors with active plan serving the location; sort chips Nearby (distance), Popular (orders 30 d), Rating; card: image, name, rating, review count, distance, badges, quick add. Paginated. | P0 |
-| FR-211 | Vendor details: cover, name, rating, distance, badges (Pure Milk, On Time Delivery, Trusted — rules TBD, admin-assigned in v1), tabs Products / Subscription / Reviews / About (address, hours, delivery charge, holidays). | P0 |
+| FR-210 | Vendor list includes only VERIFIED vendors with an active assigned plan serving the location; Nearby/Popular sorts, image/name/distance/badges/quick add, favorites and pagination remain. Rating sort, ratings and review counts are absent (SR-05). | P0 |
+| FR-211 | Vendor details show cover/name/distance/badges and Products, Subscription and About tabs (address/hours/delivery charge/holidays). Reviews/rating UI is absent (SR-05). | P0 |
 | FR-212 | Product details: image, name, price, description, attributes, qty stepper (≥ MOQ), Add to Cart, Subscribe & Save. | P0 |
-| FR-213 | After a DELIVERED order, customer may rate the vendor 1–5 with optional text (≤ 500 chars); one review per order; vendor rating = average of published reviews. | P1 |
+| FR-213 | **POST-DELIVERY — SR-05**. Future requirement: After a DELIVERED order, customer may rate the vendor 1–5 with optional text (≤ 500 chars); one review per order; vendor rating = average of published reviews. | DEFERRED |
 | FR-214 | Customer may favorite/unfavorite vendors (heart icon) and see favorites first in lists. | P1 |
 
 ### 3.17 Cart, Checkout, Place Order (F-17)
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-220 | Cart holds items from one vendor (A-09); adding from another vendor prompts to replace. Cart persists locally. | P0 |
-| FR-221 | Bill details: item total, delivery charge (vendor setting), coupon discount, total amount. | P0 |
-| FR-222 | Apply Coupon: TBD (Q-06); feature-flagged off until defined. | P2 |
+| FR-221 | Bill details show item total, vendor delivery charge and server-calculated total. Coupon entry/discount functionality is deferred; any compatibility discount field is zero for this release and cannot be supplied by the client (SR-02). | P0 |
+| FR-222 | **POST-DELIVERY — SR-02**. Future requirement: Apply Coupon: TBD (Q-06); feature-flagged off until defined. | DEFERRED |
 | FR-223 | Checkout: delivery address (saved/new), delivery date (today if before vendor cut-off, else from tomorrow; max +7 days), time slot (vendor slots), payment mode: Pay on Delivery (Cash/UPI) or Add to Khata (if vendor allows credit — proposed default allowed for linked customers). "Proceed" places order (NEW). | P0 |
 | FR-224 | Place New Order screen: tabs Milk & Dairy / Water Can; One Time / Subscription toggle; product rows with qty steppers; date; time slot; Add to Cart (one-time) or continue to subscription setup. | P0 |
 | FR-225 | Server validation at placement: vendor active & serving address, product active, qty ≥ MOQ and ≤ stock, date not holiday/paused, capacity (FR-046), price re-computed server-side; client shows specific errors. Idempotency-Key required. | P0 |
@@ -221,40 +223,40 @@
 | FR-250 | Khata summary: Total Receivable, Total Payable, Net Balance; tabs All / Customers (personal contacts) / Vendors; each row shows balance and status (Receivable/Payable/Settled). | P0 |
 | FR-251 | Vendor ledger (read-only, synced from vendor Khata): month selector, Total Payable, Total Paid, entries with date, product, amount, Pending/Paid. | P0 |
 | FR-252 | Personal entries: add contact (name, optional mobile — manual or OS contact picker), entry "You gave"/"You got", amount, date, note; edit/delete own personal entries. | P0 |
-| FR-253 | Settle Payment (vendor ledger): opens UPI intent to vendor VPA with amount (editable ≤ due) and note; on return user confirms "I've paid" → payment claim PENDING; fallback shows VPA + QR + copy (iOS, R-11); cash option records claim only. | P0 |
+| FR-253 | Settle Payment (vendor ledger): opens UPI intent to vendor VPA with amount (editable ≤ due) and note; on return user confirms "I've paid" → payment claim PENDING; fallback shows VPA + QR + copy (Android no-app fallback active; iOS validation after Android release, ADR-025); cash option records claim only. | P0 |
 
 ### 3.21 Money (F-20)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-260 | Month selector; overview Total Income, Total Expense, Net Saving. | P1 |
-| FR-261 | Add/edit/delete income or expense: amount, category (Food, Transport, Home, Shopping, Bills, Others; Income: Salary, Business, Other), date, note. | P1 |
-| FR-262 | Expense breakdown pie chart by category; recent transactions list. | P1 |
-| FR-263 | Auto-import confirmed Supply Biz payments as expenses: TBD (Q-21). | P2 |
+| FR-260 | **POST-DELIVERY — SR-01**. Future requirement: Month selector; overview Total Income, Total Expense, Net Saving. | DEFERRED |
+| FR-261 | **POST-DELIVERY — SR-01**. Future requirement: Add/edit/delete income or expense: amount, category (Food, Transport, Home, Shopping, Bills, Others; Income: Salary, Business, Other), date, note. | DEFERRED |
+| FR-262 | **POST-DELIVERY — SR-01**. Future requirement: Expense breakdown pie chart by category; recent transactions list. | DEFERRED |
+| FR-263 | **POST-DELIVERY — SR-01**. Future requirement: Auto-import confirmed Supply Biz payments as expenses: TBD (Q-21). | DEFERRED |
 
 ### 3.22 Services & Bill Payments (F-21)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-270 | Services screen: search; categories (Milk & Dairy, Water Can, Tiffin, Laundry, Grocery, Fruits & Veg, Food & Restaurant, Medicines, Flowers, Newspaper, Home Services, Electricity, Gas & Fuel, Mobile Recharge, DTH Recharge, More); supply categories open vendor list; bill categories open bill payments; disabled ones show "Coming soon"; promo banner. | P1 |
-| FR-271 | Bill payment categories: Mobile Recharge, DTH, Electricity, Gas Cylinder, Water, Broadband, Landline, Insurance, Credit Card, Loan EMI, Municipal Tax, FASTag, Education Fees, Hospital, Recurring Bills — provider, payment rails and availability TBD (Q-07). Feature flag `bill_payments`. | P2 |
-| FR-272 | Flow: choose biller → enter consumer number → fetch bill → pay → receipt & history. Details TBD with partner (Q-07). | P2 |
+| FR-270 | Services directory shows enabled supply categories linking to vendor lists; unsupported categories may be labeled unavailable without payment or recognition actions. Bill-payment routes and promo banners are absent (SR-02/SR-05). | P1 |
+| FR-271 | **POST-DELIVERY — SR-02**. Future requirement: Bill payment categories: Mobile Recharge, DTH, Electricity, Gas Cylinder, Water, Broadband, Landline, Insurance, Credit Card, Loan EMI, Municipal Tax, FASTag, Education Fees, Hospital, Recurring Bills — provider, payment rails and availability TBD (Q-07). Feature flag `bill_payments`. | DEFERRED |
+| FR-272 | **POST-DELIVERY — SR-02**. Future requirement: Flow: choose biller → enter consumer number → fetch bill → pay → receipt & history. Details TBD with partner (Q-07). | DEFERRED |
 
 ### 3.23 Grocery Voice & Image Order (F-22)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-280 | Voice order: tap-and-speak (EN/HI), live transcript, stop/retry; microphone & speech permission requested in context. | P2 |
-| FR-281 | Image to order: capture or pick photo of a list (printed/handwritten, Latin + Devanagari) → text extraction. | P2 |
-| FR-282 | Parsed items (name + qty) matched against selected grocery vendor's catalog; list shows matched items with qty steppers, unmatched items flagged with "search" action; user can edit/remove. | P2 |
-| FR-283 | "Add All to Cart" adds matched items (RULE-05 applies). Raw audio/images are not stored server-side (proposed; Q-28). | P2 |
+| FR-280 | **POST-DELIVERY — SR-01**. Future requirement: Voice order: tap-and-speak (English), live transcript, stop/retry; microphone & speech permission requested in context. | DEFERRED |
+| FR-281 | **POST-DELIVERY — SR-01**. Future requirement: Image to order: capture or pick photo of a list (printed/handwritten, Latin) → text extraction. | DEFERRED |
+| FR-282 | **POST-DELIVERY — SR-01**. Future requirement: Parsed items (name + qty) matched against selected grocery vendor's catalog; list shows matched items with qty steppers, unmatched items flagged with "search" action; user can edit/remove. | DEFERRED |
+| FR-283 | **POST-DELIVERY — SR-01**. Future requirement: "Add All to Cart" adds matched items (RULE-05 applies). Raw audio/images are not stored server-side (proposed; Q-28). | DEFERRED |
 
 ### 3.24 Profile & Account (F-23)
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-290 | Profile: photo, name, mobile (read-only), email; edit name/email/photo. | P1 |
-| FR-291 | Addresses: list, add, edit, delete, set default; fields: label (Home/Office/Parents Home/Other), house/flat, street/area, landmark, city, state, pincode, map pin (lat/lng). | P0 |
-| FR-292 | Payment Methods: TBD (Q-22); proposed: preferred method (Cash/UPI) + saved UPI ID for display only. | P2 |
-| FR-293 | Invite & Earn: share referral link/code; reward rules TBD (Q-14); feature flag `referral`. | P2 |
-| FR-294 | Reports & Insights: monthly spend by vendor/category, milk consumed (L) from orders and Money data. | P1 |
-| FR-295 | App Settings: language, notification preferences, switch role, clear cache, about, logout, delete account. | P1 |
+| FR-291 | Addresses support list/add/edit/delete/default with label, house/flat, street/area, landmark, city/state/pincode and validated numeric lat/lng or optional device GPS. No interactive map/places provider; preserve serviceability checks and one-default invariant (SR-04). | P0 |
+| FR-292 | **POST-DELIVERY — SR-02**. Future requirement: Payment Methods: TBD (Q-22); proposed: preferred method (Cash/UPI) + saved UPI ID for display only. | DEFERRED |
+| FR-293 | **POST-DELIVERY — SR-02**. Future requirement: Invite & Earn: share referral link/code; reward rules TBD (Q-14); feature flag `referral`. | DEFERRED |
+| FR-294 | **POST-DELIVERY — SR-01**. Future requirement: Reports & Insights: monthly spend by vendor/category, milk consumed (L) from orders and Money data. | DEFERRED |
+| FR-295 | App Settings: notification preferences, switch role, clear cache, about, logout, delete account. | P1 |
 | FR-296 | Help & Support: FAQs (CMS), call/email support. | P1 |
 | FR-297 | About Supply Biz: version, licenses, legal links. | P1 |
 
@@ -262,19 +264,22 @@
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-400 | Admin login: email + password (≥ 12 chars) + mandatory TOTP 2FA; RBAC roles (Q-25); session timeout 30 min idle. | P0 |
-| FR-401 | Dashboard: vendors by KYC status, active vendors/customers, orders/day, recorded GMV, plan revenue, delivery success rate. | P0 |
-| FR-402 | KYC queue: list PENDING/MANUAL_REVIEW, view documents (watermarked, access-logged), API results, approve/reject with reason. | P0 |
+| FR-401 | Admin dashboard shows real vendor/KYC/customer counts, orders, recorded customer GMV and delivery success. Audited plan assignments are visible; automated plan revenue is unavailable until billing is implemented, never inferred from grants or synthetic purchases (SR-03). | P0 |
+| FR-402 | Manual KYC queue lists PENDING/MANUAL_REVIEW cases with masked private documents, watermark/access audit, explicit provider checks NOT_RUN, approve/reject with reason, verificationMethod=MANUAL_REVIEW and notification (SR-03). | P0 |
 | FR-403 | Vendor management: search, view, suspend/reinstate (suspended = hidden + cannot accept orders), assign badges, view plan. | P0 |
 | FR-404 | Customer management: search, view, block/unblock. | P0 |
 | FR-405 | Category management: create/edit, icon, order, enabled/coming soon, type (SUPPLY/BILL). | P0 |
-| FR-406 | Plans: manage tiers, prices, limits, features; view vendor plan subscriptions and payments; manual extend/grant (audit-logged). | P1 |
-| FR-407 | Banners (image, deep link, schedule, city) and coupons (Q-06). | P1 |
-| FR-408 | CMS: FAQs (EN/HI), Terms, Privacy (versioned); App config: min supported version (force update), feature flags. | P0 |
-| FR-409 | Broadcast push to segment (role, city, category) with schedule. | P1 |
-| FR-410 | Review moderation: hide/restore reviews (policy Q-26). | P1 |
+| FR-406 | Admin manages plan catalog/limits/features and assigns or extends a vendor plan with valid dates, permission check, idempotency and required reason; assignment and effective entitlement changes are audited atomically. Existing/new business flows enforce server entitlements and limits. Automated purchases, payment receipts and invoices are deferred (SR-03); expiry/trial policy remains Q-04. | P1 |
+| FR-407 | **POST-DELIVERY — SR-05**. Future requirement: Banners (image, deep link, schedule, city) and coupons (Q-06). | DEFERRED |
+| FR-408 | CMS manages English FAQs and versioned Terms/Privacy. Basic API-backed app config exposes min supported version and simple feature flags with audit; no Remote Config campaign/personalization or advanced experimentation work (SR-06). | P0 |
+| FR-409 | **POST-DELIVERY — SR-05**. Future requirement: Broadcast push to segment (role, city, category) with schedule. | DEFERRED |
+| FR-410 | **POST-DELIVERY — SR-05**. Future requirement: Review moderation: hide/restore reviews (policy Q-26). | DEFERRED |
 | FR-411 | Audit log viewer (actor, action, entity, before/after, IP, time); read-only. | P0 |
 | FR-412 | Data-subject requests: account deletion queue, data export (DPDP). | P0 |
 | FR-413 | Export platform reports (CSV). | P1 |
+
+## 3.26 Release applicability
+Rows marked POST-DELIVERY are future backlog; their former priority and “shall” wording do not create an active acceptance gate. Mixed rows above have been rewritten to the approved reduced behavior. Do not introduce future adapters, navigation, permissions or feature stubs. [DELIVERY_SCOPE](../05-ai-development/DELIVERY_SCOPE.md) supplies the mapping.
 
 ## 4. State Machines
 
@@ -307,24 +312,24 @@ Quick sales are separate `sale` records (no state machine).
 ## 5. Non-Functional Requirements
 | ID | Category | Requirement |
 |---|---|---|
-| NFR-001 | Performance | Cold start to interactive ≤ 2.5 s p90 on reference Android (4 GB RAM, Android 10); ≤ 1.5 s on iPhone 11+ |
+| NFR-001 | Performance | Cold start to interactive ≤ 2.5 s p90 on reference Android (4 GB RAM, Android 10); iPhone target ≤ 1.5 s is post-Android-release validation (ADR-025) |
 | NFR-002 | Performance | Scrolling/animations at 60 fps; janky frames < 1% on reference device |
 | NFR-003 | Performance | API p95 ≤ 500 ms (reads) / ≤ 800 ms (writes) at target load |
 | NFR-004 | Availability | API 99.5% monthly (proposed; SLA TBD) |
-| NFR-005 | Scalability | Design target (assumption, Q-27): 10k vendors, 1M customers, 300k orders/day; horizontally scalable stateless API |
+| NFR-005 | Scalability | Design target (assumption, Q-27): future scale ambition 10k vendors/1M customers/300k orders/day (Q-27), POST-DELIVERY under SR-06; current acceptance is measured representative load on the agreed single-host capacity, not a claim of that scale |
 | NFR-006 | Reliability | Subscription generation completes for all vendors within 30 min, idempotent, with alerting on failure |
 | NFR-007 | Offline | Cached read for dashboard, orders, deliveries, customers, Khata; vendor delivery status, payment record and quick sale queued offline and synced with idempotency |
 | NFR-008 | Security | OWASP MASVS L1 baseline (L2 controls for KYC/financial data), OWASP ASVS L2 for API/admin, TLS 1.2+ |
 | NFR-009 | Privacy | DPDP Act 2023 compliance; data in India; Aadhaar masking; PII minimization |
-| NFR-010 | Accessibility | WCAG 2.1 AA equivalent; TalkBack/VoiceOver labels; text scale up to 200% without loss; touch targets ≥ 48dp/44pt |
-| NFR-011 | Localization | EN/HI; all strings externalized; Indian number grouping (₹1,20,000); IST display |
-| NFR-012 | Compatibility | Android 7.0+ (API 24), iOS 13+ (A-13); phones 320–480 dp width; portrait only |
-| NFR-013 | Size | Android download ≤ 40 MB per ABI; iOS ≤ 60 MB |
+| NFR-010 | Accessibility | WCAG 2.1 AA equivalent; TalkBack labels now; VoiceOver after Android release; text scale up to 200% without loss; touch targets ≥ 48dp/44pt |
+| NFR-011 | Localization | English; all strings externalized; Indian number grouping (₹1,20,000); IST display |
+| NFR-012 | Compatibility | Android 7.0+ (API 24), iOS 13+ design preserved, validation after Android release (A-13, ADR-025); phones 320–480 dp width; portrait only |
+| NFR-013 | Size | Android download ≤ 40 MB per ABI; iOS ≤ 60 MB target validated after Android release |
 | NFR-014 | Battery | No continuous background location; background work only via OS-sanctioned schedulers |
 | NFR-015 | Stability | Crash-free sessions ≥ 99.5%, ANR rate < 0.47% |
-| NFR-016 | Observability | Structured logs, metrics, traces with correlation ID end-to-end |
-| NFR-017 | DR | RPO ≤ 15 min, RTO ≤ 4 h |
-| NFR-018 | Maintainability | Test coverage ≥ 80% domain/business logic, ≥ 60% overall; lint clean |
+| NFR-016 | Observability | Structured redacted logs/request IDs, health checks, job/backlog/disk/backup alerts and existing basic crash reporting; custom metrics/traces/product analytics and exporter infrastructure deferred (SR-06) |
+| NFR-017 | DR | Target RPO ≤ 15 min, RTO ≤ 4 h; verify paired DB/files restore and obtain hosting/backup target agreement under Q-02. SR-06 defers multi-zone automation, not backups, restore or agreed targets |
+| NFR-018 | Maintainability | Per-task build/lint/smoke; module-completion integration/regression/E2E and risk-based business-rule coverage; no per-task percentage gate |
 | NFR-019 | Network | Usable on 3G (≥ 400 kbps); image uploads compressed to ≤ 300 KB (KYC docs ≤ 1.5 MB after compression) |
 | NFR-020 | Auditability | All ledger, KYC, plan and admin actions audit-logged, retained per Q-20 |
 

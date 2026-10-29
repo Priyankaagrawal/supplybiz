@@ -4,7 +4,7 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Technical Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [AGENTS](../05-ai-development/AGENTS.md), [FOLDER_STRUCTURE](../04-architecture/FOLDER_STRUCTURE.md), [GIT_CICD](GIT_CICD.md) |
 
 ## 1. General
@@ -63,7 +63,7 @@ class OrderDetailController extends _$OrderDetailController {
 | Money | `bigint` or `number` integers ≤ 2^53 validated; helper `Money` utils; no floats |
 | Time | `date-fns-tz` / `Temporal` polyfill with `Asia/Kolkata`; inject `Clock` for testability |
 | Logging | Injected pino logger; structured fields; redaction config |
-| Tests | `*.spec.ts` next to source (unit); `test/*.e2e-spec.ts` (Supertest + Testcontainers) |
+| Tests | `*.spec.ts` next to source (unit); `test/*.e2e-spec.ts` (Supertest + a dedicated PostgreSQL test database) |
 
 ## 4. Next.js Admin
 - Server Components by default; Client Components only for interactivity.
@@ -72,7 +72,7 @@ class OrderDetailController extends _$OrderDetailController {
 - Sensitive document viewers: no download button, watermark overlay, audit call before display.
 
 ## 5. Reusable Components
-- Mobile reusable UI → `packages/ui_kit` (prefix `Sb`), with golden tests and dartdoc one-liners.
+- Mobile reusable UI → `packages/ui_kit` (prefix `Sb`), with focused widget checks and dartdoc one-liners.
 - Cross-feature mobile logic → `core/`; never copy-paste between features.
 - Backend shared utils → `common/` (money, time, pagination, idempotency, guards).
 - Promote code to shared only when used by ≥ 2 features.
@@ -94,12 +94,14 @@ class OrderDetailController extends _$OrderDetailController {
 | Check | Blocking? |
 |---|---|
 | Linked FR/US/T IDs and tests with TC IDs | Yes |
-| CI green (lint, tests, coverage, OpenAPI diff, security scans) | Yes |
+| Task build/lint/smoke green; module suites at module completion | Yes |
 | AuthZ / IDOR covered for new endpoints | Yes |
 | Money/time conventions | Yes |
-| l10n EN+HI, a11y semantics | Yes |
+| l10n English, a11y semantics | Yes |
 | Generated code not hand-edited | Yes |
 | Docs updated for behaviour change | Yes |
 | Naming, structure, readability | Non-blocking unless severe |
 - At least 1 approving review (2 for `ledger`, `auth`, `kyc`, `subscriptions` generation, infra).
 - Reviewer may request tests for any untested branch.
+
+Approved SR-01–SR-06 applicability is defined in DELIVERY_SCOPE/ADR-024. Preserve security and shared iOS source/configuration; current mobile builds/runs/tests/releases are Android-only until Android production release, with iOS validation tracked separately in T-185 (ADR-025). Do not add deferred provider, telemetry, navigation or platform prerequisites. This revision changes documentation only.

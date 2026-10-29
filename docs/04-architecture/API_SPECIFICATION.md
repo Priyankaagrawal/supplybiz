@@ -4,7 +4,7 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Technical Architect (Backend) |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [DATA_DESIGN](DATA_DESIGN.md), [AUTH_SECURITY](AUTH_SECURITY.md), [SRS](../02-requirements/SRS.md) |
 
 ## 1. Purpose
@@ -22,7 +22,7 @@ REST contract between the Flutter app / admin panel and the NestJS API. The mach
 | Concurrency | Mutable resources return `version`; PATCH/transition bodies include `version` → `409 VERSION_CONFLICT` |
 | Pagination | Cursor: `?limit=20&cursor=<opaque>`; response `{ "items": [], "nextCursor": "..." | null }`; max limit 100 |
 | Filtering/sorting | Query params, e.g. `?status=NEW,ACCEPTED&q=ramesh&sort=-createdAt` |
-| Localization | `Accept-Language: en|hi` for server-provided text (errors, CMS, notifications) |
+| Localization | `Accept-Language: en` (unsupported locales fall back to English) for server-provided text (errors, CMS, notifications) |
 | Tracing | `X-Request-Id` (client UUID) echoed; `traceparent` supported |
 | Client info | `X-App-Version`, `X-Platform` (`android`/`ios`) — used for force-update (`426 UPGRADE_REQUIRED`) |
 | Rate limits | Per IP & per user; `429` with `Retry-After` |
@@ -75,7 +75,7 @@ The server uses the socket IP rather than a client-supplied forwarded-IP header.
 Rate rejection returns `429 RATE_LIMITED` with a `Retry-After` seconds header.
 Until Q-09 is resolved, real SMS/WhatsApp delivery returns
 `503 OTP_PROVIDER_UNAVAILABLE`; explicitly enabled development/test console mode
-simulates delivery without exposing OTPs. Redis failures return `503 OTP_UNAVAILABLE`.
+simulates delivery without exposing OTPs. PostgreSQL OTP/rate-state failures return `503 OTP_UNAVAILABLE`.
 OTP verification is an internal, single-use service in T-014; the public verify
 endpoint, user/session creation and tokens belong to T-015.
 | GET | `/config` | public: minVersion, feature flags, categories, legal versions (cacheable) |
@@ -97,8 +97,8 @@ endpoint, user/session creation and tokens belong to T-015.
 ### 4.3 Media
 | Method | Path | Notes |
 |---|---|---|
-| POST | `/media/upload-url` | `{ purpose: PRODUCT_IMAGE|SHOP_PHOTO|KYC_DOC|PROFILE, mime, sizeBytes, sha256 }` → `{ mediaId, url, headers, expiresAt }` (PUT, 10 min) |
-| POST | `/media/{id}/complete` | server validates size/mime/hash, triggers scan |
+| POST | `/media` | Authenticated multipart `file` + allow-listed `purpose`; validate/quarantine then return `{mediaId, status}`; see LOCAL_FILE_STORAGE |
+| GET | `/media/{id}/content` | Authorized stream of READY file; no raw filesystem paths; private KYC access audited |
 
 ### 4.4 Catalog (FR-030–FR-036)
 `GET/POST /vendor/products`, `GET/PATCH/DELETE /vendor/products/{id}`, `POST /vendor/products/{id}/stock-adjustments` `{ delta, reason }`.
@@ -151,16 +151,15 @@ endpoint, user/session creation and tokens belong to T-015.
 ### 4.10 Discovery, reviews, favorites (FR-200–FR-214)
 | Method | Path |
 |---|---|
-| GET | `/customer/home?lat=&lng=` (banners, categories, today's deliveries) |
-| GET | `/customer/vendors?category=&lat=&lng=&sort=NEARBY|POPULAR|RATING&cursor=` |
-| GET | `/customer/vendors/{id}` ; `/customer/vendors/{id}/products` ; `/customer/vendors/{id}/reviews` |
+| GET | `/customer/home?lat=&lng=` (categories, today's deliveries) |
+| GET | `/customer/vendors?category=&lat=&lng=&sort=NEARBY|POPULAR&cursor=` |
+| GET | `/customer/vendors/{id}` ; `/customer/vendors/{id}/products` |
 | GET | `/customer/search?q=&lat=&lng=` |
-| POST | `/customer/orders/{id}/review` |
 | PUT/DELETE | `/customer/favorites/{vendorId}` |
 | GET/POST/PATCH/DELETE | `/customer/addresses[/{id}]` |
-| GET | `/geo/reverse?lat=&lng=` ; `/geo/autocomplete?q=` (proxied, rate-limited) |
 
-### 4.11 Other customer features
+### 4.11 POST-DELIVERY customer features (SR-01/SR-02)
+These endpoints are future reference only; no routes, credentials or tests are required for this delivery. Personal Khata endpoints in §4.9 remain active.
 | Area | Endpoints |
 |---|---|
 | Money (FR-260–FR-262) | `GET /customer/money/summary?month=`, CRUD `/customer/money/transactions` |
@@ -172,18 +171,15 @@ endpoint, user/session creation and tokens belong to T-015.
 ### 4.12 Reports, notifications, plans, content
 | Method | Path |
 |---|---|
-| GET | `/vendor/reports/summary?from=&to=` ; `/vendor/reports/sales-chart` ; `/vendor/reports/products` |
-| POST | `/vendor/reports/exports` `{ from, to, format }` → `{ exportId }` ; GET `/vendor/reports/exports/{id}` → `{ status, downloadUrl }` |
+| GET | `/vendor/reports/summary?from=&to=` ; `/vendor/reports/sales-daily` (table data) ; `/vendor/reports/products` |
+| POST | `/vendor/reports/exports` `{ from, to, format: CSV }` → `{ exportId }` ; GET `/vendor/reports/exports/{id}` → `{ status, downloadPath } (authenticated download endpoint; no public filesystem path)` |
 | GET | `/notifications?role=&category=` ; POST `/notifications/read` `{ ids | all }` ; DELETE `/notifications` |
 | GET/PUT | `/me/notification-prefs` |
 | GET | `/vendor/plans` ; GET `/vendor/plan` (current, entitlements) |
-| POST | `/vendor/plan/checkout` `{ planPriceId }` → provider payload (ADR-015) ; POST `/vendor/plan/verify` |
-| POST | `/webhooks/billing/{provider}` ; `/webhooks/kyc/{provider}` (signature-verified, no auth) |
-| GET | `/vendor/plan/invoices` |
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
 ### 4.13 Admin (`/admin/**`, FR-400–FR-413)
-`POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?status=`, `GET /admin/kyc/{vendorId}`, `POST /admin/kyc/{vendorId}/approve|reject`, `GET /admin/kyc/{vendorId}/documents/{docId}/url` (audit-logged, 60 s URL); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/banners`, `/admin/coupons` (TBD), `/admin/faqs`, `/admin/legal`, `/admin/config`; `POST /admin/broadcasts`; `GET/PATCH /admin/reviews`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
+`POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?status=`, `GET /admin/kyc/{vendorId}`, `POST /admin/kyc/{vendorId}/approve|reject`, `GET /admin/kyc/{vendorId}/documents/{docId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
 ## 5. Key Examples
 
@@ -250,3 +246,12 @@ Server re-validates everything listed in SRS/SCREEN_SPECIFICATIONS (regexes, ran
 
 ## 8. Open Questions
 Bill payments, coupons, referral endpoints pending Q-07, Q-06, Q-14. Billing checkout payload depends on ADR-015.
+
+## 7. Approved delivery contract boundaries
+ADR-024: no active Money/insights/recognition/BBPS/referral/coupon/review/banner/broadcast, automated KYC webhook or billing checkout/verification/webhook/invoice routes. Future descriptions above remain POST-DELIVERY only. Unsupported client inputs such as Rating sort, coupon discount or provider status cannot bypass active server validation.
+
+Manual KYC approval/rejection records reviewer, reason, method MANUAL_REVIEW, audit and notification; provider checks are NOT_RUN. `POST /admin/vendors/{id}/plan-assignments` and `POST /admin/vendors/{id}/plan-assignments/{assignmentId}/extend` accept validated catalog plan/dates/reason and require permission/idempotency; record audit and update effective entitlements atomically. `GET /vendor/plan` shows real assigned validity/limits. No assignment creates a payment, invoice or revenue. Expiry/trial/visibility policy remains Q-04/Q-18.
+
+Address/discovery requests accept manual pincode/address/validated coordinates or device GPS; coverage checks stay server-side without a maps provider. Reports are tables and CSV-only authorized downloads. Basic `/config`/admin config uses existing API/DB, not campaign tooling.
+
+ADR-025: active client platform is Android; keep compatible iOS enum values/contracts for later validation. Existing source/OpenAPI/generated clients are unchanged by this documentation revision; reconcile from source under authorized task implementation, never hand-edit generated artifacts.

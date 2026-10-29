@@ -4,7 +4,7 @@
 |---|---|
 | Status | Draft v0.1 |
 | Owner | Technical Architect |
-| Last updated | 2026-10-19 |
+| Last updated | 2026-10-29 |
 | Related | [MODULE_DESIGN](MODULE_DESIGN.md), [API_SPECIFICATION](API_SPECIFICATION.md), [AUTH_SECURITY](AUTH_SECURITY.md) |
 
 ## 1. Conventions
@@ -69,7 +69,7 @@ erDiagram
 ### 3.1 Identity
 | Table | Key columns | Constraints / indexes |
 |---|---|---|
-| `users` | id, mobile (E.164), name, email, photo_media_id, language (`en`/`hi`), active_role, status (ACTIVE/BLOCKED/DELETED), created_at | `UNIQUE(mobile) WHERE status <> 'DELETED'` |
+| `users` | id, mobile (E.164), name, email, photo_media_id, language (`en` only), active_role, status (ACTIVE/BLOCKED/DELETED), created_at | `UNIQUE(mobile) WHERE status <> 'DELETED'` |
 | `user_roles` | user_id, role (CUSTOMER/VENDOR) | PK(user_id, role) |
 | `consents` | user_id, doc_type (TERMS/PRIVACY), doc_version, accepted_at, ip | index(user_id) |
 | `sessions` | id, user_id, refresh_token_hash, family_id, device_id, expires_at, revoked_at, last_used_at | index(user_id), index(family_id) |
@@ -85,7 +85,7 @@ erDiagram
 | `vendor_service_pincodes` | vendor_id, pincode | PK(vendor_id, pincode) |
 | `vendor_holidays` | id, vendor_id, date, reason | UNIQUE(vendor_id, date) |
 | `vendor_kyc` | vendor_id, status, pan_enc, pan_last4, aadhaar_last4, api_results JSONB (redacted), reviewed_by, reviewed_at, rejection_reason, submitted_at | PK(vendor_id) |
-| `kyc_documents` | id, vendor_id, type (AADHAAR_FRONT/AADHAAR_BACK/PAN/SHOP_PHOTO), media_id, masked BOOLEAN | private KYC bucket only |
+| `kyc_documents` | id, vendor_id, type (AADHAAR_FRONT/AADHAAR_BACK/PAN/SHOP_PHOTO), media_id, masked BOOLEAN | private local KYC directory only; authorized API access |
 | `bank_accounts` | vendor_id, holder_name, bank_name, ifsc, account_number_enc, account_last4, verified_at | PK(vendor_id) |
 | `categories` | id, code, name_en, name_hi, icon, type (SUPPLY/BILL), status (ENABLED/COMING_SOON/HIDDEN), sort_order, product_types JSONB | UNIQUE(code) |
 
@@ -149,7 +149,7 @@ erDiagram
 | `coupons` | TBD (Q-06) |
 | `bill_payments` | TBD (Q-07) |
 | `referrals` | id, referrer_user_id, code UNIQUE, referred_user_id, status (TBD Q-14) |
-| `media_files` | id, owner_user_id, bucket (MEDIA/KYC), key, mime, size, sha256, scan_status |
+| `media_files` | id, owner_user_id, purpose (MEDIA/KYC), relative_storage_key, mime, size, sha256, scan_status |
 | `audit_logs` | id, actor_type (USER/ADMIN/SYSTEM), actor_id, action, entity, entity_id, before JSONB, after JSONB (PII redacted), ip, at — append-only |
 | `outbox_events`, `idempotency_keys` (key, user_id, request_hash, response JSONB, expires_at), `data_requests` | |
 
@@ -158,7 +158,7 @@ erDiagram
 |---|---|
 | Vendor rating | avg(reviews.rating where PUBLISHED); stored on vendors, updated on review change |
 | Due (Khata) | `ledger_balances.due_paise = total_debit − total_credit` |
-| Dashboard metrics | SQL aggregates on orders/sales by `delivery_date`/`created_at` in IST; cached 60 s in Redis |
+| Dashboard metrics | SQL aggregates on orders/sales by `delivery_date`/`created_at` in IST; queried directly from PostgreSQL initially |
 | Milk stock (L) | Σ(stock_qty × unit in litres) for active products with product_type = MILK |
 
 ## 5. Mobile Local Database (drift + SQLCipher)
@@ -181,10 +181,28 @@ DB is wiped on logout and on role switch only for that role's caches.
 | Ledger, orders, sales, plan payments | Retained per financial record-keeping law (period TBD); anonymized on account deletion |
 | Notifications | 90 days |
 | Idempotency keys | 24 hours |
-| OTP | Redis, 5 min |
+| OTP | PostgreSQL digest/expiry rows, 5 min |
 | Audit logs | TBD (proposed ≥ 3 years) |
 | Analytics | Firebase default retention configured to 14 months |
 
 ## 7. Migrations & Seed
 - Prisma Migrate; every migration reviewed; destructive changes use expand → migrate → contract across two releases.
-- Seed (`prisma/seed.ts`): categories (EN/HI), plans & prices from BRD §5, FAQs placeholder, demo vendor/customer for dev only.
+- Seed (`prisma/seed.ts`): categories (English), plans & prices from BRD §5, FAQs placeholder, demo vendor/customer for dev only.
+
+## 8. ADR-023 baseline reconciliation (T-180/T-181/T-182)
+Target tables below require reviewed migrations during implementation; they are not yet claims about schema.prisma. Keep financial rows/unique constraints and existing idempotency/outbox data intact.
+
+| State | Minimum durable representation and integrity |
+|---|---|
+| OTP challenges | Opaque ID, purpose-separated mobile hash, salt/HMAC digest, revision, PENDING/ACTIVE/CONSUMED state, expiry, attempts and exhaustion state; never plaintext OTP/PII keys |
+| Rate-limit state | Hashed mobile/IP/device + rule/window identity, send timestamps or rolling-window events, cooldown/lockout deadlines, unique keys; transaction/row or advisory lock serializes checks and increments |
+| Scheduled jobs | job type, business date, scope ID with unique key; status, attempt count, next attempt, lease expiry, completion counts and sanitized error; restart catch-up uses persisted state |
+| Outbox delivery | Existing event ID/payload plus claim lease, next-attempt time and bounded retries; row claim with SKIP LOCKED, unique delivery/event effect keys for replay |
+| Media | Owner and tenant/resource linkage, generated relative storage key, purpose, validated MIME/bytes/hash, quarantine/READY/rejected state; root path remains environment config |
+
+Use DB time for TTL/limits, expire consumed OTP state safely, and index due-job/outbox scans. Cleanup is bounded; it must not erase rate-limit budgets early or mutate financial history. Use rolling-window semantics to preserve existing OTP limits. Claim/verify must be atomic across processes; fail closed if durable state is unavailable. Media metadata/file commit failures need compensation and orphan cleanup as described in LOCAL_FILE_STORAGE.
+
+## 9. Approved active data scope (ADR-024)
+Future-only tables for Money transactions, bill payments, referrals, coupons, reviews/rating aggregates and banner/broadcast campaigns are POST-DELIVERY; their earlier schema descriptions are reference only and need no active migrations or seeds. Preserve existing data/source until an implementation task safely reconciles it. Personal contacts/entries, financial ledgers, transactional notifications, privacy/audit records and categories remain active.
+
+KYC stores manual reviewer/method/reason/time and distinguishes provider NOT_RUN from actual verified checks; approval grants business KYC status without faking PAN/bank API success. Vendor plan assignments store catalog tier, validity, reason, actor and audit with idempotent mutation behavior. A grant is not a plan payment; do not seed fabricated invoices/revenue. Existing entitlement history and limits stay consistent. Effective expiry/visibility rules use approved Q-04/Q-18 decisions.
