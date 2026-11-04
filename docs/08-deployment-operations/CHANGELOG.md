@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer (mobile `mobile-vX.Y.Z`, API `api-vX.Y.Z`, admin `admin-vX.Y.Z`; documentation `docs-vX.Y`).
 
 ## [Unreleased]
+### Changed — approved admin permission policy, 2026-11-04
+- ADR-026 resolves Q-25 with SUPER_ADMIN/OPS/SUPPORT/FINANCE grants, default-deny API/UI enforcement and explicit sensitive-operation restrictions. Updated scope, security, requirements, acceptance criteria and T-150 references; production admin domain remains Q-33 and does not block localhost development. Documentation only; task statuses and implementation evidence are unchanged.
+
+### Added — T-017 (ready for manual verification), 2026-11-04
+- Persisted public API mobile config, Android version guard/426, generated clients, offline policy cache and blocking accessible update screen with Play intent. Resume/four-minute refresh and retry supported; no experimentation dependency. API/DB and Android focused checks pass; manual PASS and module gates pending; iOS deferred.
+
 ### Changed — approved scope and platform sequence, 2026-10-29
 - Recorded user approval of all SR-01–SR-06 in ADR-024; applied deferred task/requirement/screen/test status, manual KYC and plan assignments, forms/GPS, table/CSV reports and basic diagnostics. Added DELIVERY_SCOPE applicability index and rebaselined G0–G6.
 - ADR-025 makes all current mobile builds/runs/testing/signing/distribution Android-only. Preserved iOS design/source/configuration; T-185 validates iOS only after actual Android production release T-179.

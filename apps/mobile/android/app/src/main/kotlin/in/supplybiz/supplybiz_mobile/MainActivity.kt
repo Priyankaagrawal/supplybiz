@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.util.Base64
 import com.google.android.gms.auth.api.phone.SmsRetriever
@@ -21,6 +22,27 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/app").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "version" -> {
+                    @Suppress("DEPRECATION")
+                    val info = packageManager.getPackageInfo(packageName, 0)
+                    result.success(info.versionName)
+                }
+                "openStore" -> {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+                        result.success(true)
+                    } catch (_: Exception) {
+                        try {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
+                            result.success(true)
+                        } catch (_: Exception) { result.success(false) }
+                    }
+                }
+                else -> result.notImplemented()
+            }
+        }
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/sms")
         channel?.setMethodCallHandler { call, result ->
             when (call.method) {

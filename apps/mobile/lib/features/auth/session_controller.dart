@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 
 import '../../core/config/app_environment.dart';
+import '../../core/config/app_config.dart';
 import '../../core/network/app_failure.dart';
 import '../../core/network/network_client.dart';
 import '../../core/storage/app_storage.dart';
@@ -98,6 +99,9 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
     final client = NetworkClient(
         baseUrl: api.replace(path: '').toString(),
         session: this,
+        appVersion: () => ref.read(configProvider).version,
+        onUpgradeRequired: () =>
+            ref.read(configProvider.notifier).requireUpdate(),
         adapter: ref.read(authAdapterProvider));
     repository = AuthRepository(client);
     ref.onDispose(() {

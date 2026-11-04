@@ -126,7 +126,7 @@ See [README](../../README.md#document-dependencies).
 | Q-22 | "Payment Methods" screen meaning under direct payments (saved UPI IDs? preferred method?) | POST-DELIVERY SR-02; saved payment-method management deferred | PO |
 | Q-23 | Report download formats (PDF, CSV, both)? | RESOLVED (SR-04): CSV only; PDF deferred | PO |
 | Q-24 | GST: plan prices inclusive/exclusive; GST invoices for plans; vendor GST invoices to customers? | POST-DELIVERY SR-03: automated plan billing/invoices deferred; no fabricated invoices | Finance |
-| Q-25 | Admin roles & permissions list; admin panel domain? | FR-400 | PO |
+| Q-25 | RESOLVED (user, 2026-11-04; ADR-026): four admin roles and explicit default-deny permissions approved; production admin domain tracked separately under Q-33 | FR-400 policy resolved; localhost T-150 implementation may proceed under normal dependency rules | PO |
 | Q-26 | Review moderation policy (auto-publish vs pre-moderation)? | POST-DELIVERY SR-05; review moderation deferred | PO |
 | Q-27 | Target scale (vendors, customers, orders/day) and business KPI targets? | NFR-005 | PO |
 | Q-28 | Voice/OCR processing on-device vs cloud (privacy/cost/accuracy)? | POST-DELIVERY SR-01; grocery recognition deferred | Architect |
@@ -157,4 +157,4 @@ Estimates below are overlapping developer-days saved, not additive elapsed-day g
 ### Delivery policy after approval
 Day 15 completion means all active/simplified scope passes G0–G6. SR-deferred tasks, provider contracts and future-only acceptance cases do not block those gates and must not be implemented as placeholders or marked passed. Deferred routes, tabs, marketing actions and permission prompts are absent from active navigation. Keep provider automation, billing, maps, reviews, extended finance and marketing requirements labeled POST-DELIVERY for traceability.
 
-Q-23 is resolved: CSV-only export. Q-32 maps and Q-08 automated KYC are deferred; manual review and coordinate/address input are approved. Q-03/Q-06/Q-07/Q-14/Q-21/Q-22/Q-24/Q-26/Q-28 affect deferred functionality and do not block the active delivery. Hosting, OTP delivery/DLT, privacy/retention, admin roles, active plan/expiry/visibility and core order/subscription rules remain real decisions; approval does not invent their answers. Record remaining blockers with owners/deadlines in ROADMAP §5.
+Q-23 is resolved: CSV-only export. Q-32 maps and Q-08 automated KYC are deferred; manual review and coordinate/address input are approved. Q-03/Q-06/Q-07/Q-14/Q-21/Q-22/Q-24/Q-26/Q-28 affect deferred functionality and do not block the active delivery. Q-25 admin permissions are approved in ADR-026; production admin-domain selection remains Q-33 and does not block localhost implementation. Hosting, OTP delivery/DLT, privacy/retention, active plan/expiry/visibility and core order/subscription rules remain real decisions; approval does not invent their answers. Record remaining blockers with owners/deadlines in ROADMAP §5.

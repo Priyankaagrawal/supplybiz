@@ -489,6 +489,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Secure Registration • Quick & Easy Setup • Start Supplying Today'**
   String get authTrust;
+
+  /// No description provided for @updateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Supply Biz to continue.'**
+  String get updateRequired;
+
+  /// No description provided for @updateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateAction;
+
+  /// No description provided for @updateStoreUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The store could not be opened. Try again when it is available.'**
+  String get updateStoreUnavailable;
+
+  /// No description provided for @configUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'App configuration is unavailable. Check your connection and try again.'**
+  String get configUnavailable;
 }
 
 class _AppLocalizationsDelegate

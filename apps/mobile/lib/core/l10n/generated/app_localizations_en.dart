@@ -219,4 +219,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authTrust =>
       'Secure Registration • Quick & Easy Setup • Start Supplying Today';
+
+  @override
+  String get updateRequired => 'Update Supply Biz to continue.';
+
+  @override
+  String get updateAction => 'Update';
+
+  @override
+  String get updateStoreUnavailable =>
+      'The store could not be opened. Try again when it is available.';
+
+  @override
+  String get configUnavailable =>
+      'App configuration is unavailable. Check your connection and try again.';
 }

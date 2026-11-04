@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { AppConfigController, AppConfigService, AppVersionGuard } from "./modules/content/app-config";
 import { validateEnv } from "./config/env.schema";
 import { HealthModule } from "./health/health.module";
 import { VersionController } from "./version.controller";
@@ -39,9 +40,11 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [VersionController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    AppConfigService,
+    { provide: APP_GUARD, useClass: AppVersionGuard },
     PinoLogger,
     IdempotencyService,
     IdempotencyTestService,

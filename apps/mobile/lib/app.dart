@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/app_environment.dart';
+import 'core/config/app_config.dart';
+import 'core/config/config_pages.dart';
 import 'core/l10n/l10n.dart';
 import 'core/router/app_router.dart';
 import 'core/router/routing_controller.dart';
@@ -17,11 +21,13 @@ class SupplyBizApp extends StatefulWidget {
       {required this.environment,
       this.routingController,
       this.enableAuth = false,
+      this.enableConfig = false,
       super.key});
 
   final AppEnvironment environment;
   final RoutingController? routingController;
   final bool enableAuth;
+  final bool enableConfig;
 
   @override
   State<SupplyBizApp> createState() => _SupplyBizAppState();
@@ -46,6 +52,7 @@ class _SupplyBizAppState extends State<SupplyBizApp> {
         child: _SessionBridge(
             controller: _controller,
             enabled: widget.enableAuth,
+            configEnabled: widget.enableConfig,
             child: AppRoutingScope(
                 controller: _controller,
                 environment: widget.environment,
@@ -60,7 +67,9 @@ class _SupplyBizAppState extends State<SupplyBizApp> {
                   supportedLocales: AppLocalizations.supportedLocales,
                   builder: (context, child) => Theme(
                     data: sbLightTheme(Localizations.localeOf(context)),
-                    child: child!,
+                    child: widget.enableConfig
+                        ? ConfigGate(child: child!)
+                        : child!,
                   ),
                 ))));
   }
@@ -68,9 +77,13 @@ class _SupplyBizAppState extends State<SupplyBizApp> {
 
 class _SessionBridge extends ConsumerStatefulWidget {
   const _SessionBridge(
-      {required this.controller, required this.enabled, required this.child});
+      {required this.controller,
+      required this.enabled,
+      required this.configEnabled,
+      required this.child});
   final RoutingController controller;
   final bool enabled;
+  final bool configEnabled;
   final Widget child;
   @override
   ConsumerState<_SessionBridge> createState() => _SessionBridgeState();
@@ -78,23 +91,35 @@ class _SessionBridge extends ConsumerStatefulWidget {
 
 class _SessionBridgeState extends ConsumerState<_SessionBridge>
     with WidgetsBindingObserver {
+  Timer? _configTimer;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    if (widget.enabled) {
-      Future.microtask(() => ref.read(sessionProvider.notifier).restore());
+    if (widget.configEnabled) {
+      _configTimer = Timer.periodic(const Duration(minutes: 4),
+          (_) => ref.read(configProvider.notifier).load());
     }
+    Future.microtask(() async {
+      if (widget.configEnabled) await ref.read(configProvider.notifier).load();
+      if (mounted && widget.enabled) {
+        await ref.read(sessionProvider.notifier).restore();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _configTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (widget.configEnabled && state == AppLifecycleState.resumed) {
+      ref.read(configProvider.notifier).load();
+    }
     if (widget.enabled && state == AppLifecycleState.resumed) {
       // Resume verifies the live session; offline failures retain a retryable session.
       ref.read(sessionProvider.notifier).revalidate();
@@ -103,19 +128,28 @@ class _SessionBridgeState extends ConsumerState<_SessionBridge>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.enabled) {
-      ref.listen(sessionProvider, (previous, next) {
-        final role = next.user?.activeRole?.value;
-        widget.controller.update(RouteAccess(
-            initialized: next.ready,
-            signedIn: next.user != null,
-            activeRole: role == 'VENDOR'
-                ? AppRole.vendor
-                : role == 'CUSTOMER'
-                    ? AppRole.customer
-                    : null));
-      });
+    void sync() {
+      final next = widget.enabled ? ref.read(sessionProvider) : null;
+      final config = widget.configEnabled ? ref.read(configProvider) : null;
+      final old = widget.controller.access;
+      final role = next?.user?.activeRole?.value;
+      widget.controller.update(RouteAccess(
+          initialized: (next?.ready ?? true) && (config?.ready ?? true),
+          forceUpdate: config?.forceUpdate ?? old.forceUpdate,
+          signedIn: next == null ? old.signedIn : next.user != null,
+          activeRole: next == null
+              ? old.activeRole
+              : role == 'VENDOR'
+                  ? AppRole.vendor
+                  : role == 'CUSTOMER'
+                      ? AppRole.customer
+                      : null,
+          onboardingComplete: old.onboardingComplete,
+          onboardingStep: old.onboardingStep));
     }
+
+    if (widget.enabled) ref.listen(sessionProvider, (_, __) => sync());
+    if (widget.configEnabled) ref.listen(configProvider, (_, __) => sync());
     return widget.child;
   }
 }

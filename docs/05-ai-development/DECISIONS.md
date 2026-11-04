@@ -37,6 +37,7 @@
 | ADR-023 | 15-day delivery baseline | Accepted (user instruction, 2026-10-29) |
 | ADR-024 | Apply approved SR-01–SR-06 delivery scope | Accepted (user approval, 2026-10-29) |
 | ADR-025 | Android-only execution until Android release | Accepted (user instruction, 2026-10-29) |
+| ADR-026 | Approved admin roles and default-deny permissions (Q-25) | Accepted (user, 2026-11-04) |
 
 ---
 
@@ -158,3 +159,11 @@
 - **Preserve:** Shared Flutter behavior and iOS source/configuration/platform security design. Do not delete iOS files or claim iOS checks passed. No Xcode/CocoaPods/Apple account/signing secrets/macOS runner requirement blocks Android delivery.
 - **Follow-up:** T-185 is explicitly deferred until Android release. Then validate iOS toolchain/signing, simulator/device builds, OTP autofill, encrypted storage/logout, APNs, Universal Links, UPI fallback, snapshot privacy, VoiceOver/E2E and iOS store disclosures, fixing actual platform defects before iOS release.
 - **Precedence:** Supersedes earlier cross-platform verification/release scheduling portions of ADR-001/ADR-023 and project docs, not the choice of Flutter or eventual iOS support. Android security, accessibility, financial and restore/module gates remain mandatory.
+
+### ADR-026 Admin roles and default-deny permissions — Accepted, 2026-11-04
+- **Authority:** User approved the proposed four-role policy and explicit permission boundaries in this session. This records the policy; it does not implement T-150 or authorize deployment.
+- **Decision:** SUPER_ADMIN has all active admin functions, including managing admin accounts/permissions. OPS manages manual KYC review, vendors/customers, categories and CMS content. SUPPORT has read-only vendor/customer/order access. FINANCE manages plan catalog, manual plan assignments/extensions and reports (including report CSV exports). Deferred reviews, campaigns and automated billing remain excluded under ADR-024.
+- **Boundaries:** SUPPORT cannot modify records, view private KYC documents or export personal data. Admin-account/permission management, basic app configuration, audit-log viewing and privacy/data-subject requests (including deletion and subject data export) initially remain SUPER_ADMIN-only. OPS may view private KYC documents for authorized manual review with the existing masking, watermark and access-audit requirements; it cannot use the general audit viewer.
+- **Enforcement:** Deny permissions not explicitly granted to a role; SUPER_ADMIN retains access to all active admin functions. Enforce permissions on the API and hide unauthorized admin UI pages/actions. Existing password, mandatory TOTP, session, CSRF and audit requirements remain in force. Do not infer additional role permissions from job titles or visible navigation.
+- **Resolution:** Q-25 permissions are resolved. The production admin domain remains undecided under Q-33; configurable localhost development can proceed without that production-domain decision. T-150's recorded T-015/T-180 dependencies remain subject to normal task-status/module-gate rules.
+- **Implementation evidence:** None from this approval; T-150 remains TODO and downstream tasks retain their current statuses.

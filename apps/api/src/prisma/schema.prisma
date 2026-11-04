@@ -277,3 +277,10 @@ model job_runs {
 
   @@unique([job_type, business_date, scope_id])
 }
+
+// T-017: public allowlisted mobile policy; admin editing is owned by T-158.
+model app_config {
+  key        String   @id @db.VarChar(100)
+  value      Json
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+}

@@ -305,3 +305,62 @@ Manual verification (pending):
    API call on a revoked session returns to login, local secrets/database are wiped, and a
    fresh login works. Review TalkBack and 200% layouts manually; automated semantics are not
    a TalkBack PASS. Stop the manual harness afterward and record PASS separately.
+
+## T-017 config / Android update gate handoff (2026-11-04)
+
+Normal entrypoints now load the generated `/config` client with a bounded four-second
+network wait, refresh on resume and every four minutes while active, and keep an
+atomic, API-URL-scoped public JSON cache in application support. Cache survives
+logout; it contains no account data. With no valid policy/version, startup offers
+localized Retry; offline startup can use the last valid policy and keeps any update
+block. Native Android package metadata supplies the installed version. S-COM-06
+blocks Back, deep links and all routed content until the minimum version permits
+entry. HTTP 426 immediately blocks the UI and refreshes policy without replaying
+the failed request or clearing the session. Simple boolean flags are exposed through
+`configProvider` / `value.enabled(key)`; unknown flags default false and cannot grant
+server permissions or enable deferred feature routes. Update opens the installed
+package's Play listing via Android intent, with HTTPS fallback and localized launch
+failure. Dev packages may have no published listing; actual Play publication is pending.
+Terms/Privacy continue using T-016's explicit legal build configuration; CMS/legal
+content and audited admin config editing belong to T-107/T-158.
+
+Executed from `apps/mobile` with pinned Flutter 3.35.7 / Dart 3.9.2 and JDK 21:
+```sh
+/Users/ankit/.pub-cache/bin/fvm flutter gen-l10n
+/Users/ankit/.pub-cache/bin/fvm dart format lib/app.dart lib/core/config test/core/config
+/Users/ankit/.pub-cache/bin/fvm dart format lib/app.dart test/core/config/app_config_test.dart test/core/network/network_client_test.dart
+/Users/ankit/.pub-cache/bin/fvm flutter analyze --no-pub
+/Users/ankit/.pub-cache/bin/fvm flutter test --no-pub --reporter expanded test/core/config/app_config_test.dart test/features/auth/auth_pages_test.dart test/core/router/guards_test.dart test/core/network/network_client_test.dart
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home /Users/ankit/.pub-cache/bin/fvm flutter test integration_test/config_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub --reporter expanded
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home /Users/ankit/.pub-cache/bin/fvm flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Results: clean analysis, 31 focused mobile checks (including TC-407 periodic refresh,
+200% text and Android semantics), one Android native smoke passed, dev APK built.
+Native smoke uses simulated API responses and a separate disposable cache directory;
+it proves real native version lookup, disk-cache persistence, origin separation,
+offline blocking, Back prevention and recovery. API/real PostgreSQL evidence is
+separate in the API README; an integrated mobile → live API/DB journey is NOT_RUN.
+The normal dev APK was restored with the command below from repository root; the
+pre-existing emulator remains available. No iOS source/config was edited; all iOS
+build/runtime/accessibility checks are DEFERRED under ADR-025. TalkBack/manual PASS,
+actual Play listing availability and module gates remain pending.
+```sh
+/Users/ankit/Library/Android/sdk/platform-tools/adb -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+
+Manual verification (suggested commands/actions, not an automated PASS):
+1. Use an existing dedicated `_test` DB, apply migrations, and start the normal API
+   against it using its documented native configuration. Run the normal Android dev
+   entrypoint. `curl http://localhost:3000/api/v1/config` should show minimum `0.1.0`
+   and `{}` flags; the Android app should reach Sign in. Preserve the original row.
+2. In that test DB only, set the policy using
+   `UPDATE app_config SET value='{"minVersionAndroid":"0.2.0","flags":{"operationalNotice":true}}'::jsonb, updated_at=now() WHERE key='mobile';`.
+   Resume Android or wait four minutes: the update screen must block navigation and
+   Back. Open Update and check the Play target or its unavailable-store behavior.
+   Inspect `configProvider` to confirm the boolean flag is true (no unrelated UI added).
+3. Stop that test API and relaunch Android: the cached update requirement must remain.
+   A request to `/api/v1/me` declaring Android version `0.1.0` should return 426 when
+   the API is running; config must remain readable without authentication.
+4. Restore the original test policy and resume/Retry: the block should clear. With
+   TalkBack and 200% text, review labels, targets, scrolling and the store error.
+   Restore all test data and stop the manually started API; record manual PASS separately.

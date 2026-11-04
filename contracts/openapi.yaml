@@ -34,6 +34,20 @@ paths:
                   - nodeEnv
       tags:
         - Version
+  /api/v1/config:
+    get:
+      operationId: AppConfigController_read
+      summary: Get public mobile minimum version and simple flags
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppConfigResponse'
+      tags:
+        - Configuration
   /api/v1/health/live:
     get:
       operationId: HealthController_getLive
@@ -294,6 +308,20 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AppConfigResponse:
+      type: object
+      properties:
+        minVersionAndroid:
+          type: string
+          example: 0.1.0
+          pattern: ^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})$
+        flags:
+          type: object
+          additionalProperties:
+            type: boolean
+      required:
+        - minVersionAndroid
+        - flags
     SendOtpDto:
       type: object
       properties:

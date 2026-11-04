@@ -220,3 +220,40 @@ DB inspection, since the normal console simulation intentionally exposes no OTP)
    its next `/me` and refresh fail. Confirm the concurrent-logout case leaves no active session.
 5. Resume through cleanup. Record manual PASS separately. Real SMS/WhatsApp delivery,
    Android login UI, OS-process restart drills and G0 are not claimed by these test results.
+
+## T-017 app configuration handoff (2026-11-04)
+
+`GET /api/v1/config` publicly reads only the `app_config` key `mobile`, validates
+`{minVersionAndroid: "0.1.0", flags: {}}`, and caches the response for 60 seconds.
+Other config keys never enter this response. Versions use three numeric components
+(up to six digits each, no leading zeroes, prerelease or build suffixes). Android
+requests declaring `X-Platform: android` must supply `X-App-Version`; older versions
+receive Problem Details `426 UPGRADE_REQUIRED`, malformed/missing versions receive
+400. Config/version/health GETs remain accessible. Non-mobile callers retain their
+existing behavior; version metadata never replaces authentication or authorization.
+Missing/invalid policy or DB failures return a redacted 503. There is no public
+config mutation. Admin edits and their authorization/audit remain T-158/T-152.
+The additive migration seeds the current `0.1.0` minimum with no enabled flags.
+
+Executed from the repository root (native PostgreSQL; four focused checks passed,
+including three HTTP/real-DB smoke checks; the test restores the original policy):
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+CONFIG_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/content/app-config.spec.ts
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api lint
+pnpm --filter @supplybiz/api build
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home PATH=/Users/ankit/.pub-cache/bin:$PATH tools/codegen.sh
+pnpm --filter @supplybiz/api exec tsc --noEmit --skipLibCheck --target ES2022 --module ESNext ../../packages/ts-client/src/generated/openapi.ts
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+git diff --check
+```
+Generation succeeded after allowing SDK-cache access; no dependency upgrades or
+hand edits to generated clients. Initial fixture type errors and mobile retry/test
+failures were corrected before the recorded passing checks. Generated TypeScript contract standalone typecheck passed using the API workspace compiler
+(the root has no tsc executable). Task-runner guards: 4 passed. T-017 is registered for API/mobile CI; the complete task runner, hosted
+CI and module gates were NOT_RUN. No API service was left running. The dedicated
+test DB was migrated; other databases still require migration before normal use.
+See the mobile README for Android evidence and the manual verification procedure.

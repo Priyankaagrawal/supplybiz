@@ -78,7 +78,7 @@ Until Q-09 is resolved, real SMS/WhatsApp delivery returns
 simulates delivery without exposing OTPs. PostgreSQL OTP/rate-state failures return `503 OTP_UNAVAILABLE`.
 OTP verification is an internal, single-use service in T-014; the public verify
 endpoint, user/session creation and tokens belong to T-015.
-| GET | `/config` | public: minVersion, feature flags, categories, legal versions (cacheable) |
+| GET | `/config` | public: `minVersionAndroid` (numeric `major.minor.patch`), `flags` (boolean map); DB-backed, max-age 60 s; invalid/missing policy → 503. Categories/legal are owned by their content tasks |
 
 ### 4.2 Vendor onboarding, settings (FR-010–FR-018, FR-075, FR-082–FR-085, FR-130–FR-132)
 | Method | Path |

@@ -73,6 +73,7 @@ Class | Method | HTTP request | Description
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout | 
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerRefresh**](doc/AuthApi.md#sessionscontrollerrefresh) | **POST** /api/v1/auth/refresh | 
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerVerify**](doc/AuthApi.md#sessionscontrollerverify) | **POST** /api/v1/auth/otp/verify | 
+[*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
 [*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role | 
@@ -83,6 +84,7 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AppConfigResponse](doc/AppConfigResponse.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)

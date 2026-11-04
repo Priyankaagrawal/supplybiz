@@ -59,8 +59,25 @@ Email + password (argon2id, ≥ 12 chars, breached-password check), **mandatory 
 | Resource ownership | Orders: customer (via vendor_customers.user_id) or vendor; ledger: vendor or linked customer (read-only) |
 | Plan guard | `@RequiresPlanFeature` → 403 `PLAN_FEATURE_LOCKED` |
 | KYC guard | Discovery/visibility endpoints require VERIFIED; payout-related N/A |
-| Admin RBAC (proposed, Q-25) | SUPER_ADMIN (all), OPS (KYC, vendors, customers, categories, content), SUPPORT (read vendors/customers/orders), FINANCE (plan catalog/assignments, reports); reviews and automated plan payments deferred |
+| Admin RBAC (approved Q-25; ADR-026) | Explicit grants below; deny unlisted permissions. Enforce in API and admin UI; reviews and automated billing remain deferred |
 | Suspended/blocked | Middleware rejects with `ACCOUNT_BLOCKED` |
+
+### 3.1 Approved admin permissions (ADR-026, user approval 2026-11-04)
+
+| Role | Explicit grants |
+|---|---|
+| SUPER_ADMIN | All active admin functions, including admin-account and permission management |
+| OPS | Manual KYC queue/review/approve/reject and authorized private document viewing; vendor/customer management; categories; CMS FAQs and versioned legal content |
+| SUPPORT | Read-only vendor/customer/order access; no modifications, private KYC documents or personal-data exports |
+| FINANCE | Plan catalog, manual plan assignment/extension and reports, including report CSV export |
+
+Admin-account/permission management, basic app configuration (including min version/flags),
+audit-log viewing and privacy/data-subject requests (deletion and subject data export)
+initially remain SUPER_ADMIN-only. OPS KYC document access retains masking, watermark and
+access audit; that permission does not grant access to the general audit viewer. All
+unlisted permissions are denied to other roles; SUPER_ADMIN retains access to active
+admin functions. API checks are authoritative; hiding UI controls alone is insufficient.
+Production admin-domain selection remains Q-33 and does not block localhost development.
 
 Module-completion suites for every protected endpoint include an **IDOR test** (other tenant's ID) — see [TEST_STRATEGY](../07-testing/TEST_STRATEGY.md).
 
@@ -132,7 +149,7 @@ All requests use a pre-permission rationale and handle "denied" / "permanently d
 - Threat model (STRIDE) reviewed per milestone; top threats: OTP abuse, IDOR on ledger, KYC data leakage, admin account takeover, webhook spoofing.
 
 ## 10. Open Questions
-Active: Q-20 (retention, grievance officer), Q-25 (admin roles). Q-08 provider automation and ADR-020 pinning additions are deferred by approved ADR-024; manual KYC is active, not awaiting repeat approval.
+Active: Q-20 (retention, grievance officer); production domains remain Q-33. Q-25 admin permissions are resolved by ADR-026 (user, 2026-11-04). Q-08 provider automation and ADR-020 pinning additions are deferred by approved ADR-024; manual KYC is active, not awaiting repeat approval.
 
 ## 10. Local-file and shared-state baseline
 ADR-023 and [LOCAL_FILE_STORAGE](LOCAL_FILE_STORAGE.md) govern configurable persistent paths, streamed validation, quarantine, masking before persistence, authenticated access, PDF download safety, quotas and paired DB/file restore. OTP/rate controls use PostgreSQL atomic state/time, purpose-hashed keys and cleanup; preserve all existing abuse limits and fail closed on database errors. JSON body limits do not override the separately bounded multipart route. T-180–T-182 implement this target; source remains unchanged in this revision.

@@ -1,3 +1,4 @@
+import 'package:supplybiz_api_client/src/model/app_config_response.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
@@ -29,6 +30,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return (valueString == 'true' || valueString == '1') as ReturnType;
     case 'double':
       return (value is double ? value : double.parse('$value')) as ReturnType;
+    case 'AppConfigResponse':
+      return AppConfigResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DeviceDto':

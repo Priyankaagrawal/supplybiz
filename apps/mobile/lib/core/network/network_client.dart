@@ -21,6 +21,8 @@ class NetworkClient {
     required NetworkSession session,
     String Function()? language,
     HttpClientAdapter? adapter,
+    String? Function()? appVersion,
+    void Function()? onUpgradeRequired,
     Future<void> Function(Duration)? delay,
   }) : dio = Dio(BaseOptions(
           baseUrl: '${baseUrl.replaceFirst(RegExp(r'/+$'), '')}/',
@@ -39,8 +41,14 @@ class NetworkClient {
       throw ArgumentError('An absolute HTTP(S) API base URL is required.');
     }
     if (adapter != null) dio.httpClientAdapter = adapter;
-    dio.interceptors.add(_NetworkInterceptor(dio, base, session,
-        language ?? () => 'en', delay ?? Future<void>.delayed));
+    dio.interceptors.add(_NetworkInterceptor(
+        dio,
+        base,
+        session,
+        language ?? () => 'en',
+        delay ?? Future<void>.delayed,
+        appVersion,
+        onUpgradeRequired));
   }
 
   /// Pass this instance to generated clients. Their DioException.error contains
@@ -70,13 +78,15 @@ class NetworkClient {
 }
 
 class _NetworkInterceptor extends Interceptor {
-  _NetworkInterceptor(
-      this.dio, this.base, this.session, this.language, this.delay);
+  _NetworkInterceptor(this.dio, this.base, this.session, this.language,
+      this.delay, this.appVersion, this.onUpgradeRequired);
   final Dio dio;
   final Uri base;
   final NetworkSession session;
   final String Function() language;
   final Future<void> Function(Duration) delay;
+  final String? Function()? appVersion;
+  final void Function()? onUpgradeRequired;
   Future<void>? _refreshing;
   static const _authRetried = 'network.authRetried';
   static const _getRetries = 'network.getRetries';
@@ -94,6 +104,11 @@ class _NetworkInterceptor extends Interceptor {
       return;
     }
     options.followRedirects = false;
+    final version = appVersion?.call();
+    if (version != null) {
+      _setHeader(options, 'X-Platform', 'android');
+      _setHeader(options, 'X-App-Version', version);
+    }
     // Normalize caller headers so mixed-case names cannot produce duplicates.
     _setHeader(options, 'X-Request-Id',
         _header(options, 'X-Request-Id') ?? _uuid.v4());
@@ -118,6 +133,7 @@ class _NetworkInterceptor extends Interceptor {
   void onError(DioException error, ErrorInterceptorHandler handler) async {
     final options = error.requestOptions;
     try {
+      if (error.response?.statusCode == 426) onUpgradeRequired?.call();
       final authenticated = options.extra[NetworkClient.publicRequest] != true;
       if (error.response?.statusCode == 401 && authenticated) {
         if (options.extra[_authRetried] == true || options.data is Stream) {

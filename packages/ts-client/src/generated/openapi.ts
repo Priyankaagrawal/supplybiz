@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get public mobile minimum version and simple flags */
+        get: operations["AppConfigController_read"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/health/live": {
         parameters: {
             query?: never;
@@ -188,6 +205,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AppConfigResponse: {
+            /** @example 0.1.0 */
+            minVersionAndroid: string;
+            flags: {
+                [key: string]: boolean;
+            };
+        };
         SendOtpDto: {
             mobile: string;
             /**
@@ -277,6 +301,25 @@ export interface operations {
                         buildTime?: string | null;
                         gitSha?: string | null;
                     };
+                };
+            };
+        };
+    };
+    AppConfigController_read: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppConfigResponse"];
                 };
             };
         };

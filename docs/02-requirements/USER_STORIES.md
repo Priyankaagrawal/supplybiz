@@ -311,6 +311,8 @@
 ### Epic E-20 Admin Panel
 **US-400** As an admin, I want secure login with 2FA and role-based access. — FR-400 · P0
 - AC1: Login requires password + TOTP; pages/actions not allowed for my role return 403 and are hidden.
+- AC2: Enforce the approved four-role grants in AUTH_SECURITY §3.1 / ADR-026 on API and UI; unlisted permissions are denied. SUPPORT cannot mutate, view private KYC documents or export personal data.
+- AC3: Only SUPER_ADMIN manages admin accounts/permissions, basic app config, audit viewing and privacy/data-subject requests; OPS content access covers FAQs/legal, and FINANCE access covers plans/manual assignments and reports. Production domain configuration remains Q-33 and does not block localhost verification.
 
 **US-401** As an ops admin, I want to review KYC submissions. — FR-402 · P0
 - AC1: Queue lists PENDING/MANUAL_REVIEW oldest first; approve/reject (reason required) updates vendor and notifies them; document views are audit-logged.

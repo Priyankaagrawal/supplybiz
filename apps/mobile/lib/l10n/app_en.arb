@@ -72,5 +72,9 @@
   "authLogout": "Logout",
   "authLogoutAll": "Logout from all devices",
   "authRetry": "Retry",
-  "authTrust": "Secure Registration • Quick & Easy Setup • Start Supplying Today"
+  "authTrust": "Secure Registration • Quick & Easy Setup • Start Supplying Today",
+  "updateRequired": "Update Supply Biz to continue.",
+  "updateAction": "Update",
+  "updateStoreUnavailable": "The store could not be opened. Try again when it is available.",
+  "configUnavailable": "App configuration is unavailable. Check your connection and try again."
 }

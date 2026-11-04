@@ -23,7 +23,7 @@
 | Customer | Logged-in user with active role CUSTOMER |
 | Vendor | Logged-in user with active role VENDOR (business owner) |
 | Offline customer | Vendor-created customer record without app account (may later link) |
-| Admin | Platform staff with an admin role (SUPER_ADMIN, OPS, SUPPORT, FINANCE — Q-25) |
+| Admin | Platform staff with an admin role (SUPER_ADMIN, OPS, SUPPORT, FINANCE — approved ADR-026/Q-25) |
 | System | Scheduled jobs, notification dispatcher, KYC webhook handler |
 
 ## 3. Functional Requirements
@@ -263,7 +263,7 @@
 ### 3.25 Admin Panel (F-25)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-400 | Admin login: email + password (≥ 12 chars) + mandatory TOTP 2FA; RBAC roles (Q-25); session timeout 30 min idle. | P0 |
+| FR-400 | Admin login: email + password (≥ 12 chars) + mandatory TOTP 2FA; RBAC roles SUPER_ADMIN/OPS/SUPPORT/FINANCE with explicit default-deny permissions per AUTH_SECURITY §3.1 / ADR-026 (Q-25 resolved); session timeout 30 min idle. | P0 |
 | FR-401 | Admin dashboard shows real vendor/KYC/customer counts, orders, recorded customer GMV and delivery success. Audited plan assignments are visible; automated plan revenue is unavailable until billing is implemented, never inferred from grants or synthetic purchases (SR-03). | P0 |
 | FR-402 | Manual KYC queue lists PENDING/MANUAL_REVIEW cases with masked private documents, watermark/access audit, explicit provider checks NOT_RUN, approve/reject with reason, verificationMethod=MANUAL_REVIEW and notification (SR-03). | P0 |
 | FR-403 | Vendor management: search, view, suspend/reinstate (suspended = hidden + cannot accept orders), assign badges, view plan. | P0 |

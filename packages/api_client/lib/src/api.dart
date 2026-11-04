@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/src/auth/basic_auth.dart';
 import 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 import 'package:supplybiz_api_client/src/auth/oauth.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
+import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
 import 'package:supplybiz_api_client/src/api/me_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
@@ -132,6 +133,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   AuthApi getAuthApi() {
     return AuthApi(dio);
+  }
+
+  /// Get ConfigurationApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ConfigurationApi getConfigurationApi() {
+    return ConfigurationApi(dio);
   }
 
   /// Get HealthApi instance, base route and serializer can be overridden by a given but be careful,

@@ -145,7 +145,7 @@ erDiagram
 |---|---|
 | `reviews` | id, order_id UNIQUE, vendor_id, user_id, rating 1–5, text, status (PUBLISHED/HIDDEN), created_at |
 | `notifications` | id, user_id, role, category, type, title, body, data JSONB (deep link), read_at, created_at (TTL 90 d) |
-| `banners`, `faqs`, `legal_documents` (type, version, locale, body_md, effective_at), `app_config` (key, value JSONB) | |
+| `banners`, `faqs`, `legal_documents` (type, version, locale, body_md, effective_at), `app_config` (key, value JSONB, updated_at) | T-017 public `mobile` value: minVersionAndroid and boolean flags; admin writes/audit follow T-158/T-152 |
 | `coupons` | TBD (Q-06) |
 | `bill_payments` | TBD (Q-07) |
 | `referrals` | id, referrer_user_id, code UNIQUE, referred_user_id, status (TBD Q-14) |

@@ -76,6 +76,29 @@ void main() {
   setUp(() => session = _Session());
 
   test(
+      'FR-408 native app headers and 426 invoke update gate without replay or refresh',
+      () async {
+    var blocks = 0;
+    final adapter =
+        _Adapter((options) => _response(426, {'code': 'UPGRADE_REQUIRED'}));
+    final network = NetworkClient(
+        baseUrl: 'https://api.example.test/api/v1',
+        session: session,
+        adapter: adapter,
+        appVersion: () => '0.1.0',
+        onUpgradeRequired: () {
+          blocks++;
+        });
+    addTearDown(network.close);
+    await _failure(network.request('/me'));
+    expect(adapter.headers.single['X-App-Version'], '0.1.0');
+    expect(adapter.headers.single['X-Platform'], 'android');
+    expect(blocks, 1);
+    expect(session.refreshes, 0);
+    expect(session.clears, 0);
+  });
+
+  test(
       'TC-500 mobile replay: concurrent 401s share refresh and preserve POST key/body',
       () async {
     final gate = Completer<void>();
