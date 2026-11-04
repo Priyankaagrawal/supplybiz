@@ -1,13 +1,19 @@
+import 'package:supplybiz_api_client/src/model/admin_challenge_response.dart';
+import 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
+import 'package:supplybiz_api_client/src/model/admin_me_response.dart';
+import 'package:supplybiz_api_client/src/model/admin_session_response.dart';
 import 'package:supplybiz_api_client/src/model/app_config_response.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
+import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
+import 'package:supplybiz_api_client/src/model/totp_dto.dart';
 import 'package:supplybiz_api_client/src/model/verify_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/version_controller_get_version200_response.dart';
 
@@ -30,6 +36,18 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return (valueString == 'true' || valueString == '1') as ReturnType;
     case 'double':
       return (value is double ? value : double.parse('$value')) as ReturnType;
+    case 'AdminChallengeResponse':
+      return AdminChallengeResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AdminEnrollmentResponse':
+      return AdminEnrollmentResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AdminMeResponse':
+      return AdminMeResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AdminSessionResponse':
+      return AdminSessionResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'AppConfigResponse':
       return AppConfigResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -40,6 +58,8 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
           value as Map<String, dynamic>) as ReturnType;
+    case 'LoginDto':
+      return LoginDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'MeResponse':
       return MeResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'RefreshDto':
@@ -54,6 +74,8 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'TokensResponse':
       return TokensResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'TotpDto':
+      return TotpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'VerifyOtpDto':
       return VerifyOtpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'VersionControllerGetVersion200Response':

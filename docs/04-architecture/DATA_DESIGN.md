@@ -75,7 +75,11 @@ erDiagram
 | `sessions` | id, user_id, refresh_token_hash, family_id, device_id, expires_at, revoked_at, last_used_at | index(user_id), index(family_id) |
 | `devices` | id, user_id, platform, app_version, os_version, push_token, push_enabled, last_seen_at | UNIQUE(push_token) |
 | `user_preferences` | user_id, notification_prefs JSONB, … | PK(user_id) |
-| `admin_users` | id, email, password_hash (argon2id), totp_secret_enc, role, status, last_login_at | UNIQUE(email) |
+| `admin_users` | id, email, password_hash (argon2id), totp_secret_enc (AES-256-GCM), role, status, last_login_at, failed_attempts, locked_until, last_totp_step | UNIQUE(email) |
+
+| `admin_auth_challenges` | token_hash, admin_id, secret_enc, enrolling, expires_at | T-150: five-minute challenge; encrypted pending enrolment, consumed atomically |
+| `admin_sessions` | token_hash, admin_id, csrf_hash, created_at, last_used_at, expires_at | T-150: hashed credentials; index(admin_id), index(expires_at); 30 min idle / 8 h absolute |
+| `admin_auth_events` | id, admin_id nullable, action, at | T-150 auth-only append-only events; trigger rejects update/delete; general viewer remains T-152 |
 
 ### 3.2 Vendor
 | Table | Key columns | Notes |

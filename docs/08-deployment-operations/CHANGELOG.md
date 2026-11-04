@@ -3,6 +3,10 @@
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer (mobile `mobile-vX.Y.Z`, API `api-vX.Y.Z`, admin `admin-vX.Y.Z`; documentation `docs-vX.Y`).
 
 ## [Unreleased]
+### Added — T-150 (ready for manual verification), 2026-11-04
+- Runnable Next.js admin password/TOTP enrolment/login/logout with PostgreSQL sessions, shared lockout, encrypted secrets, CSRF-protected BFF cookies, default-deny ADR-026 permissions and immutable auth events. Added operator Argon2id/breach-checked provisioning, generated clients and real admin checks.
+- Focused API/admin/native checks and production Next.js → API → PostgreSQL form smoke pass. Manual browser/accessibility/HTTPS verification, live breach-provider provisioning and G1 remain pending; setup/evidence in the admin README.
+
 ### Changed — approved admin permission policy, 2026-11-04
 - ADR-026 resolves Q-25 with SUPER_ADMIN/OPS/SUPPORT/FINANCE grants, default-deny API/UI enforcement and explicit sensitive-operation restrictions. Updated scope, security, requirements, acceptance criteria and T-150 references; production admin domain remains Q-33 and does not block localhost development. Documentation only; task statuses and implementation evidence are unchanged.
 

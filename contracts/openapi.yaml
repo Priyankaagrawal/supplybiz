@@ -1,5 +1,104 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/auth/login:
+    post:
+      operationId: AdminAuthController_login
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminChallengeResponse'
+      tags:
+        - admin-auth
+  /api/v1/admin/auth/challenge:
+    get:
+      operationId: AdminAuthController_challenge
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminEnrollmentResponse'
+      tags:
+        - admin-auth
+      security:
+        - bearer: []
+  /api/v1/admin/auth/totp/verify:
+    post:
+      operationId: AdminAuthController_verify
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TotpDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSessionResponse'
+      tags:
+        - admin-auth
+  /api/v1/admin/auth/me:
+    get:
+      operationId: AdminAuthController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminMeResponse'
+      tags:
+        - admin-auth
+      security:
+        - bearer: []
+  /api/v1/admin/auth/logout:
+    post:
+      operationId: AdminAuthController_logout
+      parameters:
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+        - admin-auth
+      security:
+        - bearer: []
   /api/v1/version:
     get:
       operationId: VersionController_getVersion
@@ -308,6 +407,68 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+      required:
+        - email
+        - password
+    AdminChallengeResponse:
+      type: object
+      properties:
+        challengeToken:
+          type: string
+      required:
+        - challengeToken
+    AdminEnrollmentResponse:
+      type: object
+      properties:
+        enrollmentSecret:
+          type: string
+          nullable: true
+      required:
+        - enrollmentSecret
+    TotpDto:
+      type: object
+      properties:
+        challengeToken:
+          type: string
+        code:
+          type: string
+      required:
+        - challengeToken
+        - code
+    AdminSessionResponse:
+      type: object
+      properties:
+        sessionToken:
+          type: string
+        csrfToken:
+          type: string
+      required:
+        - sessionToken
+        - csrfToken
+    AdminMeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - role
+        - permissions
     AppConfigResponse:
       type: object
       properties:

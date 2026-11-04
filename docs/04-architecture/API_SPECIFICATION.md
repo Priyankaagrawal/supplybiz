@@ -179,6 +179,8 @@ These endpoints are future reference only; no routes, credentials or tests are r
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
 ### 4.13 Admin (`/admin/**`, FR-400–FR-413)
+T-150 implements password login → five-minute challenge → mandatory TOTP verification/enrolment → session. `GET /admin/auth/challenge` reads enrolment setup using the pending bearer credential; `GET /admin/auth/me` returns only id/role/permissions. These are server-to-server BFF operations; the browser receives httpOnly Strict cookies (Secure over HTTPS), while the Next.js server supplies the opaque bearer to the API. Logout additionally requires `X-CSRF-Token`; all mutations require `Idempotency-Key`, but auth responses are never replay-cached. Five password/TOTP failures lock an account for 30 minutes; session expiry is 30 minutes idle/eight hours absolute. Unannotated admin routes and unlisted permissions are denied. Local operator provisioning uses breached-password checks; admin-account management remains T-162.
+
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?status=`, `GET /admin/kyc/{vendorId}`, `POST /admin/kyc/{vendorId}/approve|reject`, `GET /admin/kyc/{vendorId}/documents/{docId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
 ## 5. Key Examples

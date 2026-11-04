@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-150': ['src/modules/admin-auth/admin-password.spec.ts', 'src/modules/admin-auth/admin-auth.postgres.spec.ts'],
   'T-017': ['src/modules/content/app-config.spec.ts'],
   'T-015': ['src/modules/auth/sessions.service.spec.ts', 'src/modules/auth/sessions.http.spec.ts',
     'src/modules/auth/sessions.postgres.spec.ts'],
@@ -41,6 +42,13 @@ for (const task of tasks) {
       process.exit(1);
     }
     run(api('lint')); run(api('typecheck')); run(api('build'));
+    if (task === 'T-150') {
+      process.env.ADMIN_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+      run(['pnpm', '--filter', '@supplybiz/admin', 'lint']);
+      run(['pnpm', '--filter', '@supplybiz/admin', 'typecheck']);
+      run(['pnpm', '--filter', '@supplybiz/admin', 'test']);
+      run(['pnpm', '--filter', '@supplybiz/admin', 'build']);
+    }
     if (task === 'T-181') process.env.WORKER_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-015') process.env.SESSIONS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;

@@ -33,3 +33,8 @@ build/
 
 # Generated clients
 packages/api_client/.openapi-generator/
+
+# Next.js
+.next/
+*.tsbuildinfo
+apps/api/dist/

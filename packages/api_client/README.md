@@ -48,16 +48,13 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 
 
-final api = SupplybizApiClient().getAuthApi();
-final String xDeviceId = xDeviceId_example; // String | Stable installation identifier, 1–128 ASCII letters, digits, hyphens or underscores.
-final String idempotencyKey = idempotencyKey_example; // String | 
-final SendOtpDto sendOtpDto = ; // SendOtpDto | 
+final api = SupplybizApiClient().getAdminAuthApi();
 
 try {
-    final response = await api.otpControllerSend(xDeviceId, idempotencyKey, sendOtpDto);
+    final response = await api.adminAuthControllerChallenge();
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling AuthApi->otpControllerSend: $e\n");
+    print("Exception when calling AdminAuthApi->adminAuthControllerChallenge: $e\n");
 }
 
 ```
@@ -68,32 +65,43 @@ All URIs are relative to *http://localhost:3000*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerChallenge**](doc/AdminAuthApi.md#adminauthcontrollerchallenge) | **GET** /api/v1/admin/auth/challenge |
+[*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogin**](doc/AdminAuthApi.md#adminauthcontrollerlogin) | **POST** /api/v1/admin/auth/login |
+[*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
+[*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
+[*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
-[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json | 
-[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout | 
-[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerRefresh**](doc/AuthApi.md#sessionscontrollerrefresh) | **POST** /api/v1/auth/refresh | 
-[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerVerify**](doc/AuthApi.md#sessionscontrollerverify) | **POST** /api/v1/auth/otp/verify | 
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json |
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout |
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerRefresh**](doc/AuthApi.md#sessionscontrollerrefresh) | **POST** /api/v1/auth/refresh |
+[*AuthApi*](doc/AuthApi.md) | [**sessionsControllerVerify**](doc/AuthApi.md#sessionscontrollerverify) | **POST** /api/v1/auth/otp/verify |
 [*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
-[*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role | 
-[*MeApi*](doc/MeApi.md) | [**meControllerAddRole**](doc/MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles | 
-[*MeApi*](doc/MeApi.md) | [**meControllerMe**](doc/MeApi.md#mecontrollerme) | **GET** /api/v1/me | 
+[*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role |
+[*MeApi*](doc/MeApi.md) | [**meControllerAddRole**](doc/MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles |
+[*MeApi*](doc/MeApi.md) | [**meControllerMe**](doc/MeApi.md#mecontrollerme) | **GET** /api/v1/me |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
 ## Documentation For Models
 
+ - [AdminChallengeResponse](doc/AdminChallengeResponse.md)
+ - [AdminEnrollmentResponse](doc/AdminEnrollmentResponse.md)
+ - [AdminMeResponse](doc/AdminMeResponse.md)
+ - [AdminSessionResponse](doc/AdminSessionResponse.md)
  - [AppConfigResponse](doc/AppConfigResponse.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [TokensResponse](doc/TokensResponse.md)
+ - [TotpDto](doc/TotpDto.md)
  - [VerifyOtpDto](doc/VerifyOtpDto.md)
  - [VersionControllerGetVersion200Response](doc/VersionControllerGetVersion200Response.md)
 

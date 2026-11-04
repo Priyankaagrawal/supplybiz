@@ -1,3 +1,5 @@
+import { AdminAuthController, AdminGuard } from './modules/admin-auth/admin-auth.controller';
+import { AdminAuthService } from './modules/admin-auth/admin-auth.service';
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
@@ -40,9 +42,11 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    AdminAuthService,
+    { provide: APP_GUARD, useClass: AdminGuard },
     AppConfigService,
     { provide: APP_GUARD, useClass: AppVersionGuard },
     PinoLogger,

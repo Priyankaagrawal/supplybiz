@@ -180,11 +180,17 @@ model admin_users {
   email            String            @unique @db.VarChar(254)
   password_hash    String            @db.VarChar(255)
   totp_secret_enc  String?           @db.VarChar(512)
+  failed_attempts  Int               @default(0)
+  locked_until     DateTime?         @db.Timestamptz(6)
+  last_totp_step   BigInt            @default(-1)
   role             String            @db.VarChar(64)
   status           admin_user_status @default(ACTIVE)
   last_login_at    DateTime?         @db.Timestamptz(6)
   created_at       DateTime          @default(now()) @db.Timestamptz(6)
   updated_at       DateTime          @updatedAt @db.Timestamptz(6)
+  auth_challenges admin_auth_challenges[]
+  auth_sessions admin_sessions[]
+  auth_events admin_auth_events[]
 }
 
 model categories {
@@ -283,4 +289,33 @@ model app_config {
   key        String   @id @db.VarChar(100)
   value      Json
   updated_at DateTime @updatedAt @db.Timestamptz(6)
+}
+
+// T-150: only hashes of bearer credentials are persisted; challenges expire in 5m.
+model admin_auth_challenges {
+  token_hash String @id @db.VarChar(64)
+  admin_id String @db.Uuid
+  secret_enc String @db.VarChar(512)
+  enrolling Boolean
+  expires_at DateTime @db.Timestamptz(6)
+  admin admin_users @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+model admin_sessions {
+  token_hash String @id @db.VarChar(64)
+  admin_id String @db.Uuid
+  csrf_hash String @db.VarChar(64)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  last_used_at DateTime @default(now()) @db.Timestamptz(6)
+  expires_at DateTime @db.Timestamptz(6)
+  @@index([admin_id])
+  @@index([expires_at])
+  admin admin_users @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+// Auth-only events; the general audit module/viewer belongs to T-152.
+model admin_auth_events {
+  id String @id @default(uuid()) @db.Uuid
+  admin_id String? @db.Uuid
+  action String @db.VarChar(64)
+  at DateTime @default(now()) @db.Timestamptz(6)
+  admin admin_users? @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }

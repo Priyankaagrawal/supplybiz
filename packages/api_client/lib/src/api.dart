@@ -7,6 +7,7 @@ import 'package:supplybiz_api_client/src/auth/api_key_auth.dart';
 import 'package:supplybiz_api_client/src/auth/basic_auth.dart';
 import 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 import 'package:supplybiz_api_client/src/auth/oauth.dart';
+import 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
@@ -127,6 +128,12 @@ class SupplybizApiClient {
           .apiKeys
           .remove(name);
     }
+  }
+
+  /// Get AdminAuthApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AdminAuthApi getAdminAuthApi() {
+    return AdminAuthApi(dio);
   }
 
   /// Get AuthApi instance, base route and serializer can be overridden by a given but be careful,
