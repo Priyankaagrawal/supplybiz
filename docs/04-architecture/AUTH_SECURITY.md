@@ -114,7 +114,7 @@ Additional controls:
 | Ledger/orders | Confidential business | Tenant isolation, audit |
 | Location | Personal | Only when-in-use; not tracked in background |
 | POST-DELIVERY SR-01: Voice/images for grocery | Personal | Processed on-device where possible; not uploaded/stored server-side (Q-28) |
-- Uploads: allow-listed MIME (image/jpeg, image/png, application/pdf), magic-byte check, size ≤ 5 MB, malware scan (existing document scanner in worker) before marking usable, EXIF stripped from images.
+- Uploads: allow-listed MIME (image/jpeg, image/png, application/pdf), magic-byte check, size ≤ 5 MB, EXIF stripped from images. Document malware scanning and automated pre-persistence Aadhaar validation are excluded from T-020 (ADR-027); uploaders must supply masked Aadhaar documents.
 - Backups encrypted; restore tested quarterly.
 - Secrets in cloud secret manager; rotated; never in repo or app binary (Firebase config files are not secrets but restricted via API key restrictions & App Check).
 

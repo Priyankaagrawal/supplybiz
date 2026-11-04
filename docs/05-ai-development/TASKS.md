@@ -47,7 +47,7 @@
 ## 3. M1 — Vendor Core + Admin KYC
 | ID | Task | Layer | Refs | Deps | Done when | Status |
 |---|---|---|---|---|---|---|
-| T-020 | Local media multipart upload, validation/quarantine and authorized file stream | API | ADR-023, LOCAL_FILE_STORAGE, FR-012 | T-005, T-015, T-182 | TC-503/508; upload → metadata → attachment → authorized display; no raw paths or public KYC | TODO |
+| T-020 | Local media multipart upload, validation/quarantine and authorized file stream | API | ADR-023, LOCAL_FILE_STORAGE, FR-012 | T-005, T-015, T-182 | TC-503/508; upload → metadata → attachment → authorized display; no raw paths or public KYC | TODO (2026-11-04 user removed document malware scanning and automated pre-persistence Aadhaar validation from T-020; ADR-027; prior blocker cleared) |
 | T-021 | Vendors module: category, business info, onboarding step, settings defaults | API | FR-010, FR-011, FR-016 | T-015 | TC-020–TC-022 | TODO |
 | T-022 | Manual KYC submission/review state machine, encrypted bank data, method and audit; automated providers deferred | API | FR-013–FR-015, ADR-024, TC-509 | T-020, T-021, T-152 | Submission → MANUAL_REVIEW → authorized VERIFIED/REJECTED with reason/audit/notification; automated checks NOT_RUN | TODO |
 | T-023 | Service area (radius + pincodes) with PostGIS | API | FR-018 | T-021 | TC-028 | TODO |

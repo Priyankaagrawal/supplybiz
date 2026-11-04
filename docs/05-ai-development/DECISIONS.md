@@ -38,6 +38,7 @@
 | ADR-024 | Apply approved SR-01–SR-06 delivery scope | Accepted (user approval, 2026-10-29) |
 | ADR-025 | Android-only execution until Android release | Accepted (user instruction, 2026-10-29) |
 | ADR-026 | Approved admin roles and default-deny permissions (Q-25) | Accepted (user, 2026-11-04) |
+| ADR-027 | T-020 document validation scope | Accepted (user, 2026-11-04) |
 
 ---
 
@@ -167,3 +168,10 @@
 - **Enforcement:** Deny permissions not explicitly granted to a role; SUPER_ADMIN retains access to all active admin functions. Enforce permissions on the API and hide unauthorized admin UI pages/actions. Existing password, mandatory TOTP, session, CSRF and audit requirements remain in force. Do not infer additional role permissions from job titles or visible navigation.
 - **Resolution:** Q-25 permissions are resolved. The production admin domain remains undecided under Q-33; configurable localhost development can proceed without that production-domain decision. T-150's recorded T-015/T-180 dependencies remain subject to normal task-status/module-gate rules.
 - **Implementation evidence:** None from this approval; T-150 remains TODO and downstream tasks retain their current statuses.
+
+### ADR-027 T-020 document validation scope — Accepted, 2026-11-04
+- **Authority:** User explicitly requested removal of required document malware scanning and pre-persistence Aadhaar validation from T-020.
+- **Decision:** Neither document malware scanning nor automated server-side pre-persistence Aadhaar validation is required for T-020. These mechanisms do not block its implementation or verification; clear the recorded prerequisite blocker.
+- **Preserve:** Masked-Aadhaar-only storage remains the requirement for supplied documents. Uploaders must supply already-masked Aadhaar; T-020 does not automatically verify that masking. Retain type/magic-byte/size/pixel/decode validation, EXIF stripping, private storage, idempotency, resource authorization, audited admin KYC access and attachment-only PDF responses.
+- **Precedence:** Supersedes T-020 scanner and automated pre-persistence Aadhaar-validation requirements in LOCAL_FILE_STORAGE, AUTH_SECURITY and FR-013. Earlier accepted ADRs remain unchanged.
+- **Evidence:** Documentation-only scope correction; T-020 returns to TODO. No implementation, manual PASS or module-gate evidence is supplied by this decision.

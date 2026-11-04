@@ -257,3 +257,16 @@ failures were corrected before the recorded passing checks. Generated TypeScript
 CI and module gates were NOT_RUN. No API service was left running. The dedicated
 test DB was migrated; other databases still require migration before normal use.
 See the mobile README for Android evidence and the manual verification procedure.
+
+## T-020 scope clarification (2026-11-04)
+
+Status: **TODO**; the user removed document malware scanning and automated
+pre-persistence Aadhaar validation from T-020 (ADR-027), clearing the prior
+prerequisite blocker. Neither a scanner nor an automated masking validator is
+required for this task. The masked-Aadhaar-only storage rule remains; uploaders
+must supply masked documents.
+
+Retain file type/magic-byte/size/pixel/decode validation, image EXIF stripping,
+private local storage, idempotency, authorized reads and admin KYC access audit.
+PDFs remain attachment-only. No application implementation or task verification
+is claimed by this documentation change.
