@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Prisma, admin_users } from '@prisma/client';
+import { auditContext } from '../audit/audit-context';
 import { randomBytes } from 'node:crypto';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -17,7 +18,8 @@ export class AdminAuthService {
     if (!key || !/^[a-f0-9]{64}$/i.test(key)) throw new ServiceUnavailableException('Admin authentication is not configured.');
     return Buffer.from(key, 'hex');
   }
-  private async lock(tx: Prisma.TransactionClient, id: string): Promise<admin_users> {
+  private async lock(tx: Prisma.TransactionClient, id: string, ip?: string): Promise<admin_users> {
+    await auditContext(tx, id, ip);
     await tx.$queryRaw`SELECT id FROM admin_users WHERE id = ${id}::uuid FOR UPDATE`;
     return tx.admin_users.findUniqueOrThrow({ where: { id } });
   }
@@ -41,14 +43,15 @@ export class AdminAuthService {
     if (user.locked_until) return tx.admin_users.update({ where: { id: user.id }, data: { locked_until: null, failed_attempts: 0 } });
     return user;
   }
-  async login(email: string, password: string): Promise<{ challengeToken: string }> {
+  async login(email: string, password: string, ip?: string): Promise<{ challengeToken: string }> {
     const key = this.key();
     const candidate = await this.db.admin_users.findUnique({ where: { email: email.trim().toLowerCase() } });
     // Equal expensive work for unknown accounts; lockout counters are shared across instances.
     const valid = await argon2.verify(candidate?.password_hash ?? await this.dummy, password);
     const result = await this.db.$transaction(async tx => {
+      await auditContext(tx, undefined, ip);
       if (!candidate) { await this.event(tx, 'LOGIN_FAILED'); return null; }
-      const locked = await this.lock(tx, candidate.id), now = await this.clock(tx);
+      const locked = await this.lock(tx, candidate.id, ip), now = await this.clock(tx);
       const user = await this.available(tx, locked, now);
       if (!user) return null;
       if (!valid || user.password_hash !== candidate.password_hash) { await this.failure(tx, user, now); return null; }
@@ -71,12 +74,12 @@ export class AdminAuthService {
         (user.locked_until && user.locked_until.getTime() > Date.now()) || row.expires_at.getTime() <= Date.now()) throw denied();
     return { enrollmentSecret: row.enrolling ? decryptSecret(row.secret_enc, this.key()) : null };
   }
-  async verify(token: string, code: string): Promise<{ sessionToken: string; csrfToken: string }> {
+  async verify(token: string, code: string, ip?: string): Promise<{ sessionToken: string; csrfToken: string }> {
     const key = this.key();
     const result = await this.db.$transaction(async tx => {
       const challenge = await tx.admin_auth_challenges.findUnique({ where: { token_hash: digest(token) } });
       if (!challenge) return null;
-      const locked = await this.lock(tx, challenge.admin_id), now = await this.clock(tx);
+      const locked = await this.lock(tx, challenge.admin_id, ip), now = await this.clock(tx);
       const user = await this.available(tx, locked, now);
       const current = await tx.admin_auth_challenges.findUnique({ where: { token_hash: digest(token) } });
       if (!user || !current || current.expires_at <= now) return null;
@@ -112,12 +115,12 @@ export class AdminAuthService {
     if (!result) throw denied();
     return result;
   }
-  async logout(token: string, csrf: string): Promise<void> {
+  async logout(token: string, csrf: string, ip?: string): Promise<void> {
     // Check + deletion under the same user lock used by authenticate.
     await this.db.$transaction(async tx => {
       const session = await tx.admin_sessions.findUnique({ where: { token_hash: digest(token) } });
       if (!session || digest(csrf) !== session.csrf_hash) throw new ForbiddenException();
-      await this.lock(tx, session.admin_id);
+      await this.lock(tx, session.admin_id, ip);
       await tx.admin_sessions.deleteMany({ where: { token_hash: session.token_hash } });
       await this.event(tx, 'LOGOUT', session.admin_id);
     });

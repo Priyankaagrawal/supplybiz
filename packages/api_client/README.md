@@ -70,6 +70,7 @@ Class | Method | HTTP request | Description
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
+[*AuditApi*](doc/AuditApi.md) | [**auditControllerList**](doc/AuditApi.md#auditcontrollerlist) | **GET** /api/v1/admin/audit-logs |
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json |
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout |
@@ -98,6 +99,9 @@ Class | Method | HTTP request | Description
  - [AdminMeResponse](doc/AdminMeResponse.md)
  - [AdminSessionResponse](doc/AdminSessionResponse.md)
  - [AppConfigResponse](doc/AppConfigResponse.md)
+ - [AuditPage](doc/AuditPage.md)
+ - [AuditRow](doc/AuditRow.md)
+ - [AuditSnapshot](doc/AuditSnapshot.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)

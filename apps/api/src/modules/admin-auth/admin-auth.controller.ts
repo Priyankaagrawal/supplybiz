@@ -51,15 +51,15 @@ export class AdminAuthController {
   constructor(private readonly auth: AdminAuthService) {}
   @Header('Cache-Control', 'no-store') @Post('login') @HttpCode(200) @SetMetadata(PUBLIC, true)
   @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiOkResponse({ type: AdminChallengeResponse })
-  login(@Body() input: LoginDto) { return this.auth.login(input.email, input.password); }
+  login(@Body() input: LoginDto, @Req() req: Request) { return this.auth.login(input.email, input.password, req.ip); }
   @Header('Cache-Control', 'no-store') @Get('challenge') @SetMetadata(PUBLIC, true) @ApiBearerAuth() @ApiOkResponse({ type: AdminEnrollmentResponse })
   challenge(@Req() req: Request) { return this.auth.challenge(bearer(req)); }
   @Header('Cache-Control', 'no-store') @Post('totp/verify') @HttpCode(200) @SetMetadata(PUBLIC, true)
   @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiOkResponse({ type: AdminSessionResponse })
-  verify(@Body() input: TotpDto) { return this.auth.verify(input.challengeToken, input.code); }
+  verify(@Body() input: TotpDto, @Req() req: Request) { return this.auth.verify(input.challengeToken, input.code, req.ip); }
   @Header('Cache-Control', 'no-store') @Get('me') @AdminPermission('self') @ApiBearerAuth() @ApiOkResponse({ type: AdminMeResponse })
   me(@Req() req: Request) { return this.auth.authenticate(bearer(req)); }
   @Header('Cache-Control', 'no-store') @Post('logout') @HttpCode(204) @AdminPermission('self') @ApiBearerAuth()
   @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiHeader({ name: 'X-CSRF-Token', required: true })
-  logout(@Req() req: Request) { return this.auth.logout(bearer(req), req.header('X-CSRF-Token') ?? ''); }
+  logout(@Req() req: Request) { return this.auth.logout(bearer(req), req.header('X-CSRF-Token') ?? '', req.ip); }
 }

@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/admin/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AuditController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/onboarding/categories": {
         parameters: {
             query?: never;
@@ -397,6 +413,33 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AuditSnapshot: {
+            role: string;
+            status: string;
+            failed_attempts: number;
+            /** Format: date-time */
+            locked_until: string | null;
+            /** Format: date-time */
+            last_login_at: string | null;
+            totp_enrolled: boolean;
+        };
+        AuditRow: {
+            id: string;
+            actor_type: string;
+            actor_id: string | null;
+            action: string;
+            entity: string;
+            entity_id: string | null;
+            before: components["schemas"]["AuditSnapshot"] | null;
+            after: components["schemas"]["AuditSnapshot"] | null;
+            ip: string | null;
+            /** Format: date-time */
+            at: string;
+        };
+        AuditPage: {
+            items: components["schemas"]["AuditRow"][];
+            hasMore: boolean;
+        };
         VendorCategoryResponse: {
             /** Format: uuid */
             id: string;
@@ -552,6 +595,29 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AuditController_list: {
+        parameters: {
+            query?: {
+                beforeId?: string;
+                action?: string;
+                actorId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPage"];
+                };
+            };
+        };
+    };
     VendorsController_categories: {
         parameters: {
             query?: never;

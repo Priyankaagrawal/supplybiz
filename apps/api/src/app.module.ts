@@ -1,3 +1,4 @@
+import { AuditController } from './modules/audit/audit.controller';
 import { VendorsController } from './modules/vendors/vendors.controller';
 import { VendorsService } from './modules/vendors/vendors.service';
 import { LocalStorageModule } from "./storage/local-storage.module";
@@ -48,7 +49,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
     MediaService,

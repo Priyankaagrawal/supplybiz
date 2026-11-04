@@ -38,6 +38,6 @@ export class AdminMediaController {
   @Header('Cache-Control', 'no-store') @Header('X-Content-Type-Options', 'nosniff')
   @ApiResponse({ status: 200, schema: { type: 'string', format: 'binary' } })
   content(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
-    return this.media.content(id, { adminToken: bearer(req) });
+    return this.media.content(id, { adminToken: bearer(req), ip: req.ip });
   }
 }

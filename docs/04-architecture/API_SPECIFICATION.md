@@ -195,6 +195,8 @@ T-150 implements password login → five-minute challenge → mandatory TOTP ver
 
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?status=`, `GET /admin/kyc/{vendorId}`, `POST /admin/kyc/{vendorId}/approve|reject`, `GET /admin/kyc/{vendorId}/documents/{docId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
+T-152 implements `GET /admin/audit-logs` with `audit.read` (SUPER_ADMIN only), no-store responses and no write endpoint. Optional `action` (uppercase/underscore, ≤64), `actorId` and `beforeId` (UUID cursor) filters return `{items, hasMore}` in descending `(at,id)` order, at most 50 rows. Each item includes actor type/id, action, entity/id, redacted before/after, socket IP and UTC time. Historical unavailable values remain null. S-A-16 calls this only from the Next.js server; no staff token reaches the browser.
+
 ## 5. Key Examples
 
 ### 5.1 Place order

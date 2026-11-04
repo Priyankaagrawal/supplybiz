@@ -1,3 +1,4 @@
+import { auditContext } from '../audit/audit-context';
 import { BadRequestException, HttpException, Injectable, NotFoundException, PayloadTooLargeException, ServiceUnavailableException, StreamableFile, UnprocessableEntityException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomUUID } from 'node:crypto';
@@ -75,7 +76,7 @@ export class MediaService {
     return media.id;
   }
 
-  async content(id: string, actor: { owner?: string; adminToken?: string }) {
+  async content(id: string, actor: { owner?: string; adminToken?: string; ip?: string }) {
     const admin = actor.adminToken === undefined ? undefined : await this.adminAuth.authenticate(actor.adminToken, 'kyc.documents');
     const media = await this.prisma.media_files.findFirst({ where: { id, status: 'READY',
       ...(admin ? { purpose: { in: ['KYC_DOC', 'SHOP_PHOTO'] } } : { owner_user_id: actor.owner ?? '' }) } });
@@ -87,7 +88,10 @@ export class MediaService {
     try {
       const info = await file.stat();
       if (!info.isFile() || info.size !== media.size || (info.mode & 0o077) !== 0) throw new NotFoundException();
-      if (admin) await this.prisma.media_access_events.create({ data: { media_id: id, admin_user_id: admin.id } });
+      if (admin) await this.prisma.$transaction(async tx => {
+        await auditContext(tx, admin.id, actor.ip);
+        await tx.media_access_events.create({ data: { media_id: id, admin_user_id: admin.id } });
+      });
       return new StreamableFile(file.createReadStream(), { type: media.mime, length: media.size,
         disposition: `attachment; filename="${media.id}.${media.relative_storage_key.split('.').pop()}"` });
     } catch (error) { await file.close(); throw error; }

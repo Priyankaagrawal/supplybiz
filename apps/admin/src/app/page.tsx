@@ -11,6 +11,7 @@ export default async function Home() {
  try { data = (await api(token).GET('/api/v1/admin/auth/me')).data; } catch { return <p role="alert">Service unavailable. Reload to try again.</p>; }
  if (!data) redirect('/login?error=expired');
  return <><h1 className="text-2xl font-semibold">Admin workspace</h1><p className="my-4">Signed in as {data.role}. Sessions end after 30 minutes of inactivity or eight hours.</p>
+ {data.permissions.includes('audit.read') && <a className="inline-flex min-h-12 items-center underline" href="/audit-logs">Open audit log</a>}
  <h2 className="text-xl font-semibold">Your account permissions</h2><ul className="my-4 list-inside list-disc">{data.permissions.map(permission => <li key={permission}>{labels[permission]}</li>)}</ul>
  <form action="/auth/logout" method="post"><input type="hidden" name="csrf" value={csrf(token)} /><button className="min-h-12 rounded bg-slate-800 px-6 text-white">Sign out</button></form></>;
 }

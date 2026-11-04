@@ -9,6 +9,7 @@ export 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 export 'package:supplybiz_api_client/src/auth/oauth.dart';
 
 export 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
+export 'package:supplybiz_api_client/src/api/audit_api.dart';
 export 'package:supplybiz_api_client/src/api/auth_api.dart';
 export 'package:supplybiz_api_client/src/api/configuration_api.dart';
 export 'package:supplybiz_api_client/src/api/health_api.dart';
@@ -22,6 +23,9 @@ export 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 export 'package:supplybiz_api_client/src/model/admin_me_response.dart';
 export 'package:supplybiz_api_client/src/model/admin_session_response.dart';
 export 'package:supplybiz_api_client/src/model/app_config_response.dart';
+export 'package:supplybiz_api_client/src/model/audit_page.dart';
+export 'package:supplybiz_api_client/src/model/audit_row.dart';
+export 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
 export 'package:supplybiz_api_client/src/model/consent_dto.dart';
 export 'package:supplybiz_api_client/src/model/device_dto.dart';
 export 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';

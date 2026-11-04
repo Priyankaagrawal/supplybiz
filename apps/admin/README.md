@@ -126,3 +126,76 @@ live mobile OTP; it does not block password/TOTP staff login.
 5. Check keyboard navigation, error announcements and layout at 200% zoom; on an
    HTTPS origin inspect Secure/httpOnly/Strict cookies and reject cross-origin or
    altered-CSRF form submissions.
+
+## T-152 — Audit viewer handoff (2026-11-04)
+
+READY_FOR_VERIFY; FR-411 / TC-408 / S-A-16. SUPER_ADMIN sees “Open audit log”
+on the workspace and can open `/audit-logs`. OPS/SUPPORT/FINANCE have neither
+navigation nor API access. This server-rendered page uses the generated client,
+server-held session cookie and uncached API responses. It provides action/actor
+filters, 50-record cursor pages, empty/invalid-filter/error states and read-only
+actor/action/entity/before/after/IP/UTC time. Keyboard and 200% browser checks
+remain manual; no browser visual/accessibility pass is claimed.
+
+The additive `20261104130000_audit_logs` migration installs append-only audit
+storage (UPDATE/DELETE/TRUNCATE rejected). Triggers capture current admin-account
+writes with an explicit safe projection: role, status, failure count, lock/login
+times and whether TOTP is enrolled. Emails, password hashes, tokens, TOTP secrets,
+request bodies, filenames and private document contents never enter snapshots.
+Auth events and private-document reads are mirrored atomically, with historical
+actor/time backfilled; historical IP/snapshots are null, never fabricated.
+Auth challenges/session usage and expired-session housekeeping are represented by
+auth outcome events rather than credential snapshots. Account provisioning or
+operator writes without authenticated request context are labeled SYSTEM.
+
+`auditContext(tx, actorId, socketIp)` sets transaction-local identity/IP; use only
+server-derived identities in the business transaction. Auth and private-media
+paths set it now. IP is the API socket address (behind the BFF it is the BFF IP),
+never an untrusted forwarded header. Future KYC/plan/ledger/admin tasks must add
+their own atomic audit records and explicit redacted snapshot contracts when
+implementing those actions. No future business action is claimed covered here.
+No purge schedule is invented: Q-20 retention remains unresolved. Removing this
+feature requires an approved follow-up migration; never drop retained audit data.
+
+Executed successfully (native PostgreSQL 17.11, isolated `supplybiz_admin_test`):
+
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_admin_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+PATH=/Users/ankit/.pub-cache/bin:$PATH tools/codegen.sh
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_admin_test NATIVE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_admin_test ABUSE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_admin_test node tools/check-task.mjs T-152
+/Users/ankit/.pub-cache/bin/fvm dart analyze packages/api_client
+node --test tools/checks.spec.mjs
+git diff --check
+```
+
+The task runner executes API/admin lint, typecheck and builds; 2 CSRF/cookie
+checks; 6 focused audit checks; and 2 native runtime checks. All pass, alongside
+4 runner guards and clean generated Dart analysis. Audit checks exercise native
+HTTP auth/TOTP/logout/document access, all role restrictions, redaction,
+transaction-local context, rollback/fail-closed atomic writes, immutability and
+tied-timestamp pagination. A production Next.js server on 3140 renders real
+API/DB records, denies SUPPORT and exercises empty/invalid filters; this is an
+HTTP-rendering smoke, not browser interaction. It stops its Next.js/API processes
+and removes temporary test files. Disabled synthetic accounts and immutable audit
+fixtures remain only in the isolated DB. No development DB migration was applied.
+
+Initial sandbox-only commands could not access PostgreSQL/SDK cache and were
+rerun with permission. The first migration name sorted ahead of media tables;
+PostgreSQL rolled it back, Prisma's failed record was resolved as rolled back and
+the correctly ordered migration applied successfully. No retained data was dropped.
+
+Suggested manual verification (use T-150 setup above; these are not executed):
+
+1. Migrate your local DB, start API/admin, sign in as SUPER_ADMIN and open the audit
+   log. Confirm actor/action/entity, UTC times, safe snapshots and IP are displayed.
+2. Sign out/in, reload the viewer and confirm fresh auth events. Filter using an
+   action and actor UUID, follow Older records, clear filters and try an empty result.
+3. Sign in as OPS/SUPPORT/FINANCE; confirm the audit link is absent and direct
+   `/audit-logs` access is denied. Confirm unauthenticated access returns to login.
+4. Use keyboard navigation and 200% zoom; verify readable records, labels, focus
+   and error announcements. Stop the API briefly and confirm a recoverable error.
+
+NOT_RUN: manual PASS, browser keyboard/screen-reader/200% checks, hosted CI,
+deployed HTTPS/proxy verification and comprehensive G1. Q-33 still owns production
+domains; Q-20 owns retention. iOS remains deferred; this task changes no mobile UI.

@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+- T-152 (READY_FOR_VERIFY): append-only audit storage, atomic redacted admin-account/auth/private-document history, historical event backfill and SUPER_ADMIN-only S-A-16 viewer with filters/cursor pagination; regenerated clients. Six focused native audit checks (including production Next.js/API/DB smoke), lightweight API/admin/client checks and runner guards pass. Manual browser/accessibility/PASS and G1 pending; retention remains Q-20. See admin README for evidence and verification steps.
+
 - T-021 (READY_FOR_VERIFY): persisted vendor category/business onboarding with validated coordinates/PostGIS, owned shop-photo attachment, settings defaults, resumable step/data, atomic owner-scoped replay and regenerated clients. Eight focused native HTTP/DB checks, two runtime smoke checks, build/lint/typecheck and client checks pass; manual PASS and G0/G1 pending.
 ### Added — T-020 (ready for manual verification), 2026-11-04
 - Private multipart media uploads with bounded image/PDF validation, image EXIF stripping, durable metadata, owner-scoped concurrent/restart idempotency, compensated writes and bounded orphan cleanup. Added owner reads and permission-checked admin document reads with immutable access audit; regenerated clients.

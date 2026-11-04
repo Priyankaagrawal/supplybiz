@@ -1,5 +1,37 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/audit-logs:
+    get:
+      operationId: AuditController_list
+      parameters:
+        - name: beforeId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+        - name: action
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: actorId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditPage'
+      tags:
+        - audit
+      security:
+        - bearer: []
   /api/v1/vendor/onboarding/categories:
     get:
       operationId: VendorsController_categories
@@ -613,6 +645,86 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AuditSnapshot:
+      type: object
+      properties:
+        role:
+          type: string
+        status:
+          type: string
+        failed_attempts:
+          type: number
+        locked_until:
+          type: string
+          nullable: true
+          format: date-time
+        last_login_at:
+          type: string
+          nullable: true
+          format: date-time
+        totp_enrolled:
+          type: boolean
+      required:
+        - role
+        - status
+        - failed_attempts
+        - locked_until
+        - last_login_at
+        - totp_enrolled
+    AuditRow:
+      type: object
+      properties:
+        id:
+          type: string
+        actor_type:
+          type: string
+        actor_id:
+          type: string
+          nullable: true
+        action:
+          type: string
+        entity:
+          type: string
+        entity_id:
+          type: string
+          nullable: true
+        before:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AuditSnapshot'
+        after:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/AuditSnapshot'
+        ip:
+          type: string
+          nullable: true
+        at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - actor_type
+        - actor_id
+        - action
+        - entity
+        - entity_id
+        - before
+        - after
+        - ip
+        - at
+    AuditPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditRow'
+        hasMore:
+          type: boolean
+      required:
+        - items
+        - hasMore
     VendorCategoryResponse:
       type: object
       properties:

@@ -3,6 +3,9 @@ import 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_me_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_session_response.dart';
 import 'package:supplybiz_api_client/src/model/app_config_response.dart';
+import 'package:supplybiz_api_client/src/model/audit_page.dart';
+import 'package:supplybiz_api_client/src/model/audit_row.dart';
+import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
@@ -56,6 +59,13 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'AppConfigResponse':
       return AppConfigResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AuditPage':
+      return AuditPage.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'AuditRow':
+      return AuditRow.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'AuditSnapshot':
+      return AuditSnapshot.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;

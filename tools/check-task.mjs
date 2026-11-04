@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-152': ['src/modules/audit/audit.postgres.spec.ts'],
   'T-021': ['src/modules/vendors/vendors.postgres.spec.ts'],
   'T-020': ['src/modules/media/media.postgres.spec.ts'],
   'T-150': ['src/modules/admin-auth/admin-password.spec.ts', 'src/modules/admin-auth/admin-auth.postgres.spec.ts'],
@@ -44,7 +45,7 @@ for (const task of tasks) {
       process.exit(1);
     }
     run(api('lint')); run(api('typecheck')); run(api('build'));
-    if (task === 'T-150') {
+    if (task === 'T-150' || task === 'T-152') {
       process.env.ADMIN_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
       run(['pnpm', '--filter', '@supplybiz/admin', 'lint']);
       run(['pnpm', '--filter', '@supplybiz/admin', 'typecheck']);

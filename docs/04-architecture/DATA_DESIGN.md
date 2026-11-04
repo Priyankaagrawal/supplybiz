@@ -169,6 +169,8 @@ so onboarding does not invent delivery capacity, timing, plan or visibility poli
 | `audit_logs` | id, actor_type (USER/ADMIN/SYSTEM), actor_id, action, entity, entity_id, before JSONB, after JSONB (PII redacted), ip, at — append-only |
 | `outbox_events`, `idempotency_keys` (key, user_id, request_hash, response JSONB, expires_at), `data_requests` | |
 
+T-152 adds `(at,id)` indexing and database rejection of audit UPDATE/DELETE/TRUNCATE. Current admin-account writes project only role/status, failure count, lock/login times and TOTP-enrolled boolean; credentials/contact fields are excluded. Auth events and private-media access events mirror into audit atomically and backfill historical actor/time without invented IP/snapshots. Transaction-local authenticated actor/socket-IP context does not leak through pooled connections; context-free operator account changes are SYSTEM. Later business modules add their atomic audit writes/redacted contracts when implemented. Retention/purge remains undecided under Q-20.
+
 ## 4. Derived Values
 | Value | Computation |
 |---|---|
