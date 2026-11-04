@@ -81,6 +81,9 @@ Class | Method | HTTP request | Description
 [*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role |
 [*MeApi*](doc/MeApi.md) | [**meControllerAddRole**](doc/MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles |
 [*MeApi*](doc/MeApi.md) | [**meControllerMe**](doc/MeApi.md#mecontrollerme) | **GET** /api/v1/me |
+[*MediaApi*](doc/MediaApi.md) | [**adminMediaControllerContent**](doc/MediaApi.md#adminmediacontrollercontent) | **GET** /api/v1/admin/media/{id}/content |
+[*MediaApi*](doc/MediaApi.md) | [**mediaControllerContent**](doc/MediaApi.md#mediacontrollercontent) | **GET** /api/v1/media/{id}/content |
+[*MediaApi*](doc/MediaApi.md) | [**mediaControllerUpload**](doc/MediaApi.md#mediacontrollerupload) | **POST** /api/v1/media |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
@@ -96,6 +99,7 @@ Class | Method | HTTP request | Description
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
  - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
+ - [MediaResponse](doc/MediaResponse.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)

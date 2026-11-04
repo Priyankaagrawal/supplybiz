@@ -3,6 +3,10 @@
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer (mobile `mobile-vX.Y.Z`, API `api-vX.Y.Z`, admin `admin-vX.Y.Z`; documentation `docs-vX.Y`).
 
 ## [Unreleased]
+### Added — T-020 (ready for manual verification), 2026-11-04
+- Private multipart media uploads with bounded image/PDF validation, image EXIF stripping, durable metadata, owner-scoped concurrent/restart idempotency, compensated writes and bounded orphan cleanup. Added owner reads and permission-checked admin document reads with immutable access audit; regenerated clients.
+- ADR-027 excludes malware scanning and automated masking validation. Nine focused native HTTP/DB/files checks and API/client lightweight checks pass; manual PASS, owning-task business attachment/UI integration and G1 remain pending. See API README for exact commands and manual steps.
+
 ### Added — T-150 (ready for manual verification), 2026-11-04
 - Runnable Next.js admin password/TOTP enrolment/login/logout with PostgreSQL sessions, shared lockout, encrypted secrets, CSRF-protected BFF cookies, default-deny ADR-026 permissions and immutable auth events. Added operator Argon2id/breach-checked provisioning, generated clients and real admin checks.
 - Focused API/admin/native checks and production Next.js → API → PostgreSQL form smoke pass. Manual browser/accessibility/HTTPS verification, live breach-provider provisioning and G1 remain pending; setup/evidence in the admin README.

@@ -1,3 +1,6 @@
+import { LocalStorageModule } from "./storage/local-storage.module";
+import { MediaService } from "./modules/media/media.service";
+import { MediaController, AdminMediaController } from "./modules/media/media.controller";
 import { AdminAuthController, AdminGuard } from './modules/admin-auth/admin-auth.controller';
 import { AdminAuthService } from './modules/admin-auth/admin-auth.service';
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
@@ -39,12 +42,14 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
       },
     }),
     HealthModule,
+    LocalStorageModule,
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    MediaService,
     AdminAuthService,
     { provide: APP_GUARD, useClass: AdminGuard },
     AppConfigService,

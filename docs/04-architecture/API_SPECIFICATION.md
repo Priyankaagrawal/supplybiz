@@ -98,7 +98,8 @@ endpoint, user/session creation and tokens belong to T-015.
 | Method | Path | Notes |
 |---|---|---|
 | POST | `/media` | Authenticated multipart `file` + allow-listed `purpose`; validate/quarantine then return `{mediaId, status}`; see LOCAL_FILE_STORAGE |
-| GET | `/media/{id}/content` | Authorized stream of READY file; no raw filesystem paths; private KYC access audited |
+| GET | `/media/{id}/content` | Owner-only authenticated stream of READY file; no raw filesystem paths; cross-owner returns 404 |
+| GET | `/admin/media/{id}/content` | KYC_DOC/SHOP_PHOTO stream with `kyc.documents` permission and persisted per-read audit; no-store, nosniff, attachment disposition |
 
 ### 4.4 Catalog (FR-030–FR-036)
 `GET/POST /vendor/products`, `GET/PATCH/DELETE /vendor/products/{id}`, `POST /vendor/products/{id}/stock-adjustments` `{ delta, reason }`.

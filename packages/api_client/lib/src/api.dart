@@ -12,6 +12,7 @@ import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
 import 'package:supplybiz_api_client/src/api/me_api.dart';
+import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
 
 class SupplybizApiClient {
@@ -158,6 +159,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   MeApi getMeApi() {
     return MeApi(dio);
+  }
+
+  /// Get MediaApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  MediaApi getMediaApi() {
+    return MediaApi(dio);
   }
 
   /// Get VersionApi instance, base route and serializer can be overridden by a given but be careful,

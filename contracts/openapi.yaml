@@ -1,5 +1,95 @@
 openapi: 3.0.0
 paths:
+  /api/v1/media:
+    post:
+      operationId: MediaController_upload
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - purpose
+              properties:
+                file:
+                  type: string
+                  format: binary
+                purpose:
+                  type: string
+                  enum:
+                    - PRODUCT_IMAGE
+                    - SHOP_PHOTO
+                    - PROFILE
+                    - KYC_DOC
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaResponse'
+        '400':
+          description: Invalid media or multipart fields.
+        '413':
+          description: File exceeds configured limit.
+        '422':
+          description: IDEMPOTENCY_MISMATCH
+      tags:
+        - media
+      security:
+        - bearer: []
+  /api/v1/media/{id}/content:
+    get:
+      operationId: MediaController_content
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Missing media or not owned by caller.
+      tags:
+        - media
+      security:
+        - bearer: []
+  /api/v1/admin/media/{id}/content:
+    get:
+      operationId: AdminMediaController_content
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+      tags:
+        - media
+      security:
+        - bearer: []
   /api/v1/admin/auth/login:
     post:
       operationId: AdminAuthController_login
@@ -407,6 +497,19 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    MediaResponse:
+      type: object
+      properties:
+        mediaId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+            - READY
+      required:
+        - mediaId
+        - status
     LoginDto:
       type: object
       properties:

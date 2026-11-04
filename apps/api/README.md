@@ -270,3 +270,91 @@ Retain file type/magic-byte/size/pixel/decode validation, image EXIF stripping,
 private local storage, idempotency, authorized reads and admin KYC access audit.
 PDFs remain attachment-only. No application implementation or task verification
 is claimed by this documentation change.
+
+## T-020 private media handoff (2026-11-04)
+
+Status: **READY_FOR_VERIFY** under ADR-027. `POST /api/v1/media` streams one
+multipart `file` plus `purpose` into private exclusive staging, enforces the
+configured byte limit (inclusive), validates JPEG/PNG/PDF signatures and decode,
+bounds image pixels/time, strips image EXIF and atomically publishes a private
+file with durable READY metadata. Files are 0600; directories are checked 0700
+without symlinks. Invalid/interrupted uploads and failed metadata transactions
+are compensated. Uploads have a 30-second receive deadline. Each upload scans
+at most 100 entries per directory for staging/unreferenced files older than
+24 hours; referenced files are never removed by this cleanup.
+
+Owner/key advisory locking prevents concurrent duplicate uploads. Identical
+original bytes/purpose/MIME return the same mediaId after restart; mismatches
+return 422. Mapping is retained with media metadata. Authenticated owner reads
+use `/media/{id}/content`; another owner gets 404. Authorized `kyc.documents`
+admins use `/admin/media/{id}/content` for KYC_DOC/SHOP_PHOTO, with an append-only
+DB access event before streaming. Responses are no-store/nosniff and use safe
+attachment names. PDFs never render inline. No static directory is exposed.
+`MediaService.requireOwnedReady` supplies the attachment ownership/purpose
+check for later vendor/catalog tasks. Business attachments/discovery/UI are
+implemented in those owning tasks; an unattached ID grants no public access.
+T-020 omits malware scanning and automated masking checks per ADR-027; supplied
+Aadhaar must already be masked. No provider verification is claimed.
+
+Additive migrations: `20261104040000_media` and
+`20261104040100_media_audit_immutable`. Apply both before starting the API on
+another database. Rollback: revert application routes first and retain private
+files/metadata/audit history; do not drop data or bypass retention policy.
+
+Executed checks (PASS; native checks required sandbox escalation):
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+MEDIA_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/media/media.postgres.spec.ts
+pnpm --filter @supplybiz/api lint
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api build
+pnpm --filter @supplybiz/api exec prisma validate --schema src/prisma/schema.prisma
+pnpm --filter @supplybiz/api exec tsc --noEmit --skipLibCheck --target ES2022 --moduleResolution node ../../packages/ts-client/src/generated/openapi.ts
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home PATH=/Users/ankit/.pub-cache/bin:$PATH tools/codegen.sh
+(cd packages/api_client && /Users/ankit/.pub-cache/bin/fvm dart analyze lib)
+node --test tools/checks.spec.mjs
+git diff --check
+```
+9 native HTTP/DB/files checks pass: image/metadata/read, restart/concurrent
+replay, invalid inputs/limits, inclusive byte boundary, auth/multipart fields,
+truncated stream cleanup, PDF/admin authorization/immutable access audit,
+transaction rollback/file+directory symlink denial, and reference-safe cleanup.
+The fixture starts real Nest HTTP servers, uses real sessions/PostgreSQL/private
+files, and closes servers/removes its disposable files. No new service remains
+running. The first boundary/config test setup and multipart part-count handling
+were corrected before the final passing run. Codegen initially required SDK
+cache access; the escalated full rerun passed. The test database also received
+its previously pending T-150 migration; other databases were not migrated.
+
+Dependency rationale: pinned busboy 1.6.0 (MIT; existing transitive dependency)
+provides bounded streaming multipart parsing; pinned sharp 0.35.5 (Apache-2.0;
+already present via Next.js) provides maintained native image decode/re-encode
+with pixel/time bounds. Pinned pdf-lib 1.17.1 (MIT) adds PDF structural parsing
+and its JS font/deflate dependencies; it adds no service/browser runtime and
+avoids accepting a PDF from magic bytes alone. Its older release cadence is a
+maintenance tradeoff; PDF parsing is size-bounded and delivery remains
+attachment-only. @types/busboy 1.5.4 is development-only. Lockfile changes contain
+no unrelated upgrades.
+
+Manual verification (suggested; NOT yet executed):
+1. Migrate your local DB, configure private persistent UPLOAD_ROOT, then start
+   `pnpm --filter @supplybiz/api dev`. Use an existing local test session; live
+   OTP is still subject to T-014/Q-09. POST multipart file/purpose with a bearer
+   token and Idempotency-Key; confirm only mediaId/READY are returned.
+2. GET `/api/v1/media/{id}/content` as owner; inspect the image/download and
+   no-store/nosniff headers. Repeat as another user and unauthenticated: 404/401.
+3. Repeat identical upload/key, including after restarting the API: same ID,
+   one metadata/file record. Change content/purpose with that key: 422.
+4. Try malformed/forged MIME, >5 MB, excessive pixels, extra fields and an
+   interrupted upload: no READY metadata or staging leftovers for denied input.
+5. Upload a synthetic KYC PDF. OPS/SUPER_ADMIN reads via the admin route download
+   it and append an access row; SUPPORT/FINANCE are denied. Use no real identity
+   documents for verification.
+
+NOT_RUN: manual PASS, actual full-disk/device-abort drills, business attachment
+and UI/discovery integration, complete task runner/hosted CI and G1 module suite.
+This API-only change has no Android UI build requirement; iOS remains deferred.
+The existing TASKS/LOCAL_FILE_STORAGE TC-508 reference names an upload case,
+while TEST_CASES TC-508 currently names UI-kit interactions; evidence here is
+explicitly TC-503 and the named security cases, not a TC-508 UI-suite pass.

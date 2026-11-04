@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
+import 'package:supplybiz_api_client/src/model/media_response.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
@@ -62,6 +63,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return LoginDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'MeResponse':
       return MeResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'MediaResponse':
+      return MediaResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'RefreshDto':
       return RefreshDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'RoleDto':

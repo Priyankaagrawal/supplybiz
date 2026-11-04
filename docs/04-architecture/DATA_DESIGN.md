@@ -153,7 +153,8 @@ erDiagram
 | `coupons` | TBD (Q-06) |
 | `bill_payments` | TBD (Q-07) |
 | `referrals` | id, referrer_user_id, code UNIQUE, referred_user_id, status (TBD Q-14) |
-| `media_files` | id, owner_user_id, purpose (MEDIA/KYC), relative_storage_key, mime, size, sha256, scan_status |
+| `media_access_events` | id, media_id, admin_user_id, action (KYC_DOCUMENT_READ), created_at; append-only access evidence for T-152 viewer |
+| `media_files` | id, owner_user_id, purpose (PRODUCT_IMAGE/SHOP_PHOTO/PROFILE/KYC_DOC), relative_storage_key, mime, size, sha256, status (READY), request_key/hash, created_at |
 | `audit_logs` | id, actor_type (USER/ADMIN/SYSTEM), actor_id, action, entity, entity_id, before JSONB, after JSONB (PII redacted), ip, at — append-only |
 | `outbox_events`, `idempotency_keys` (key, user_id, request_hash, response JSONB, expires_at), `data_requests` | |
 

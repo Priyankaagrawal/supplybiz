@@ -104,6 +104,7 @@ model users {
   consents    consents[]
   sessions    sessions[]
   devices     devices[]
+  media_uploads media_files[]
   preferences user_preferences?
 }
 
@@ -191,6 +192,7 @@ model admin_users {
   auth_challenges admin_auth_challenges[]
   auth_sessions admin_sessions[]
   auth_events admin_auth_events[]
+  media_reads media_access_events[]
 }
 
 model categories {
@@ -318,4 +320,38 @@ model admin_auth_events {
   action String @db.VarChar(64)
   at DateTime @default(now()) @db.Timestamptz(6)
   admin admin_users? @relation(fields: [admin_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+// T-020: immutable validated uploads; resource attachment remains in owning modules.
+model media_files {
+  id                   String   @id @db.Uuid
+  owner_user_id        String   @db.Uuid
+  purpose              String   @db.VarChar(24)
+  relative_storage_key String   @unique @db.VarChar(100)
+  mime                 String   @db.VarChar(40)
+  size                 Int
+  sha256               String   @db.Char(64)
+  status               String   @default("READY") @db.VarChar(16)
+  request_key          String   @db.Char(64)
+  request_hash         String   @db.Char(64)
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+
+  owner users @relation(fields: [owner_user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  access_events media_access_events[]
+
+  @@unique([owner_user_id, request_key])
+  @@index([owner_user_id, created_at])
+}
+
+model media_access_events {
+  id            String   @id @default(uuid()) @db.Uuid
+  media_id      String   @db.Uuid
+  admin_user_id String   @db.Uuid
+  action        String   @default("KYC_DOCUMENT_READ") @db.VarChar(32)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  media media_files @relation(fields: [media_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  admin admin_users @relation(fields: [admin_user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([media_id, created_at])
 }
