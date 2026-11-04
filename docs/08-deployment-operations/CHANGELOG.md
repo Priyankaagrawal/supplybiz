@@ -3,6 +3,8 @@
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer (mobile `mobile-vX.Y.Z`, API `api-vX.Y.Z`, admin `admin-vX.Y.Z`; documentation `docs-vX.Y`).
 
 ## [Unreleased]
+
+- T-021 (READY_FOR_VERIFY): persisted vendor category/business onboarding with validated coordinates/PostGIS, owned shop-photo attachment, settings defaults, resumable step/data, atomic owner-scoped replay and regenerated clients. Eight focused native HTTP/DB checks, two runtime smoke checks, build/lint/typecheck and client checks pass; manual PASS and G0/G1 pending.
 ### Added — T-020 (ready for manual verification), 2026-11-04
 - Private multipart media uploads with bounded image/PDF validation, image EXIF stripping, durable metadata, owner-scoped concurrent/restart idempotency, compensated writes and bounded orphan cleanup. Added owner reads and permission-checked admin document reads with immutable access audit; regenerated clients.
 - ADR-027 excludes malware scanning and automated masking validation. Nine focused native HTTP/DB/files checks and API/client lightweight checks pass; manual PASS, owning-task business attachment/UI integration and G1 remain pending. See API README for exact commands and manual steps.

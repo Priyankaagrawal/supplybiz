@@ -83,8 +83,10 @@ endpoint, user/session creation and tokens belong to T-015.
 ### 4.2 Vendor onboarding, settings (FR-010–FR-018, FR-075, FR-082–FR-085, FR-130–FR-132)
 | Method | Path |
 |---|---|
-| POST | `/vendor/onboarding/category` |
-| PUT | `/vendor/onboarding/business` |
+| GET | `/vendor/onboarding/categories` (enabled SUPPLY categories, English names/icons, MILK first) |
+| GET | `/vendor/onboarding` (owned profile, next step and settings defaults; 404 before category selection) |
+| POST | `/vendor/onboarding/category` `{ categoryId }` |
+| PUT | `/vendor/onboarding/business` `{ businessName, gstin?, addressLine, city, state, pincode, latitude, longitude, shopPhotoMediaId? }` |
 | PUT | `/vendor/kyc` (documents mediaIds, pan, aadhaarLast4, bank, upiVpa) |
 | POST | `/vendor/kyc/submit` |
 | GET | `/vendor/kyc` (status, reason; masked values only) |
@@ -93,6 +95,15 @@ endpoint, user/session creation and tokens belong to T-015.
 | GET/POST | `/vendor/holidays` ; DELETE `/vendor/holidays/{id}` |
 | POST | `/vendor/delivery/pause` `{ until? }` ; POST `/vendor/delivery/resume` |
 | GET | `/vendor/dashboard?date=YYYY-MM-DD` |
+
+T-021 onboarding requires a held and active VENDOR role. Category creates the profile and
+settings atomically, with next step 2; valid business save advances to step 3 without
+regressing progress. GET restores persisted values. Business fields are required except
+GSTIN and photo; omitted photo preserves it, null removes it. Photo IDs must be owned,
+READY SHOP_PHOTO media. Mutations require a key of at most 120 characters; owner-scoped
+24-hour replay and profile changes commit together; changed payload/endpoint returns 422.
+Business before category returns 409. Onboarding writes cannot edit reviewed KYC business
+fields (409); KYC-aware settings/re-verification editing belongs to T-106. No plan is granted.
 
 ### 4.3 Media
 | Method | Path | Notes |

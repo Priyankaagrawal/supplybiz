@@ -93,6 +93,17 @@ erDiagram
 | `bank_accounts` | vendor_id, holder_name, bank_name, ifsc, account_number_enc, account_last4, verified_at | PK(vendor_id) |
 | `categories` | id, code, name_en, name_hi, icon, type (SUPPLY/BILL), status (ENABLED/COMING_SOON/HIDDEN), sort_order, product_types JSONB | UNIQUE(code) |
 
+T-021 implements the vendor profile/settings foundation only. Category-only drafts have
+nullable business fields and next `onboarding_step=2`; a validated business save sets 3.
+`latitude`/`longitude` generate stored PostGIS `location` (SRID 4326, longitude first),
+with coordinate bounds, GIST location and KYC-status indexes. Profiles are unique per user;
+category, owner, photo and settings references use restrictive foreign keys. Rating fields
+remain deferred. KYC/bank/UPI/service-area tables and subsequent settings edits belong to
+their owning tasks. Initial charges/minimum are zero, slots empty, automatic acceptance,
+accepting-today, delivery pause and Khata permission false; version 1; stock threshold 10
+per FR-035's documented default. Radius/cutoff/caps/pause-until remain unconfigured (null),
+so onboarding does not invent delivery capacity, timing, plan or visibility policy.
+
 ### 3.3 Catalog
 | Table | Key columns | Notes |
 |---|---|---|

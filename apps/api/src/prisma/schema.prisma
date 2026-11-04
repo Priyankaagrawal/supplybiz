@@ -105,6 +105,7 @@ model users {
   sessions    sessions[]
   devices     devices[]
   media_uploads media_files[]
+  vendor vendors?
   preferences user_preferences?
 }
 
@@ -196,6 +197,7 @@ model admin_users {
 }
 
 model categories {
+  vendors vendors[]
   id            String          @id @default(uuid()) @db.Uuid
   code          String          @unique @db.VarChar(64)
   name_en       String          @db.VarChar(120)
@@ -338,6 +340,7 @@ model media_files {
 
   owner users @relation(fields: [owner_user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
   access_events media_access_events[]
+  shops vendors[]
 
   @@unique([owner_user_id, request_key])
   @@index([owner_user_id, created_at])
@@ -354,4 +357,50 @@ model media_access_events {
   admin admin_users @relation(fields: [admin_user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@index([media_id, created_at])
+}
+
+// T-021: nullable business fields represent a category-only onboarding draft.
+model vendors {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @unique @db.Uuid
+  category_id String @db.Uuid
+  business_name String? @db.VarChar(80)
+  gstin String? @db.VarChar(15)
+  address_line String? @db.VarChar(200)
+  city String? @db.VarChar(120)
+  state String? @db.VarChar(120)
+  pincode String? @db.VarChar(6)
+  latitude Float?
+  longitude Float?
+  location Unsupported("geography(Point,4326)")? @default(dbgenerated())
+  shop_photo_media_id String? @db.Uuid
+  onboarding_step Int @default(2)
+  kyc_status String @default("NOT_VERIFIED") @db.VarChar(24)
+  is_suspended Boolean @default(false)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  user users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  category categories @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  shop_photo media_files? @relation(fields: [shop_photo_media_id], references: [id], onDelete: Restrict)
+  settings vendor_settings?
+}
+
+// Unconfigured operational values stay null until their owning task saves them.
+model vendor_settings {
+  vendor_id String @id @db.Uuid
+  service_radius_km Int?
+  delivery_charge_paise Int @default(0)
+  min_order_paise Int @default(0)
+  time_slots Json @default("[]")
+  same_day_cutoff DateTime? @db.Time(0)
+  auto_accept_subscriptions Boolean @default(false)
+  accepting_today Boolean @default(false)
+  delivery_paused Boolean @default(false)
+  delivery_paused_until DateTime? @db.Timestamptz(6)
+  max_daily_orders Int?
+  daily_milk_capacity_ml Int?
+  low_stock_threshold Int @default(10)
+  allow_khata_orders Boolean @default(false)
+  version Int @default(1)
+  vendor vendors @relation(fields: [vendor_id], references: [id], onDelete: Restrict)
 }

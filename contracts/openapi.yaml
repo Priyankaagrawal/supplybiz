@@ -1,5 +1,121 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/onboarding/categories:
+    get:
+      operationId: VendorsController_categories
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendorCategoryResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+  /api/v1/vendor/onboarding:
+    get:
+      operationId: VendorsController_profile
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+        '404':
+          description: 'ONBOARDING_NOT_STARTED: show category screen.'
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+  /api/v1/vendor/onboarding/category:
+    post:
+      operationId: VendorsController_category
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorCategoryDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '400':
+          description: Invalid category or key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+        '409':
+          description: REVERIFICATION_REQUIRED
+        '422':
+          description: IDEMPOTENCY_MISMATCH
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+  /api/v1/vendor/onboarding/business:
+    put:
+      operationId: VendorsController_business
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorBusinessDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '400':
+          description: Invalid business fields or key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+        '404':
+          description: 'MEDIA_NOT_FOUND: wrong owner/purpose or not READY.'
+        '409':
+          description: CATEGORY_REQUIRED or REVERIFICATION_REQUIRED
+        '422':
+          description: IDEMPOTENCY_MISMATCH
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
   /api/v1/media:
     post:
       operationId: MediaController_upload
@@ -497,6 +613,162 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    VendorCategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+      required:
+        - id
+        - code
+        - name
+        - icon
+    VendorSettingsResponse:
+      type: object
+      properties:
+        serviceRadiusKm:
+          type: integer
+          nullable: true
+        deliveryChargePaise:
+          type: integer
+        minOrderPaise:
+          type: integer
+        timeSlots:
+          type: array
+          items:
+            type: string
+        autoAcceptSubscriptions:
+          type: boolean
+        acceptingToday:
+          type: boolean
+        deliveryPaused:
+          type: boolean
+        allowKhataOrders:
+          type: boolean
+        version:
+          type: integer
+      required:
+        - serviceRadiusKm
+        - deliveryChargePaise
+        - minOrderPaise
+        - timeSlots
+        - autoAcceptSubscriptions
+        - acceptingToday
+        - deliveryPaused
+        - allowKhataOrders
+        - version
+    VendorProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        categoryId:
+          type: string
+          format: uuid
+        onboardingStep:
+          type: integer
+          description: 'Next onboarding screen: 2 business, 3 KYC, 4 status. Never regresses.'
+        kycStatus:
+          type: string
+        businessName:
+          type: string
+          nullable: true
+        gstin:
+          type: string
+          nullable: true
+        addressLine:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        pincode:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        shopPhotoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        settings:
+          $ref: '#/components/schemas/VendorSettingsResponse'
+      required:
+        - id
+        - categoryId
+        - onboardingStep
+        - kycStatus
+        - businessName
+        - gstin
+        - addressLine
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
+        - shopPhotoMediaId
+        - settings
+    VendorCategoryDto:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+      required:
+        - categoryId
+    VendorBusinessDto:
+      type: object
+      properties:
+        businessName:
+          type: string
+        gstin:
+          type: string
+          nullable: true
+        addressLine:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9]\d{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        shopPhotoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - businessName
+        - addressLine
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
     MediaResponse:
       type: object
       properties:

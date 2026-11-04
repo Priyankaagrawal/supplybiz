@@ -84,6 +84,10 @@ Class | Method | HTTP request | Description
 [*MediaApi*](doc/MediaApi.md) | [**adminMediaControllerContent**](doc/MediaApi.md#adminmediacontrollercontent) | **GET** /api/v1/admin/media/{id}/content |
 [*MediaApi*](doc/MediaApi.md) | [**mediaControllerContent**](doc/MediaApi.md#mediacontrollercontent) | **GET** /api/v1/media/{id}/content |
 [*MediaApi*](doc/MediaApi.md) | [**mediaControllerUpload**](doc/MediaApi.md#mediacontrollerupload) | **POST** /api/v1/media |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerProfile**](doc/VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
@@ -106,6 +110,11 @@ Class | Method | HTTP request | Description
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
+ - [VendorBusinessDto](doc/VendorBusinessDto.md)
+ - [VendorCategoryDto](doc/VendorCategoryDto.md)
+ - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
+ - [VendorProfileResponse](doc/VendorProfileResponse.md)
+ - [VendorSettingsResponse](doc/VendorSettingsResponse.md)
  - [VerifyOtpDto](doc/VerifyOtpDto.md)
  - [VersionControllerGetVersion200Response](doc/VersionControllerGetVersion200Response.md)
 

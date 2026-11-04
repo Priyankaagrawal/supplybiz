@@ -4,6 +4,70 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/onboarding/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorsController_categories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorsController_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/onboarding/category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorsController_category"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/onboarding/business": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["VendorsController_business"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/media": {
         parameters: {
             query?: never;
@@ -333,6 +397,60 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        VendorCategoryResponse: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            icon: string | null;
+        };
+        VendorSettingsResponse: {
+            serviceRadiusKm: number | null;
+            deliveryChargePaise: number;
+            minOrderPaise: number;
+            timeSlots: string[];
+            autoAcceptSubscriptions: boolean;
+            acceptingToday: boolean;
+            deliveryPaused: boolean;
+            allowKhataOrders: boolean;
+            version: number;
+        };
+        VendorProfileResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            categoryId: string;
+            /** @description Next onboarding screen: 2 business, 3 KYC, 4 status. Never regresses. */
+            onboardingStep: number;
+            kycStatus: string;
+            businessName: string | null;
+            gstin: string | null;
+            addressLine: string | null;
+            city: string | null;
+            state: string | null;
+            pincode: string | null;
+            latitude: number | null;
+            longitude: number | null;
+            /** Format: uuid */
+            shopPhotoMediaId: string | null;
+            settings: components["schemas"]["VendorSettingsResponse"];
+        };
+        VendorCategoryDto: {
+            /** Format: uuid */
+            categoryId: string;
+        };
+        VendorBusinessDto: {
+            businessName: string;
+            gstin?: string | null;
+            addressLine: string;
+            city: string;
+            state: string;
+            pincode: string;
+            latitude: number;
+            longitude: number;
+            /** Format: uuid */
+            shopPhotoMediaId?: string | null;
+        };
         MediaResponse: {
             /** Format: uuid */
             mediaId: string;
@@ -434,6 +552,206 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    VendorsController_categories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorCategoryResponse"][];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ONBOARDING_NOT_STARTED: show category screen. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_category: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorCategoryDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Invalid category or key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REVERIFICATION_REQUIRED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_business: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorBusinessDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Invalid business fields or key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description MEDIA_NOT_FOUND: wrong owner/purpose or not READY. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CATEGORY_REQUIRED or REVERIFICATION_REQUIRED */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     MediaController_upload: {
         parameters: {
             query?: never;

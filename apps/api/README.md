@@ -358,3 +358,66 @@ This API-only change has no Android UI build requirement; iOS remains deferred.
 The existing TASKS/LOCAL_FILE_STORAGE TC-508 reference names an upload case,
 while TEST_CASES TC-508 currently names UI-kit interactions; evidence here is
 explicitly TC-503 and the named security cases, not a TC-508 UI-suite pass.
+
+
+## T-021 vendor profile/onboarding handoff (2026-11-04)
+
+READY_FOR_VERIFY; FR-010/011/016, US-010/011, API portions of TC-020–022.
+New source: `src/modules/vendors/{vendors.controller,vendors.dto,vendors.service,vendors.postgres.spec}.ts`,
+additive `20261104120000_vendor_onboarding` migration/schema and AppModule wiring;
+OpenAPI/TS/Dart clients regenerated; focused task runner registered. No new dependency.
+
+`GET /api/v1/vendor/onboarding/categories` lists enabled supply categories (MILK first).
+`POST /api/v1/vendor/onboarding/category` with `{ "categoryId": "<UUID>" }` creates an owned
+profile/default settings and returns next step 2. `PUT /api/v1/vendor/onboarding/business`
+requires businessName (2–80), addressLine (5–200), city/state, six-digit pincode and numeric
+latitude/longitude; GSTIN is optional/validated, shopPhotoMediaId optional (null clears).
+GET `/api/v1/vendor/onboarding` resumes step/data; 404 means category not yet selected.
+Held + active VENDOR required, with live session and account checks. Each mutation requires
+Idempotency-Key (1–120 characters); profile and owner-scoped 24-hour replay commit together.
+Changing endpoint/payload under the key returns 422. No plan/trial/KYC approval is assigned.
+Reviewed-business editing is reserved for T-106, with onboarding returning 409 to avoid
+bypassing its re-verification workflow. Settings are returned within the profile; the
+separate settings editor is outside T-021. Onboarding saves completed steps, not each keystroke.
+
+Executed successfully from repository root (native PostgreSQL 17, test DB only):
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+pnpm --filter @supplybiz/api exec prisma validate --schema src/prisma/schema.prisma
+NATIVE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test ABUSE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test node tools/check-task.mjs T-021
+PATH=/Users/ankit/.pub-cache/bin:$PATH tools/codegen.sh
+pnpm --filter @supplybiz/api exec tsc --noEmit --strict --skipLibCheck --target ES2022 --moduleResolution node ../../packages/ts-client/src/generated/openapi.ts
+node --test tools/checks.spec.mjs
+```
+Also executed in `packages/api_client`: `/Users/ankit/.pub-cache/bin/fvm dart analyze`.
+Results: real API lint/typecheck/build PASS; 8 focused HTTP→DB checks PASS (concurrent
+retries, app recreation/replay, field validation, PostGIS coordinates, role/owner isolation,
+real upload→profile→authorized byte display, attachment rejection, transaction rollback,
+reviewed-field/account blocking); 2 native readiness/provider-fail-closed smoke checks PASS;
+4 task-runner guards PASS; schema validation, complete codegen, TS compilation and Dart
+analysis PASS. Earlier fixture failures (development signing-key renewal on app recreation,
+invalid quarantine metadata unsupported by the media schema) were corrected; final checks
+pass. Initial sandbox DB/Flutter-cache denials were rerun with approval. Only the isolated
+`_test` DB received migration/PostGIS; the normal development DB was not migrated.
+All started check apps closed and fixture users/rows/upload files were removed.
+
+Manual verification (suggested; NOT_RUN):
+1. Apply the migration to your intended local dev DB with `pnpm --filter @supplybiz/api prisma:migrate:deploy`,
+   then start `pnpm --filter @supplybiz/api dev`. Use the existing development/test login
+   harness or session to hold/select VENDOR; Q-09 live SMS remains unavailable.
+2. List categories, save one with a fresh key, GET onboarding: verify step 2/defaults.
+3. Save business (e.g. Synthetic Dairy, 123 Test Road, Test City/Test State, 560001,
+   numeric 12.97/77.59); try short name, malformed GSTIN/pincode and out-of-range coordinates:
+   invalid requests must return 400 without advancing progress; valid save returns step 3.
+4. Upload SHOP_PHOTO via `/media`, save its ID, GET onboarding and `/media/{id}/content`;
+   confirm display. Re-login/restart API and confirm persisted fields/step. Use refresh or
+   re-login after restart when development signing keys are ephemeral.
+5. Retry same request/key (same response), change its payload (422), then use a different
+   vendor/customer session: no profile/photo leakage and customer access denied (403).
+
+Pending: task-specific manual PASS, T-024 app onboarding UI/restart and Android accessibility,
+T-022 KYC, T-106 reviewed settings, G0/G1 comprehensive gates (NOT_RUN). This API-only task
+ran no mobile platform builds; iOS validation remains deferred to T-185.
+Migration rollback: stop use of the new endpoints and roll application code back while
+retaining the additive tables/data; do not drop populated profiles/settings or PostGIS.

@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-021': ['src/modules/vendors/vendors.postgres.spec.ts'],
   'T-020': ['src/modules/media/media.postgres.spec.ts'],
   'T-150': ['src/modules/admin-auth/admin-password.spec.ts', 'src/modules/admin-auth/admin-auth.postgres.spec.ts'],
   'T-017': ['src/modules/content/app-config.spec.ts'],
@@ -52,6 +53,7 @@ for (const task of tasks) {
     }
     if (task === 'T-181') process.env.WORKER_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-015') process.env.SESSIONS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+    if (task === 'T-021') process.env.VENDORS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-020') process.env.MEDIA_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     run(api('exec', 'jest', '--runInBand', '--runTestsByPath', ...apiTests[task]));

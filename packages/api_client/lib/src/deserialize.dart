@@ -15,6 +15,11 @@ import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
+import 'package:supplybiz_api_client/src/model/vendor_profile_response.dart';
+import 'package:supplybiz_api_client/src/model/vendor_settings_response.dart';
 import 'package:supplybiz_api_client/src/model/verify_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/version_controller_get_version200_response.dart';
 
@@ -80,6 +85,21 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'TotpDto':
       return TotpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'VendorBusinessDto':
+      return VendorBusinessDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorCategoryDto':
+      return VendorCategoryDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorCategoryResponse':
+      return VendorCategoryResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorProfileResponse':
+      return VendorProfileResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorSettingsResponse':
+      return VendorSettingsResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'VerifyOtpDto':
       return VerifyOtpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'VersionControllerGetVersion200Response':
