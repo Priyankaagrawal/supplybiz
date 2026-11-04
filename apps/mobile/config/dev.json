@@ -1,5 +1,9 @@
 {
   "ENV_NAME": "dev",
   "API_BASE_URL": "http://10.0.2.2:3000/api/v1",
-  "FIREBASE_ENABLED": false
+  "FIREBASE_ENABLED": false,
+  "TERMS_VERSION": "synthetic-dev-v1",
+  "PRIVACY_VERSION": "synthetic-dev-v1",
+  "TERMS_TEXT": "Development test document only. Use synthetic accounts. These are not production Terms.",
+  "PRIVACY_TEXT": "Development test document only. Use synthetic data. This is not a production Privacy Policy."
 }

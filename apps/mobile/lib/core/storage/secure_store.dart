@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:uuid/uuid.dart';
 
 /// Device-bound secrets only. Access tokens belong in session memory (T-015).
 class SecureStore {
@@ -14,6 +15,15 @@ class SecureStore {
             );
 
   final FlutterSecureStorage _backend;
+  Future<String> installationId() async {
+    const key = 'supplybiz.installation_id';
+    final existing = await _backend.read(key: key);
+    if (existing != null) return existing;
+    final value = const Uuid().v4();
+    await _backend.write(key: key, value: value);
+    return value;
+  }
+
   static const _dbKey = 'supplybiz.db_key';
   static const _refreshToken = 'supplybiz.refresh_token';
   static const _wipePending = 'supplybiz.wipe_pending';

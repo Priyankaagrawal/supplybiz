@@ -345,6 +345,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vendor Khata'**
   String get routeLedger;
+
+  /// No description provided for @authMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get authMobile;
+
+  /// No description provided for @authInvalidMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid 10-digit mobile number starting with 6–9.'**
+  String get authInvalidMobile;
+
+  /// No description provided for @authConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the Terms and Privacy Policy.'**
+  String get authConsent;
+
+  /// No description provided for @authTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get authTerms;
+
+  /// No description provided for @authPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get authPrivacy;
+
+  /// No description provided for @authSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send OTP'**
+  String get authSend;
+
+  /// No description provided for @authWhatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with WhatsApp'**
+  String get authWhatsapp;
+
+  /// No description provided for @authSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent via SMS'**
+  String get authSms;
+
+  /// No description provided for @authCode.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit verification code'**
+  String get authCode;
+
+  /// No description provided for @authVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get authVerify;
+
+  /// No description provided for @authResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend OTP'**
+  String get authResend;
+
+  /// No description provided for @authResendWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend in {seconds}s'**
+  String authResendWait(int seconds);
+
+  /// No description provided for @authChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get authChangeNumber;
+
+  /// No description provided for @authWrongOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect code. Please try again.'**
+  String get authWrongOtp;
+
+  /// No description provided for @authExpiredOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'This code has expired. Please request a new one.'**
+  String get authExpiredOtp;
+
+  /// No description provided for @authExhaustedOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many incorrect attempts. Please request a new code.'**
+  String get authExhaustedOtp;
+
+  /// No description provided for @authDeliveryUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP delivery is unavailable. Please try again later.'**
+  String get authDeliveryUnavailable;
+
+  /// No description provided for @authLegalUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Privacy Policy are unavailable. Please try again later.'**
+  String get authLegalUnavailable;
+
+  /// No description provided for @authCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'I want to buy'**
+  String get authCustomer;
+
+  /// No description provided for @authVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'I sell / supply'**
+  String get authVendor;
+
+  /// No description provided for @authLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get authLogout;
+
+  /// No description provided for @authLogoutAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout from all devices'**
+  String get authLogoutAll;
+
+  /// No description provided for @authRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get authRetry;
+
+  /// No description provided for @authTrust.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Registration • Quick & Easy Setup • Start Supplying Today'**
+  String get authTrust;
 }
 
 class _AppLocalizationsDelegate

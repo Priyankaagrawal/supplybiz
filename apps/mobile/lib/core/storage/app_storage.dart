@@ -80,6 +80,8 @@ class AppStorage {
         return _secrets.readRefreshToken();
       });
 
+  Future<String> installationId() => _serial(_secrets.installationId);
+
   Future<void> writeRefreshToken(String token) => _serial(() async {
         // Session generation checks still belong to T-015 before this call.
         database;

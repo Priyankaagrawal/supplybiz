@@ -1,6 +1,11 @@
 # Supply Biz API
 
-## T-015 sessions (Dart generation pending)
+## T-015 sessions
+
+Current status: READY_FOR_VERIFY for the user-approved development/test OTP scope
+(2026-11-04). See **T-015 development/test verification handoff** below for current
+native PostgreSQL evidence. Earlier check/codegen notes in this section are historical;
+the Day 1 client audit supersedes the initial incomplete-generation notes.
 
 Session source implements `POST /auth/otp/verify`, `/auth/refresh`, `/auth/logout`,
 `GET /me`, `POST /me/roles`, and `PUT /me/active-role` under `/api/v1`.
@@ -110,3 +115,108 @@ Manual PASS, actual API-process restart/failure drills and G0 remain pending. Cl
 See [Day 1 handoff](../../docs/05-ai-development/DAY1_HANDOFF.md) for commands, results and manual checks. `infra:check` now loads local environment values and verifies authenticated PostgreSQL/PostGIS queries and persistent private upload directories. Normal API startup excludes synthetic `/test/idempotency` routes; automated test mode retains them. Basic pino/error diagnostics remain; automatic telemetry SDK/exporter startup and obsolete cloud-storage settings are removed. The shared OpenTelemetry API library is retained.
 
 `pnpm --filter @supplybiz/api lint` is real ESLint. ESLint 9, @eslint/js and typescript-eslint 8 are MIT-licensed development-only tooling implementing the existing coding standard; they add no shipped API/mobile runtime SDK. Task CI uses explicit T-ID selections and native DB smoke; comprehensive gates run only through the manual module workflow after required task/manual/prior-gate evidence exists. Unsupported/missing test selections fail closed. Admin availability is explicitly NOT_RUN until real T-150 scripts exist. Hosted GitHub jobs have not been executed by this local work.
+
+## T-181 durable worker handoff
+
+`OutboxDispatcherService.register(eventType, handler)` registers a real consumer before
+`start()`. There are no active domain consumers yet; later feature tasks register them.
+Unknown events remain retryable, then fail with an alert; they are never silently delivered.
+Handlers receive `(event, tx)` and may return JSON completion counts. Write DB effects
+through `tx` so effects and acknowledgement commit together. External deliveries are
+at least once and must deduplicate by the stable `event.id`; never perform financial
+updates outside the originating business transaction.
+
+`schedule(jobType, businessDate, scopeId, dueAt, payload)` atomically persists a job and
+its outbox event. Its unique `(job_type, business_date, scope_id)` preserves the first
+payload/due time on replay. Dates are explicit `YYYY-MM-DD` business dates, due instants
+are UTC; callers compute IST business policy server-side. Retry status/attempts/time/lease
+and sanitized error live on the linked event; counts/finish time live on `job_runs`.
+T-073 supplies subscription recurrence, eligibility, cutoff and the 22:30 generation alert.
+
+Worker polls immediately at startup and every 5 seconds without overlapping ticks.
+PostgreSQL time controls due/retry/lease eligibility; `SKIP LOCKED` claims one event at a
+time with a 60-second token lease. Execution holds the row lock in a transaction with a
+45-second timeout. Expired claims are reclaimed, handlers run at most five times, and
+failures back off from 5 seconds exponentially. Errors persist only fixed codes; retry
+warnings, `WORKER_DELIVERY_EXHAUSTED` and `WORKER_POLL_FAILED` are redacted operational
+log alerts. Graceful shutdown drains the in-flight poll. No broker or new dependency.
+
+Executed successfully against isolated native `supplybiz_worker_test`:
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_worker_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+WORKER_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_worker_test pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/outbox/outbox-dispatcher.postgres.spec.ts
+pnpm --filter @supplybiz/api lint
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api build
+node --test tools/checks.spec.mjs
+```
+Eight worker checks and four task-runner guards passed. No long-running API/worker was
+started. Test clients reconnect and the dispatcher startup path is tested; actual OS-process
+restart/kill is a pending manual drill. `tools/check-task.mjs T-181` now selects these tests,
+using `WORKER_TEST_DATABASE_URL` or the dedicated `NATIVE_TEST_DATABASE_URL` from CI.
+No HTTP contract change or API-client codegen. G0/manual PASS remain pending.
+
+Manual verification (use only an isolated migrated test database):
+1. Stop any old workers before applying migration `20261104090000_durable_worker`;
+   regenerate Prisma and run `pnpm --filter @supplybiz/api dev:worker` against that DB.
+2. Insert a synthetic due outbox event with an unregistered event type. Confirm it stays
+   PENDING with `WORKER_HANDLER_MISSING`, increments attempts and waits until `available_at`.
+3. Stop/restart the worker with the same DB. Confirm due work resumes, future rows wait,
+   and a synthetic PENDING row with an expired lease is reclaimed. Run a second worker
+   and confirm claims do not overlap (the focused test covers real-handler exclusion).
+4. Let five attempts fail (or advance `available_at` in the test DB between attempts).
+   Confirm FAILED plus `WORKER_DELIVERY_EXHAUSTED`; logs and `last_error` contain no payload.
+5. Rerun the focused suite to inspect job-key deduplication, persisted counts and transactional
+   rollback. Stop manual workers afterward. Rollback retains additive tables/columns and
+   queued data with workers stopped; do not run the old acknowledge-only dispatcher.
+
+## T-015 development/test verification handoff
+
+User authorization (2026-11-04): proceed with T-015 using the existing development/test
+OTP provider despite T-014/Q-09 being blocked. This exception permits session development
+and verification; it does not resolve provider/DLT selection, enable production simulation,
+claim real message delivery or pass G0. Mobile auth/manual Android UI belongs to T-016.
+
+Login now reloads account status/roles after acquiring its user lock, preventing a stale
+pre-lock snapshot from issuing a session for a newly blocked account or with old roles.
+No HTTP contract, schema, client generation or provider behavior changed for T-015.
+The new `sessions.postgres.spec.ts` boots the actual AppModule with PostgreSQL and shared
+Ed25519 signing keys across independent API instances. Only delivery and Nest logging are
+overridden: existing ConsoleOtpProvider captures random OTPs in test memory, with no code
+logging, fixed code or HTTP backdoor. The suite closes/reboots one instance to verify durable
+role/session state; an OS-process restart remains manual. Refresh reuse revokes its family
+per AUTH_SECURITY §2.2 and TC-009; logout-all revokes every device's sessions.
+
+Executed successfully (isolated native `supplybiz_sessions_test`, no tests skipped):
+```sh
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+SESSIONS_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/auth/sessions.service.spec.ts src/modules/auth/sessions.http.spec.ts src/modules/auth/sessions.postgres.spec.ts
+pnpm --filter @supplybiz/api lint
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api build
+node --test tools/checks.spec.mjs
+```
+24 session checks (8 native HTTP/DB, 5 HTTP boundary, 11 service/token checks) and 4 runner
+guards pass. Checks cover TC-008/009/010/013, single-use OTP, consent timestamps/versions,
+hashed refresh storage, role/account rechecks, replay, concurrent refresh and logout,
+current/all-device revocation, expired sessions, blocked accounts and forged ownership.
+Test fixtures/clients and the disposable private directory under
+`~/.local/share/supplybiz/test-uploads` are cleaned afterward. No persistent API process
+was started. T-015 is registered in `tools/check-task.mjs`; it uses SESSIONS_TEST_DATABASE_URL
+or falls back to CI's dedicated NATIVE_TEST_DATABASE_URL. The entire runner was not rerun;
+its selected session checks and the guard checks above were run directly.
+
+Manual verification (pending; use this native harness in a debugger for code capture and
+DB inspection, since the normal console simulation intentionally exposes no OTP):
+1. Configure a migrated database ending in `_test` as SESSIONS_TEST_DATABASE_URL. Run the
+   native suite above; set a breakpoint after signup in TC-013 before automatic cleanup.
+   Inspect consent versions/timestamps, hashed refresh storage and the initial empty roles.
+2. Step through TC-008: select Customer, add/switch to Vendor, then confirm `/me` and refresh
+   preserve Vendor on the other/rebooted API instance without another login.
+3. Step through TC-009: refresh once, confirm the prior access token fails, then replay the
+   old refresh token and confirm REFRESH_REUSED and committed family revocation.
+4. Step through TC-010: current logout leaves the second device active; logout-all makes
+   its next `/me` and refresh fail. Confirm the concurrent-logout case leaves no active session.
+5. Resume through cleanup. Record manual PASS separately. Real SMS/WhatsApp delivery,
+   Android login UI, OS-process restart drills and G0 are not claimed by these test results.

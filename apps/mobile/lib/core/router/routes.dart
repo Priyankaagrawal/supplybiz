@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'route_widgets.dart';
 import 'guards.dart';
+import '../../features/auth/auth_pages.dart';
 
 part 'routes.g.dart';
 
@@ -11,7 +12,7 @@ class SplashRoute extends GoRouteData with _$SplashRoute {
   const SplashRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.loading);
+      const AuthPage(RouteTitle.loading);
 }
 
 @TypedGoRoute<LoginRoute>(path: '/login')
@@ -19,7 +20,7 @@ class LoginRoute extends GoRouteData with _$LoginRoute {
   const LoginRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.login);
+      const AuthPage(RouteTitle.login);
 }
 
 @TypedGoRoute<OtpRoute>(path: '/otp')
@@ -27,7 +28,7 @@ class OtpRoute extends GoRouteData with _$OtpRoute {
   const OtpRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.otp);
+      const AuthPage(RouteTitle.otp);
 }
 
 @TypedGoRoute<RoleRoute>(path: '/role')
@@ -35,7 +36,7 @@ class RoleRoute extends GoRouteData with _$RoleRoute {
   const RoleRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.role);
+      const AuthPage(RouteTitle.role);
 }
 
 @TypedGoRoute<CommonRoute>(path: '/common/:page')
@@ -43,14 +44,19 @@ class CommonRoute extends GoRouteData with _$CommonRoute {
   const CommonRoute(this.page);
   final CommonPage page;
   @override
-  Widget build(BuildContext context, GoRouterState state) => RoutePlaceholder(
-          title: switch (page) {
-        CommonPage.update => RouteTitle.update,
-        CommonPage.legal => RouteTitle.legal,
-        CommonPage.notifications => RouteTitle.notifications,
-        CommonPage.settings => RouteTitle.settings,
-        CommonPage.switchRole => RouteTitle.switchRole,
-      });
+  Widget build(BuildContext context, GoRouterState state) =>
+      page == CommonPage.settings || page == CommonPage.switchRole
+          ? AuthPage(page == CommonPage.settings
+              ? RouteTitle.settings
+              : RouteTitle.switchRole)
+          : RoutePlaceholder(
+              title: switch (page) {
+              CommonPage.update => RouteTitle.update,
+              CommonPage.legal => RouteTitle.legal,
+              CommonPage.notifications => RouteTitle.notifications,
+              CommonPage.settings => RouteTitle.settings,
+              CommonPage.switchRole => RouteTitle.switchRole,
+            });
 }
 
 enum CommonPage { update, legal, notifications, settings, switchRole }

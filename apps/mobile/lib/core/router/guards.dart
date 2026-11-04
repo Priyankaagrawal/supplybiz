@@ -54,6 +54,7 @@ String? guardRedirect(RouteAccess access, String path) {
     return {'/login', '/otp'}.contains(path) ? null : '/login';
   }
   if (access.activeRole == null) return unlessHere('/role');
+  if (path == '/common/settings') return null;
   if (access.activeRole == AppRole.vendor && !access.onboardingComplete) {
     return unlessHere('/vendor/onboarding/${access.onboardingStep.name}');
   }

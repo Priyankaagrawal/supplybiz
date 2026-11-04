@@ -139,4 +139,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeLedger => 'Vendor Khata';
+
+  @override
+  String get authMobile => 'Mobile number';
+
+  @override
+  String get authInvalidMobile =>
+      'Enter a valid 10-digit mobile number starting with 6–9.';
+
+  @override
+  String get authConsent => 'I accept the Terms and Privacy Policy.';
+
+  @override
+  String get authTerms => 'Terms';
+
+  @override
+  String get authPrivacy => 'Privacy Policy';
+
+  @override
+  String get authSend => 'Send OTP';
+
+  @override
+  String get authWhatsapp => 'Continue with WhatsApp';
+
+  @override
+  String get authSms => 'Sent via SMS';
+
+  @override
+  String get authCode => '6-digit verification code';
+
+  @override
+  String get authVerify => 'Verify';
+
+  @override
+  String get authResend => 'Resend OTP';
+
+  @override
+  String authResendWait(int seconds) {
+    return 'Resend in ${seconds}s';
+  }
+
+  @override
+  String get authChangeNumber => 'Change number';
+
+  @override
+  String get authWrongOtp => 'Incorrect code. Please try again.';
+
+  @override
+  String get authExpiredOtp =>
+      'This code has expired. Please request a new one.';
+
+  @override
+  String get authExhaustedOtp =>
+      'Too many incorrect attempts. Please request a new code.';
+
+  @override
+  String get authDeliveryUnavailable =>
+      'OTP delivery is unavailable. Please try again later.';
+
+  @override
+  String get authLegalUnavailable =>
+      'Terms and Privacy Policy are unavailable. Please try again later.';
+
+  @override
+  String get authCustomer => 'I want to buy';
+
+  @override
+  String get authVendor => 'I sell / supply';
+
+  @override
+  String get authLogout => 'Logout';
+
+  @override
+  String get authLogoutAll => 'Logout from all devices';
+
+  @override
+  String get authRetry => 'Retry';
+
+  @override
+  String get authTrust =>
+      'Secure Registration • Quick & Easy Setup • Start Supplying Today';
 }

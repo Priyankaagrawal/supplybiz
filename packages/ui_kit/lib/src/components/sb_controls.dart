@@ -170,18 +170,27 @@ class SbTextField extends StatelessWidget {
 
 /// One accessible autofill input with a six-digit visual layout.
 class SbOtpField extends StatefulWidget {
-  const SbOtpField({required this.onChanged, this.error, super.key});
+  const SbOtpField(
+      {required this.onChanged,
+      this.error,
+      this.controller,
+      this.enabled = true,
+      super.key});
   final ValueChanged<String> onChanged;
   final String? error;
+  final TextEditingController? controller;
+  final bool enabled;
   @override
   State<SbOtpField> createState() => _SbOtpFieldState();
 }
 
 class _SbOtpFieldState extends State<SbOtpField> {
-  final _controller = TextEditingController();
+  final _ownedController = TextEditingController();
+  TextEditingController get _controller =>
+      widget.controller ?? _ownedController;
   @override
   void dispose() {
-    _controller.dispose();
+    _ownedController.dispose();
     super.dispose();
   }
 
@@ -195,6 +204,7 @@ class _SbOtpFieldState extends State<SbOtpField> {
             children: [
               TextField(
                 controller: _controller,
+                enabled: widget.enabled,
                 onChanged: (value) {
                   setState(() {});
                   widget.onChanged(value);

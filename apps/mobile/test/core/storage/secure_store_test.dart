@@ -22,4 +22,11 @@ void main() {
     expect(await store.readRefreshToken(), isNull);
     expect(await store.wipePending, isFalse);
   });
+  test('T-016 installation identity survives session-secret cleanup', () async {
+    final store = SecureStore();
+    final identity = await store.installationId();
+    expect(identity, matches(RegExp(r'^[0-9a-f-]{36}$')));
+    await store.clear();
+    expect(await store.installationId(), identity);
+  });
 }

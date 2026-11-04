@@ -62,7 +62,9 @@ final class ValidationFailure extends AppFailure {
 }
 
 final class BusinessRuleFailure extends AppFailure {
-  const BusinessRuleFailure({super.code, super.requestId});
+  const BusinessRuleFailure(
+      {super.code, super.requestId, this.retryAfterSeconds});
+  final int? retryAfterSeconds;
 }
 
 final class ServerFailure extends AppFailure {
@@ -112,15 +114,20 @@ AppFailure mapDioFailure(DioException error) {
         fieldErrors: _fieldErrors(problem['errors']),
         code: code,
         requestId: requestId),
-    410 ||
-    422 ||
-    426 ||
-    429 =>
-      BusinessRuleFailure(code: code, requestId: requestId),
+    410 || 422 || 426 || 429 => BusinessRuleFailure(
+        code: code,
+        requestId: requestId,
+        retryAfterSeconds: _retryAfter(problem['retryAfterSec'] ??
+            response?.headers.value('retry-after'))),
     final int status when status >= 500 =>
       ServerFailure(code: code, requestId: requestId),
     _ => const UnknownFailure(),
   };
+}
+
+int? _retryAfter(Object? value) {
+  final seconds = value is int ? value : int.tryParse('$value');
+  return seconds != null && seconds > 0 && seconds <= 86400 ? seconds : null;
 }
 
 Map<String, List<String>> _fieldErrors(Object? errors) {

@@ -16,6 +16,7 @@ async function bootstrapWorker(): Promise<void> {
 
   const shutdown = async () => {
     dispatcher.stop();
+    await dispatcher.onModuleDestroy();
     await app.close();
     process.exit(0);
   };

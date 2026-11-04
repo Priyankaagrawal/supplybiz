@@ -327,6 +327,23 @@ void main() {
     expect(bodies[1].files.single.value.length, 3);
   });
 
+  test('late failed refresh cannot clear a newer login', () async {
+    final subject = _Session();
+    subject.onRefresh = () async {
+      subject.token = 'test-newer-login';
+      throw const UnauthorizedFailure(code: 'REFRESH_REUSED');
+    };
+    final network = NetworkClient(
+        baseUrl: 'https://api.example.test/api/v1',
+        session: subject,
+        adapter: _Adapter((_) => _response(401)));
+    addTearDown(network.close);
+    await expectLater(
+        network.request<dynamic>('me'), throwsA(isA<UnauthorizedFailure>()));
+    expect(subject.token, 'test-newer-login');
+    expect(subject.clears, 0);
+  });
+
   test('injected Dio exposes AppFailure and never follows redirects', () async {
     final adapter = _Adapter((options) {
       expect(options.followRedirects, isFalse);

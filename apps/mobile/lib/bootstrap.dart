@@ -34,7 +34,7 @@ Future<void> bootstrap(AppEnvironment environment) async {
             );
           }
         }
-        runApp(SupplyBizApp(environment: environment));
+        runApp(SupplyBizApp(environment: environment, enableAuth: true));
       } catch (_) {
         // Error payloads can contain tokens, URLs or provider details.
         debugPrint('Supply Biz: application startup failed.');

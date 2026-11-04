@@ -41,5 +41,36 @@
   "routeOrder": "Order details",
   "routeSubscription": "Subscription details",
   "routeVendor": "Vendor details",
-  "routeLedger": "Vendor Khata"
+  "routeLedger": "Vendor Khata",
+  "authMobile": "Mobile number",
+  "authInvalidMobile": "Enter a valid 10-digit mobile number starting with 6–9.",
+  "authConsent": "I accept the Terms and Privacy Policy.",
+  "authTerms": "Terms",
+  "authPrivacy": "Privacy Policy",
+  "authSend": "Send OTP",
+  "authWhatsapp": "Continue with WhatsApp",
+  "authSms": "Sent via SMS",
+  "authCode": "6-digit verification code",
+  "authVerify": "Verify",
+  "authResend": "Resend OTP",
+  "authResendWait": "Resend in {seconds}s",
+  "@authResendWait": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "authChangeNumber": "Change number",
+  "authWrongOtp": "Incorrect code. Please try again.",
+  "authExpiredOtp": "This code has expired. Please request a new one.",
+  "authExhaustedOtp": "Too many incorrect attempts. Please request a new code.",
+  "authDeliveryUnavailable": "OTP delivery is unavailable. Please try again later.",
+  "authLegalUnavailable": "Terms and Privacy Policy are unavailable. Please try again later.",
+  "authCustomer": "I want to buy",
+  "authVendor": "I sell / supply",
+  "authLogout": "Logout",
+  "authLogoutAll": "Logout from all devices",
+  "authRetry": "Retry",
+  "authTrust": "Secure Registration • Quick & Easy Setup • Start Supplying Today"
 }

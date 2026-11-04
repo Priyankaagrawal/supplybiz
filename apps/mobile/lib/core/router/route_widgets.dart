@@ -6,6 +6,9 @@ import '../config/app_environment.dart';
 import '../l10n/l10n.dart';
 import 'guards.dart';
 import 'routing_controller.dart';
+import 'routes.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/auth/auth_pages.dart';
 
 class AppRoutingScope extends InheritedWidget {
   const AppRoutingScope(
@@ -87,7 +90,17 @@ class RoutePlaceholder extends StatelessWidget {
     final scope = AppRoutingScope.of(context);
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.appName)),
+      appBar: AppBar(title: Text(l10n.appName), actions: [
+        Consumer(
+            builder: (context, ref, _) => ref.watch(authEnabledProvider) &&
+                    scope.controller.access.signedIn
+                ? SbIconButton(
+                    icon: Icons.manage_accounts_outlined,
+                    semanticLabel: l10n.routeSettings,
+                    onPressed: () =>
+                        const CommonRoute(CommonPage.settings).go(context))
+                : const SizedBox.shrink())
+      ]),
       body: SafeArea(
           child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

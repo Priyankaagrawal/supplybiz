@@ -29,8 +29,10 @@ export class SessionsService {
           { doc_type: "PRIVACY", doc_version: consent.privacyVersion, ip },
         ] } }, include: userInclude });
       }
-      this.assertActive(user);
       await this.lockUser(tx, user.id);
+      // Roles or account status may change while login waits for the user lock.
+      user = await tx.users.findUniqueOrThrow({ where: { id: user.id }, include: userInclude });
+      this.assertActive(user);
       const registered = await tx.devices.create({ data: {
         user_id: user.id, platform: device.platform, app_version: device.appVersion,
         os_version: device.osVersion, last_seen_at: new Date(),

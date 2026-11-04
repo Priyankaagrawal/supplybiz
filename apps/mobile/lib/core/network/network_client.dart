@@ -169,6 +169,7 @@ class _NetworkInterceptor extends Interceptor {
   }
 
   Future<void> _rotate() async {
+    final token = session.accessToken;
     try {
       await session.refresh();
       if (session.accessToken == null) throw const UnauthorizedFailure();
@@ -178,7 +179,13 @@ class _NetworkInterceptor extends Interceptor {
           : error is AppFailure
               ? error
               : const UnknownFailure();
-      if (failure is UnauthorizedFailure) await session.clear();
+      // A session implementation may already wipe on reuse. Do not wipe again,
+      // or revoke a newer login when an older refresh fails late.
+      if (failure is UnauthorizedFailure &&
+          token != null &&
+          session.accessToken == token) {
+        await session.clear();
+      }
       throw failure;
     }
   }

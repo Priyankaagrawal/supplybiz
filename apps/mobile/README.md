@@ -16,7 +16,8 @@ fvm flutter run --flavor prod -t lib/main_prod.dart --dart-define-from-file=conf
 ```
 
 The native flavor, entrypoint and `ENV_NAME` must match. Checked-in API hosts
-for staging/prod are placeholders; the skeleton makes no API requests.
+for staging/prod are placeholders; auth now calls the configured API and requires
+versioned legal content (see the T-016 handoff below).
 Firebase-disabled configs run without Firebase project files. For a Firebase
 check, supply the matching native config and set `FIREBASE_ENABLED` to `true`
 in a local copy of that flavor's JSON. Android only processes Google Services
@@ -216,3 +217,91 @@ ADR-025: no iOS builds/runs/simulator/device/native-storage/VoiceOver/E2E testin
 ## Day 1 / T-183 handoff
 
 Use the repository-pinned Flutter 3.35.7 SDK through FVM. The global Flutter 3.47.8 initially produced an incompatible shader-cache error; its incidental lockfile changes were reverted. Regenerate local plugin manifests with `fvm flutter pub get --enforce-lockfile` if they reference an old temporary package cache. See [Day 1 evidence](../../docs/05-ai-development/DAY1_HANDOFF.md) for focused test/build/device results and manual checks. Hindi device locales now use English throughout the shell and startup failure UI; language selection and deferred referral aliases are removed. Generated localization/router code was regenerated from source. All iOS checks remain deferred.
+
+## T-016 auth verification handoff
+
+S-COM-01/03/04/05 now restore sessions, validate +91 numbers, require explicit versioned
+consent, send SMS/WhatsApp requests, accept/paste/autofill six OTP digits, display resend
+and server rate-limit waits, and retain the number when changing it. Role selection and
+switching use server responses; Vendor opens the existing onboarding destination, Customer
+opens its shell. The Settings action provides role switching, current logout and logout-all,
+including during onboarding. Remaining business destinations retain their owning tasks.
+
+Riverpod owns the session; access tokens stay in memory and refresh tokens use the existing
+native secure store. Refresh is single-flight, persisted before reuse, and fenced against
+late replies after logout/new login. Cold-start network failures retain refresh credentials
+with Retry/local logout instead of admitting another account into the existing local DB.
+Logout wipes native SQLCipher files and session secrets; installation identity survives
+logout to preserve a stable X-Device-Id. All mutations carry Idempotency-Key. Generated
+client paths already contain /api/v1, so their Dio transport uses the configured origin.
+The normal entrypoints enable auth; the explicit disabled mode preserves isolated router
+foundation tests, not a runtime sign-in bypass.
+
+Dependencies: flutter_riverpod 2.6.1 (MIT; implements the existing Riverpod 2 architecture,
+no generator added), and the existing generated workspace API client. Android adds only
+play-services-auth-api-phone 18.2.0 (Google Play services SDK terms; limited phone API,
+not Firebase Auth). It is pinned for the existing Kotlin toolchain; 18.3.1 required newer
+Kotlin metadata. Dependency size growth was not benchmarked. Native SMS Retriever follows
+[Android's receiver/start guidance](https://developer.android.com/identity/sms-retriever)
+with SEND_PERMISSION on the receiver, no SMS read/receive permission, runtime app hash,
+short startup timeout and lifecycle cleanup. Real broadcast/autofill delivery awaits Q-09;
+manual entry remains available. No iOS source/configuration was changed or validated.
+
+Consent requires TERMS_VERSION, TERMS_TEXT, PRIVACY_VERSION and PRIVACY_TEXT in the build
+configuration; absent documents disable signup. Only config/dev.json contains labelled
+synthetic development documents. Supply approved content/versions for deployed builds;
+T-017/T-107 own subsequent API-config/CMS integration. No production legal policy is invented.
+This task uses stable T-015 contracts and test-only delivery for checks; T-014 stays BLOCKED.
+
+Executed with Flutter 3.35.7 / Dart 3.9.2 and JDK 21 (commands from apps/mobile unless noted):
+```sh
+# Installed pinned SDK used for checks:
+FLUTTER_BIN=/Users/ankit/fvm/versions/3.35.7/bin/flutter
+# Dependency resolution/localization were run through ~/.pub-cache/bin/fvm:
+fvm flutter pub get
+fvm flutter gen-l10n
+"$FLUTTER_BIN" analyze --no-pub
+"$FLUTTER_BIN" test --no-pub --reporter expanded test/features/auth/session_controller_test.dart test/features/auth/auth_pages_test.dart test/core/router/app_router_test.dart test/core/router/guards_test.dart test/core/network/network_client_test.dart test/core/storage/secure_store_test.dart test/core/storage/app_storage_test.dart test/widget_test.dart
+# From packages/ui_kit:
+"$FLUTTER_BIN" analyze --no-pub
+"$FLUTTER_BIN" test --no-pub --reporter expanded test/src/components_test.dart
+# From apps/mobile, with JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home:
+"$FLUTTER_BIN" test integration_test/auth_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub --reporter expanded
+"$FLUTTER_BIN" build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+# From repository root:
+pnpm --filter @supplybiz/api exec eslint test/mobile-auth-harness.ts --max-warnings=0
+pnpm --filter @supplybiz/api typecheck
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+git diff --check
+```
+55 focused mobile checks (including 200%/Android semantics), 8 UI-kit checks and 4 CLI guards
+pass. The Android integration check passed once after the navigation fixes: real renderer,
+secure storage and SQLCipher, with simulated API responses confined to test code. It uses
+an isolated storage namespace/directory and cleans it afterward. This is not a mobile →
+real PostgreSQL integrated pass; prior T-015 provides separate native API/DB evidence.
+The final normal dev APK was rebuilt and installed on emulator-5554 after testing, replacing
+the integration-test APK. The emulator was already running and was left available. No API
+service/manual harness was started. No full G0 suite or manual PASS is claimed. T-016 is
+registered in tools/check-task.mjs; that full runner/hosted CI was not executed this turn.
+
+Manual verification (pending):
+1. For real API/DB testing, select an already migrated dedicated _test database and private
+   persistent UPLOAD_ROOT. Stop any other process occupying port 3000. From apps/api run
+   `MOBILE_AUTH_TEST_DATABASE_URL=<test-db-url> pnpm exec node --inspect-brk -r ts-node/register test/mobile-auth-harness.ts`.
+   Attach a local debugger, set a breakpoint on `void delivery` in inspectDelivery, then resume.
+   This harness binds only 127.0.0.1, accepts development/test only, never logs codes and adds
+   no code-retrieval endpoint. Its ephemeral pepper/signing keys are unsuitable for restart
+   abuse-control evidence. It was statically checked but not started in this implementation.
+2. Run the normal Android dev entrypoint with config/dev.json. Confirm invalid numbers and
+   unchecked consent disable sending; open both synthetic legal documents. Send SMS or
+   WhatsApp for a synthetic account, inspect the code at the debugger breakpoint, resume the
+   API and enter/paste it. Confirm the resend timer, wrong/expired/exhausted errors and Change
+   number behavior. The harness simulates delivery; actual carrier/template tests await Q-09.
+3. Choose Customer, open Settings, switch to Vendor and confirm onboarding; open Settings
+   again and switch back. Restart the Android app with the same API and confirm refresh/role
+   restoration. Test offline restore → Retry without clearing saved credentials.
+4. Exercise logout and logout-all, including another test device/session. Confirm the next
+   API call on a revoked session returns to login, local secrets/database are wiped, and a
+   fresh login works. Review TalkBack and 200% layouts manually; automated semantics are not
+   a TalkBack PASS. Stop the manual harness afterward and record PASS separately.

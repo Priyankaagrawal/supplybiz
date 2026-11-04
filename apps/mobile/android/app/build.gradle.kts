@@ -76,3 +76,7 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation("com.google.android.gms:play-services-auth-api-phone:18.2.0")
+}

@@ -63,6 +63,18 @@ describe("T-015 session security (TC-008–TC-010, FR-009)", () => {
     await expect(service.login("9000000000", "123456", { platform: "ANDROID" })).rejects.toThrow();
     expect(db.$transaction).not.toHaveBeenCalled();
   });
+  it("login rechecks account status and roles after acquiring the user lock", async () => {
+    db.users.findUniqueOrThrow.mockResolvedValueOnce({ ...user, status: "BLOCKED" });
+    await expect(service.login("9000000000", "123456", { platform: "ANDROID" }))
+      .rejects.toMatchObject({ response: { code: "ACCOUNT_BLOCKED" } });
+    expect(db.devices.create).not.toHaveBeenCalled();
+    expect(db.sessions.create).not.toHaveBeenCalled();
+    db.users.findUniqueOrThrow.mockResolvedValueOnce({ ...user, active_role: "VENDOR",
+      roles: [{ role: "CUSTOMER" }, { role: "VENDOR" }] });
+    const result = await service.login("9000000000", "123456", { platform: "ANDROID" });
+    expect(result.user).toMatchObject({ activeRole: "VENDOR", roles: ["CUSTOMER", "VENDOR"] });
+    expect(tokens.read(result.accessToken).roles).toEqual(["CUSTOMER", "VENDOR"]);
+  });
   it("stores only refresh SHA-256, issues 15m access and sliding 30d refresh in same family", async () => {
     const result = await service.refresh("fake-refresh-input");
     const data = db.sessions.create.mock.calls[0][0].data;

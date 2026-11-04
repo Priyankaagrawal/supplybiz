@@ -45,6 +45,12 @@ class RoutingController extends ChangeNotifier {
 
   String? redirect(Uri uri, {bool unknown = false}) {
     final path = uri.path;
+    // Explicit session settings must remain reachable while onboarding/link
+    // navigation is pending, so users can switch roles or revoke their session.
+    if (path == '/common/settings') {
+      _clearPending();
+      return guardRedirect(_access, path);
+    }
     final parsed = parser.parse(uri.toString());
     if (unknown || (uri.hasScheme && parsed == null)) {
       _clearPending();
