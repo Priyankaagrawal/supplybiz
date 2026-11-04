@@ -3,7 +3,7 @@
 Accepted baseline: ADR-023. Implementation owner: T-020 and T-182. This is a target contract; source and generated contracts change only during implementation.
 
 ## Configuration and layout
-- `UPLOAD_ROOT`: absolute persistent directory outside the source tree, deployment artifact, temporary directory and web root; no default in production. Development example: `/var/tmp/supplybiz-dev-uploads`.
+- `UPLOAD_ROOT`: absolute persistent directory outside the source tree, deployment artifact, temporary directory and web root; no default in production. Development default: the service user's persistent `~/.local/share/supplybiz/uploads` (expand it to an absolute path when configuring UPLOAD_ROOT).
 - `UPLOAD_MAX_BYTES`: default 5,242,880 per file; per-purpose restrictions may be tighter. `UPLOAD_MAX_PIXELS`: default 20,000,000; bound decoding memory/time as well as bytes. Reject invalid config at startup.
 - Separate `staging/`, `media/` and `kyc/` subdirectories, with generated UUID names and server-selected extensions. Store a relative opaque storage key, purpose, owner/tenant, validated MIME, byte count, hash, validation status and timestamps in `media_files`. Never expose absolute paths.
 - Service account owns root (0700 directories / 0600 files); encrypted volume and encrypted backups. Separate roots and keys for each environment. Check free space, directory writability and disk alerts; no uploads in ephemeral build directories.

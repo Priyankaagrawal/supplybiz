@@ -1,91 +1,59 @@
 name: api-ci
-
 on:
   pull_request:
-    paths:
-      - "apps/api/**"
-      - "contracts/**"
-      - "packages/ts-client/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - "tools/codegen.sh"
-      - "tools/openapi/**"
-      - ".github/workflows/api-ci.yml"
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/api/**"
-      - "contracts/**"
-      - "packages/ts-client/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - "tools/codegen.sh"
-      - "tools/openapi/**"
-      - ".github/workflows/api-ci.yml"
+    paths: ['apps/api/**', 'contracts/**', 'tools/check-*.mjs', 'tools/module-prerequisites.mjs', 'tools/checks.spec.mjs', 'tools/normalize-generated-docs.mjs', 'tools/codegen.sh', 'tools/openapi/**', 'pnpm-lock.yaml', '.github/workflows/api-ci.yml', '.github/actions/native-test-db/**']
   workflow_dispatch:
-
+    inputs:
+      task:
+        description: Task ID with focused checks
+        required: true
+        default: T-182
 jobs:
-  api:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+  task:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      NODE_ENV: test
+      CHECK_LAYER: api
+      TASK_ID: ${{ inputs.task }}
+      TASK_TITLE: ${{ github.event.pull_request.title }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version-file: .nvmrc
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
-
-      - name: Setup Flutter for generated client serializers
-        uses: subosito/flutter-action@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/native-test-db
+      - run: node tools/check-task.mjs
+      - name: Detect contract changes
+        id: contract
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if git diff --name-only "${BASE_REF:-HEAD~1}" HEAD -- contracts apps/api/scripts/generate-openapi.ts apps/api/src | rg '(contracts/|generate-openapi|controller|dto)'; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-java@v4
+        if: steps.contract.outputs.changed == 'true'
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: subosito/flutter-action@v2
+        if: steps.contract.outputs.changed == 'true'
         with:
           flutter-version-file: .fvmrc
-          channel: stable
           cache: true
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter api lint
-
-      - name: Typecheck
-        run: pnpm --filter api typecheck
-
-      - name: Unit tests
-        run: pnpm --filter api test
-
-      - name: E2E tests
-        run: pnpm --filter api test:e2e
-
-      - name: OpenAPI + client generation diff check
+      - name: Contract generation and drift (only when affected)
+        if: steps.contract.outputs.changed == 'true'
         run: |
           tools/codegen.sh
-          if [ -n "$(git status --porcelain -- contracts/openapi.yaml packages/ts-client/src/generated/openapi.ts packages/api_client)" ]; then
-            echo "Generated contract/clients are out of date. Run tools/codegen.sh and commit changes."
-            git status --short -- contracts/openapi.yaml packages/ts-client/src/generated/openapi.ts packages/api_client
+          if [ -n "$(git status --porcelain -- contracts packages/api_client packages/ts-client)" ]; then
+            echo 'Generated contract/client drift detected; regenerate and commit all generated outputs.'
+            git status --short -- contracts packages/api_client packages/ts-client
             exit 1
-          fi
-
-      - name: Prisma migrate diff check
-        run: |
-          if [ -f apps/api/src/prisma/schema.prisma ]; then
-            pnpm --filter api prisma migrate diff --from-empty --to-schema-datamodel apps/api/src/prisma/schema.prisma
-          else
-            echo "Skipping Prisma diff: schema not scaffolded yet."
           fi

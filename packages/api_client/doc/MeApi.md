@@ -9,9 +9,9 @@ All URIs are relative to *http://localhost:3000*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**meControllerActiveRole**](MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role | 
-[**meControllerAddRole**](MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles | 
-[**meControllerMe**](MeApi.md#mecontrollerme) | **GET** /api/v1/me | 
+[**meControllerActiveRole**](MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role |
+[**meControllerAddRole**](MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles |
+[**meControllerMe**](MeApi.md#mecontrollerme) | **GET** /api/v1/me |
 
 
 # **meControllerActiveRole**
@@ -24,8 +24,8 @@ Method | HTTP request | Description
 import 'package:supplybiz_api_client/api.dart';
 
 final api = SupplybizApiClient().getMeApi();
-final String idempotencyKey = idempotencyKey_example; // String | 
-final RoleDto roleDto = ; // RoleDto | 
+final String idempotencyKey = idempotencyKey_example; // String |
+final RoleDto roleDto = ; // RoleDto |
 
 try {
     final response = api.meControllerActiveRole(idempotencyKey, roleDto);
@@ -39,8 +39,8 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **idempotencyKey** | **String**|  | 
- **roleDto** | [**RoleDto**](RoleDto.md)|  | 
+ **idempotencyKey** | **String**|  |
+ **roleDto** | [**RoleDto**](RoleDto.md)|  |
 
 ### Return type
 
@@ -67,8 +67,8 @@ Name | Type | Description  | Notes
 import 'package:supplybiz_api_client/api.dart';
 
 final api = SupplybizApiClient().getMeApi();
-final String idempotencyKey = idempotencyKey_example; // String | 
-final RoleDto roleDto = ; // RoleDto | 
+final String idempotencyKey = idempotencyKey_example; // String |
+final RoleDto roleDto = ; // RoleDto |
 
 try {
     final response = api.meControllerAddRole(idempotencyKey, roleDto);
@@ -82,8 +82,8 @@ try {
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **idempotencyKey** | **String**|  | 
- **roleDto** | [**RoleDto**](RoleDto.md)|  | 
+ **idempotencyKey** | **String**|  |
+ **roleDto** | [**RoleDto**](RoleDto.md)|  |
 
 ### Return type
 

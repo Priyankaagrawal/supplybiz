@@ -4,6 +4,8 @@ import request from "supertest";
 import { AppModule } from "../src/app.module";
 import { configureHttpApp } from "../src/bootstrap";
 import { PrismaService } from "../src/prisma/prisma.service";
+import { ThrottlerStorage } from "@nestjs/throttler";
+import { LocalStorageService } from "../src/storage/local-storage.service";
 
 type IdempotencyRecord = {
   idempotency_key: string;
@@ -23,10 +25,10 @@ describe("API skeleton e2e", () => {
   beforeAll(async () => {
     process.env.NODE_ENV = "test";
     process.env.DATABASE_URL = "postgresql://localhost:5432/supplybiz";
-    process.env.REDIS_URL = "redis://localhost:6379";
     process.env.HEALTHCHECK_STRICT = "false";
 
     const prismaMock = {
+      $queryRaw: jest.fn(async () => [{ result: 1 }]),
       idempotency_keys: {
         findUnique: jest.fn(async ({ where }: { where: { idempotency_key: string } }) => {
           return idempotencyStore.get(where.idempotency_key) ?? null;
@@ -69,6 +71,12 @@ describe("API skeleton e2e", () => {
     });
 
     moduleBuilder.overrideProvider(PrismaService).useValue(prismaMock);
+    moduleBuilder.overrideProvider(LocalStorageService).useValue({ check: async () => {} });
+    // This existing skeleton suite fakes persistence. T-180's real shared
+    // limiter/concurrency checks live in otp.postgres.spec.ts.
+    moduleBuilder.overrideProvider(ThrottlerStorage).useValue({
+      increment: async () => ({ totalHits: 1, timeToExpire: 60 }),
+    });
     const moduleRef = await moduleBuilder.compile();
 
     app = moduleRef.createNestApplication();

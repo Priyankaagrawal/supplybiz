@@ -10,7 +10,6 @@ class RouteAccess {
   const RouteAccess({
     this.initialized = true,
     this.forceUpdate = false,
-    this.languageSelected = false,
     this.signedIn = false,
     this.activeRole,
     this.onboardingComplete = false,
@@ -19,7 +18,6 @@ class RouteAccess {
 
   final bool initialized;
   final bool forceUpdate;
-  final bool languageSelected;
   final bool signedIn;
   final AppRole? activeRole;
   final bool onboardingComplete;
@@ -38,7 +36,6 @@ AppRole? routeRole(String path) {
 bool isEntryRoute(String path) => {
       '/',
       '/splash',
-      '/language',
       '/login',
       '/otp',
       '/role',
@@ -53,9 +50,8 @@ String? guardRedirect(RouteAccess access, String path) {
   if (access.forceUpdate) return unlessHere('/common/update');
   if (!access.initialized) return unlessHere('/splash');
   if (path == '/common/legal') return null;
-  if (!access.languageSelected) return unlessHere('/language');
   if (!access.signedIn) {
-    return {'/language', '/login', '/otp'}.contains(path) ? null : '/login';
+    return {'/login', '/otp'}.contains(path) ? null : '/login';
   }
   if (access.activeRole == null) return unlessHere('/role');
   if (access.activeRole == AppRole.vendor && !access.onboardingComplete) {

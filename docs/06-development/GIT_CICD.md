@@ -46,7 +46,7 @@ gitGraph
 - Required checks must pass; no force-push to protected branches.
 
 ## 4. CI Pipelines
-Target cadence (T-184 implements; do not count placeholder scripts as successful checks):
+T-184 implements the task/module separation below; local guard/native smoke checks pass and hosted workflow execution remains pending. Admin checks stay explicitly NOT_RUN until T-150; do not count placeholder scripts as successful checks:
 
 | Workflow | Trigger | Checks |
 |---|---|---|
@@ -57,7 +57,7 @@ Target cadence (T-184 implements; do not count placeholder scripts as successful
 | Release candidate | G6 | Full retained-scope integration/regression/E2E, security, accessibility, representative performance and restore evidence |
 | Docs | Documentation change | Whitespace, links/references, dependency/acceptance consistency |
 
-Secret/dependency review remains part of review; do not run an exhaustive audit farm after every task. No nightly comprehensive test mandate or visual snapshot baseline machinery. Current CI source is unchanged in this planning revision; T-184 reconciles workflows and real API lint, T-150 real admin scripts.
+Secret/dependency review remains part of review; do not run an exhaustive audit farm after every task. No nightly comprehensive test mandate or visual snapshot baseline machinery. Task workflows extract supported T-IDs from PR titles or manual inputs and require explicit focused selections. Module verification is workflow_dispatch-only and rejects incomplete prerequisites or missing integrated suites. Native PostgreSQL/PostGIS setup uses host packages without container services. See DAY1_HANDOFF for local validation; T-150 still owns real admin scripts.
 
 ## 5. CD Pipelines
 | Workflow | Trigger | Result |

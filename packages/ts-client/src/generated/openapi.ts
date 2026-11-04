@@ -454,8 +454,9 @@ export interface operations {
     };
     SessionsController_logout: {
         parameters: {
-            query: {
-                all: string;
+            query?: {
+                /** @description Defaults to false (current session family); true revokes all account sessions. */
+                all?: "true" | "false";
             };
             header: {
                 "Idempotency-Key": string;
@@ -477,9 +478,7 @@ export interface operations {
     SessionsController_jwks: {
         parameters: {
             query?: never;
-            header: {
-                "Idempotency-Key": string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };

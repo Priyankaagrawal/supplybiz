@@ -11,7 +11,6 @@ async function main(): Promise<void> {
   process.env.NODE_ENV = process.env.NODE_ENV ?? "development";
   process.env.DATABASE_URL =
     process.env.DATABASE_URL ?? "postgresql://localhost:5432/supplybiz";
-  process.env.REDIS_URL = process.env.REDIS_URL ?? "redis://localhost:6379";
 
   const app = await NestFactory.create(AppModule, { logger: false });
   configureHttpApp(app);
@@ -30,7 +29,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  // eslint-disable-next-line no-console
   console.error("Failed to generate OpenAPI document", error);
   process.exit(1);
 });

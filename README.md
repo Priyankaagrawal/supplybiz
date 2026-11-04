@@ -12,7 +12,7 @@ Two-sided mobile marketplace for India's local milk vendors (and other local sup
 ## Delivery baseline
 [15-day execution plan](docs/05-ai-development/ROADMAP.md) · [prioritized tasks](docs/05-ai-development/TASKS.md) · [approved scope reductions](docs/01-business/SCOPE.md#9-15-day-baseline-and-approved-scope-reductions) · [local file storage](docs/04-architecture/LOCAL_FILE_STORAGE.md).
 
-ADR-023 sets English-only UI, native PostgreSQL/processes, local server file storage and module-level comprehensive testing. This revision updates documentation only; existing runtime/source/configuration cleanup is tracked in T-180–T-184. Day 15 targets an integrated application handoff; SR-01–SR-06 are approved (ADR-024), deferred features are outside current gates, and all iOS builds/runs/testing follows Android production release (ADR-025/T-185). Android public-store/provider readiness has separate gates.
+ADR-023 sets English-only UI, native PostgreSQL/processes, local server file storage and module-level comprehensive testing. Runtime/source/configuration reconciliation is tracked in T-180–T-184; see the [Day 1 implementation handoff](docs/05-ai-development/DAY1_HANDOFF.md) for actual check evidence and pending manual verification. Day 15 targets an integrated application handoff; SR-01–SR-06 are approved (ADR-024), deferred features are outside current gates, and all iOS builds/runs/testing follows Android production release (ADR-025/T-185). Android public-store/provider readiness has separate gates.
 
 [Active/simplified versus post-delivery scope](docs/05-ai-development/DELIVERY_SCOPE.md) defines requirement, screen, test and module applicability.
 

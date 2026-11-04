@@ -25,9 +25,9 @@
 ## 2. First-Time Setup
 ```bash
 git clone <repo-url> supplybiz && cd supplybiz
-tools/bootstrap.sh          # run after T-182 reconciles it to native PostgreSQL setup
-cp apps/api/.env.example apps/api/.env          # fill local values (no real secrets needed for dev)
+cp apps/api/.env.example apps/api/.env          # fill local native DB credentials first
 cp apps/admin/.env.example apps/admin/.env.local
+tools/bootstrap.sh          # dependencies, Prisma client, Dart workspace, native checks
 pnpm --filter @supplybiz/api prisma:migrate:dev
 pnpm --filter @supplybiz/api prisma:seed
 tools/codegen.sh            # OpenAPI → Dart/TS clients
@@ -56,13 +56,12 @@ Android emulator reaches host API at `10.0.2.2`; set in `config/dev.json`.
 | `HEALTHCHECK_STRICT` | false | no |
 | `RATE_LIMIT_TTL_SECONDS` | 60 | no |
 | `RATE_LIMIT_MAX_REQUESTS` | 120 | no |
-| `OTEL_ENABLED` | false | no |
 | `AUTH_SIGNING_PRIVATE_KEY`, `AUTH_SIGNING_KEY_ID`, `AUTH_PREVIOUS_PUBLIC_KEYS` | generated dev keys | yes |
 | `OTP_HMAC_PEPPER` (at least 32 random characters) | random | yes |
 | `OTP_DELIVERY_MODE` | disabled or console (dev/test only) | no |
 | `SMS_API_KEY`, `SMS_SENDER_ID`, `SMS_DLT_TEMPLATE_ID` | — | yes |
 | `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_ID`, `WHATSAPP_TEMPLATE` | — | yes |
-| `UPLOAD_ROOT` | /var/tmp/supplybiz-dev-uploads (absolute, outside web/source/build roots) | no |
+| `UPLOAD_ROOT` | ~/.local/share/supplybiz/uploads (dev default; configure absolute path) | no |
 | `UPLOAD_MAX_BYTES`, `UPLOAD_MAX_PIXELS` | 5242880, 20000000 | no |
 | `KMS_KEY_ID` / `FIELD_ENCRYPTION_KEY` (dev only) | — | yes |
 | `FCM_SERVICE_ACCOUNT_JSON` | — | yes |
@@ -103,9 +102,9 @@ Normally run via Fastlane/CI only ([GIT_CICD §5](GIT_CICD.md#5-cd-pipelines)).
 | Push not received in dev | Check flavor Firebase config, notification permission, device token registered via `/me/devices/current` |
 
 ## 7. Baseline reconciliation and local files
-These instructions define the ADR-023 target. Existing scripts/config examples are unchanged by this documentation revision; T-180/T-182/T-184 must reconcile them before native startup is claimed working. Inspect scripts before executing; current API lint and all admin checks are placeholders, not passing validation.
+T-182 implements native runtime/storage checks and removes obsolete service/config dependencies. `infra:check` runs authenticated PostgreSQL/PostGIS queries and checks persistent private upload directories, writability and disk space. API readiness uses real SQL and storage checks; strict readiness defaults to true. T-184 supplies real API ESLint and focused task/module CI; admin checks remain unavailable until T-150. See the Day 1 handoff for executed evidence.
 
-Provision native PostgreSQL/PostGIS using the host's normal service manager, create a dedicated application database/user, set DATABASE_URL locally, then apply existing Prisma migration/seed scripts. Use a different test database for destructive test fixtures. Configure an absolute persistent UPLOAD_ROOT and restricted owner permissions before media work; use LOCAL_FILE_STORAGE for validation, access and backup requirements. Production has no upload-root fallback. Workers use the same PostgreSQL/database clock, durable job/outbox rows and supervised restart. No cloud-upload access keys are required. Never publish local secrets.
+Provision native PostgreSQL/PostGIS (enable `CREATE EXTENSION IF NOT EXISTS postgis` as an authorized database administrator) using the host's normal service manager, create a dedicated application database/user, set DATABASE_URL locally, then apply existing Prisma migration/seed scripts. Use a different test database for destructive test fixtures. Configure an absolute persistent UPLOAD_ROOT and restricted owner permissions before media work; use LOCAL_FILE_STORAGE for validation, access and backup requirements. Production has no upload-root fallback. Workers use the same PostgreSQL/database clock, durable job/outbox rows and supervised restart. No cloud-upload access keys are required. Never publish local secrets.
 
 ## 8. Android-first active setup (ADR-025)
 List Android devices with `fvm flutter devices`; select the Android device explicitly with `-d <android-device-id>` in the documented run command. Build/test only Android dev/staging/prod flavors as relevant. Do not start an iOS simulator, run iOS builds/tests or require Xcode/CocoaPods, Apple accounts, APNs keys, provisioning profiles or iOS CI runners now. Preserve existing iOS files/configuration without validating them. T-185 starts only after actual Android production release T-179.
@@ -113,3 +112,9 @@ List Android devices with `fvm flutter devices`; select the Android device expli
 Post-Android-release reference: iOS work will require a supported macOS/Xcode/CocoaPods setup, real signing and Firebase/APNs configuration, then native storage, UPI/deep links/VoiceOver/E2E checks. These are not bootstrap prerequisites for current delivery.
 
 Approved SR scope: KYC/billing/maps/recognition/BBPS/campaign/advanced telemetry credentials are not active environment requirements. Do not create placeholder credentials or install future provider SDKs. Existing examples/source are reconciled only by authorized T-182/T-183 implementation; shared encryption and FCM/SMS configuration remains required where used.
+
+## Day 1 local runtime evidence
+
+See [Day 1 handoff](../05-ai-development/DAY1_HANDOFF.md) for exact commands and remaining manual checks. The supplied local host is PostgreSQL 17.11 with PostGIS 3.6.4; the CI baseline remains PostgreSQL 16/PostGIS. Passing local compatibility checks does not change the deployment version decision. FVM 4.3.2 installs the repository-pinned Flutter 3.35.7/Dart 3.9.2. Local Gradle uses JDK 21 because the installed JDK 25 fails this wrapper; CI uses JDK 17. No iOS build/run checks are performed.
+
+Bootstrap no longer starts services. `--skip-native-check` explicitly skips its native check, and must not be reported as native readiness. Uploads default to the service user's persistent `~/.local/share/supplybiz/uploads` in development/test; staging/production require an explicit absolute path. Existing permissive or symlinked roots fail closed; provision 0700 directories owned by the service account. Temporary roots, source/build artifacts and filesystem roots are rejected. Local `.env` files remain private and must not be committed.

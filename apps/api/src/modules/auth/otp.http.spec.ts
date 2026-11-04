@@ -94,13 +94,13 @@ describe("T-014 OTP send HTTP boundary", () => {
       .expect(400);
     expect(reserve).not.toHaveBeenCalled();
   });
-  it("TC-006 returns Problem Details and Retry-After on Redis rate rejection", async () => {
+  it("TC-006 returns Problem Details and Retry-After on PostgreSQL rate rejection", async () => {
     reserve.mockResolvedValue({ result: "RATE_LIMITED", retryAfterSec: 37 });
     const response = await send().send({ mobile: "9000000000" }).expect(429);
     expect(response.body).toMatchObject({ code: "RATE_LIMITED", status: 429 });
     expect(response.headers["retry-after"]).toBe("37");
   });
-  it("Redis failure returns safe 503 without internal command/provider data", async () => {
+  it("PostgreSQL failure returns safe 503 without internal command/provider data", async () => {
     reserve.mockRejectedValue(new Error("fake-private-detail"));
     const response = await send().send({ mobile: "9000000000" }).expect(503);
     expect(response.body.code).toBe("OTP_UNAVAILABLE");

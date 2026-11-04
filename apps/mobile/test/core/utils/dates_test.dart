@@ -26,9 +26,9 @@ void main() {
     expect(utc.hour, 18);
   });
 
-  test('Hindi dates use bundled Hindi month names', () {
+  test('unsupported date locales fall back to English', () {
     final timestamp = DateTime.parse('2026-01-01T00:00:00Z');
-    expect(formatIstDate(timestamp, locale: 'hi'), '1 जन॰ 2026');
-    expect(formatIstDateTime(timestamp, locale: 'hi'), '1 जन॰ 2026 05:30');
+    expect(formatIstDate(timestamp, locale: 'hi'), 'Jan 1, 2026');
+    expect(formatIstDateTime(timestamp, locale: 'hi'), 'Jan 1, 2026 05:30');
   });
 }

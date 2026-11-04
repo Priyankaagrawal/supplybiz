@@ -25,7 +25,6 @@ class AppRoutingScope extends InheritedWidget {
 
 enum RouteTitle {
   loading,
-  language,
   login,
   otp,
   role,
@@ -53,7 +52,6 @@ String routeLabel(BuildContext context, RouteTitle title) {
   final l10n = context.l10n;
   return switch (title) {
     RouteTitle.loading => l10n.routeLoading,
-    RouteTitle.language => l10n.routeLanguage,
     RouteTitle.login => l10n.routeLogin,
     RouteTitle.otp => l10n.routeOtp,
     RouteTitle.role => l10n.routeRole,

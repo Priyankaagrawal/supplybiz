@@ -53,14 +53,11 @@ pnpm --filter @supplybiz/api exec tsc --noEmit --skipLibCheck --strict --target 
 failed at Flutter SDK cache writes denied by the sandbox. Permission for the
 outside-sandbox retry was declined without a stated reason. Dart serializers
 and formatting remain incomplete; generated files were not edited manually.
-T-015 remains IN_PROGRESS until `tools/codegen.sh` finishes and `dart analyze
-lib` passes in `packages/api_client`. Generated output currently includes
+The Day 1 audit has now completed `tools/codegen.sh` and `dart analyze lib` in `packages/api_client`; T-015 remains IN_PROGRESS for live session verification. Generated output currently includes
 unformatted code/Markdown whitespace and missing serializers for new models.
 Swagger source now marks logout's `all` query optional and limits required
-idempotency headers to mutations. Those two corrections also await regeneration
-in the partially generated contract/clients.
-API source whitespace checks pass; the API lint script is only a placeholder,
-and no TypeScript formatter is configured.
+idempotency headers to mutations. Those two corrections are now regenerated and checked by the Day 1 audit.
+API source whitespace checks pass; T-184 now supplies real ESLint, which passes.
 
 These checks used installed Node 26.13.0, pnpm 9.12.0 (repository version) and
 Flutter 3.47.8/Dart 3.13.7. The repository pins Node 20 and Flutter 3.35.7;
@@ -73,10 +70,43 @@ Revised PostgreSQL OTP/rate-state verification awaits T-180; real provider login
 
 `POST /api/v1/auth/otp/send` accepts `{mobile, channel?, appHash?}` with `Idempotency-Key` and a stable `X-Device-Id`. Normalize Indian mobile numbers; channel defaults to SMS. Responses expose only resend/expiry timing, never OTPs. Q-09 remains unresolved; disabled-provider mode fails safely, console delivery simulation is dev/test only and never logs OTPs. Production delivery requires the approved provider/DLT setup.
 
-ADR-023 replaces the prior shared-state implementation with PostgreSQL. T-180 must preserve HMAC digest/salt and purpose-separated mobile/IP/device keys, constant-time comparison, five-minute expiry, five wrong-attempt limit, single-use consumption, 30-second resend cooldown, mobile/IP/device hourly budgets and escalating exhaustion lockout. PostgreSQL time and atomic locked transactions enforce limits across processes. Delivery reservation/activation must reject stale revisions, consume failed-send abuse budgets and fail closed without logging secrets. Concurrent-send/verify/restart integration cases run at G0.
+T-180 implements PostgreSQL OTP/shared HTTP abuse storage, preserving HMAC digest/salt and purpose-separated mobile/IP/device keys, constant-time comparison, five-minute expiry, five wrong-attempt limit, single-use consumption, 30-second resend cooldown, mobile/IP/device hourly budgets and escalating exhaustion lockout. PostgreSQL time and advisory-locked transactions enforce limits across processes. Delivery reservation/activation rejects stale revisions and retains failed-send abuse budgets. All HTTP routes, including verify/refresh/logout, use durable route/IP rolling budgets; database failure returns sanitized 503 without a local-counter fallback. Expiry cleanup deletes at most 500 expired rows/minute per API process and emits a redacted warning on failure.
 
-This revision changes documentation only. Current source/manifests/environment examples and infra scripts still reflect the old baseline until T-180/T-182/T-184; do not claim the new runtime is implemented. Existing focused checks are historical evidence, not a migration pass. Use native PostgreSQL/PostGIS and persistent local upload configuration after reconciliation. Files use authenticated multipart uploads and authorized API streaming per LOCAL_FILE_STORAGE; no public private-document links.
+The direct Redis client, OTP scripts and Redis environment settings/readiness dependency are removed by T-180. Broader native setup, storage and CI reconciliation remain T-182/T-184. Use native PostgreSQL/PostGIS and persistent local upload configuration after reconciliation. Files use authenticated multipart uploads and authorized API streaming per LOCAL_FILE_STORAGE; no public private-document links.
 
 API build/typecheck scripts exist; lint is currently a placeholder and T-184 must replace it. Per task run real build/typecheck, lint and endpoint smoke with focused critical-rule checks. At module completion run comprehensive real-DB integration/regression/end-to-end cases. See TASKS, PROMPTS and TEST_STRATEGY for gates and exact evidence requirements.
 
 Approved SR-01–SR-06 applicability is defined in DELIVERY_SCOPE/ADR-024. Preserve security and shared iOS source/configuration; current mobile builds/runs/tests/releases are Android-only until Android production release, with iOS validation tracked separately in T-185 (ADR-025). Do not add deferred provider, telemetry, navigation or platform prerequisites. This revision changes documentation only.
+
+## T-180 verification handoff
+
+Executed: the commands below pass (20 focused tests, 4 skeleton smoke tests and 8 native PostgreSQL tests).
+After the user supplied a dedicated database, all three repository migrations applied successfully to `supplybiz_test` on `localhost:5432`. The 8 previously skipped tests now pass against real PostgreSQL: concurrent sends/single-use verification, mobile/IP/device budgets, escalating lockout, stale revisions, client reconnect persistence, shared HTTP counters and cleanup. Credentials were supplied only to subprocess environments and are omitted here.
+Policy tests use an in-memory clock/store; HTTP/skeleton smoke uses fake persistence and temporary loopback sockets.
+At initial T-180 implementation the lint command was a placeholder; T-184 now supplies real ESLint (including floating/misused promise checks), and it passes.
+Prisma client regeneration and schema validation pass. No API/database service was started or left running.
+
+```sh
+pnpm --filter @supplybiz/api typecheck
+pnpm --filter @supplybiz/api build
+DATABASE_URL=postgresql://localhost:5432/supplybiz pnpm --filter @supplybiz/api exec prisma validate --schema src/prisma/schema.prisma
+pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/auth/postgres-otp.store.spec.ts src/modules/auth/otp.service.spec.ts src/modules/auth/otp.http.spec.ts src/modules/auth/otp.postgres.spec.ts
+pnpm --filter @supplybiz/api exec jest --config test/jest-e2e.json --runInBand --runTestsByPath test/app.e2e-spec.ts
+# Executed with DATABASE_URL and ABUSE_TEST_DATABASE_URL supplied securely:
+pnpm --filter @supplybiz/api prisma:migrate:deploy
+pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/auth/otp.postgres.spec.ts
+```
+
+Manual verification (not executed):
+1. Confirm the migrated test database is selected through local secret configuration; all 8 native PostgreSQL tests above have passed. Rerun them if the database or migration changes.
+2. With development/test console delivery simulation and a local random `OTP_HMAC_PEPPER`, run the API using `pnpm --filter @supplybiz/api dev`. Send a synthetic OTP request with device/idempotency headers; immediate resend must return 429/Retry-After. Console simulation never exposes/logs a code; correct-code verification is covered through the test provider capture, not an HTTP backdoor.
+3. Submit five wrong codes, confirm exhaustion and resend lockout, then restart the API with the same DB/pepper and confirm that the lockout remains. Inspect stored keys/values for absence of plaintext mobile/IP/device/code.
+4. Set a small HTTP budget in test config and exhaust one route across two API processes; expect a shared 429. Interrupt test DB connectivity and confirm safe 503 responses; restore connectivity and confirm expiry recovery. Stop test processes afterward.
+
+Manual PASS, actual API-process restart/failure drills and G0 remain pending. Client disconnect/reconnect is tested; it is not an API-process restart drill. Real SMS/WhatsApp delivery is still blocked by Q-09; this storage task does not claim live provider login.
+
+## Native baseline / CI (T-002, T-182, T-184)
+
+See [Day 1 handoff](../../docs/05-ai-development/DAY1_HANDOFF.md) for commands, results and manual checks. `infra:check` now loads local environment values and verifies authenticated PostgreSQL/PostGIS queries and persistent private upload directories. Normal API startup excludes synthetic `/test/idempotency` routes; automated test mode retains them. Basic pino/error diagnostics remain; automatic telemetry SDK/exporter startup and obsolete cloud-storage settings are removed. The shared OpenTelemetry API library is retained.
+
+`pnpm --filter @supplybiz/api lint` is real ESLint. ESLint 9, @eslint/js and typescript-eslint 8 are MIT-licensed development-only tooling implementing the existing coding standard; they add no shipped API/mobile runtime SDK. Task CI uses explicit T-ID selections and native DB smoke; comprehensive gates run only through the manual module workflow after required task/manual/prior-gate evidence exists. Unsupported/missing test selections fail closed. Admin availability is explicitly NOT_RUN until real T-150 scripts exist. Hosted GitHub jobs have not been executed by this local work.

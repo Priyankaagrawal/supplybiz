@@ -41,13 +41,9 @@ class SbTheme extends ThemeExtension<SbTheme> {
 /// Light-only v1 theme. Body text uses the accessible strong brand blue.
 ThemeData sbLightTheme(Locale locale) => ThemeData(
       useMaterial3: true,
-      fontFamily:
-          locale.languageCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSans',
+      fontFamily: 'NotoSans',
       package: 'ui_kit',
-      fontFamilyFallback: const [
-        'packages/ui_kit/NotoSansDevanagari',
-        'packages/ui_kit/NotoSans'
-      ],
+      fontFamilyFallback: const ['packages/ui_kit/NotoSans'],
       colorScheme: const ColorScheme.light(
         primary: SbColors.primaryStrong,
         onPrimary: SbColors.surface,

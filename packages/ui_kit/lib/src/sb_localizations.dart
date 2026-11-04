@@ -11,7 +11,7 @@ class SbLocalizations {
   String text(String key) => _messages[key] as String;
   static SbLocalizations of(BuildContext context) =>
       Localizations.of<SbLocalizations>(context, SbLocalizations)!;
-  static const supportedLocales = [Locale('en'), Locale('hi')];
+  static const supportedLocales = [Locale('en')];
   static const delegates = <LocalizationsDelegate<dynamic>>[
     _SbDelegate(),
     GlobalMaterialLocalizations.delegate,
@@ -24,11 +24,13 @@ class _SbDelegate extends LocalizationsDelegate<SbLocalizations> {
   const _SbDelegate();
   static final _cache = <String, SbLocalizations>{};
   @override
-  bool isSupported(Locale locale) => ['en', 'hi'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => locale.languageCode == 'en';
   @override
   Future<SbLocalizations> load(Locale locale) {
-    final cached = _cache[locale.languageCode];
-    return cached == null ? _load(locale) : SynchronousFuture(cached);
+    final cached = _cache['en'];
+    return cached == null
+        ? _load(const Locale('en'))
+        : SynchronousFuture(cached);
   }
 
   Future<SbLocalizations> _load(Locale locale) async {
@@ -36,7 +38,7 @@ class _SbDelegate extends LocalizationsDelegate<SbLocalizations> {
       'packages/ui_kit/lib/l10n/ui_${locale.languageCode}.arb',
     );
     final result = SbLocalizations(jsonDecode(source) as Map<String, dynamic>);
-    _cache[locale.languageCode] = result;
+    _cache['en'] = result;
     return result;
   }
 

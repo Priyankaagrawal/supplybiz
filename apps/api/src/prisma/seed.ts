@@ -214,7 +214,6 @@ main()
     await prisma.$disconnect();
   })
   .catch(async (error) => {
-    // eslint-disable-next-line no-console
     console.error("Seed failed", error);
     await prisma.$disconnect();
     process.exit(1);

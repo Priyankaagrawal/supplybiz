@@ -3,17 +3,12 @@ import 'package:supplybiz_mobile/core/router/guards.dart';
 import 'package:supplybiz_mobile/core/router/routing_controller.dart';
 
 const id = '11111111-1111-4111-8111-111111111111';
-const customer = RouteAccess(
-    languageSelected: true, signedIn: true, activeRole: AppRole.customer);
+const customer = RouteAccess(signedIn: true, activeRole: AppRole.customer);
 const vendor = RouteAccess(
-    languageSelected: true,
-    signedIn: true,
-    activeRole: AppRole.vendor,
-    onboardingComplete: true);
+    signedIn: true, activeRole: AppRole.vendor, onboardingComplete: true);
 
 void main() {
-  test(
-      'T-013 guard order: update, startup, language, auth, role, onboarding, role match',
+  test('T-013 guard order: update, startup, auth, role, onboarding, role match',
       () {
     expect(
         guardRedirect(const RouteAccess(forceUpdate: true, initialized: false),
@@ -21,19 +16,13 @@ void main() {
         '/common/update');
     expect(guardRedirect(const RouteAccess(initialized: false), '/login'),
         '/splash');
-    expect(guardRedirect(const RouteAccess(), '/customer/home'), '/language');
-    expect(
-        guardRedirect(
-            const RouteAccess(languageSelected: true), '/customer/home'),
-        '/login');
-    expect(
-        guardRedirect(const RouteAccess(languageSelected: true, signedIn: true),
-            '/customer/home'),
+    expect(guardRedirect(const RouteAccess(), '/customer/home'), '/login');
+    expect(guardRedirect(const RouteAccess(), '/customer/home'), '/login');
+    expect(guardRedirect(const RouteAccess(signedIn: true), '/customer/home'),
         '/role');
     expect(
         guardRedirect(
             const RouteAccess(
-                languageSelected: true,
                 signedIn: true,
                 activeRole: AppRole.vendor,
                 onboardingStep: OnboardingStep.kyc),
@@ -47,9 +36,8 @@ void main() {
   test(
       'T-013 entry screens and legal access do not loop or bypass force-update',
       () {
-    expect(guardRedirect(const RouteAccess(), '/language'), isNull);
-    expect(guardRedirect(const RouteAccess(languageSelected: true), '/otp'),
-        isNull);
+    expect(guardRedirect(const RouteAccess(), '/login'), isNull);
+    expect(guardRedirect(const RouteAccess(), '/otp'), isNull);
     expect(guardRedirect(const RouteAccess(), '/common/legal'), isNull);
     expect(guardRedirect(const RouteAccess(forceUpdate: true), '/common/legal'),
         '/common/update');
@@ -63,14 +51,13 @@ void main() {
       () {
     final controller = RoutingController();
     addTearDown(controller.dispose);
-    expect(controller.redirect(Uri.parse('/o/$id')), '/language');
-    controller.update(const RouteAccess(languageSelected: true));
-    expect(controller.redirect(Uri.parse('/language')), '/login');
-    controller
-        .update(const RouteAccess(languageSelected: true, signedIn: true));
+    expect(controller.redirect(Uri.parse('/o/$id')), '/login');
+    controller.update(const RouteAccess());
+    expect(controller.redirect(Uri.parse('/login')), isNull);
+    controller.update(const RouteAccess(signedIn: true));
     expect(controller.redirect(Uri.parse('/login')), '/role');
-    controller.update(const RouteAccess(
-        languageSelected: true, signedIn: true, activeRole: AppRole.vendor));
+    controller
+        .update(const RouteAccess(signedIn: true, activeRole: AppRole.vendor));
     expect(
         controller.redirect(Uri.parse('/role')), '/vendor/onboarding/category');
     controller.update(vendor);
@@ -108,12 +95,13 @@ void main() {
     final controller = RoutingController(access: vendor);
     addTearDown(controller.dispose);
     controller.openLink('/v/$id');
-    controller.update(const RouteAccess(languageSelected: true));
+    controller.update(const RouteAccess());
     controller.update(customer);
     expect(controller.redirect(Uri.parse('/login')), '/customer/home');
     controller.openLink('https://evil.example/o/$id');
     expect(
         controller.redirect(Uri.parse('/customer/orders')), '/customer/home');
-    expect(controller.redirect(Uri.parse('/invite/FAKE')), '/customer/home');
+    expect(controller.redirect(Uri.parse('/invite/FAKE'), unknown: true),
+        '/customer/home');
   });
 }

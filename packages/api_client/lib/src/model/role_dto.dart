@@ -7,7 +7,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'role_dto.g.dart';
 
-
 @JsonSerializable(
   checked: true,
   createToJson: true,
@@ -17,33 +16,25 @@ part 'role_dto.g.dart';
 class RoleDto {
   /// Returns a new [RoleDto] instance.
   RoleDto({
-
-    required  this.role,
+    required this.role,
   });
 
   @JsonKey(
-    
     name: r'role',
     required: true,
     includeIfNull: false,
   )
-
-
   final RoleDtoRoleEnum role;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is RoleDto && other.role == role;
 
+  @override
+  int get hashCode => role.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is RoleDto &&
-      other.role == role;
-
-    @override
-    int get hashCode =>
-        role.hashCode;
-
-  factory RoleDto.fromJson(Map<String, dynamic> json) => _$RoleDtoFromJson(json);
+  factory RoleDto.fromJson(Map<String, dynamic> json) =>
+      _$RoleDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$RoleDtoToJson(this);
 
@@ -51,21 +42,18 @@ class RoleDto {
   String toString() {
     return toJson().toString();
   }
-
 }
 
 enum RoleDtoRoleEnum {
-@JsonValue(r'CUSTOMER')
-CUSTOMER(r'CUSTOMER'),
-@JsonValue(r'VENDOR')
-VENDOR(r'VENDOR');
+  @JsonValue(r'CUSTOMER')
+  CUSTOMER(r'CUSTOMER'),
+  @JsonValue(r'VENDOR')
+  VENDOR(r'VENDOR');
 
-const RoleDtoRoleEnum(this.value);
+  const RoleDtoRoleEnum(this.value);
 
-final String value;
+  final String value;
 
-@override
-String toString() => value;
+  @override
+  String toString() => value;
 }
-
-

@@ -52,8 +52,7 @@ class RoutingController extends ChangeNotifier {
     }
     if (parsed != null) _pendingLink = parsed;
     final isAlias = parsed != null ||
-        {'o', 'v', 's', 'khata', 'invite'}
-            .contains(uri.pathSegments.firstOrNull);
+        {'o', 'v', 's', 'khata'}.contains(uri.pathSegments.firstOrNull);
     final role = _access.activeRole ?? AppRole.customer;
     final target = _pendingLink?.location(role) ?? _pendingLocation;
     final desired =

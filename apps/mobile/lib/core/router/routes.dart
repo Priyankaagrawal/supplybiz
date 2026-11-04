@@ -14,14 +14,6 @@ class SplashRoute extends GoRouteData with _$SplashRoute {
       const RoutePlaceholder(title: RouteTitle.loading);
 }
 
-@TypedGoRoute<LanguageRoute>(path: '/language')
-class LanguageRoute extends GoRouteData with _$LanguageRoute {
-  const LanguageRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.language);
-}
-
 @TypedGoRoute<LoginRoute>(path: '/login')
 class LoginRoute extends GoRouteData with _$LoginRoute {
   const LoginRoute();

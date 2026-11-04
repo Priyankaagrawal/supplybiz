@@ -7,7 +7,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'device_dto.g.dart';
 
-
 @JsonSerializable(
   checked: true,
   createToJson: true,
@@ -17,65 +16,46 @@ part 'device_dto.g.dart';
 class DeviceDto {
   /// Returns a new [DeviceDto] instance.
   DeviceDto({
-
-    required  this.platform,
-
-     this.appVersion,
-
-     this.osVersion,
+    required this.platform,
+    this.appVersion,
+    this.osVersion,
   });
 
   @JsonKey(
-    
     name: r'platform',
     required: true,
     includeIfNull: false,
   )
-
-
   final DeviceDtoPlatformEnum platform;
 
-
-
   @JsonKey(
-    
     name: r'appVersion',
     required: false,
     includeIfNull: false,
   )
-
-
   final String? appVersion;
 
-
-
   @JsonKey(
-    
     name: r'osVersion',
     required: false,
     includeIfNull: false,
   )
-
-
   final String? osVersion;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DeviceDto &&
+          other.platform == platform &&
+          other.appVersion == appVersion &&
+          other.osVersion == osVersion;
 
+  @override
+  int get hashCode =>
+      platform.hashCode + appVersion.hashCode + osVersion.hashCode;
 
-
-
-    @override
-    bool operator ==(Object other) => identical(this, other) || other is DeviceDto &&
-      other.platform == platform &&
-      other.appVersion == appVersion &&
-      other.osVersion == osVersion;
-
-    @override
-    int get hashCode =>
-        platform.hashCode +
-        appVersion.hashCode +
-        osVersion.hashCode;
-
-  factory DeviceDto.fromJson(Map<String, dynamic> json) => _$DeviceDtoFromJson(json);
+  factory DeviceDto.fromJson(Map<String, dynamic> json) =>
+      _$DeviceDtoFromJson(json);
 
   Map<String, dynamic> toJson() => _$DeviceDtoToJson(this);
 
@@ -83,23 +63,20 @@ class DeviceDto {
   String toString() {
     return toJson().toString();
   }
-
 }
 
 enum DeviceDtoPlatformEnum {
-@JsonValue(r'ANDROID')
-ANDROID(r'ANDROID'),
-@JsonValue(r'IOS')
-IOS(r'IOS'),
-@JsonValue(r'WEB')
-WEB(r'WEB');
+  @JsonValue(r'ANDROID')
+  ANDROID(r'ANDROID'),
+  @JsonValue(r'IOS')
+  IOS(r'IOS'),
+  @JsonValue(r'WEB')
+  WEB(r'WEB');
 
-const DeviceDtoPlatformEnum(this.value);
+  const DeviceDtoPlatformEnum(this.value);
 
-final String value;
+  final String value;
 
-@override
-String toString() => value;
+  @override
+  String toString() => value;
 }
-
-

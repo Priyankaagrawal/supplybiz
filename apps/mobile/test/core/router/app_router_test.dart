@@ -10,17 +10,13 @@ import 'package:supplybiz_mobile/core/router/routes.dart';
 import 'package:supplybiz_mobile/core/router/routing_controller.dart';
 
 const id = '11111111-1111-4111-8111-111111111111';
-const customer = RouteAccess(
-    languageSelected: true, signedIn: true, activeRole: AppRole.customer);
+const customer = RouteAccess(signedIn: true, activeRole: AppRole.customer);
 const vendor = RouteAccess(
-    languageSelected: true,
-    signedIn: true,
-    activeRole: AppRole.vendor,
-    onboardingComplete: true);
+    signedIn: true, activeRole: AppRole.vendor, onboardingComplete: true);
 
 void main() {
   setUpAll(() async {
-    for (final locale in ['en', 'hi']) {
+    for (final locale in ['en']) {
       for (final delegate in SbLocalizations.delegates) {
         await delegate.load(Locale(locale));
       }
@@ -48,7 +44,7 @@ void main() {
     addTearDown(controller.dispose);
     controller.openLink('supplybiz://o/$id');
     await launch(tester, controller);
-    expect(title(tester), RouteTitle.language);
+    expect(title(tester), RouteTitle.login);
     controller.update(customer);
     await tester.pumpAndSettle();
     expect(title(tester), RouteTitle.order);
@@ -103,7 +99,7 @@ void main() {
   });
 
   testWidgets(
-      'T-013 invalid routes/IDs/enums and referral stub return Home safely',
+      'T-013 invalid routes/IDs/enums and unknown links return Home safely',
       (tester) async {
     final controller = RoutingController(access: customer);
     addTearDown(controller.dispose);
@@ -170,8 +166,8 @@ void main() {
     addTearDown(controller.dispose);
     final semantics = tester.ensureSemantics();
     await launch(tester, controller);
-    expect(tab('सेवाएँ'), findsOneWidget);
-    await tester.tap(tab('सेवाएँ'));
+    expect(tab('Services'), findsOneWidget);
+    await tester.tap(tab('Services'));
     await tester.pumpAndSettle();
     expect(title(tester), RouteTitle.services);
     expect(tester.takeException(), isNull);

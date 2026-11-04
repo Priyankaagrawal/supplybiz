@@ -137,7 +137,7 @@ export class OtpService {
     try {
       return await operation();
     } catch {
-      // Redis/provider errors can include command arguments and secrets.
+      // Database/provider errors can include command arguments and secrets.
       throw new ServiceUnavailableException({
         code: "OTP_UNAVAILABLE",
         detail: "OTP service is unavailable.",

@@ -179,7 +179,7 @@ T-013 navigation foundation:
 - Q-33: HTTPS links are disabled until exact hosts are supplied through
   `DeepLinkParser(trustedHosts: {...})`. No production domain, assetlinks/AASA or
   native URL registration is invented. Malformed/unknown links resolve Home
-  through the guards. Q-14 referral attribution remains a Home fallback stub.
+  through the guards. Deferred referral routes/actions are absent; unknown links use the generic safe Home fallback.
 - Added dependencies: go_router 16.2.5, go_router_builder 3.0.0 and build_runner
   2.5.4 (BSD-3-Clause), pinned in the workspace lockfile. They implement the
   architecture's typed router choice with Dart 3.9-compatible tooling. The
@@ -197,8 +197,8 @@ flutter test --no-pub test/core/router test/widget_test.dart --reporter expanded
 ```
 Results: generated route/l10n output, clean targeted analysis, 20 passing tests.
 T-013 manual verification (native app execution has not been performed):
-1. Run the existing dev flavor command; confirm the localized language
-   placeholder and environment label. Authentication UI follows T-016.
+1. Run the existing dev flavor command; confirm the English sign-in
+   placeholder and environment label without a language selector. Authentication UI follows T-016.
 2. Run the focused router tests; verify all four link types reach the correct
    role's detail placeholders and pending links resume after the guards clear.
 3. Check the tab-history test: navigate to an order, switch Home/Orders,
@@ -208,7 +208,11 @@ T-013 manual verification (native app execution has not been performed):
 5. Check the English/200% widget checks and 48dp/labelled-target accessibility checks.
 
 ## Revised delivery baseline (2026-10-29)
-ADR-023 and T-183 supersede extra-language and snapshot-generation behavior in existing source. This documentation edit does not change implementation. Run lightweight build/analyze/smoke per task and comprehensive integrated tests at module completion. Android is the active runtime verification target; all iOS build/run/testing stays deferred until after Android production release (ADR-025). App media uploads and reads use authenticated API requests, not direct cloud storage. Follow ROADMAP for priority and report incomplete reconciliation honestly.
+ADR-023 and T-183 supersede extra-language and snapshot-generation behavior in existing source. T-183 implements the English-only/source cleanup and removes snapshot tooling and baselines. Run lightweight build/analyze/smoke per task and comprehensive integrated tests at module completion. Android is the active runtime verification target; all iOS build/run/testing stays deferred until after Android production release (ADR-025). App media uploads and reads use authenticated API requests, not direct cloud storage. Follow ROADMAP for priority and report incomplete reconciliation honestly.
 
 ## Android release first
 ADR-025: no iOS builds/runs/simulator/device/native-storage/VoiceOver/E2E testing, signing or TestFlight work before actual Android production release T-179. Keep `ios/` and platform settings intact. Android module gates include encrypted storage/logout, TalkBack, offline/replay, authentication and payment claims. T-185 handles iOS validation afterward; current success means Android evidence only, never implicit iOS support verification.
+
+## Day 1 / T-183 handoff
+
+Use the repository-pinned Flutter 3.35.7 SDK through FVM. The global Flutter 3.47.8 initially produced an incompatible shader-cache error; its incidental lockfile changes were reverted. Regenerate local plugin manifests with `fvm flutter pub get --enforce-lockfile` if they reference an old temporary package cache. See [Day 1 evidence](../../docs/05-ai-development/DAY1_HANDOFF.md) for focused test/build/device results and manual checks. Hindi device locales now use English throughout the shell and startup failure UI; language selection and deferred referral aliases are removed. Generated localization/router code was regenerated from source. All iOS checks remain deferred.

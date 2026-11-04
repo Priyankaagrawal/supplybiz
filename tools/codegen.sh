@@ -69,6 +69,8 @@ if [ "$ts_only" = false ]; then
     --skip-validate-spec \
     --additional-properties=pubName=supplybiz_api_client,pubVersion=0.1.0,serializationLibrary=json_serializable,skipCopyWith=true
 
+  node "$ROOT_DIR/tools/normalize-generated-docs.mjs"
+
   if command -v fvm >/dev/null 2>&1; then
     flutter_runner=(fvm flutter)
     dart_runner=(fvm dart)

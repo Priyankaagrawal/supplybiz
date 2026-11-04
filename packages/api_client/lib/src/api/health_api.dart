@@ -12,13 +12,12 @@ import 'package:dio/dio.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
 
 class HealthApi {
-
   final Dio _dio;
 
   const HealthApi(this._dio);
 
   /// Liveness probe
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -30,7 +29,7 @@ class HealthApi {
   ///
   /// Returns a [Future] containing a [Response] with a [HealthControllerGetLive200Response] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<HealthControllerGetLive200Response>> healthControllerGetLive({ 
+  Future<Response<HealthControllerGetLive200Response>> healthControllerGetLive({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -62,9 +61,13 @@ class HealthApi {
     HealthControllerGetLive200Response? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<HealthControllerGetLive200Response, HealthControllerGetLive200Response>(rawData, 'HealthControllerGetLive200Response', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<HealthControllerGetLive200Response,
+                  HealthControllerGetLive200Response>(
+              rawData, 'HealthControllerGetLive200Response',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -88,7 +91,7 @@ _responseData = rawData == null ? null : deserialize<HealthControllerGetLive200R
   }
 
   /// Readiness probe
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -100,7 +103,7 @@ _responseData = rawData == null ? null : deserialize<HealthControllerGetLive200R
   ///
   /// Returns a [Future] containing a [Response] with a [Map<String, Object>] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<Map<String, Object>>> healthControllerGetReady({ 
+  Future<Response<Map<String, Object>>> healthControllerGetReady({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -132,9 +135,12 @@ _responseData = rawData == null ? null : deserialize<HealthControllerGetLive200R
     Map<String, Object>? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<Map<String, Object>, Object>(rawData, 'Map<String, Object>', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<Map<String, Object>, Object>(
+              rawData, 'Map<String, Object>',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -156,5 +162,4 @@ _responseData = rawData == null ? null : deserialize<Map<String, Object>, Object
       extra: _response.extra,
     );
   }
-
 }

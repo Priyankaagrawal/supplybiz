@@ -68,9 +68,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeLoading => 'Loading';
 
   @override
-  String get routeLanguage => 'Choose your language';
-
-  @override
   String get routeLogin => 'Sign in';
 
   @override

@@ -42,16 +42,14 @@ abstract final class SbRadius {
   static const chip = 20.0, sheet = 24.0;
 }
 
-/// Locale-aware bundled fonts and scalable type ramp.
+/// Bundled English fonts and scalable type ramp.
 abstract final class SbTypography {
   static TextTheme textTheme(Locale locale) {
-    final family =
-        locale.languageCode == 'hi' ? 'NotoSansDevanagari' : 'NotoSans';
+    final family = 'NotoSans';
     TextStyle style(double size, double line, FontWeight weight) => TextStyle(
           fontFamily: family,
           package: 'ui_kit',
           fontFamilyFallback: const [
-            'packages/ui_kit/NotoSansDevanagari',
             'packages/ui_kit/NotoSans',
           ],
           fontSize: size,

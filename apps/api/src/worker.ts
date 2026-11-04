@@ -2,11 +2,9 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { PinoLogger } from "./common/logging/pino.logger";
-import { initOpenTelemetry, shutdownOpenTelemetry } from "./telemetry/otel";
 import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
 
 async function bootstrapWorker(): Promise<void> {
-  await initOpenTelemetry(process.env.OTEL_ENABLED === "true");
   const app = await NestFactory.createApplicationContext(AppModule, {
     bufferLogs: true,
   });
@@ -19,17 +17,14 @@ async function bootstrapWorker(): Promise<void> {
   const shutdown = async () => {
     dispatcher.stop();
     await app.close();
-    await shutdownOpenTelemetry();
     process.exit(0);
   };
 
-  process.on("SIGINT", shutdown);
-  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", () => { void shutdown(); });
+  process.on("SIGTERM", () => { void shutdown(); });
 }
 
-bootstrapWorker().catch(async (error) => {
-  // eslint-disable-next-line no-console
-  console.error("Failed to bootstrap worker", error);
-  await shutdownOpenTelemetry();
+bootstrapWorker().catch(() => {
+  console.error("Failed to bootstrap worker; check database and persistent storage configuration.");
   process.exit(1);
 });

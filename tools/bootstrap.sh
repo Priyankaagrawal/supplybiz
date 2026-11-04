@@ -6,23 +6,24 @@ cd "$ROOT_DIR"
 
 usage() {
   cat <<'EOF'
-Usage: tools/bootstrap.sh [--skip-fvm] [--skip-docker]
+Usage: tools/bootstrap.sh [--skip-fvm] [--skip-native-check]
 
 Sets up workspace dependencies for SupplyBiz:
   1) fvm install
   2) corepack enable + pnpm install
+pnpm --filter @supplybiz/api prisma:generate
   3) melos bootstrap
-  4) docker compose up -d (local infra)
+  4) native PostgreSQL/PostGIS + persistent files check (configure apps/api/.env first)
 EOF
 }
 
 skip_fvm=false
-skip_docker=false
+skip_native_check=false
 
 for arg in "$@"; do
   case "$arg" in
     --skip-fvm) skip_fvm=true ;;
-    --skip-docker) skip_docker=true ;;
+    --skip-native-check) skip_native_check=true ;;
     -h|--help)
       usage
       exit 0
@@ -62,30 +63,20 @@ require_cmd pnpm
 echo "==> Installing Node workspace dependencies"
 pnpm install
 
-if command -v melos >/dev/null 2>&1; then
-  echo "==> Bootstrapping Dart workspace with melos"
-  melos bootstrap
+echo "==> Bootstrapping the pinned Dart workspace"
+if command -v fvm >/dev/null 2>&1; then
+  fvm flutter pub get --enforce-lockfile
+  fvm dart run melos bootstrap
 else
-  echo "==> melos not found on PATH, using dart pub global activate melos"
-  if command -v dart >/dev/null 2>&1; then
-    dart pub global activate melos
-  elif command -v fvm >/dev/null 2>&1; then
-    fvm dart pub global activate melos
-  else
-    echo "Neither dart nor fvm is available to install melos." >&2
-    exit 1
-  fi
-  if ! command -v melos >/dev/null 2>&1; then
-    export PATH="$PATH:$HOME/.pub-cache/bin"
-  fi
-  require_cmd melos
-  melos bootstrap
+  require_cmd flutter
+  require_cmd dart
+  flutter pub get --enforce-lockfile
+  dart run melos bootstrap
 fi
 
-if [ "$skip_docker" = false ]; then
-  require_cmd docker
-  echo "==> Starting local infra with docker compose"
-  docker compose -f infra/docker/docker-compose.yml up -d
+if [ "$skip_native_check" = false ]; then
+  echo "==> Checking native PostgreSQL/PostGIS and persistent uploads"
+  pnpm --filter @supplybiz/api infra:check
 fi
 
 echo "Bootstrap complete."

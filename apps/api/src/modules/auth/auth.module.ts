@@ -6,7 +6,8 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { SessionsService } from "./sessions.service";
 import { SessionTokensService } from "./session-tokens.service";
 import { MeController, SessionGuard, SessionsController } from "./sessions.controller";
-import { RedisOtpStore } from "./redis-otp.store";
+import { PostgresOtpStore } from "./postgres-otp.store";
+import { AbuseModule } from "../../common/abuse/abuse.module";
 import { ConsoleOtpProvider, SmsOtpProvider, WhatsAppOtpProvider } from "./otp.providers";
 import {
   OTP_POLICY,
@@ -18,6 +19,7 @@ import {
 } from "./otp.types";
 
 @Module({
+  imports: [AbuseModule],
   controllers: [OtpController, SessionsController, MeController],
   providers: [
     PrismaService,
@@ -25,8 +27,8 @@ import {
     SessionTokensService,
     SessionGuard,
     OtpService,
-    RedisOtpStore,
-    { provide: OTP_STORE, useExisting: RedisOtpStore },
+    PostgresOtpStore,
+    { provide: OTP_STORE, useExisting: PostgresOtpStore },
     {
       provide: OTP_POLICY,
       inject: [ConfigService],

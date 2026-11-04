@@ -8,7 +8,6 @@ part of 'routes.dart';
 
 List<RouteBase> get $appRoutes => [
       $splashRoute,
-      $languageRoute,
       $loginRoute,
       $otpRoute,
       $roleRoute,
@@ -30,33 +29,6 @@ mixin _$SplashRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/splash',
-      );
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
-
-RouteBase get $languageRoute => GoRouteData.$route(
-      path: '/language',
-      factory: _$LanguageRoute._fromState,
-    );
-
-mixin _$LanguageRoute on GoRouteData {
-  static LanguageRoute _fromState(GoRouterState state) => const LanguageRoute();
-
-  @override
-  String get location => GoRouteData.$location(
-        '/language',
       );
 
   @override

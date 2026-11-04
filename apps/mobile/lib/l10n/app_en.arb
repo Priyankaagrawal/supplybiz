@@ -18,7 +18,6 @@
   "networkRateLimited": "Too many requests. Please wait and try again.",
   "networkServer": "The service is temporarily unavailable. Please try again later.",
   "routeLoading": "Loading",
-  "routeLanguage": "Choose your language",
   "routeLogin": "Sign in",
   "routeOtp": "Verify mobile number",
   "routeRole": "Choose your role",

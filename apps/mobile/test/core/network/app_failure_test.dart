@@ -103,22 +103,19 @@ void main() {
     expect(failure.requestId, isNull);
   });
 
-  test('failure messages use EN/HI strings, never raw title or detail',
+  test('failure messages use English strings, never raw title or detail',
       () async {
     final en = await AppLocalizations.delegate.load(const Locale('en'));
-    final hi = await AppLocalizations.delegate.load(const Locale('hi'));
     final failure = mapDioFailure(_error(status: 403, body: {
       'code': 'PLAN_FEATURE_LOCKED',
       'title': 'test-private-provider-title',
       'detail': 'test-private-detail',
     }));
     expect(failure.toMessage(en), en.networkPlanLocked);
-    expect(failure.toMessage(hi), hi.networkPlanLocked);
-    expect(failure.toMessage(en), isNot(failure.toMessage(hi)));
     expect(failure.toMessage(en), isNot(contains('test-private')));
     expect(const ConflictFailure(code: 'VERSION_CONFLICT').toMessage(en),
         en.networkVersionConflict);
-    expect(const BusinessRuleFailure(code: 'RATE_LIMITED').toMessage(hi),
-        hi.networkRateLimited);
+    expect(const BusinessRuleFailure(code: 'RATE_LIMITED').toMessage(en),
+        en.networkRateLimited);
   });
 }

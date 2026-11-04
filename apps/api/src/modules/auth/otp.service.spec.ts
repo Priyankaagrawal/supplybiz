@@ -5,7 +5,7 @@ import { ConsoleOtpProvider, SmsOtpProvider, WhatsAppOtpProvider } from "./otp.p
 import { OtpChallenge, OtpDelivery, OtpPolicy, OtpStore } from "./otp.types";
 import { validateEnv } from "../../config/env.schema";
 
-// Synthetic data only. Store behavior is tested separately against Redis.
+// Synthetic data only. Store behavior is tested separately against PostgreSQL.
 const mobile = "9000000000";
 const context = { ip: "192.0.2.1", deviceId: "fake-installation" };
 describe("T-014 OTP service", () => {
@@ -118,7 +118,7 @@ describe("T-014 OTP service", () => {
     await service.send({ mobile, channel: "WHATSAPP", appHash: "FAKEhash12+" }, context);
     expect(delivered[0]).toMatchObject({ channel: "WHATSAPP", appHash: "FAKEhash12+" });
   });
-  it("fails closed when delivery/Redis fails and never activates a failed delivery", async () => {
+  it("fails closed when delivery/PostgreSQL fails and never activates a failed delivery", async () => {
     const provider = new ConsoleOtpProvider("test", async () => {
       throw new Error("fake provider detail");
     });
@@ -129,7 +129,7 @@ describe("T-014 OTP service", () => {
     });
     expect(store.discard).toHaveBeenCalled();
     expect(store.activate).not.toHaveBeenCalled();
-    store.reserve.mockRejectedValueOnce(new Error("fake private Redis error"));
+    store.reserve.mockRejectedValueOnce(new Error("fake private PostgreSQL error"));
     await expect(service.send({ mobile }, context)).rejects.toMatchObject({
       response: { code: "OTP_UNAVAILABLE", detail: "OTP service is unavailable." },
     });

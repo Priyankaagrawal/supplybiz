@@ -26,7 +26,8 @@ void main() {
     });
   }
 
-  testWidgets('Hindi device locale translates the shell at 200% text scale',
+  testWidgets(
+      'TC-014 Hindi device locale falls back to English at 200% text scale',
       (tester) async {
     tester.binding.platformDispatcher.localesTestValue = const [Locale('hi')];
     tester.binding.platformDispatcher.textScaleFactorTestValue = 2;
@@ -40,8 +41,8 @@ void main() {
       const SupplyBizApp(environment: AppEnvironment.dev),
     );
     await tester.pumpAndSettle();
-    expect(find.text('डेवलपमेंट परिवेश'), findsOneWidget);
-    expect(find.text('Development environment'), findsNothing);
+    expect(find.text('डेवलपमेंट परिवेश'), findsNothing);
+    expect(find.text('Development environment'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -67,8 +68,7 @@ void main() {
     expect(find.textContaining('Firebase'), findsNothing);
   });
 
-  testWidgets('startup failure follows the Hindi device locale',
-      (tester) async {
+  testWidgets('startup failure uses English on a Hindi device', (tester) async {
     tester.binding.platformDispatcher.localesTestValue = const [Locale('hi')];
     addTearDown(tester.binding.platformDispatcher.clearLocalesTestValue);
     for (final delegate in SbLocalizations.delegates) {
@@ -77,7 +77,7 @@ void main() {
     await tester.pumpWidget(const StartupFailureApp());
     await tester.pumpAndSettle();
     expect(
-      find.text('कुछ गलत हुआ। कृपया फिर कोशिश करें।'),
+      find.text('Something went wrong. Please try again.'),
       findsOneWidget,
     );
   });

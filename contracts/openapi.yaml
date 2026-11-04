@@ -170,14 +170,18 @@ paths:
     post:
       operationId: SessionsController_logout
       parameters:
+        - name: all
+          required: false
+          in: query
+          description: Defaults to false (current session family); true revokes all account sessions.
+          schema:
+            enum:
+              - 'true'
+              - 'false'
+            type: string
         - name: Idempotency-Key
           in: header
           required: true
-          schema:
-            type: string
-        - name: all
-          required: true
-          in: query
           schema:
             type: string
       responses:
@@ -190,12 +194,7 @@ paths:
   /api/v1/auth/.well-known/jwks.json:
     get:
       operationId: SessionsController_jwks
-      parameters:
-        - name: Idempotency-Key
-          in: header
-          required: true
-          schema:
-            type: string
+      parameters: []
       responses:
         '200':
           description: ''

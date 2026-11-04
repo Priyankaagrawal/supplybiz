@@ -6,7 +6,7 @@ Future<void> loadTestLocalizations() async {
   final icons = FontLoader('MaterialIcons')
     ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
   await icons.load();
-  for (final family in ['NotoSans', 'NotoSansDevanagari']) {
+  for (final family in ['NotoSans']) {
     final loader = FontLoader('packages/ui_kit/$family');
     for (final weight in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
       loader.addFont(
@@ -43,9 +43,8 @@ Widget testApp(Widget child, {String language = 'en', double scale = 1}) =>
     );
 
 List<Widget> catalog(String language) {
-  final hi = language == 'hi';
-  final label = hi ? 'जारी रखें' : 'Continue';
-  final name = hi ? 'गाय का दूध' : 'Cow milk';
+  const label = 'Continue';
+  const name = 'Cow milk';
   return [
     for (final variant in SbButtonVariant.values)
       SbButton(label: label, onPressed: () {}, variant: variant),
@@ -112,25 +111,15 @@ List<Widget> catalog(String language) {
       onSelected: (_) {},
     ),
     SbWeekdayPicker(
-      labels: hi
-          ? const [
-              'सोमवार',
-              'मंगलवार',
-              'बुधवार',
-              'गुरुवार',
-              'शुक्रवार',
-              'शनिवार',
-              'रविवार',
-            ]
-          : const [
-              'Monday',
-              'Tuesday',
-              'Wednesday',
-              'Thursday',
-              'Friday',
-              'Saturday',
-              'Sunday',
-            ],
+      labels: const [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+      ],
       selected: const {1, 3},
       onChanged: (_) {},
     ),

@@ -1,60 +1,35 @@
 name: admin-ci
-
 on:
   pull_request:
-    paths:
-      - "apps/admin/**"
-      - "packages/ts-client/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/admin-ci.yml"
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/admin/**"
-      - "packages/ts-client/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/admin-ci.yml"
+    paths: ['apps/admin/**', 'packages/ts-client/**', '.github/workflows/admin-ci.yml']
   workflow_dispatch:
-
 jobs:
   admin:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
+    name: Admin availability and checks (implementation starts T-150)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Lint
-        run: pnpm --filter admin lint
-
-      - name: Typecheck
-        run: pnpm --filter admin typecheck
-
-      - name: Unit tests
-        run: pnpm --filter admin test
-
-      - name: Build
-        run: pnpm --filter admin build
-
-      - name: TS client checks
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Detect real admin checks
+        id: availability
         run: |
-          pnpm --filter @supplybiz/ts-client lint
-          pnpm --filter @supplybiz/ts-client test
+          node --input-type=module <<'JS'
+          import { readFileSync, appendFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('apps/admin/package.json', 'utf8'));
+          const ready = ['lint', 'typecheck', 'test', 'build'].every(key => pkg.scripts[key] && !/echo|TODO|No .* yet/.test(pkg.scripts[key]));
+          appendFileSync(process.env.GITHUB_OUTPUT, `ready=${ready}\n`);
+          if (!ready) console.log('::notice::NOT_RUN: admin lint/build/tests remain unimplemented until T-150. Placeholder commands are not checks.');
+          JS
+      - if: steps.availability.outputs.ready == 'true'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @supplybiz/admin lint
+          pnpm --filter @supplybiz/admin typecheck
+          pnpm --filter @supplybiz/admin test
+          pnpm --filter @supplybiz/admin build

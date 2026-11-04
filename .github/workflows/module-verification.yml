@@ -1,0 +1,53 @@
+name: module-verification
+on:
+  workflow_dispatch:
+    inputs:
+      gate:
+        description: Module gate (prerequisites and integrated suites must exist)
+        type: choice
+        required: true
+        options: [G0, G1, G2, G3, G4, G5, G6]
+jobs:
+  module:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      NODE_ENV: test
+      GATE: ${{ inputs.gate }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce manual completion and integrated-suite prerequisites
+        run: node tools/check-module.mjs "$GATE" --check-ready
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/native-test-db
+      - run: flutter pub get --enforce-lockfile
+      - run: dart run melos run build_runner
+      - run: pnpm --filter @supplybiz/api build
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          script: |
+            node apps/api/dist/main.js > "$RUNNER_TEMP/supplybiz-api.log" 2>&1 &
+            api_pid=$!
+            trap 'kill "$api_pid"' EXIT
+            for attempt in {1..30}; do
+              if curl --fail --silent http://localhost:3000/api/v1/health/ready; then break; fi
+              sleep 1
+            done
+            curl --fail --silent http://localhost:3000/api/v1/health/ready
+            ANDROID_DEVICE_ID=emulator-5554 node tools/check-module.mjs "$GATE"

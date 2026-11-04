@@ -16,18 +16,17 @@ import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/verify_otp_dto.dart';
 
 class AuthApi {
-
   final Dio _dio;
 
   const AuthApi(this._dio);
 
   /// Send OTP (development simulation until Q-09 is resolved)
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [xDeviceId] - Stable installation identifier, 1–128 ASCII letters, digits, hyphens or underscores.
-  /// * [idempotencyKey] 
-  /// * [sendOtpDto] 
+  /// * [idempotencyKey]
+  /// * [sendOtpDto]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -37,7 +36,7 @@ class AuthApi {
   ///
   /// Returns a [Future] containing a [Response] with a [SendOtpResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<SendOtpResponse>> otpControllerSend({ 
+  Future<Response<SendOtpResponse>> otpControllerSend({
     required String xDeviceId,
     required String idempotencyKey,
     required SendOtpDto sendOtpDto,
@@ -68,10 +67,9 @@ class AuthApi {
 
     try {
       _bodyData = jsonEncode(sendOtpDto);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
         ),
@@ -93,9 +91,12 @@ class AuthApi {
     SendOtpResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpResponse>(rawData, 'SendOtpResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<SendOtpResponse, SendOtpResponse>(
+              rawData, 'SendOtpResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -119,10 +120,9 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   }
 
   /// sessionsControllerJwks
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -132,8 +132,7 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> sessionsControllerJwks({ 
-    required String idempotencyKey,
+  Future<Response<void>> sessionsControllerJwks({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -145,7 +144,6 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
     final _options = Options(
       method: r'GET',
       headers: <String, dynamic>{
-        r'Idempotency-Key': idempotencyKey,
         ...?headers,
       },
       extra: <String, dynamic>{
@@ -167,11 +165,11 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   }
 
   /// sessionsControllerLogout
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
-  /// * [all] 
+  /// * [idempotencyKey]
+  /// * [all] - Defaults to false (current session family); true revokes all account sessions.
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -181,9 +179,9 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   ///
   /// Returns a [Future]
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<void>> sessionsControllerLogout({ 
+  Future<Response<void>> sessionsControllerLogout({
     required String idempotencyKey,
-    required String all,
+    String? all,
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -212,7 +210,7 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
     );
 
     final _queryParameters = <String, dynamic>{
-      r'all': all,
+      if (all != null) r'all': all,
     };
 
     final _response = await _dio.request<Object>(
@@ -228,11 +226,11 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   }
 
   /// sessionsControllerRefresh
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
-  /// * [refreshDto] 
+  /// * [idempotencyKey]
+  /// * [refreshDto]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -242,7 +240,7 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
   ///
   /// Returns a [Future] containing a [Response] with a [TokensResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<TokensResponse>> sessionsControllerRefresh({ 
+  Future<Response<TokensResponse>> sessionsControllerRefresh({
     required String idempotencyKey,
     required RefreshDto refreshDto,
     CancelToken? cancelToken,
@@ -271,10 +269,9 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
 
     try {
       _bodyData = jsonEncode(refreshDto);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
         ),
@@ -296,9 +293,12 @@ _responseData = rawData == null ? null : deserialize<SendOtpResponse, SendOtpRes
     TokensResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<TokensResponse, TokensResponse>(rawData, 'TokensResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<TokensResponse, TokensResponse>(
+              rawData, 'TokensResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -322,11 +322,11 @@ _responseData = rawData == null ? null : deserialize<TokensResponse, TokensRespo
   }
 
   /// sessionsControllerVerify
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
-  /// * [verifyOtpDto] 
+  /// * [idempotencyKey]
+  /// * [verifyOtpDto]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -336,7 +336,7 @@ _responseData = rawData == null ? null : deserialize<TokensResponse, TokensRespo
   ///
   /// Returns a [Future] containing a [Response] with a [TokensResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<TokensResponse>> sessionsControllerVerify({ 
+  Future<Response<TokensResponse>> sessionsControllerVerify({
     required String idempotencyKey,
     required VerifyOtpDto verifyOtpDto,
     CancelToken? cancelToken,
@@ -365,10 +365,9 @@ _responseData = rawData == null ? null : deserialize<TokensResponse, TokensRespo
 
     try {
       _bodyData = jsonEncode(verifyOtpDto);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
         ),
@@ -390,9 +389,12 @@ _responseData = rawData == null ? null : deserialize<TokensResponse, TokensRespo
     TokensResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<TokensResponse, TokensResponse>(rawData, 'TokensResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<TokensResponse, TokensResponse>(
+              rawData, 'TokensResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -414,5 +416,4 @@ _responseData = rawData == null ? null : deserialize<TokensResponse, TokensRespo
       extra: _response.extra,
     );
   }
-
 }

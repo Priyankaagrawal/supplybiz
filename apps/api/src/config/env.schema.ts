@@ -1,22 +1,12 @@
 import { z } from "zod";
-
-const urlAllowingProtocolOptional = z
-  .string()
-  .min(1)
-  .transform((value) => {
-    if (/^[a-zA-Z]+:\/\//.test(value)) {
-      return value;
-    }
-    return `http://${value}`;
-  })
-  .pipe(z.string().url());
+import { homedir } from "node:os";
+import { isAbsolute, join } from "node:path";
 
 export const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
     PORT: z.coerce.number().int().positive().default(3000),
     DATABASE_URL: z.string().url().default("postgresql://localhost:5432/supplybiz"),
-    REDIS_URL: z.string().url().default("redis://localhost:6379"),
     AUTH_SIGNING_PRIVATE_KEY: z.string().min(1).optional(),
     AUTH_SIGNING_KEY_ID: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).default("development"),
     AUTH_PREVIOUS_PUBLIC_KEYS: z.string().default("{}").transform((value, context) => {
@@ -28,27 +18,26 @@ export const envSchema = z
       }
     }),
     OTP_DELIVERY_MODE: z.enum(["disabled", "console"]).default("disabled"),
-    OTP_REDIS_PREFIX: z
-      .string()
-      .regex(/^[a-zA-Z0-9-]{1,80}$/)
-      .default("otp"),
     OTP_HMAC_PEPPER: z.string().min(32).optional(),
     OTP_DEVICE_SENDS_PER_HOUR: z.coerce.number().int().positive().default(5),
     OTP_LOCKOUT_BASE_SECONDS: z.coerce.number().int().positive().default(30),
     OTP_LOCKOUT_MAX_SECONDS: z.coerce.number().int().positive().max(3600).default(3600),
-    STORAGE_ENDPOINT: urlAllowingProtocolOptional.default("http://localhost:9000"),
+    UPLOAD_ROOT: z.string().min(1).refine(isAbsolute, "Must be an absolute path").optional(),
+    UPLOAD_MAX_BYTES: z.coerce.number().int().positive().max(5242880).default(5242880),
+    UPLOAD_MAX_PIXELS: z.coerce.number().int().positive().max(20000000).default(20000000),
     HEALTHCHECK_STRICT: z
       .enum(["true", "false"])
-      .default("false")
+      .default("true")
       .transform((value) => value === "true"),
     RATE_LIMIT_TTL_SECONDS: z.coerce.number().int().positive().default(60),
     RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(120),
-    OTEL_ENABLED: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((value) => value === "true"),
+
   })
   .superRefine((value, context) => {
+    if (["staging", "production"].includes(value.NODE_ENV) && !value.UPLOAD_ROOT) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ["UPLOAD_ROOT"],
+        message: "Persistent storage must be explicitly configured outside development/test." });
+    }
     if (["staging", "production"].includes(value.NODE_ENV) &&
         (!value.AUTH_SIGNING_PRIVATE_KEY || value.AUTH_SIGNING_KEY_ID === "development")) {
       context.addIssue({ code: z.ZodIssueCode.custom, path: ["AUTH_SIGNING_PRIVATE_KEY"],
@@ -71,7 +60,8 @@ export const envSchema = z
         message: "Must be at least OTP_LOCKOUT_BASE_SECONDS.",
       });
     }
-  });
+  })
+  .transform(value => ({ ...value, UPLOAD_ROOT: value.UPLOAD_ROOT ?? join(homedir(), ".local", "share", "supplybiz", "uploads") }));
 
 export type AppEnv = z.infer<typeof envSchema>;
 

@@ -22,7 +22,7 @@ GoRouter createAppRouter(RoutingController controller,
         final step = state.pathParameters['step'];
         final kind = state.pathParameters['kind'];
         final unknownLink =
-            kind != null && !{'o', 'v', 's', 'khata', 'invite'}.contains(kind);
+            kind != null && !{'o', 'v', 's', 'khata'}.contains(kind);
         final invalidPage = page != null &&
             !{'update', 'legal', 'notifications', 'settings', 'switch-role'}
                 .contains(page);

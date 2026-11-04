@@ -13,17 +13,16 @@ import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 
 class MeApi {
-
   final Dio _dio;
 
   const MeApi(this._dio);
 
   /// meControllerActiveRole
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
-  /// * [roleDto] 
+  /// * [idempotencyKey]
+  /// * [roleDto]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -33,7 +32,7 @@ class MeApi {
   ///
   /// Returns a [Future] containing a [Response] with a [MeResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<MeResponse>> meControllerActiveRole({ 
+  Future<Response<MeResponse>> meControllerActiveRole({
     required String idempotencyKey,
     required RoleDto roleDto,
     CancelToken? cancelToken,
@@ -68,10 +67,9 @@ class MeApi {
 
     try {
       _bodyData = jsonEncode(roleDto);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
         ),
@@ -93,9 +91,11 @@ class MeApi {
     MeResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -119,11 +119,11 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
   }
 
   /// meControllerAddRole
-  /// 
+  ///
   ///
   /// Parameters:
-  /// * [idempotencyKey] 
-  /// * [roleDto] 
+  /// * [idempotencyKey]
+  /// * [roleDto]
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
   /// * [headers] - Can be used to add additional headers to the request
   /// * [extras] - Can be used to add flags to the request
@@ -133,7 +133,7 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [MeResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<MeResponse>> meControllerAddRole({ 
+  Future<Response<MeResponse>> meControllerAddRole({
     required String idempotencyKey,
     required RoleDto roleDto,
     CancelToken? cancelToken,
@@ -168,10 +168,9 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
 
     try {
       _bodyData = jsonEncode(roleDto);
-
-    } catch(error, stackTrace) {
+    } catch (error, stackTrace) {
       throw DioException(
-         requestOptions: _options.compose(
+        requestOptions: _options.compose(
           _dio.options,
           _path,
         ),
@@ -193,9 +192,11 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
     MeResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -219,7 +220,7 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
   }
 
   /// meControllerMe
-  /// 
+  ///
   ///
   /// Parameters:
   /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
@@ -231,7 +232,7 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
   ///
   /// Returns a [Future] containing a [Response] with a [MeResponse] as data
   /// Throws [DioException] if API call or serialization fails
-  Future<Response<MeResponse>> meControllerMe({ 
+  Future<Response<MeResponse>> meControllerMe({
     CancelToken? cancelToken,
     Map<String, dynamic>? headers,
     Map<String, dynamic>? extra,
@@ -269,9 +270,11 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
     MeResponse? _responseData;
 
     try {
-final rawData = _response.data;
-_responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse', growable: true);
-
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<MeResponse, MeResponse>(rawData, 'MeResponse',
+              growable: true);
     } catch (error, stackTrace) {
       throw DioException(
         requestOptions: _response.requestOptions,
@@ -293,5 +296,4 @@ _responseData = rawData == null ? null : deserialize<MeResponse, MeResponse>(raw
       extra: _response.extra,
     );
   }
-
 }

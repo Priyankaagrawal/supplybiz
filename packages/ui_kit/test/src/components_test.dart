@@ -123,7 +123,7 @@ void main() {
     expect(find.byType(Table), findsOneWidget);
   });
 
-  for (final language in ['en', 'hi']) {
+  for (final language in ['en']) {
     testWidgets('TC-610/611 $language tap targets, labels and contrast', (
       tester,
     ) async {
