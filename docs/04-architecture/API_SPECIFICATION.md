@@ -87,9 +87,9 @@ endpoint, user/session creation and tokens belong to T-015.
 | GET | `/vendor/onboarding` (owned profile, next step and settings defaults; 404 before category selection) |
 | POST | `/vendor/onboarding/category` `{ categoryId }` |
 | PUT | `/vendor/onboarding/business` `{ businessName, gstin?, addressLine, city, state, pincode, latitude, longitude, shopPhotoMediaId? }` |
-| PUT | `/vendor/kyc` (documents mediaIds, pan, aadhaarLast4, bank, upiVpa) |
-| POST | `/vendor/kyc/submit` |
-| GET | `/vendor/kyc` (status, reason; masked values only) |
+| POST | `/vendor/kyc` (atomic validated document/bank submission; see T-022 below) |
+| GET | `/vendor/kyc` (latest revision/status/reason; PAN/account last-4 only) |
+| GET | `/vendor/kyc/notices` (latest 50 durable owned KYC decision notices) |
 | GET/PATCH | `/vendor/settings` (delivery, subscription, availability, service area) |
 | PUT | `/vendor/settings/service-pincodes` |
 | GET/POST | `/vendor/holidays` ; DELETE `/vendor/holidays/{id}` |
@@ -193,7 +193,7 @@ These endpoints are future reference only; no routes, credentials or tests are r
 ### 4.13 Admin (`/admin/**`, FR-400–FR-413)
 T-150 implements password login → five-minute challenge → mandatory TOTP verification/enrolment → session. `GET /admin/auth/challenge` reads enrolment setup using the pending bearer credential; `GET /admin/auth/me` returns only id/role/permissions. These are server-to-server BFF operations; the browser receives httpOnly Strict cookies (Secure over HTTPS), while the Next.js server supplies the opaque bearer to the API. Logout additionally requires `X-CSRF-Token`; all mutations require `Idempotency-Key`, but auth responses are never replay-cached. Five password/TOTP failures lock an account for 30 minutes; session expiry is 30 minutes idle/eight hours absolute. Unannotated admin routes and unlisted permissions are denied. Local operator provisioning uses breached-password checks; admin-account management remains T-162.
 
-`POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?status=`, `GET /admin/kyc/{vendorId}`, `POST /admin/kyc/{vendorId}/approve|reject`, `GET /admin/kyc/{vendorId}/documents/{docId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
+`POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?beforeId=`, `GET /admin/kyc/{submissionId}`, `POST /admin/kyc/{submissionId}/decision` (T-022); document reads use `GET /admin/media/{mediaId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
 T-152 implements `GET /admin/audit-logs` with `audit.read` (SUPER_ADMIN only), no-store responses and no write endpoint. Optional `action` (uppercase/underscore, ≤64), `actorId` and `beforeId` (UUID cursor) filters return `{items, hasMore}` in descending `(at,id)` order, at most 50 rows. Each item includes actor type/id, action, entity/id, redacted before/after, socket IP and UTC time. Historical unavailable values remain null. S-A-16 calls this only from the Next.js server; no staff token reaches the browser.
 
@@ -271,3 +271,32 @@ Manual KYC approval/rejection records reviewer, reason, method MANUAL_REVIEW, au
 Address/discovery requests accept manual pincode/address/validated coordinates or device GPS; coverage checks stay server-side without a maps provider. Reports are tables and CSV-only authorized downloads. Basic `/config`/admin config uses existing API/DB, not campaign tooling.
 
 ADR-025: active client platform is Android; keep compatible iOS enum values/contracts for later validation. Existing source/OpenAPI/generated clients are unchanged by this documentation revision; reconcile from source under authorized task implementation, never hand-edit generated artifacts.
+
+### T-022 manual KYC contract
+`POST /vendor/kyc` accepts `aadhaarFrontMediaId`, `aadhaarBackMediaId`, `panMediaId`,
+`pan`, `holderName`, `bankName`, `accountNumber`, `accountNumberConfirmation`, `ifsc`,
+and optional `upiId`. Requires active/held VENDOR role, completed business information,
+three distinct owned READY KYC_DOC attachments and an Idempotency-Key. Uploaders supply
+already-masked Aadhaar (ADR-027); no Aadhaar number is accepted or automatically validated.
+This smallest slice saves all submission fields atomically rather than exposing a partial
+KYC/bank draft. T-024 owns the mobile form. Invalid/confirmation input returns 400,
+unavailable attachments 404, invalid state/incomplete business 409 and changed-key reuse 422.
+Submission creates a revision in MANUAL_REVIEW and advances onboarding to step 4.
+
+`GET /admin/kyc` requires `kyc.review`, returns `{items,hasMore}` (50 pending revisions,
+oldest `(submittedAt,id)` first); `beforeId` is the continuation cursor. Detail and
+`POST /admin/kyc/{submissionId}/decision` use revision IDs, not vendor IDs.
+Decision body is `{decision: VERIFIED|REJECTED, reason}` with 3–500 characters after
+trimming; Idempotency-Key and X-CSRF-Token are required. OPS/SUPER_ADMIN can review;
+SUPPORT/FINANCE cannot. Reads are no-store; response objects expose only PAN/account
+last-4, document IDs and the other submitted business fields, never full numbers/ciphertext.
+Revision, vendor status, immutable redacted audit reference and owned durable in-app notice
+commit together. Rejection permits a new revision; a closed revision cannot be edited/deleted.
+Reason/reviewer/time remain on the revision; free-text reasons are omitted from general
+audit snapshots. Status/method/provider evidence is explicit: MANUAL_REVIEW and NOT_RUN.
+Push/SMS delivery is not claimed; the notice endpoint is runnable before T-032.
+
+Development/test PAN and account encryption uses FIELD_ENCRYPTION_KEY with AES-256-GCM,
+fresh nonces and vendor/field-bound AAD. No automatic secret fallback exists. Staging/production
+writes return 503 KYC_ENCRYPTION_UNAVAILABLE until the documented KMS envelope path is
+implemented/configured; local task evidence is not production encryption readiness.

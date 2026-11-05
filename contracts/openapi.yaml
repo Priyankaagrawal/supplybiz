@@ -1,5 +1,139 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/kyc:
+    get:
+      operationId: KycController_status
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycResponse'
+      tags:
+        - kyc
+      security:
+        - bearer: []
+    post:
+      operationId: KycController_submit
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycSubmissionDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycResponse'
+      tags:
+        - kyc
+      security:
+        - bearer: []
+  /api/v1/vendor/kyc/notices:
+    get:
+      operationId: KycController_notices
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KycNotice'
+      tags:
+        - kyc
+      security:
+        - bearer: []
+  /api/v1/admin/kyc:
+    get:
+      operationId: AdminKycController_queue
+      parameters:
+        - name: beforeId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycPage'
+      tags:
+        - kyc
+      security:
+        - bearer: []
+  /api/v1/admin/kyc/{id}:
+    get:
+      operationId: AdminKycController_detail
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycResponse'
+      tags:
+        - kyc
+      security:
+        - bearer: []
+  /api/v1/admin/kyc/{id}/decision:
+    post:
+      operationId: AdminKycController_decide
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycDecisionDto'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycResponse'
+      tags:
+        - kyc
+      security:
+        - bearer: []
   /api/v1/admin/audit-logs:
     get:
       operationId: AuditController_list
@@ -645,6 +779,151 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    KycResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        vendorId:
+          type: string
+        status:
+          type: string
+        verificationMethod:
+          type: string
+        providerChecks:
+          type: string
+          enum:
+            - NOT_RUN
+        submittedAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          nullable: true
+          format: date-time
+        reviewerId:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        aadhaarFrontMediaId:
+          type: string
+        aadhaarBackMediaId:
+          type: string
+        panMediaId:
+          type: string
+        panLast4:
+          type: string
+        accountLast4:
+          type: string
+        holderName:
+          type: string
+        bankName:
+          type: string
+        ifsc:
+          type: string
+        upiId:
+          type: string
+          nullable: true
+      required:
+        - id
+        - vendorId
+        - status
+        - verificationMethod
+        - providerChecks
+        - submittedAt
+        - reviewedAt
+        - reviewerId
+        - reason
+        - aadhaarFrontMediaId
+        - aadhaarBackMediaId
+        - panMediaId
+        - panLast4
+        - accountLast4
+        - holderName
+        - bankName
+        - ifsc
+        - upiId
+    KycNotice:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        reason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - status
+        - reason
+        - createdAt
+    KycSubmissionDto:
+      type: object
+      properties:
+        aadhaarFrontMediaId:
+          type: string
+          format: uuid
+        aadhaarBackMediaId:
+          type: string
+          format: uuid
+        panMediaId:
+          type: string
+          format: uuid
+        pan:
+          type: string
+        holderName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        accountNumberConfirmation:
+          type: string
+        ifsc:
+          type: string
+        upiId:
+          type: string
+      required:
+        - aadhaarFrontMediaId
+        - aadhaarBackMediaId
+        - panMediaId
+        - pan
+        - holderName
+        - bankName
+        - accountNumber
+        - accountNumberConfirmation
+        - ifsc
+    KycPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KycResponse'
+        hasMore:
+          type: boolean
+      required:
+        - items
+        - hasMore
+    KycDecisionDto:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum:
+            - VERIFIED
+            - REJECTED
+        reason:
+          type: string
+      required:
+        - decision
+        - reason
     AuditSnapshot:
       type: object
       properties:
@@ -664,13 +943,14 @@ components:
           format: date-time
         totp_enrolled:
           type: boolean
-      required:
-        - role
-        - status
-        - failed_attempts
-        - locked_until
-        - last_login_at
-        - totp_enrolled
+        verificationMethod:
+          type: string
+        providerChecks:
+          type: string
+        reviewerId:
+          type: string
+          nullable: true
+          format: uuid
     AuditRow:
       type: object
       properties:

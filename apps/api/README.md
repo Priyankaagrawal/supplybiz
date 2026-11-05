@@ -421,3 +421,76 @@ T-022 KYC, T-106 reviewed settings, G0/G1 comprehensive gates (NOT_RUN). This AP
 ran no mobile platform builds; iOS validation remains deferred to T-185.
 Migration rollback: stop use of the new endpoints and roll application code back while
 retaining the additive tables/data; do not drop populated profiles/settings or PostGIS.
+
+## T-022 manual KYC handoff (2026-11-05)
+
+Local API slice: validated atomic submission at `POST /api/v1/vendor/kyc`, owned
+latest revision at `GET /api/v1/vendor/kyc`, durable decision notices at
+`GET /api/v1/vendor/kyc/notices`; OPS/SUPER_ADMIN pending queue/detail/decision at
+`GET /api/v1/admin/kyc`, `GET /api/v1/admin/kyc/{submissionId}` and
+`POST /api/v1/admin/kyc/{submissionId}/decision`. See API_SPECIFICATION T-022
+for request fields, cursor, state conflicts and replay behavior. The API-client
+source includes all endpoints; mobile onboarding and admin review UI belong to
+T-024/T-151. The existing T-020 private content stream remains the document reader.
+
+Supply only already-masked Aadhaar; automated masking checks remain excluded under
+ADR-027. No full Aadhaar number input exists. PAN/account numbers are encrypted
+with AES-256-GCM; responses/replay/audits never contain their full values. Use a
+persistent, independently generated 32-byte `FIELD_ENCRYPTION_KEY` (64 hex chars)
+in the local API environment; do not commit it or reuse the TOTP key. Development/
+test permits this key per ENVIRONMENT_SETUP. KYC mutations in staging/production
+return 503 until KMS envelope encryption is implemented/configured. This is a local
+handoff, not production encryption readiness. Provider checks always remain NOT_RUN;
+MANUAL_REVIEW is the verification method even after a manual VERIFIED decision.
+
+Review status, reason/reviewer/time, vendor status, redacted append-only audit
+(before/after and socket IP) and a durable owned in-app notice commit together.
+Reason is retained on the immutable reviewed revision and linked by audit entity ID;
+free text stays outside the general audit snapshot. Rejected cases can resubmit a
+new revision; pending/approved cases cannot submit again through onboarding.
+Notifications here mean persisted API-readable in-app notices. Push/SMS delivery
+is NOT_RUN (T-032); no outbox event is silently discarded or marked delivered.
+Retention/deletion remains Q-20. No plan/visibility/expiry policy was invented;
+discovery enforcement is T-041. Do not interpret local task checks as a G0/G1 pass.
+
+Executed successfully (repository root unless a directory is stated):
+```sh
+pnpm --filter @supplybiz/api prisma:generate
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test pnpm --filter @supplybiz/api prisma:migrate:deploy
+NATIVE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test ABUSE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test node tools/check-task.mjs T-022
+node --test tools/checks.spec.mjs
+pnpm --filter @supplybiz/api exec prisma validate --schema src/prisma/schema.prisma
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home PATH=/Users/ankit/.pub-cache/bin:$PATH tools/codegen.sh
+pnpm --filter @supplybiz/api exec tsc --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext ../../packages/ts-client/src/generated/openapi.ts
+pnpm --filter @supplybiz/admin typecheck
+```
+Also executed from `packages/api_client`: `/Users/ankit/.pub-cache/bin/fvm dart analyze lib`.
+Results: 9 focused real HTTP/PostgreSQL/upload checks, 2 native runtime smoke checks
+and 4 runner guards PASS; API lint/typecheck/build, schema, TS/Dart generation and
+client analysis/compilation and admin consumer typecheck PASS. The first expanded
+suite exposed a stale synthetic token after API restart; reissuing it fixed the
+fixture. A final audit assertion also caught a missing socket-IP argument in the
+decision controller; that connection is fixed and the final nine checks pass. Earlier sandbox migration/codegen attempts
+failed; reruns with approved access succeeded. Only the dedicated test DB migration
+was applied; application/dev DB migration was NOT_RUN. Synthetic immutable test
+records remain in that test DB; temporary private upload folders were removed.
+No newly started service/check process remains running.
+
+Manual verification (suggested, NOT executed; use synthetic details):
+1. Configure the local encryption key, apply migrations to the intended local dev
+   DB and start the API with `pnpm --filter @supplybiz/api dev`. Use existing
+   T-015/T-150 development login/provisioning instructions, complete category/
+   business onboarding and upload three distinct already-masked KYC attachments.
+2. Submit valid bank/PAN/document data with a fresh Idempotency-Key. Verify
+   MANUAL_REVIEW/NOT_RUN; retry across API restart with that key and verify the
+   same revision; mismatch confirmation/IFSC must fail without saving a case.
+3. As OPS, load the pending queue and private document streams. Reject with a
+   reason, check vendor status/reason/notice, and resubmit a fresh revision.
+4. As SUPER_ADMIN, approve the new revision; verify VERIFIED, MANUAL_REVIEW and
+   NOT_RUN, exactly one notice, and before/after/actor/IP in the audit viewer.
+   SUPPORT/FINANCE decisions and missing CSRF must be denied.
+
+Manual PASS, T-024/T-151 screens/accessibility, live notifications, staging/production
+KMS and G0/G1 remain pending; no mobile native checks were needed for this API task.
+iOS testing remains deferred under ADR-025. Migration is additive: rollback API
+code while preserving review/audit data; do not drop evidence tables to roll back.

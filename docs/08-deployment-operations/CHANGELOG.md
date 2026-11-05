@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+- T-022 (READY_FOR_VERIFY, local API): manual KYC submission/rejection/resubmission/approval with encrypted PAN/bank input, owned document attachments, OPS/SUPER_ADMIN authorization, concurrent/restart-safe replay, immutable review evidence, transactional audit and durable in-app notices; regenerated clients. Nine native KYC checks, two runtime checks and lightweight API/client/consumer checks pass. Manual PASS and G0/G1 pending; push is NOT_RUN and staging/production KYC writes fail closed pending KMS encryption. See API README handoff.
+
 - T-152 (READY_FOR_VERIFY): append-only audit storage, atomic redacted admin-account/auth/private-document history, historical event backfill and SUPER_ADMIN-only S-A-16 viewer with filters/cursor pagination; regenerated clients. Six focused native audit checks (including production Next.js/API/DB smoke), lightweight API/admin/client checks and runner guards pass. Manual browser/accessibility/PASS and G1 pending; retention remains Q-20. See admin README for evidence and verification steps.
 
 - T-021 (READY_FOR_VERIFY): persisted vendor category/business onboarding with validated coordinates/PostGIS, owned shop-photo attachment, settings defaults, resumable step/data, atomic owner-scoped replay and regenerated clients. Eight focused native HTTP/DB checks, two runtime smoke checks, build/lint/typecheck and client checks pass; manual PASS and G0/G1 pending.

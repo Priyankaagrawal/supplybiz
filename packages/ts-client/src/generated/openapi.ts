@@ -4,6 +4,86 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/kyc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KycController_status"];
+        put?: never;
+        post: operations["KycController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/kyc/notices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KycController_notices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/kyc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminKycController_queue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/kyc/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminKycController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/kyc/{id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminKycController_decide"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/audit-logs": {
         parameters: {
             query?: never;
@@ -413,15 +493,73 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        AuditSnapshot: {
-            role: string;
+        KycResponse: {
+            id: string;
+            vendorId: string;
             status: string;
-            failed_attempts: number;
+            verificationMethod: string;
+            /** @enum {string} */
+            providerChecks: "NOT_RUN";
             /** Format: date-time */
-            locked_until: string | null;
+            submittedAt: string;
             /** Format: date-time */
-            last_login_at: string | null;
-            totp_enrolled: boolean;
+            reviewedAt: string | null;
+            reviewerId: string | null;
+            reason: string | null;
+            aadhaarFrontMediaId: string;
+            aadhaarBackMediaId: string;
+            panMediaId: string;
+            panLast4: string;
+            accountLast4: string;
+            holderName: string;
+            bankName: string;
+            ifsc: string;
+            upiId: string | null;
+        };
+        KycNotice: {
+            id: string;
+            status: string;
+            reason: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        KycSubmissionDto: {
+            /** Format: uuid */
+            aadhaarFrontMediaId: string;
+            /** Format: uuid */
+            aadhaarBackMediaId: string;
+            /** Format: uuid */
+            panMediaId: string;
+            pan: string;
+            holderName: string;
+            bankName: string;
+            accountNumber: string;
+            accountNumberConfirmation: string;
+            ifsc: string;
+            upiId?: string;
+        };
+        KycPage: {
+            items: components["schemas"]["KycResponse"][];
+            hasMore: boolean;
+        };
+        KycDecisionDto: {
+            /** @enum {string} */
+            decision: "VERIFIED" | "REJECTED";
+            reason: string;
+        };
+        AuditSnapshot: {
+            role?: string;
+            status?: string;
+            failed_attempts?: number;
+            /** Format: date-time */
+            locked_until?: string | null;
+            /** Format: date-time */
+            last_login_at?: string | null;
+            totp_enrolled?: boolean;
+            verificationMethod?: string;
+            providerChecks?: string;
+            /** Format: uuid */
+            reviewerId?: string | null;
         };
         AuditRow: {
             id: string;
@@ -595,6 +733,139 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    KycController_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycResponse"];
+                };
+            };
+        };
+    };
+    KycController_submit: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KycSubmissionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycResponse"];
+                };
+            };
+        };
+    };
+    KycController_notices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycNotice"][];
+                };
+            };
+        };
+    };
+    AdminKycController_queue: {
+        parameters: {
+            query?: {
+                beforeId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycPage"];
+                };
+            };
+        };
+    };
+    AdminKycController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycResponse"];
+                };
+            };
+        };
+    };
+    AdminKycController_decide: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KycDecisionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycResponse"];
+                };
+            };
+        };
+    };
     AuditController_list: {
         parameters: {
             query?: {

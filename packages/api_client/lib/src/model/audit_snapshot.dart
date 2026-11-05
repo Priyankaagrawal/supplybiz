@@ -16,55 +16,79 @@ part 'audit_snapshot.g.dart';
 class AuditSnapshot {
   /// Returns a new [AuditSnapshot] instance.
   AuditSnapshot({
-    required this.role,
-    required this.status,
-    required this.failedAttempts,
-    required this.lockedUntil,
-    required this.lastLoginAt,
-    required this.totpEnrolled,
+    this.role,
+    this.status,
+    this.failedAttempts,
+    this.lockedUntil,
+    this.lastLoginAt,
+    this.totpEnrolled,
+    this.verificationMethod,
+    this.providerChecks,
+    this.reviewerId,
   });
 
   @JsonKey(
     name: r'role',
-    required: true,
+    required: false,
     includeIfNull: false,
   )
-  final String role;
+  final String? role;
 
   @JsonKey(
     name: r'status',
-    required: true,
+    required: false,
     includeIfNull: false,
   )
-  final String status;
+  final String? status;
 
   @JsonKey(
     name: r'failed_attempts',
-    required: true,
+    required: false,
     includeIfNull: false,
   )
-  final num failedAttempts;
+  final num? failedAttempts;
 
   @JsonKey(
     name: r'locked_until',
-    required: true,
-    includeIfNull: true,
+    required: false,
+    includeIfNull: false,
   )
   final DateTime? lockedUntil;
 
   @JsonKey(
     name: r'last_login_at',
-    required: true,
-    includeIfNull: true,
+    required: false,
+    includeIfNull: false,
   )
   final DateTime? lastLoginAt;
 
   @JsonKey(
     name: r'totp_enrolled',
-    required: true,
+    required: false,
     includeIfNull: false,
   )
-  final bool totpEnrolled;
+  final bool? totpEnrolled;
+
+  @JsonKey(
+    name: r'verificationMethod',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? verificationMethod;
+
+  @JsonKey(
+    name: r'providerChecks',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? providerChecks;
+
+  @JsonKey(
+    name: r'reviewerId',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? reviewerId;
 
   @override
   bool operator ==(Object other) =>
@@ -75,7 +99,10 @@ class AuditSnapshot {
           other.failedAttempts == failedAttempts &&
           other.lockedUntil == lockedUntil &&
           other.lastLoginAt == lastLoginAt &&
-          other.totpEnrolled == totpEnrolled;
+          other.totpEnrolled == totpEnrolled &&
+          other.verificationMethod == verificationMethod &&
+          other.providerChecks == providerChecks &&
+          other.reviewerId == reviewerId;
 
   @override
   int get hashCode =>
@@ -84,7 +111,10 @@ class AuditSnapshot {
       failedAttempts.hashCode +
       (lockedUntil == null ? 0 : lockedUntil.hashCode) +
       (lastLoginAt == null ? 0 : lastLoginAt.hashCode) +
-      totpEnrolled.hashCode;
+      totpEnrolled.hashCode +
+      verificationMethod.hashCode +
+      providerChecks.hashCode +
+      (reviewerId == null ? 0 : reviewerId.hashCode);
 
   factory AuditSnapshot.fromJson(Map<String, dynamic> json) =>
       _$AuditSnapshotFromJson(json);

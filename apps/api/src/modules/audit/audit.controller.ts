@@ -10,13 +10,17 @@ export class AuditQuery {
   @ApiPropertyOptional({ format: 'uuid' }) @IsOptional() @IsUUID() actorId?: string;
 }
 class AuditSnapshot {
-  @ApiProperty() role!: string;
-  @ApiProperty() status!: string;
-  @ApiProperty({ type: Number }) failed_attempts!: number;
-  @ApiProperty({ type: String, nullable: true, format: 'date-time' }) locked_until!: string | null;
-  @ApiProperty({ type: String, nullable: true, format: 'date-time' }) last_login_at!: string | null;
-  @ApiProperty() totp_enrolled!: boolean;
+  @ApiPropertyOptional() role?: string;
+  @ApiPropertyOptional() status?: string;
+  @ApiPropertyOptional({ type: Number }) failed_attempts?: number;
+  @ApiPropertyOptional({ type: String, nullable: true, format: 'date-time' }) locked_until?: string | null;
+  @ApiPropertyOptional({ type: String, nullable: true, format: 'date-time' }) last_login_at?: string | null;
+  @ApiPropertyOptional() totp_enrolled?: boolean;
+  @ApiPropertyOptional() verificationMethod?: string;
+  @ApiPropertyOptional() providerChecks?: string;
+  @ApiPropertyOptional({ type: String, nullable: true, format: 'uuid' }) reviewerId?: string | null;
 }
+
 class AuditRow {
   @ApiProperty() id!: string;
   @ApiProperty() actor_type!: string;

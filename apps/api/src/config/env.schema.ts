@@ -7,6 +7,7 @@ export const envSchema = z
     NODE_ENV: z.enum(["development", "test", "staging", "production"]).default("development"),
     PORT: z.coerce.number().int().positive().default(3000),
     DATABASE_URL: z.string().url().default("postgresql://localhost:5432/supplybiz"),
+    FIELD_ENCRYPTION_KEY: z.string().regex(/^[a-f0-9]{64}$/i).optional(),
     ADMIN_TOTP_KEY: z.string().regex(/^[a-f0-9]{64}$/i).optional(),
     AUTH_SIGNING_PRIVATE_KEY: z.string().min(1).optional(),
     AUTH_SIGNING_KEY_ID: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).default("development"),

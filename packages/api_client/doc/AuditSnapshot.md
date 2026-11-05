@@ -8,12 +8,15 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**role** | **String** |  |
-**status** | **String** |  |
-**failedAttempts** | **num** |  |
-**lockedUntil** | [**DateTime**](DateTime.md) |  |
-**lastLoginAt** | [**DateTime**](DateTime.md) |  |
-**totpEnrolled** | **bool** |  |
+**role** | **String** |  | [optional]
+**status** | **String** |  | [optional]
+**failedAttempts** | **num** |  | [optional]
+**lockedUntil** | [**DateTime**](DateTime.md) |  | [optional]
+**lastLoginAt** | [**DateTime**](DateTime.md) |  | [optional]
+**totpEnrolled** | **bool** |  | [optional]
+**verificationMethod** | **String** |  | [optional]
+**providerChecks** | **String** |  | [optional]
+**reviewerId** | **String** |  | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

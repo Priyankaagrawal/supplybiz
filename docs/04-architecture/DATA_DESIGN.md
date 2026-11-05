@@ -18,7 +18,7 @@
 | Concurrency | `version INTEGER` on mutable aggregates (orders, subscriptions, products, vendor_settings) |
 | Enums | PostgreSQL enums via Prisma |
 | Geo | `geography(Point,4326)` (PostGIS) |
-| PII encryption | Field-level AES-256-GCM (envelope via KMS) for `bank_accounts.account_number_enc`, `vendor_kyc.pan_enc`; plus last-4 columns for display |
+| PII encryption | Field-level AES-256-GCM (envelope via KMS) for `vendor_kyc.account_number_enc`, `vendor_kyc.pan_enc`; plus last-4 columns for display |
 | Naming | snake_case tables/columns, plural table names |
 
 ## 2. ER Diagram (core)
@@ -88,9 +88,8 @@ erDiagram
 | `vendor_settings` | vendor_id, service_radius_km (1–20), delivery_charge_paise, min_order_paise, time_slots JSONB, same_day_cutoff TIME, auto_accept_subscriptions, accepting_today, delivery_paused, delivery_paused_until, max_daily_orders, daily_milk_capacity_ml, low_stock_threshold, allow_khata_orders, version | PK(vendor_id) |
 | `vendor_service_pincodes` | vendor_id, pincode | PK(vendor_id, pincode) |
 | `vendor_holidays` | id, vendor_id, date, reason | UNIQUE(vendor_id, date) |
-| `vendor_kyc` | vendor_id, status, pan_enc, pan_last4, aadhaar_last4, api_results JSONB (redacted), reviewed_by, reviewed_at, rejection_reason, submitted_at | PK(vendor_id) |
-| `kyc_documents` | id, vendor_id, type (AADHAAR_FRONT/AADHAAR_BACK/PAN/SHOP_PHOTO), media_id, masked BOOLEAN | private local KYC directory only; authorized API access |
-| `bank_accounts` | vendor_id, holder_name, bank_name, ifsc, account_number_enc, account_last4, verified_at | PK(vendor_id) |
+| `vendor_kyc` | id, vendor_id, status, verification_method, provider_checks, aadhaar_front_media_id, aadhaar_back_media_id, pan_media_id, pan_enc, pan_last4, account_number_enc, account_last4, holder_name, bank_name, ifsc, upi_id, reviewer_id, reviewed_at, reason, submitted_at | T-022 revision PK(id); one pending revision/vendor; documents reference private media; closed revisions immutable |
+| `kyc_notices` | id, user_id, submission_id, status, reason, created_at | Unique submission_id; durable owned decision notice; immutable |
 | `categories` | id, code, name_en, name_hi, icon, type (SUPPLY/BILL), status (ENABLED/COMING_SOON/HIDDEN), sort_order, product_types JSONB | UNIQUE(code) |
 
 T-021 implements the vendor profile/settings foundation only. Category-only drafts have
@@ -226,3 +225,12 @@ T-180 implements OTP/abuse state in `auth_abuse_state(key varchar(100) PK, value
 Future-only tables for Money transactions, bill payments, referrals, coupons, reviews/rating aggregates and banner/broadcast campaigns are POST-DELIVERY; their earlier schema descriptions are reference only and need no active migrations or seeds. Preserve existing data/source until an implementation task safely reconciles it. Personal contacts/entries, financial ledgers, transactional notifications, privacy/audit records and categories remain active.
 
 KYC stores manual reviewer/method/reason/time and distinguishes provider NOT_RUN from actual verified checks; approval grants business KYC status without faking PAN/bank API success. Vendor plan assignments store catalog tier, validity, reason, actor and audit with idempotent mutation behavior. A grant is not a plan payment; do not seed fabricated invoices/revenue. Existing entitlement history and limits stay consistent. Effective expiry/visibility rules use approved Q-04/Q-18 decisions.
+
+T-022 stores bank/PAN/document references together on a KYC revision so rejection and
+resubmission preserve the exact reviewed data. Full Aadhaar numbers are not collected;
+uploaders supply masked images under ADR-027. No successful provider results or bank
+`verified_at` are fabricated. Development/test field encryption is AES-256-GCM with
+FIELD_ENCRYPTION_KEY and vendor/field AAD. Production KMS envelope encryption remains
+unimplemented; KYC mutations fail closed there. Replay input uses a canonical keyed digest;
+responses contain only PAN/account last-4. Vendor status, review, audit and in-app notice
+are transactional. Retention/deletion remains Q-20; this task invents no purge policy.

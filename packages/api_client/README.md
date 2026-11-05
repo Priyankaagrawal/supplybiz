@@ -79,6 +79,12 @@ Class | Method | HTTP request | Description
 [*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
+[*KycApi*](doc/KycApi.md) | [**adminKycControllerDecide**](doc/KycApi.md#adminkyccontrollerdecide) | **POST** /api/v1/admin/kyc/{id}/decision |
+[*KycApi*](doc/KycApi.md) | [**adminKycControllerDetail**](doc/KycApi.md#adminkyccontrollerdetail) | **GET** /api/v1/admin/kyc/{id} |
+[*KycApi*](doc/KycApi.md) | [**adminKycControllerQueue**](doc/KycApi.md#adminkyccontrollerqueue) | **GET** /api/v1/admin/kyc |
+[*KycApi*](doc/KycApi.md) | [**kycControllerNotices**](doc/KycApi.md#kyccontrollernotices) | **GET** /api/v1/vendor/kyc/notices |
+[*KycApi*](doc/KycApi.md) | [**kycControllerStatus**](doc/KycApi.md#kyccontrollerstatus) | **GET** /api/v1/vendor/kyc |
+[*KycApi*](doc/KycApi.md) | [**kycControllerSubmit**](doc/KycApi.md#kyccontrollersubmit) | **POST** /api/v1/vendor/kyc |
 [*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role |
 [*MeApi*](doc/MeApi.md) | [**meControllerAddRole**](doc/MeApi.md#mecontrolleraddrole) | **POST** /api/v1/me/roles |
 [*MeApi*](doc/MeApi.md) | [**meControllerMe**](doc/MeApi.md#mecontrollerme) | **GET** /api/v1/me |
@@ -105,6 +111,11 @@ Class | Method | HTTP request | Description
  - [ConsentDto](doc/ConsentDto.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [KycDecisionDto](doc/KycDecisionDto.md)
+ - [KycNotice](doc/KycNotice.md)
+ - [KycPage](doc/KycPage.md)
+ - [KycResponse](doc/KycResponse.md)
+ - [KycSubmissionDto](doc/KycSubmissionDto.md)
  - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
  - [MediaResponse](doc/MediaResponse.md)

@@ -9,6 +9,11 @@ import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
+import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
+import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
+import 'package:supplybiz_api_client/src/model/kyc_page.dart';
+import 'package:supplybiz_api_client/src/model/kyc_response.dart';
+import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
@@ -74,6 +79,18 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
           value as Map<String, dynamic>) as ReturnType;
+    case 'KycDecisionDto':
+      return KycDecisionDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'KycNotice':
+      return KycNotice.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KycPage':
+      return KycPage.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KycResponse':
+      return KycResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KycSubmissionDto':
+      return KycSubmissionDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'LoginDto':
       return LoginDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'MeResponse':

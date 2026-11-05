@@ -12,6 +12,7 @@ import 'package:supplybiz_api_client/src/api/audit_api.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
+import 'package:supplybiz_api_client/src/api/kyc_api.dart';
 import 'package:supplybiz_api_client/src/api/me_api.dart';
 import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
@@ -161,6 +162,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   HealthApi getHealthApi() {
     return HealthApi(dio);
+  }
+
+  /// Get KycApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  KycApi getKycApi() {
+    return KycApi(dio);
   }
 
   /// Get MeApi instance, base route and serializer can be overridden by a given but be careful,
