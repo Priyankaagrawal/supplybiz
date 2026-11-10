@@ -1,3 +1,5 @@
+import { CatalogController } from './modules/catalog/catalog.controller';
+import { CatalogService } from './modules/catalog/catalog.service';
 import { CategoriesController } from './modules/categories/categories.controller';
 import { KycController, AdminKycController } from './modules/kyc/kyc.controller';
 import { KycService } from './modules/kyc/kyc.service';
@@ -52,11 +54,12 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
     MediaService,
     VendorsService,
+    CatalogService,
     KycService,
     AdminAuthService,
     { provide: APP_GUARD, useClass: AdminGuard },

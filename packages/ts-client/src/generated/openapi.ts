@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CatalogController_list"];
+        put?: never;
+        post: operations["CatalogController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CatalogController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["CatalogController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["CatalogController_patch"];
+        trace?: never;
+    };
+    "/api/v1/vendor/products/{id}/stock-adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CatalogController_adjust"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/categories": {
         parameters: {
             query?: never;
@@ -541,6 +589,85 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ProductResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            productType: string;
+            milkType: string | null;
+            unitValue: number;
+            /** @enum {string} */
+            unitType: "ML" | "L" | "G" | "KG" | "PCS";
+            sellingPricePaise: number;
+            subscriptionPricePaise: number | null;
+            stockQty: number;
+            moq: number;
+            description: string;
+            /** Format: uuid */
+            imageMediaId: string | null;
+            isActive: boolean;
+            version: number;
+        };
+        ProductList: {
+            items: components["schemas"]["ProductResponse"][];
+            total: number;
+        };
+        ProductInput: {
+            name: string;
+            /** @description One of the vendor category productTypes (admin-managed). */
+            productType: string;
+            /** @enum {string|null} */
+            milkType?: "COW" | "BUFFALO" | "TONED" | "DOUBLE_TONED" | "FULL_CREAM" | "OTHER" | null;
+            unitValue: number;
+            /** @enum {string} */
+            unitType: "ML" | "L" | "G" | "KG" | "PCS";
+            sellingPricePaise: number;
+            subscriptionPricePaise?: number | null;
+            /** @default 0 */
+            stockQty: number;
+            /** @default 1 */
+            moq: number;
+            /** @default  */
+            description: string;
+            /** Format: uuid */
+            imageMediaId?: string | null;
+            /** @default true */
+            isActive: boolean;
+        };
+        ProductPatch: {
+            name?: string;
+            /** @description One of the vendor category productTypes (admin-managed). */
+            productType?: string;
+            /** @enum {string|null} */
+            milkType?: "COW" | "BUFFALO" | "TONED" | "DOUBLE_TONED" | "FULL_CREAM" | "OTHER" | null;
+            unitValue?: number;
+            /** @enum {string} */
+            unitType?: "ML" | "L" | "G" | "KG" | "PCS";
+            sellingPricePaise?: number;
+            subscriptionPricePaise?: number | null;
+            /** @default 0 */
+            stockQty: number;
+            /** @default 1 */
+            moq: number;
+            /** @default  */
+            description: string;
+            /** Format: uuid */
+            imageMediaId?: string | null;
+            /** @default true */
+            isActive: boolean;
+            /** @description Required when changing stockQty. */
+            stockReason?: string;
+        };
+        ProductDeleted: {
+            /** Format: uuid */
+            id: string;
+            deleted: boolean;
+        };
+        StockAdjustment: {
+            /** @description Nonzero pack delta. */
+            delta: number;
+            reason: string;
+        };
         CategoryRow: {
             code: string;
             name: string;
@@ -826,6 +953,405 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CatalogController_list: {
+        parameters: {
+            query?: {
+                search?: string;
+                productType?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductList"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogController_remove: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductDeleted"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogController_patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CatalogController_adjust: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockAdjustment"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_NOT_FOUND (including another owner or soft-deleted). */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     CategoriesController_list: {
         parameters: {
             query?: never;

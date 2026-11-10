@@ -76,6 +76,12 @@ Class | Method | HTTP request | Description
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerLogout**](doc/AuthApi.md#sessionscontrollerlogout) | **POST** /api/v1/auth/logout |
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerRefresh**](doc/AuthApi.md#sessionscontrollerrefresh) | **POST** /api/v1/auth/refresh |
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerVerify**](doc/AuthApi.md#sessionscontrollerverify) | **POST** /api/v1/auth/otp/verify |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerAdjust**](doc/CatalogApi.md#catalogcontrolleradjust) | **POST** /api/v1/vendor/products/{id}/stock-adjustments |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerCreate**](doc/CatalogApi.md#catalogcontrollercreate) | **POST** /api/v1/vendor/products |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerGet**](doc/CatalogApi.md#catalogcontrollerget) | **GET** /api/v1/vendor/products/{id} |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerList**](doc/CatalogApi.md#catalogcontrollerlist) | **GET** /api/v1/vendor/products |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerPatch**](doc/CatalogApi.md#catalogcontrollerpatch) | **PATCH** /api/v1/vendor/products/{id} |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerRemove**](doc/CatalogApi.md#catalogcontrollerremove) | **DELETE** /api/v1/vendor/products/{id} |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerCreate**](doc/CategoriesApi.md#categoriescontrollercreate) | **POST** /api/v1/admin/categories |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerList**](doc/CategoriesApi.md#categoriescontrollerlist) | **GET** /api/v1/admin/categories |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerUpdate**](doc/CategoriesApi.md#categoriescontrollerupdate) | **PUT** /api/v1/admin/categories/{id} |
@@ -127,11 +133,17 @@ Class | Method | HTTP request | Description
  - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
  - [MediaResponse](doc/MediaResponse.md)
+ - [ProductDeleted](doc/ProductDeleted.md)
+ - [ProductInput](doc/ProductInput.md)
+ - [ProductList](doc/ProductList.md)
+ - [ProductPatch](doc/ProductPatch.md)
+ - [ProductResponse](doc/ProductResponse.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [ServiceAreaDto](doc/ServiceAreaDto.md)
+ - [StockAdjustment](doc/StockAdjustment.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
  - [VendorBusinessDto](doc/VendorBusinessDto.md)

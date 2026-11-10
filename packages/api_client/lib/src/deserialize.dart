@@ -20,11 +20,17 @@ import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
+import 'package:supplybiz_api_client/src/model/product_deleted.dart';
+import 'package:supplybiz_api_client/src/model/product_input.dart';
+import 'package:supplybiz_api_client/src/model/product_list.dart';
+import 'package:supplybiz_api_client/src/model/product_patch.dart';
+import 'package:supplybiz_api_client/src/model/product_response.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
+import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
@@ -109,6 +115,18 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'MediaResponse':
       return MediaResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'ProductDeleted':
+      return ProductDeleted.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ProductInput':
+      return ProductInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ProductList':
+      return ProductList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ProductPatch':
+      return ProductPatch.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ProductResponse':
+      return ProductResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'RefreshDto':
       return RefreshDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'RoleDto':
@@ -120,6 +138,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'ServiceAreaDto':
       return ServiceAreaDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'StockAdjustment':
+      return StockAdjustment.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'TokensResponse':
       return TokensResponse.fromJson(value as Map<String, dynamic>)

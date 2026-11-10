@@ -70,7 +70,7 @@
 | FR-032 | Vendor shall edit any product field; price changes apply to future orders only (RULE-15). | P0 |
 | FR-033 | Delete shall be a soft delete with confirmation; blocked while active subscriptions reference the product (RULE-17). | P0 |
 | FR-034 | Inactive products are hidden from customers and from new order/POS selection. | P0 |
-| FR-035 | Stock shall decrement when an order is marked DELIVERED or a quick sale completes, and increment on reversal; vendor may adjust stock manually with reason. When stock ≤ threshold (TBD Q-34; default 10 packs) a Low Stock notification is sent (BUSINESS+). | P0 |
+| FR-035 | Stock shall decrement when an order is marked DELIVERED or a quick sale completes, and increment on reversal; vendor may adjust stock manually with reason. When stock crosses from above 10 packs to ≤ 10 packs, a Low Stock notification is sent once per crossing (BUSINESS+). The threshold is fixed at 10 packs for this delivery, with no vendor/admin configuration (Q-34 resolved by user, 2026-11-10). | P0 |
 | FR-036 | One-time orders use selling price; subscription orders use subscription price if set, else selling price. MOQ is enforced on one-time orders and subscriptions. | P0 |
 
 ### 3.5 Vendor Orders (F-05)

@@ -131,6 +131,27 @@ the broader settings and separate pincode routes above remain future contracts.
 ### 4.4 Catalog (FR-030–FR-036)
 `GET/POST /vendor/products`, `GET/PATCH/DELETE /vendor/products/{id}`, `POST /vendor/products/{id}/stock-adjustments` `{ delta, reason }`.
 
+T-026 uses the held and active VENDOR role and derives vendor ownership from the
+session; suspended vendors are denied. All mutations require `Idempotency-Key`.
+List query: `search`, `productType` (category product-type code or `ALL`), `limit`
+(1–100, default 50), `offset` (default 0); response `{ items, total }`. Vendor lists
+include inactive products and exclude soft-deleted products. Other-owner/deleted
+IDs return 404. Product input uses camelCase fields from FR-030; money is integral
+paise, quantities are integer packs, and unitValue supports up to three decimals.
+Required fields: name, productType, unitValue, unitType, sellingPricePaise; MILK
+also requires milkType. Subscription price may be null or 0 through selling price.
+Omitted stockQty/moq/description/isActive default to 0/1/empty/true. Image references
+must be owned READY PRODUCT_IMAGE media; imageMediaId/subscriptionPricePaise and
+non-milk milkType may explicitly be null. PATCH validates the merged product;
+changing stockQty additionally requires stockReason. Delta adjustments require a
+nonzero delta and nonblank reason; stock cannot become negative or overflow int32.
+Soft delete returns `{ id, deleted: true }`, preserves history and returns 409
+PRODUCT_IN_USE for ACTIVE/PAUSED subscription references. No customer/POS product
+route is introduced here; those modules must use the active-selection guard.
+Crossing from >10 to ≤10 packs atomically records a STOCK_LOW outbox domain event.
+T-032 must gate notification delivery against real STOCK_ALERTS entitlements
+(BUSINESS+) from T-084/T-103; recording an event is not a delivered notification.
+
 ### 4.5 Vendor customers (FR-060–FR-064)
 `GET/POST /vendor/customers`, `GET/PATCH /vendor/customers/{id}`, `GET /vendor/customers/{id}/orders|subscriptions|ledger`. Customer side: `GET /customer/link-requests`, `POST /customer/link-requests/{id}/accept|decline`.
 

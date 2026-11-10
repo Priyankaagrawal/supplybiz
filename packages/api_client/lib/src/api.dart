@@ -10,6 +10,7 @@ import 'package:supplybiz_api_client/src/auth/oauth.dart';
 import 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
 import 'package:supplybiz_api_client/src/api/audit_api.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
+import 'package:supplybiz_api_client/src/api/catalog_api.dart';
 import 'package:supplybiz_api_client/src/api/categories_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
@@ -151,6 +152,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   AuthApi getAuthApi() {
     return AuthApi(dio);
+  }
+
+  /// Get CatalogApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CatalogApi getCatalogApi() {
+    return CatalogApi(dio);
   }
 
   /// Get CategoriesApi instance, base route and serializer can be overridden by a given but be careful,

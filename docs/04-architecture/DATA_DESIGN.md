@@ -113,7 +113,23 @@ together. This source/migration remains provisional until T-023 verification com
 | Table | Key columns | Notes |
 |---|---|---|
 | `products` | id, vendor_id, name, product_type, milk_type, unit_value, unit_type (ML/L/G/KG/PCS), selling_price_paise, subscription_price_paise, stock_qty, moq, description, image_media_id, is_active, deleted_at, version | index(vendor_id, is_active); CHECK(subscription_price_paise ≤ selling_price_paise) |
-| `stock_movements` | id, product_id, delta, reason (ORDER/SALE/ADJUST/REVERSAL), ref_id, created_by, created_at | append-only |
+| `stock_movements` | id, product_id, delta, reason (OPENING/ORDER/SALE/ADJUST/REVERSAL), note, ref_id, created_by, created_at | append-only; DB rejects UPDATE/DELETE |
+| `product_subscription_links` | subscription_id, product_id, status | T-026 deletion guard; T-072 maintains within each subscription transaction; ACTIVE/PAUSED blocks deletion |
+
+T-026 catalog money is int32 paise (positive selling price, nullable nonnegative
+subscription price ≤ selling price); stock/MOQ are bounded integer packs and
+unit_value is decimal(12,3). Product image/owner references use restrictive FKs.
+Opening stock, adjustments, product version and STOCK_LOW events commit atomically.
+The low-stock threshold is fixed at 10 packs (Q-34 resolved 2026-11-10); there is no
+threshold configuration endpoint. Subscription references lock the product row and
+reject new references to deleted products; changing a reference's product is denied.
+T-072 owns the full subscription model and must maintain this guard, and
+T-049/T-079/T-071 must call CatalogService.changeStock in their authorized financial
+transactions. T-041/T-045/T-079 must enforce active selection as well as their own
+visibility/coverage/entitlement rules. These hooks do not supply module integration
+evidence before those tasks exist. T-032 consumes STOCK_LOW, checks real
+STOCK_ALERTS entitlements and deduplicates by event ID; until that consumer exists,
+dispatcher attempts fail explicitly as WORKER_HANDLER_MISSING, never as delivery.
 
 ### 3.4 Customers & addresses
 | Table | Key columns | Notes |

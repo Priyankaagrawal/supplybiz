@@ -1,5 +1,245 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/products:
+    get:
+      operationId: CatalogController_list
+      parameters:
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: productType
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 100
+            default: 50
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductList'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
+    post:
+      operationId: CatalogController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
+  /api/v1/vendor/products/{id}:
+    get:
+      operationId: CatalogController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
+    patch:
+      operationId: CatalogController_patch
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
+    delete:
+      operationId: CatalogController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDeleted'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
+  /api/v1/vendor/products/{id}/stock-adjustments:
+    post:
+      operationId: CatalogController_adjust
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StockAdjustment'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
   /api/v1/admin/categories:
     get:
       operationId: CategoriesController_list
@@ -914,6 +1154,224 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        productType:
+          type: string
+        milkType:
+          type: string
+          nullable: true
+        unitValue:
+          type: number
+        unitType:
+          type: string
+          enum:
+            - ML
+            - L
+            - G
+            - KG
+            - PCS
+        sellingPricePaise:
+          type: integer
+        subscriptionPricePaise:
+          type: integer
+          nullable: true
+        stockQty:
+          type: integer
+        moq:
+          type: integer
+        description:
+          type: string
+        imageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        isActive:
+          type: boolean
+        version:
+          type: integer
+      required:
+        - id
+        - name
+        - productType
+        - milkType
+        - unitValue
+        - unitType
+        - sellingPricePaise
+        - subscriptionPricePaise
+        - stockQty
+        - moq
+        - description
+        - imageMediaId
+        - isActive
+        - version
+    ProductList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    ProductInput:
+      type: object
+      properties:
+        name:
+          type: string
+        productType:
+          type: string
+          description: One of the vendor category productTypes (admin-managed).
+        milkType:
+          type: string
+          nullable: true
+          enum:
+            - COW
+            - BUFFALO
+            - TONED
+            - DOUBLE_TONED
+            - FULL_CREAM
+            - OTHER
+        unitValue:
+          type: number
+          minimum: 0.001
+          maximum: 999999999.999
+        unitType:
+          type: string
+          enum:
+            - ML
+            - L
+            - G
+            - KG
+            - PCS
+        sellingPricePaise:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        subscriptionPricePaise:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 2147483647
+        stockQty:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+          default: 0
+        moq:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        description:
+          type: string
+          default: ''
+        imageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+      required:
+        - name
+        - productType
+        - unitValue
+        - unitType
+        - sellingPricePaise
+    ProductPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        productType:
+          type: string
+          description: One of the vendor category productTypes (admin-managed).
+        milkType:
+          type: string
+          nullable: true
+          enum:
+            - COW
+            - BUFFALO
+            - TONED
+            - DOUBLE_TONED
+            - FULL_CREAM
+            - OTHER
+        unitValue:
+          type: number
+          minimum: 0.001
+          maximum: 999999999.999
+        unitType:
+          type: string
+          enum:
+            - ML
+            - L
+            - G
+            - KG
+            - PCS
+        sellingPricePaise:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        subscriptionPricePaise:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 2147483647
+        stockQty:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+          default: 0
+        moq:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+          default: 1
+        description:
+          type: string
+          default: ''
+        imageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        isActive:
+          type: boolean
+          default: true
+        stockReason:
+          type: string
+          description: Required when changing stockQty.
+    ProductDeleted:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deleted:
+          type: boolean
+      required:
+        - id
+        - deleted
+    StockAdjustment:
+      type: object
+      properties:
+        delta:
+          type: integer
+          description: Nonzero pack delta.
+        reason:
+          type: string
+      required:
+        - delta
+        - reason
     CategoryRow:
       type: object
       properties:

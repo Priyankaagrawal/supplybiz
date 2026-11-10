@@ -135,7 +135,7 @@ See [README](../../README.md#document-dependencies).
 | Q-31 | Git hosting & CI platform (A-14)? | GIT_CICD | Engineering |
 | Q-32 | Maps provider: Google Maps Platform or MapmyIndia? | POST-DELIVERY SR-04: interactive maps/provider choice deferred; manual address/coordinates + optional GPS approved | Architect |
 | Q-33 | Production domain(s) for API, admin, deep links, legal pages? | Deep links | PO |
-| Q-34 | Low-stock threshold default and who sets it? | FR-035 | PO |
+| Q-34 | Low-stock threshold default and who sets it? | RESOLVED (user, 2026-11-10): fixed at 10 packs for this delivery; no vendor/admin configuration. FR-035 | PO |
 | Q-35 | What does the "+" button on the customer vendor-list header do (mockup)? | S-C-05 | UX |
 
 ## 9. 15-day baseline and approved scope reductions
