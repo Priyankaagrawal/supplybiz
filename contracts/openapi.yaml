@@ -166,6 +166,60 @@ paths:
         - audit
       security:
         - bearer: []
+  /api/v1/vendor/settings/service-area:
+    get:
+      operationId: VendorsController_serviceArea
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+    put:
+      operationId: VendorsController_saveServiceArea
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAreaDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '400':
+          description: Invalid fields/key or SERVICE_AREA_REQUIRED.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+        '409':
+          description: CATEGORY_REQUIRED or SHOP_LOCATION_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
   /api/v1/vendor/onboarding/categories:
     get:
       operationId: VendorsController_categories
@@ -1005,27 +1059,14 @@ components:
       required:
         - items
         - hasMore
-    VendorCategoryResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        code:
-          type: string
-        name:
-          type: string
-        icon:
-          type: string
-          nullable: true
-      required:
-        - id
-        - code
-        - name
-        - icon
     VendorSettingsResponse:
       type: object
       properties:
+        pincodes:
+          description: Present on fresh reads/writes; older onboarding replay snapshots may omit it.
+          type: array
+          items:
+            type: string
         serviceRadiusKm:
           type: integer
           nullable: true
@@ -1116,6 +1157,41 @@ components:
         - longitude
         - shopPhotoMediaId
         - settings
+    ServiceAreaDto:
+      type: object
+      properties:
+        serviceRadiusKm:
+          type: integer
+          minimum: 1
+          maximum: 20
+          nullable: true
+          description: Null disables radius coverage.
+        pincodes:
+          description: Additional coverage; six-digit Indian pincodes.
+          type: array
+          items:
+            type: string
+      required:
+        - serviceRadiusKm
+        - pincodes
+    VendorCategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+      required:
+        - id
+        - code
+        - name
+        - icon
     VendorCategoryDto:
       type: object
       properties:

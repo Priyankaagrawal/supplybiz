@@ -42,6 +42,7 @@ export 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 export 'package:supplybiz_api_client/src/model/role_dto.dart';
 export 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 export 'package:supplybiz_api_client/src/model/send_otp_response.dart';
+export 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 export 'package:supplybiz_api_client/src/model/tokens_response.dart';
 export 'package:supplybiz_api_client/src/model/totp_dto.dart';
 export 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';

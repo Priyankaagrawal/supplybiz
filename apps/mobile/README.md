@@ -453,3 +453,85 @@ Manual verification (pending; use synthetic documents/accounts only):
    roles/log out, sign in as a different synthetic user and verify draft isolation; log back
    in and verify the expected server step. Stop manually started services afterward. Record
    task-specific manual PASS separately; T-024 is not DONE and no module gate is passed.
+
+## T-025 service area implementation handoff (2026-11-10)
+
+IN_PROGRESS: Vendor → More → Service area (`/vendor/service-area`, S-V-30).
+T-016 and T-023 are READY_FOR_VERIFY and permit work against their stable contracts.
+Day 4 catalog T-026 was skipped because its required BUSINESS+ low-stock alert behavior
+still references open Q-34 threshold and Q-04 entitlement policies; those tasks/statuses
+were not changed. Existing API, migration and generated-client working edits were preserved.
+
+The form reads the authenticated generated vendor API. Shop address, pincode and finite
+coordinates save through the existing business endpoint, preserving business name, GSTIN
+and owned photo; server re-verification rejection is displayed without bypassing policy.
+Coverage saves separately through T-023, with an integer radius of 1–20 km and/or unique
+six-digit Indian pincodes. Radius OR additional pincodes matches server coverage semantics.
+Blank radius disables radius coverage. Empty combined coverage is rejected locally.
+Customer outside-coverage enforcement remains server-owned (T-023, downstream order flow).
+
+Save payload/key pairs persist before requests in the existing SQLCipher draft store,
+scoped to API/account and wiped by logout. Interrupted payloads restore fields on reopen;
+identical retries reuse their key, changed payloads receive a new one, and accepted writes
+clear their pending entry. Unsaved typing is not persisted. Initial loading, empty-business,
+request errors, save progress and localized live-region feedback are present.
+Android GPS is explicit and foreground-only, requests runtime location permission, waits
+at most 20 seconds for a fix after permission, and removes listeners on completion/cancel.
+Permission denial or disabled/unavailable location leaves manual fields available. No map,
+geocoder, background location, new package or iOS source/configuration change was introduced.
+
+Executed from `apps/mobile` using installed Flutter 3.35.7 / Dart 3.9.2:
+```powershell
+flutter --version
+flutter gen-l10n
+dart run build_runner build --build-filter=lib/core/router/routes.g.dart --delete-conflicting-outputs
+dart format lib/features/service_area lib/core/storage/device_location.dart test/features/service_area lib/core/router/routes.dart lib/core/router/route_widgets.dart
+flutter analyze --no-pub
+flutter test --no-pub --reporter expanded test/features/service_area/service_area_test.dart test/core/router/guards_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Generation/formatting succeed; analysis is clean; all 9 focused checks pass. The widget
+smoke exercises GPS denial and invalid coverage at 200% text; simulated HTTP tests exercise
+saved-value reload, interrupted request recreation/key reuse, changed-payload keys and
+server re-verification rejection. This is not native Android or live API/DB evidence.
+The initial generator run without `--delete-conflicting-outputs` failed on its existing
+generated output; the corrected scoped command passed. Initial analysis errors and a
+widget-test async setup stall were corrected before the passing checks.
+
+APK build: NOT PASSED. Online attempts stalled in Gradle and were cancelled. An offline
+diagnostic from `apps/mobile/android` (`.\gradlew.bat :app:assembleDevDebug --offline
+--console=plain -Ptarget=lib/main_dev.dart -Ptarget-platform=android-arm64`) failed while
+configuring existing `flutter_secure_storage`: missing cached AGP/builder 8.13.2,
+Kotlin reflect/stdlib 2.2.0 and analytics protos 31.13.2. PowerShell split the unquoted
+target argument in that diagnostic; dependency resolution failed before target evaluation.
+No APK/native Kotlin compilation success is claimed. Do not downgrade dependencies or
+disable checks to bypass this prerequisite; restore artifact access and rerun the normal
+Flutter build above. No build/test service is intentionally left running.
+
+Executed from repository root:
+```powershell
+adb devices
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+git diff --check
+```
+ADB lists no devices; the installed `C:/Android` SDK has no emulator executable.
+Runner syntax and all 4 guard checks pass; diff whitespace check passes. T-025 focused
+checks are registered in the existing runner; full runner/hosted CI/module suites NOT_RUN.
+Native GPS permission/fix, app → live API/PostgreSQL, TalkBack and manual PASS are NOT_RUN.
+iOS checks are DEFERRED (ADR-025). G0/G1 remain pending; task is not READY_FOR_VERIFY/DONE.
+
+Manual verification after a successful Android build (not executed):
+1. Start the existing test API with the T-023 migration applied. On Android sign in as a
+   synthetic vendor, complete business onboarding, then open More → Service area. Confirm
+   server location and coverage prefill; save valid shop details and reopen to verify DB
+   persistence. For a verified vendor, confirm any required re-verification error is shown.
+2. Save radius-only (1 and 20), pincodes-only and combined coverage; reopen each. Reject
+   0/21/fractional radius, malformed/duplicate pincodes, NaN/out-of-range coordinates and
+   empty coverage. Check T-023 radius OR pincode behavior server-side; full checkout is T-045.
+3. Deny GPS permission, disable location, then grant permission with a fresh Android fix.
+   Manual entry must always remain available; GPS fills only coordinates and does not save
+   automatically. Navigate away during acquisition and confirm the listener is cancelled.
+4. Disconnect during Save, close/reopen and retry the restored payload. Verify one DB
+   mutation with the same key; changed input uses a different key. Log out/switch accounts
+   and check isolation. Review TalkBack labels, 48dp controls and 200% scrolling/errors.

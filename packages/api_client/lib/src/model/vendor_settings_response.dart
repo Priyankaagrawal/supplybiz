@@ -16,6 +16,7 @@ part 'vendor_settings_response.g.dart';
 class VendorSettingsResponse {
   /// Returns a new [VendorSettingsResponse] instance.
   VendorSettingsResponse({
+    this.pincodes,
     required this.serviceRadiusKm,
     required this.deliveryChargePaise,
     required this.minOrderPaise,
@@ -26,6 +27,14 @@ class VendorSettingsResponse {
     required this.allowKhataOrders,
     required this.version,
   });
+
+  /// Present on fresh reads/writes; older onboarding replay snapshots may omit it.
+  @JsonKey(
+    name: r'pincodes',
+    required: false,
+    includeIfNull: false,
+  )
+  final List<String>? pincodes;
 
   @JsonKey(
     name: r'serviceRadiusKm',
@@ -94,6 +103,7 @@ class VendorSettingsResponse {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is VendorSettingsResponse &&
+          other.pincodes == pincodes &&
           other.serviceRadiusKm == serviceRadiusKm &&
           other.deliveryChargePaise == deliveryChargePaise &&
           other.minOrderPaise == minOrderPaise &&
@@ -106,6 +116,7 @@ class VendorSettingsResponse {
 
   @override
   int get hashCode =>
+      pincodes.hashCode +
       (serviceRadiusKm == null ? 0 : serviceRadiusKm.hashCode) +
       deliveryChargePaise.hashCode +
       minOrderPaise.hashCode +

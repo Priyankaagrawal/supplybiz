@@ -1,8 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNumber, IsLatitude, IsLongitude, IsOptional, IsString, IsUUID, Length, Matches, ValidateIf } from 'class-validator';
+import { ArrayUnique, IsArray, IsInt, Max, Min, IsNumber, IsLatitude, IsLongitude, IsOptional, IsString, IsUUID, Length, Matches, ValidateIf } from 'class-validator';
 
 const trimmed = ({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() : value;
+export class ServiceAreaDto {
+  @ApiProperty({ type: 'integer', minimum: 1, maximum: 20, nullable: true, description: 'Null disables radius coverage.' })
+  @ValidateIf((_object, value: unknown) => value !== null) @IsInt() @Min(1) @Max(20)
+  serviceRadiusKm!: number | null;
+  @ApiProperty({ type: [String], description: 'Additional coverage; six-digit Indian pincodes.' })
+  @IsArray() @ArrayUnique() @Matches(/^[1-9]\d{5}$/, { each: true }) pincodes!: string[];
+}
 export class VendorCategoryDto {
   @ApiProperty({ format: 'uuid' }) @IsUUID() categoryId!: string;
 }
@@ -26,6 +33,7 @@ export class VendorCategoryResponse {
   @ApiProperty({ type: String, nullable: true }) icon!: string | null;
 }
 export class VendorSettingsResponse {
+  @ApiPropertyOptional({ type: [String], description: 'Present on fresh reads/writes; older onboarding replay snapshots may omit it.' }) pincodes?: string[];
   @ApiProperty({ type: 'integer', nullable: true }) serviceRadiusKm!: number | null;
   @ApiProperty({ type: 'integer' }) deliveryChargePaise!: number;
   @ApiProperty({ type: 'integer' }) minOrderPaise!: number;

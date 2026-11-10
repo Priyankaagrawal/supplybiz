@@ -95,6 +95,8 @@ Class | Method | HTTP request | Description
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerProfile**](doc/VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerSaveServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollersaveservicearea) | **PUT** /api/v1/vendor/settings/service-area |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollerservicearea) | **GET** /api/v1/vendor/settings/service-area |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
@@ -123,6 +125,7 @@ Class | Method | HTTP request | Description
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)
+ - [ServiceAreaDto](doc/ServiceAreaDto.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
  - [VendorBusinessDto](doc/VendorBusinessDto.md)

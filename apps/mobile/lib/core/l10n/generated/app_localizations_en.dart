@@ -418,4 +418,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String onboardingRetryUpload(String label) {
     return 'Retry upload: $label';
   }
+
+  @override
+  String get areaLocation => 'Shop location';
+
+  @override
+  String get areaSaveCoverage => 'Save coverage';
+
+  @override
+  String get areaCoverage => 'Delivery coverage';
+
+  @override
+  String get areaGps => 'Use current location';
+
+  @override
+  String get areaTitle => 'Service area';
+
+  @override
+  String get areaBusinessRequired =>
+      'Complete business details in onboarding before setting a location.';
+
+  @override
+  String get areaGpsError =>
+      'Location unavailable or permission denied. Enter coordinates manually or try again.';
+
+  @override
+  String get areaPincodes => 'Additional pincodes (separate with commas)';
+
+  @override
+  String get areaExplanation =>
+      'Coverage includes customers within the radius OR an additional pincode. Leave radius blank for pincodes only. Save shop location separately before changing coverage.';
+
+  @override
+  String get areaSaved => 'Saved to server.';
+
+  @override
+  String get areaReverification =>
+      'Changing verified business details requires re-verification. Your saved details have not changed.';
+
+  @override
+  String get areaRadius => 'Radius in km (1–20, optional)';
+
+  @override
+  String get areaInvalid =>
+      'Use a radius from 1 to 20 and/or unique six-digit Indian pincodes.';
+
+  @override
+  String get areaSaveLocation => 'Save shop location';
 }

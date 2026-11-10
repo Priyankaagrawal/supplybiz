@@ -1,5 +1,140 @@
 # Supply Biz API
 
+## T-023 service-area handoff (2026-11-10): READY_FOR_VERIFY
+
+Windows blocker resolved: new storage directories receive a protected owner-only
+DACL; existing paths are validated without automatically changing their ACLs.
+Ownership, protected directory inheritance and permitted principals (service user,
+SYSTEM and local Administrators only) are checked using SIDs. File reads validate
+their inherited/private ACLs and reject reparse points. POSIX 0700/0600 checks remain
+unchanged. The user approved restricting the four existing local upload directory
+ACLs; that one-time setup is separate from application startup. Windows PowerShell
+is required for native ACL validation; subprocess failure/timeout fails closed.
+
+Final evidence: all 11 native HTTP/PostGIS/onboarding checks pass, including real
+photo upload/read, 2.9/3.1 km boundaries, pincode-only coverage, replay/restart,
+rollback and ownership. Six storage checks pass, including rejection of a protected
+ACL granting Everyone access. Both native readiness/disabled-provider smoke checks
+and all four task-runner guards pass. API lint/typecheck/build and client/schema
+evidence below remain passing. No new process remains running. Manual PASS and
+module gates remain pending; this is a Windows/Node 23 local handoff, not a claim
+of pinned Node 20 or production readiness.
+
+Final executed commands from apps/api (environment: NODE_ENV=test,
+OTP_DELIVERY_MODE=disabled, VENDORS_TEST_DATABASE_URL/NATIVE_TEST_DATABASE_URL loaded
+privately from API credentials with database path supplybiz_service_area_test):
+```powershell
+.\node_modules\.bin\jest.cmd --silent --runInBand --testTimeout=60000 --runTestsByPath src/modules/vendors/vendors.postgres.spec.ts src/storage/local-storage.service.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/storage/local-storage.service.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+```
+The combined command passed all 11 vendor tests but exposed an ACL-tampering test
+fixture issue (Set-Acl tried to use SeSecurityPrivilege). Changing the fixture to
+icacls for its temporary DACL change made the subsequent six-test storage run pass.
+No security check was weakened. Initial photo reads exposed a second POSIX-only
+file-mode check, now fixed with Windows ACL validation. The task runner registers
+both the vendor and storage suites; on this Windows host the explicit commands
+above were used with a 60-second cold-start allowance.
+
+Local setup is now complete: created `supplybiz_user` (LOGIN, no superuser/role/DB
+creation privileges), API-configured `supplybiz_test` and isolated
+`supplybiz_service_area_test`. Installed the official stable PostGIS 3.6.2 Windows
+PG18 bundle after checking its published checksum; existing PostgreSQL files were
+preserved. Enabled PostGIS in both databases and applied all 12 migrations to both.
+The configured API login connects successfully; existing seed completed in the API
+database only. No administrator password is saved in source or this documentation.
+`tools/provision-local-postgres.ps1` reads DATABASE_URL and POSTGRES_ADMIN_URL from
+the ignored environment file (or transient process environment for the admin URL),
+preserving existing roles, credentials and database contents on rerun.
+
+Selected in Day 4 roadmap order: T-021 is READY_FOR_VERIFY. Provisional source adds
+GET/PUT `/api/v1/vendor/settings/service-area`, both returning the owned vendor
+profile; `settings` includes `serviceRadiusKm`, sorted `pincodes` and `version`.
+PUT replaces `{ serviceRadiusKm, pincodes }` atomically, requires an Idempotency-Key,
+and derives ownership from the held/active vendor session. Radius is an integer
+1–20 or null for pincode-only; pincodes are unique six-digit Indian pincodes;
+an empty combined area is rejected. Radius requires shop coordinates. The shared
+`VendorsService.covers` query uses PostGIS geography meters and radius OR pincode
+coverage per TC-028. Discovery/order wiring belongs to T-041/T-045; it is not yet
+an end-to-end customer order restriction. The additive migration creates the
+pincode table and initializes previously unconfigured radii to FR-018's 3 km.
+
+**Historical blocker (resolved by the Windows fix above):** storage checked POSIX
+mode 0700 on Windows directories and fails closed during API startup. The focused
+suite first exceeded the default cold-start timeout, then a 60-second allowance
+revealed this existing runtime error. All 11 HTTP tests fail during setup; none
+of their service-area assertions ran in that initial attempt. Windows-aware private
+ACL validation was required; the implemented fix and passing HTTP/smoke results
+are recorded above. No permission check was bypassed.
+Local Node is v23.11.0; `.nvmrc` pins 20, so pinned-runtime evidence remains pending.
+
+Executed successfully (API working directory unless noted; local `.cmd` shims
+avoid PowerShell's blocked ps1 shims and package-manager startup downloads):
+```powershell
+# Repository root:
+pnpm.cmd install --frozen-lockfile --reporter=append-only
+node --test tools/checks.spec.mjs
+node --check tools/check-task.mjs
+# apps/api:
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\ts-node.cmd --transpile-only scripts/generate-openapi.ts
+.\node_modules\.bin\ts-node.cmd --transpile-only src/prisma/seed.ts
+.\node_modules\.bin\tsc.cmd --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext ../../packages/ts-client/src/generated/openapi.ts
+```
+Migration command ran once with the isolated DATABASE_URL and once with API `.env`.
+OpenAPI generation used OTP_DELIVERY_MODE=disabled. Bare Prisma db seed failed
+to find the ts-node shim; the explicit command above succeeded with DATABASE_URL
+loaded from the ignored API environment file. No secrets were printed.
+
+From repository root, OpenAPI/TS/Dart regeneration executed:
+```powershell
+.\node_modules\.bin\openapi-typescript.cmd contracts/openapi.yaml -o packages/ts-client/src/generated/openapi.ts
+.\node_modules\.bin\openapi-generator-cli.cmd generate -g dart-dio -i contracts/openapi.yaml -o packages/api_client --template-dir tools/openapi/dart-dio --global-property=apiTests=false,modelTests=false --skip-validate-spec --additional-properties=pubName=supplybiz_api_client,pubVersion=0.1.0,serializationLibrary=json_serializable,skipCopyWith=true
+node tools/normalize-generated-docs.mjs
+C:\flutter\bin\flutter.bat pub get
+# packages/api_client:
+C:\flutter\bin\cache\dart-sdk\bin\dart.exe run build_runner build --delete-conflicting-outputs --build-filter='lib/src/model/*.g.dart'
+# Repository root:
+C:\flutter\bin\cache\dart-sdk\bin\dart.exe format packages/api_client/lib
+C:\flutter\bin\cache\dart-sdk\bin\dart.exe analyze packages/api_client/lib
+```
+All pass; Dart analyzer reports no issues. The first serializer command without
+--delete-conflicting-outputs stopped on existing generated outputs; the explicit
+noninteractive regeneration above passed. Client files were generated, never edited.
+Provisioning script syntax, four runner guards and whitespace checks pass.
+
+Executed FAILED: `.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000
+--runTestsByPath src/modules/vendors/vendors.postgres.spec.ts` from apps/api with
+VENDORS_TEST_DATABASE_URL pointing to the isolated database, NODE_ENV=test and
+OTP_DELIVERY_MODE=disabled. Runtime readiness smoke is NOT_RUN after the confirmed
+shared startup blocker in the initial attempt; the final runtime smoke above passes.
+The suite includes T-023 checks and affected onboarding
+regressions. Both services and databases are preserved; no newly started service,
+installer, download or check process remains running. No module-gate pass is claimed.
+
+Suggested manual verification after successful implementation checks (NOT_RUN):
+1. As a vendor with saved shop coordinates, load the service area; verify default
+   3 km, no pincodes, then save radius and pincodes and reload after API restart.
+2. Retry a PUT with the same key/body; verify identical response and one version
+   increment; changing its body with the same key must return 422.
+3. Try radius 0/21, malformed/duplicate pincodes, empty combined area and forged
+   vendorId; confirm rejection without changing the saved area. Other owners and
+   customer-role sessions must not read or mutate this vendor's area.
+4. Run TC-028 against native PostGIS: 2.9 km inside and 3.1 km outside a 3 km radius;
+   a listed pincode adds coverage, and null radius allows only listed pincodes.
+
+Manual PASS and G0/G1 remain pending. No mobile runtime changes; iOS checks deferred.
+Rollback application code while retaining the additive table/data; do not delete
+saved service areas. This handoff stops for task-specific manual verification.
+
 ## T-015 sessions
 
 Current status: READY_FOR_VERIFY for the user-approved development/test OTP scope

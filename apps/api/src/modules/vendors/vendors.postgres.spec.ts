@@ -10,6 +10,7 @@ import { configureHttpApp } from '../../bootstrap';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PinoLogger } from '../../common/logging/pino.logger';
 import { SessionTokensService } from '../auth/session-tokens.service';
+import { VendorsService } from './vendors.service';
 
 const native = process.env.VENDORS_TEST_DATABASE_URL ? describe : describe.skip;
 native('T-021 TC-020–TC-022 vendor onboarding HTTP → PostgreSQL', () => {
@@ -72,6 +73,7 @@ native('T-021 TC-020–TC-022 vendor onboarding HTTP → PostgreSQL', () => {
   afterAll(async () => {
     await app?.close();
     const vendors = await prisma.vendors.findMany({ where: { user_id: { in: users } } });
+    await prisma.vendor_service_pincodes.deleteMany({ where: { vendor_id: { in: vendors.map(v => v.id) } } });
     await prisma.vendor_settings.deleteMany({ where: { vendor_id: { in: vendors.map(v => v.id) } } });
     await prisma.vendors.deleteMany({ where: { user_id: { in: users } } });
     await prisma.idempotency_keys.deleteMany({ where: { user_id: { in: users } } });
@@ -98,7 +100,7 @@ native('T-021 TC-020–TC-022 vendor onboarding HTTP → PostgreSQL', () => {
     expect(responses.map(r => r.status)).toEqual([201, 201]);
     expect(responses[0]!.body).toEqual(responses[1]!.body);
     expect(responses[0]!.body).toMatchObject({ onboardingStep: 2, kycStatus: 'NOT_VERIFIED', businessName: null,
-      settings: { serviceRadiusKm: null, deliveryChargePaise: 0, minOrderPaise: 0, timeSlots: [], autoAcceptSubscriptions: false, acceptingToday: false } });
+      settings: { serviceRadiusKm: 3, pincodes: [], deliveryChargePaise: 0, minOrderPaise: 0, timeSlots: [], autoAcceptSubscriptions: false, acceptingToday: false } });
     await category(disabled, key).expect(422);
     await app.close(); await boot();
     expect((await category(categoryId, key).expect(201)).body).toEqual(responses[0]!.body);
@@ -163,6 +165,65 @@ native('T-021 TC-020–TC-022 vendor onboarding HTTP → PostgreSQL', () => {
     try { await business({ ...info, businessName: 'Must Roll Back' }, key).expect(503); }
     finally { await prisma.$executeRaw`ALTER TABLE idempotency_keys DROP CONSTRAINT vendor_test_reject`; }
     expect((await get().expect(200)).body.businessName).toBe(info.businessName);
+  });
+  function area(body: object, key = randomUUID(), access = token) {
+    return request(app.getHttpServer()).put('/api/v1/vendor/settings/service-area')
+      .set('Authorization', `Bearer ${access}`).set('Idempotency-Key', key).send(body);
+  }
+  it('T-023 TC-028 validates radius/pincodes and rejects forged ownership and missing keys', async () => {
+    const valid = { serviceRadiusKm: 3, pincodes: ['560002'] };
+    for (const patch of [{ serviceRadiusKm: 0 }, { serviceRadiusKm: 21 }, { serviceRadiusKm: 1.5 },
+      { serviceRadiusKm: '3' }, { pincodes: null }, { pincodes: ['012345'] }, { pincodes: [560002] },
+      { pincodes: ['560002', '560002'] }, { vendorId: randomUUID() }, { serviceRadiusKm: null, pincodes: [] }]) {
+      await area({ ...valid, ...patch }).expect(400);
+    }
+    await area({ pincodes: [] }).expect(400);
+    await area({ serviceRadiusKm: 3 }).expect(400);
+    await request(app.getHttpServer()).put('/api/v1/vendor/settings/service-area')
+      .set('Authorization', `Bearer ${token}`).send(valid).expect(400);
+    await area(valid, randomUUID(), '').expect(401);
+    await area(valid, randomUUID(), customer).expect(403);
+    await prisma.users.update({ where: { id: owner }, data: { active_role: 'CUSTOMER' } });
+    await area(valid).expect(403);
+    await prisma.users.update({ where: { id: owner }, data: { active_role: 'VENDOR' } });
+    await area(valid, randomUUID(), other).expect(409); // no shop coordinates
+  });
+  it('T-023 persists atomically, isolates owners and replays concurrent requests through restart', async () => {
+    const body = { serviceRadiusKm: 3, pincodes: ['560003', '560002'] }, key = randomUUID();
+    const version = (await get().expect(200)).body.settings.version as number;
+    const responses = await Promise.all([area(body, key), area(body, key)]);
+    expect(responses.map(r => r.status)).toEqual([200, 200]);
+    expect(responses[0]!.body).toEqual(responses[1]!.body);
+    expect(responses[0]!.body.settings).toMatchObject({ serviceRadiusKm: 3, pincodes: ['560002', '560003'], version: version + 1 });
+    expect((await get('settings/service-area', other).expect(200)).body.settings.pincodes).toEqual([]);
+    await app.close(); await boot();
+    expect((await area(body, key).expect(200)).body).toEqual(responses[0]!.body);
+    await area({ ...body, serviceRadiusKm: 4 }, key).expect(422);
+    const saved = (await get('settings/service-area').expect(200)).body;
+    await prisma.$executeRaw`ALTER TABLE idempotency_keys ADD CONSTRAINT area_test_reject CHECK (path <> 'service-area') NOT VALID`;
+    try { await area({ serviceRadiusKm: 5, pincodes: ['560004'] }).expect(503); }
+    finally { await prisma.$executeRaw`ALTER TABLE idempotency_keys DROP CONSTRAINT area_test_reject`; }
+    expect((await get('settings/service-area').expect(200)).body).toEqual(saved);
+  });
+  it('T-023 TC-028 uses PostGIS meters and adds pincode coverage; supports radius-only and pincode-only', async () => {
+    const id = (await get().expect(200)).body.id as string;
+    const points = await prisma.$queryRaw<{ lat: number; lng: number; meters: number }[]>`
+      SELECT ST_Y(p::geometry) AS lat, ST_X(p::geometry) AS lng, meters FROM vendors v,
+        (VALUES (2900), (3100)) AS d(meters),
+        LATERAL (SELECT ST_Project(v.location, meters, 0) AS p) q WHERE v.id = ${id}::uuid`;
+    const service = app.get(VendorsService);
+    for (const p of points) expect(await service.covers(id, p.lat, p.lng, '560099')).toBe(p.meters === 2900);
+    const far = points.find(p => p.meters === 3100)!;
+    expect(await service.covers(id, far.lat, far.lng, '560002')).toBe(true);
+    await area({ serviceRadiusKm: null, pincodes: ['560002'] }).expect(200);
+    expect(await service.covers(id, info.latitude, info.longitude, '560099')).toBe(false);
+    expect(await service.covers(id, far.lat, far.lng, '560002')).toBe(true);
+    await area({ serviceRadiusKm: 1, pincodes: [] }).expect(200);
+    expect(await service.covers(id, far.lat, far.lng, '560002')).toBe(false);
+    await area({ serviceRadiusKm: 20, pincodes: [] }).expect(200);
+    expect(await service.covers(id, far.lat, far.lng, '560099')).toBe(true);
+    expect(await service.covers(randomUUID(), far.lat, far.lng, '560002')).toBe(false);
+    await expect(service.covers(id, 91, 0, '560002')).rejects.toThrow();
   });
   it('prevents onboarding edits from bypassing KYC review or account blocking', async () => {
     await prisma.vendors.update({ where: { user_id: owner }, data: { kyc_status: 'MANUAL_REVIEW', onboarding_step: 4 } });

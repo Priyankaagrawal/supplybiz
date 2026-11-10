@@ -5,6 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
 import { lstat, open, opendir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { windowsPrivateFile } from '../../storage/windows-private-directory';
 import { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LocalStorageService } from '../../storage/local-storage.service';
@@ -87,7 +88,9 @@ export class MediaService {
       .catch(() => { throw new NotFoundException(); });
     try {
       const info = await file.stat();
-      if (!info.isFile() || info.size !== media.size || (info.mode & 0o077) !== 0) throw new NotFoundException();
+      if (!info.isFile() || info.size !== media.size || (process.platform !== 'win32' && (info.mode & 0o077) !== 0)) throw new NotFoundException();
+      if (process.platform === 'win32') await windowsPrivateFile(join(this.storage.root, media.relative_storage_key))
+        .catch(() => { throw new NotFoundException(); });
       if (admin) await this.prisma.$transaction(async tx => {
         await auditContext(tx, admin.id, actor.ip);
         await tx.media_access_events.create({ data: { media_id: id, admin_user_id: admin.id } });

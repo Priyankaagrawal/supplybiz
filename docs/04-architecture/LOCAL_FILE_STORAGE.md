@@ -16,6 +16,15 @@ Allow JPEG/PNG images and PDF only for existing shop/KYC document requirements; 
 Ignore client filenames/paths. Reject traversal and absolute-path input; do not follow symlinks. Resolve keys beneath the configured root, use exclusive file creation and atomic rename on the same volume. Persist metadata and READY state after validation; only READY files can be attached to business records. Compensate failed DB/file operations; bounded cleanup removes stale quarantine/orphans after checking DB references, never active files. A replay must not create duplicate attachments. T-020 scopes request keys to the authenticated owner and hashes purpose, claimed MIME and original bytes; concurrent/restarted retries return the same mediaId, while changed content returns 422. Media retries retain the mapping for the lifetime of the metadata. Each upload checks up to 100 entries per directory for staging/orphans older than 24 hours; metadata protects finalized files. Business attachment/discovery integration belongs to the owning vendor/catalog tasks.
 
 ## Access and lifecycle
+
+Windows local runtime (T-023): validate native ACLs instead of POSIX permission
+bits. New directories get protected owner-only inheritable DACLs. Existing
+directories must be owned by the service account, have protected ACLs and grant
+access only to that account, SYSTEM or local Administrators. File reads check
+owner/allowed SIDs and reject reparse points; inherited private file ACLs are
+permitted. Existing public directory ACLs require explicit operator repair;
+startup does not silently change them. Windows PowerShell is required and
+ACL-check errors fail closed. POSIX 0700/0600 and authorization remain enforced.
 `GET /api/v1/media/{id}/content` streams a READY file after authentication and resource-level authorization. Public catalog consumers may access only media attached to a currently visible vendor/product via the authorized discovery flow; possession of an ID grants no access. KYC: vendor owner or explicitly permitted reviewing admin, with every admin view audited. Cross-tenant access returns 404. No static directory exposure or public KYC URLs.
 
 Use validated `Content-Type`, `X-Content-Type-Options: nosniff`, safe server-generated disposition; PDFs download as attachments, sensitive responses use `Cache-Control: no-store`. Mobile uses the authenticated client; the admin BFF streams without exposing admin tokens. Deletion/retention follows approved Q-20 policy, with reference checks and audited access; no ad hoc destructive cleanup.

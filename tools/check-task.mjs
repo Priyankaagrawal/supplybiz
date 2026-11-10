@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-023': ['src/modules/vendors/vendors.postgres.spec.ts', 'src/storage/local-storage.service.spec.ts'],
   'T-151': ['src/modules/kyc/kyc.postgres.spec.ts'],
   'T-022': ['src/modules/kyc/kyc.postgres.spec.ts'],
   'T-152': ['src/modules/audit/audit.postgres.spec.ts'],
@@ -29,13 +30,13 @@ const apiTests = {
   'T-182': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
   'T-184': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
 };
-if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-183'].includes(id))) {
+if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-025', 'T-183'].includes(id))) {
   console.error('Provide a supported T-ID in the PR title or TASK_ID. Add explicit focused checks for new tasks; unsupported tasks cannot silently pass.');
   process.exit(1);
 }
 if (process.env.CHECK_LAYER) {
   tasks = tasks.filter(id => process.env.CHECK_LAYER === 'api'
-    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-183'].includes(id));
+    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-183'].includes(id));
   if (!tasks.length) { console.error('No focused task for the affected layer. Register its task checks first.'); process.exit(1); }
 }
 for (const task of tasks) {
@@ -58,7 +59,7 @@ for (const task of tasks) {
     if (task === 'T-015') process.env.SESSIONS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-151') process.env.KYC_ADMIN_SMOKE = '1';
     if (task === 'T-022' || task === 'T-151') process.env.KYC_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
-    if (task === 'T-021') process.env.VENDORS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+    if (task === 'T-021' || task === 'T-023') process.env.VENDORS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-020') process.env.MEDIA_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     run(api('exec', 'jest', '--runInBand', '--runTestsByPath', ...apiTests[task]));
@@ -70,6 +71,13 @@ for (const task of tasks) {
     run([flutter, 'analyze'], mobile);
     run([flutter, 'test', 'test/core/config/app_config_test.dart', 'test/features/auth/auth_pages_test.dart',
       'test/core/router/guards_test.dart', 'test/core/network/network_client_test.dart'], mobile);
+    run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json'], mobile);
+    continue;
+  }
+  if (task === 'T-025') {
+    const mobile = resolve(root, 'apps/mobile');
+    run([flutter, 'analyze'], mobile);
+    run([flutter, 'test', 'test/features/service_area', 'test/core/router/guards_test.dart'], mobile);
     run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json'], mobile);
     continue;
   }

@@ -1,8 +1,11 @@
 import { mkdtemp, mkdir, readdir, realpath, rm, chmod, stat, symlink } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { prepareUploadRoot } from "./local-storage.service";
 import { validateEnv } from "../config/env.schema";
+import { windowsPrivateDirectory } from './windows-private-directory';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 
 describe("T-182 native upload configuration", () => {
   let sandbox: string;
@@ -15,7 +18,8 @@ describe("T-182 native upload configuration", () => {
     expect((await readdir(root)).sort()).toEqual(["kyc", "media", "staging"]);
     for (const name of ["", "kyc", "media", "staging"]) {
       const directory = join(root, name);
-      expect((await stat(directory)).mode & 0o777).toBe(0o700);
+      if (process.platform === 'win32') await windowsPrivateDirectory(directory, false);
+      else expect((await stat(directory)).mode & 0o777).toBe(0o700);
       if (name) expect(await readdir(directory)).toEqual([]);
     }
   });
@@ -27,11 +31,12 @@ describe("T-182 native upload configuration", () => {
   it("rejects symlink ancestors and upload subdirectories", async () => {
     const target = join(sandbox, "target"), root = join(sandbox, "root");
     await mkdir(target, { mode: 0o700 });
-    await symlink(target, root);
+    await symlink(target, root, process.platform === 'win32' ? 'junction' : 'dir');
     await expect(prepareUploadRoot(root, [])).rejects.toThrow();
     const other = join(sandbox, "other");
     await mkdir(other, { mode: 0o700 });
-    await symlink(target, join(other, "kyc"));
+    if (process.platform === 'win32') await windowsPrivateDirectory(other, true);
+    await symlink(target, join(other, "kyc"), process.platform === 'win32' ? 'junction' : 'dir');
     await expect(prepareUploadRoot(other, [])).rejects.toThrow();
     expect(await readdir(target)).toEqual([]);
   });
@@ -39,10 +44,19 @@ describe("T-182 native upload configuration", () => {
     const root = join(sandbox, "uploads");
     await mkdir(root);
     await chmod(root, 0o755);
-    await expect(prepareUploadRoot(root, [])).rejects.toThrow("0700");
+    await expect(prepareUploadRoot(root, [])).rejects.toThrow(process.platform === 'win32' ? 'private Windows ACLs' : '0700');
+  });
+  (process.platform === 'win32' ? it : it.skip)('rejects a protected Windows ACL granting Everyone access', async () => {
+    const root = join(sandbox, "quoted' uploads");
+    await prepareUploadRoot(root, []);
+    // Reopening a private root must validate it without rewriting existing ACLs.
+    await prepareUploadRoot(root, []);
+    await promisify(execFile)('icacls.exe', [root, '/grant', '*S-1-1-0:(RX)'], { windowsHide: true, timeout: 15000 });
+    await expect(prepareUploadRoot(root, [])).rejects.toThrow('private Windows ACLs');
+    await expect(windowsPrivateDirectory(root, false)).rejects.toThrow('private Windows ACLs');
   });
   it("validates storage bounds and requires explicit deployed storage", () => {
-    expect(validateEnv({ NODE_ENV: "test" }).UPLOAD_ROOT).toMatch(/supplybiz\/uploads$/);
+    expect(validateEnv({ NODE_ENV: "test" }).UPLOAD_ROOT).toBe(join(homedir(), '.local', 'share', 'supplybiz', 'uploads'));
     for (const input of [{ UPLOAD_ROOT: "relative" }, { UPLOAD_MAX_BYTES: -1 },
       { UPLOAD_MAX_BYTES: 5242881 }, { UPLOAD_MAX_PIXELS: 20000001 }, { NODE_ENV: "production" }]) {
       expect(() => validateEnv(input)).toThrow();

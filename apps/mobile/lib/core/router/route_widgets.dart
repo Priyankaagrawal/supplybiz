@@ -129,6 +129,10 @@ class RoutePlaceholder extends StatelessWidget {
               ]);
             }),
           const SizedBox(height: 16),
+          if (title == RouteTitle.more)
+            SbButton(
+                label: l10n.areaTitle,
+                onPressed: () => const ServiceAreaRoute().push<void>(context)),
           Text(
               title == RouteTitle.switchRole
                   ? l10n.routeSwitchMessage

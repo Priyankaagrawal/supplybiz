@@ -5,6 +5,7 @@ import { lstat, mkdir, open, realpath, statfs, unlink } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { isAbsolute, join, parse, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
+import { windowsPrivateDirectory } from './windows-private-directory';
 
 function within(root: string, candidate: string): boolean {
   const path = relative(root, candidate);
@@ -27,12 +28,13 @@ export async function prepareUploadRoot(root: string, forbidden: string[]): Prom
     }
   }
   for (const directory of [root, ...["staging", "media", "kyc"].map(name => join(root, name))]) {
-    await mkdir(directory, { recursive: true, mode: 0o700 });
+    const created = await mkdir(directory, { recursive: true, mode: 0o700 });
     const info = await lstat(directory);
     if (!info.isDirectory() || info.isSymbolicLink() ||
-        (process.getuid && info.uid !== process.getuid()) || (info.mode & 0o077) !== 0) {
+        (process.platform !== 'win32' && ((process.getuid && info.uid !== process.getuid()) || (info.mode & 0o077) !== 0))) {
       throw new Error("Upload directories require service ownership and mode 0700");
     }
+    if (process.platform === 'win32') await windowsPrivateDirectory(directory, created !== undefined);
     await probeDirectory(directory);
   }
 }

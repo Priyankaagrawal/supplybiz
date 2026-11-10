@@ -92,6 +92,7 @@ endpoint, user/session creation and tokens belong to T-015.
 | GET | `/vendor/kyc/notices` (latest 50 durable owned KYC decision notices) |
 | GET/PATCH | `/vendor/settings` (delivery, subscription, availability, service area) |
 | PUT | `/vendor/settings/service-pincodes` |
+| GET/PUT | `/vendor/settings/service-area` (T-023 combined radius/pincode configuration; provisional until task verification) |
 | GET/POST | `/vendor/holidays` ; DELETE `/vendor/holidays/{id}` |
 | POST | `/vendor/delivery/pause` `{ until? }` ; POST `/vendor/delivery/resume` |
 | GET | `/vendor/dashboard?date=YYYY-MM-DD` |
@@ -104,6 +105,21 @@ READY SHOP_PHOTO media. Mutations require a key of at most 120 characters; owner
 24-hour replay and profile changes commit together; changed payload/endpoint returns 422.
 Business before category returns 409. Onboarding writes cannot edit reviewed KYC business
 fields (409); KYC-aware settings/re-verification editing belongs to T-106. No plan is granted.
+
+T-023's combined service-area PUT accepts required `{ serviceRadiusKm, pincodes }`.
+Radius is an integer 1–20 km or null to disable radius coverage; pincodes are unique
+strings matching `^[1-9]\\d{5}$`. At least one coverage method must remain configured.
+GET/PUT return the owned vendor profile with `settings.pincodes`, radius and version.
+PUT requires Idempotency-Key and replaces the list/radius in the same replay-protected
+transaction, incrementing settings version once. Radius requires saved shop coordinates
+(409 SHOP_LOCATION_REQUIRED); no profile returns 409 CATEGORY_REQUIRED on PUT.
+An empty combined area returns 400 SERVICE_AREA_REQUIRED. Session-derived ownership,
+active vendor role and the onboarding replay rules apply. New settings default to 3 km;
+the additive migration initializes previous unconfigured radii. Coverage is radius OR
+listed pincode, using PostGIS geography meters (TC-028), with no geocoding fallback.
+The shared coverage service is available to T-041/T-045; discovery and order integration
+remain those tasks' responsibility. The combined endpoint is implemented by T-023;
+the broader settings and separate pincode routes above remain future contracts.
 
 ### 4.3 Media
 | Method | Path | Notes |

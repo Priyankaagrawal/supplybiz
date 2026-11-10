@@ -102,6 +102,12 @@ their owning tasks. Initial charges/minimum are zero, slots empty, automatic acc
 accepting-today, delivery pause and Khata permission false; version 1; stock threshold 10
 per FR-035's documented default. Radius/cutoff/caps/pause-until remain unconfigured (null),
 so onboarding does not invent delivery capacity, timing, plan or visibility policy.
+T-023 supersedes the unconfigured-radius baseline: its additive migration initializes
+null radii to FR-018's 3 km default and defaults future settings to 3 km. A subsequent
+explicit pincode-only save may set radius null; at least one coverage method is required
+by the service. `vendor_service_pincodes` has a restrictive vendor foreign key, composite
+primary key and six-digit pincode check. Radius/list/version and idempotent replay commit
+together. This source/migration remains provisional until T-023 verification completes.
 
 ### 3.3 Catalog
 | Table | Key columns | Notes |

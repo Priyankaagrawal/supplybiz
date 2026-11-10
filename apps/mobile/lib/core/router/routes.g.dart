@@ -14,6 +14,7 @@ List<RouteBase> get $appRoutes => [
       $commonRoute,
       $onboardingRoute,
       $vendorShell,
+      $serviceAreaRoute,
       $customerShell,
       $linkRoute,
     ];
@@ -422,6 +423,34 @@ mixin _$VendorMoreRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/vendor/more',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $serviceAreaRoute => GoRouteData.$route(
+      path: '/vendor/service-area',
+      factory: _$ServiceAreaRoute._fromState,
+    );
+
+mixin _$ServiceAreaRoute on GoRouteData {
+  static ServiceAreaRoute _fromState(GoRouterState state) =>
+      const ServiceAreaRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/vendor/service-area',
       );
 
   @override

@@ -100,6 +100,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vendor/settings/service-area": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorsController_serviceArea"];
+        put: operations["VendorsController_saveServiceArea"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/onboarding/categories": {
         parameters: {
             query?: never;
@@ -578,14 +594,9 @@ export interface components {
             items: components["schemas"]["AuditRow"][];
             hasMore: boolean;
         };
-        VendorCategoryResponse: {
-            /** Format: uuid */
-            id: string;
-            code: string;
-            name: string;
-            icon: string | null;
-        };
         VendorSettingsResponse: {
+            /** @description Present on fresh reads/writes; older onboarding replay snapshots may omit it. */
+            pincodes?: string[];
             serviceRadiusKm: number | null;
             deliveryChargePaise: number;
             minOrderPaise: number;
@@ -615,6 +626,19 @@ export interface components {
             /** Format: uuid */
             shopPhotoMediaId: string | null;
             settings: components["schemas"]["VendorSettingsResponse"];
+        };
+        ServiceAreaDto: {
+            /** @description Null disables radius coverage. */
+            serviceRadiusKm: number | null;
+            /** @description Additional coverage; six-digit Indian pincodes. */
+            pincodes: string[];
+        };
+        VendorCategoryResponse: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            icon: string | null;
         };
         VendorCategoryDto: {
             /** Format: uuid */
@@ -886,6 +910,99 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AuditPage"];
                 };
+            };
+        };
+    };
+    VendorsController_serviceArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_saveServiceArea: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ServiceAreaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Invalid fields/key or SERVICE_AREA_REQUIRED. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CATEGORY_REQUIRED or SHOP_LOCATION_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

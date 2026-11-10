@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**pincodes** | **List&lt;String&gt;** | Present on fresh reads/writes; older onboarding replay snapshots may omit it. | [optional]
 **serviceRadiusKm** | **int** |  |
 **deliveryChargePaise** | **int** |  |
 **minOrderPaise** | **int** |  |

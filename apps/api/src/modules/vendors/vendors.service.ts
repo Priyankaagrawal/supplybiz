@@ -3,9 +3,9 @@ import { Prisma } from '@prisma/client';
 import { createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IdempotencyService } from '../idempotency/idempotency.service';
-import { VendorBusinessDto, VendorCategoryDto } from './vendors.dto';
+import { ServiceAreaDto, VendorBusinessDto, VendorCategoryDto } from './vendors.dto';
 
-const include = { settings: true } satisfies Prisma.vendorsInclude;
+const include = { settings: true, service_pincodes: { orderBy: { pincode: 'asc' as const } } } satisfies Prisma.vendorsInclude;
 type Profile = Prisma.vendorsGetPayload<{ include: typeof include }>;
 @Injectable()
 export class VendorsService {
@@ -55,13 +55,47 @@ export class VendorsService {
       }, include });
     });
   }
+  serviceArea(userId: string, key: string, input: ServiceAreaDto) {
+    return this.mutate(userId, key, 'service-area', input, async tx => {
+      const vendor = await tx.vendors.findUnique({ where: { user_id: userId } });
+      if (!vendor) throw new ConflictException({ code: 'CATEGORY_REQUIRED' });
+      if (input.serviceRadiusKm === null && !input.pincodes.length) {
+        throw new BadRequestException({ code: 'SERVICE_AREA_REQUIRED' });
+      }
+      if (input.serviceRadiusKm !== null && (vendor.latitude === null || vendor.longitude === null)) {
+        throw new ConflictException({ code: 'SHOP_LOCATION_REQUIRED' });
+      }
+      await tx.vendor_settings.update({ where: { vendor_id: vendor.id }, data: {
+        service_radius_km: input.serviceRadiusKm, version: { increment: 1 },
+      } });
+      await tx.vendor_service_pincodes.deleteMany({ where: { vendor_id: vendor.id } });
+      if (input.pincodes.length) await tx.vendor_service_pincodes.createMany({
+        data: input.pincodes.map(pincode => ({ vendor_id: vendor.id, pincode })),
+      });
+      return tx.vendors.findUniqueOrThrow({ where: { id: vendor.id }, include });
+    });
+  }
+  /** Shared by discovery/order tasks: radius OR an explicitly listed pincode (TC-028). */
+  async covers(vendorId: string, latitude: number, longitude: number, pincode: string,
+    tx: Prisma.TransactionClient = this.prisma): Promise<boolean> {
+    if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
+      !Number.isFinite(longitude) || longitude < -180 || longitude > 180 || !/^[1-9]\d{5}$/.test(pincode)) {
+      throw new BadRequestException({ code: 'VALIDATION_FAILED' });
+    }
+    const rows = await tx.$queryRaw<{ covered: boolean }[]>`
+      SELECT (EXISTS (SELECT 1 FROM vendor_service_pincodes p WHERE p.vendor_id = v.id AND p.pincode = ${pincode})
+        OR COALESCE(ST_DWithin(v.location, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)::geography,
+          s.service_radius_km * 1000), false)) AS covered
+      FROM vendors v JOIN vendor_settings s ON s.vendor_id = v.id WHERE v.id = ${vendorId}::uuid`;
+    return rows[0]?.covered ?? false;
+  }
   private async authorize(tx: Prisma.TransactionClient, userId: string) {
     const user = await tx.users.findUnique({ where: { id: userId }, include: { roles: true } });
     if (!user || user.status !== 'ACTIVE' || user.active_role !== 'VENDOR' || !user.roles.some(r => r.role === 'VENDOR')) {
       throw new ForbiddenException({ code: 'VENDOR_ROLE_REQUIRED' });
     }
   }
-  private mutate(userId: string, key: string, step: string, input: VendorCategoryDto | VendorBusinessDto,
+  private mutate(userId: string, key: string, step: string, input: VendorCategoryDto | VendorBusinessDto | ServiceAreaDto,
     write: (tx: Prisma.TransactionClient) => Promise<Profile>) {
     if (!key?.trim() || key.length > 120) throw new BadRequestException({ code: 'VALIDATION_FAILED' });
     const requestKey = `vendor:${createHash('sha256').update(`${userId}:${key}`).digest('hex')}`;
@@ -94,7 +128,7 @@ export class VendorsService {
     return { id: row.id, categoryId: row.category_id, onboardingStep: row.onboarding_step, kycStatus: row.kyc_status,
       businessName: row.business_name, gstin: row.gstin, addressLine: row.address_line, city: row.city, state: row.state,
       pincode: row.pincode, latitude: row.latitude, longitude: row.longitude, shopPhotoMediaId: row.shop_photo_media_id,
-      settings: { serviceRadiusKm: s.service_radius_km, deliveryChargePaise: s.delivery_charge_paise,
+      settings: { serviceRadiusKm: s.service_radius_km, pincodes: row.service_pincodes.map(p => p.pincode), deliveryChargePaise: s.delivery_charge_paise,
         minOrderPaise: s.min_order_paise, timeSlots: s.time_slots, autoAcceptSubscriptions: s.auto_accept_subscriptions,
         acceptingToday: s.accepting_today, deliveryPaused: s.delivery_paused, allowKhataOrders: s.allow_khata_orders, version: s.version } };
   }

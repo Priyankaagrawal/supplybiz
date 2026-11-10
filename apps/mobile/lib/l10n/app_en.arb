@@ -166,5 +166,19 @@
         "type": "String"
       }
     }
-  }
+  },
+  "areaLocation": "Shop location",
+  "areaSaveCoverage": "Save coverage",
+  "areaCoverage": "Delivery coverage",
+  "areaGps": "Use current location",
+  "areaTitle": "Service area",
+  "areaBusinessRequired": "Complete business details in onboarding before setting a location.",
+  "areaGpsError": "Location unavailable or permission denied. Enter coordinates manually or try again.",
+  "areaPincodes": "Additional pincodes (separate with commas)",
+  "areaExplanation": "Coverage includes customers within the radius OR an additional pincode. Leave radius blank for pincodes only. Save shop location separately before changing coverage.",
+  "areaSaved": "Saved to server.",
+  "areaReverification": "Changing verified business details requires re-verification. Your saved details have not changed.",
+  "areaRadius": "Radius in km (1–20, optional)",
+  "areaInvalid": "Use a radius from 1 to 20 and/or unique six-digit Indian pincodes.",
+  "areaSaveLocation": "Save shop location"
 }

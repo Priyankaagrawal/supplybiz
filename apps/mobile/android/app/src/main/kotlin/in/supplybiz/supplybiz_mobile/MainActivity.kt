@@ -17,12 +17,20 @@ import io.flutter.plugin.common.MethodChannel
 import java.security.MessageDigest
 
 class MainActivity : FlutterActivity() {
+    private val deviceLocation by lazy { DeviceLocation(this) }
     private val onboardingFiles by lazy { OnboardingFiles(this) }
     private var receiver: BroadcastReceiver? = null
     private var channel: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/location").setMethodCallHandler { call, result ->
+            when (call.method) {
+                "current" -> deviceLocation.current(result)
+                "cancel" -> { deviceLocation.dispose(); result.success(null) }
+                else -> result.notImplemented()
+            }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/app").setMethodCallHandler { call, result ->
             when (call.method) {
                 "version" -> {
@@ -99,9 +107,15 @@ class MainActivity : FlutterActivity() {
         if (!onboardingFiles.selected(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data)
     }
     override fun onDestroy() {
+        deviceLocation.dispose()
         onboardingFiles.dispose()
         stopRetriever()
         channel?.setMethodCallHandler(null)
         super.onDestroy()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == DeviceLocation.PERMISSION) deviceLocation.permissionResult()
     }
 }

@@ -27,6 +27,8 @@ VendorSettingsResponse _$VendorSettingsResponseFromJson(
           ],
         );
         final val = VendorSettingsResponse(
+          pincodes: $checkedConvert('pincodes',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           serviceRadiusKm:
               $checkedConvert('serviceRadiusKm', (v) => (v as num?)?.toInt()),
           deliveryChargePaise:
@@ -50,6 +52,7 @@ VendorSettingsResponse _$VendorSettingsResponseFromJson(
 Map<String, dynamic> _$VendorSettingsResponseToJson(
         VendorSettingsResponse instance) =>
     <String, dynamic>{
+      if (instance.pincodes case final value?) 'pincodes': value,
       'serviceRadiusKm': instance.serviceRadiusKm,
       'deliveryChargePaise': instance.deliveryChargePaise,
       'minOrderPaise': instance.minOrderPaise,

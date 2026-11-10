@@ -843,6 +843,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry upload: {label}'**
   String onboardingRetryUpload(String label);
+
+  /// No description provided for @areaLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop location'**
+  String get areaLocation;
+
+  /// No description provided for @areaSaveCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save coverage'**
+  String get areaSaveCoverage;
+
+  /// No description provided for @areaCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery coverage'**
+  String get areaCoverage;
+
+  /// No description provided for @areaGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Use current location'**
+  String get areaGps;
+
+  /// No description provided for @areaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service area'**
+  String get areaTitle;
+
+  /// No description provided for @areaBusinessRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete business details in onboarding before setting a location.'**
+  String get areaBusinessRequired;
+
+  /// No description provided for @areaGpsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Location unavailable or permission denied. Enter coordinates manually or try again.'**
+  String get areaGpsError;
+
+  /// No description provided for @areaPincodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional pincodes (separate with commas)'**
+  String get areaPincodes;
+
+  /// No description provided for @areaExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage includes customers within the radius OR an additional pincode. Leave radius blank for pincodes only. Save shop location separately before changing coverage.'**
+  String get areaExplanation;
+
+  /// No description provided for @areaSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to server.'**
+  String get areaSaved;
+
+  /// No description provided for @areaReverification.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing verified business details requires re-verification. Your saved details have not changed.'**
+  String get areaReverification;
+
+  /// No description provided for @areaRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Radius in km (1–20, optional)'**
+  String get areaRadius;
+
+  /// No description provided for @areaInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a radius from 1 to 20 and/or unique six-digit Indian pincodes.'**
+  String get areaInvalid;
+
+  /// No description provided for @areaSaveLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save shop location'**
+  String get areaSaveLocation;
 }
 
 class _AppLocalizationsDelegate

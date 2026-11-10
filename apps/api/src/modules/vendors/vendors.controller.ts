@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express';
 import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
-import { VendorBusinessDto, VendorCategoryDto, VendorCategoryResponse, VendorProfileResponse } from './vendors.dto';
+import { ServiceAreaDto, VendorBusinessDto, VendorCategoryDto, VendorCategoryResponse, VendorProfileResponse } from './vendors.dto';
 import { VendorsService } from './vendors.service';
 
 type VendorRequest = Request & { session: { userId: string } };
@@ -14,6 +14,19 @@ type VendorRequest = Request & { session: { userId: string } };
 @Controller('vendor')
 export class VendorsController {
   constructor(private readonly vendors: VendorsService) {}
+  @Header('Cache-Control', 'no-store')
+  @Get('settings/service-area') @ApiResponse({ status: 200, type: VendorProfileResponse })
+  serviceArea(@Req() req: VendorRequest) { return this.vendors.profile(req.session.userId); }
+
+  @Header('Cache-Control', 'no-store')
+  @Put('settings/service-area') @ApiHeader({ name: 'Idempotency-Key', required: true })
+  @ApiResponse({ status: 200, type: VendorProfileResponse })
+  @ApiResponse({ status: 400, description: 'Invalid fields/key or SERVICE_AREA_REQUIRED.' })
+  @ApiResponse({ status: 409, description: 'CATEGORY_REQUIRED or SHOP_LOCATION_REQUIRED.' })
+  @ApiResponse({ status: 422, description: 'IDEMPOTENCY_MISMATCH' })
+  saveServiceArea(@Body() input: ServiceAreaDto, @Headers('Idempotency-Key') key: string, @Req() req: VendorRequest) {
+    return this.vendors.serviceArea(req.session.userId, key, input);
+  }
   @Header('Cache-Control', 'no-store')
   @Get('onboarding/categories') @ApiResponse({ status: 200, type: [VendorCategoryResponse] })
   categories(@Req() req: VendorRequest) { return this.vendors.categories(req.session.userId); }

@@ -383,12 +383,20 @@ model vendors {
   category categories @relation(fields: [category_id], references: [id], onDelete: Restrict)
   shop_photo media_files? @relation(fields: [shop_photo_media_id], references: [id], onDelete: Restrict)
   settings vendor_settings?
+  service_pincodes vendor_service_pincodes[]
+}
+
+model vendor_service_pincodes {
+  vendor_id String @db.Uuid
+  pincode String @db.VarChar(6)
+  vendor vendors @relation(fields: [vendor_id], references: [id], onDelete: Restrict)
+  @@id([vendor_id, pincode])
 }
 
 // Unconfigured operational values stay null until their owning task saves them.
 model vendor_settings {
   vendor_id String @id @db.Uuid
-  service_radius_km Int?
+  service_radius_km Int? @default(3)
   delivery_charge_paise Int @default(0)
   min_order_paise Int @default(0)
   time_slots Json @default("[]")

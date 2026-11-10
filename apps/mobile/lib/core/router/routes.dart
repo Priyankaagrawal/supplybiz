@@ -5,6 +5,7 @@ import 'route_widgets.dart';
 import 'guards.dart';
 import '../../features/auth/auth_pages.dart';
 import '../../features/onboarding/onboarding_pages.dart';
+import '../../features/service_area/service_area_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
@@ -170,6 +171,14 @@ class VendorMoreRoute extends GoRouteData with _$VendorMoreRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const RoutePlaceholder(title: RouteTitle.more);
+}
+
+@TypedGoRoute<ServiceAreaRoute>(path: '/vendor/service-area')
+class ServiceAreaRoute extends GoRouteData with _$ServiceAreaRoute {
+  const ServiceAreaRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const ServiceAreaPage();
 }
 
 @TypedStatefulShellRoute<CustomerShell>(branches: [

@@ -21,6 +21,7 @@ import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
+import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
@@ -106,6 +107,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return SendOtpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'SendOtpResponse':
       return SendOtpResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ServiceAreaDto':
+      return ServiceAreaDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'TokensResponse':
       return TokensResponse.fromJson(value as Map<String, dynamic>)
