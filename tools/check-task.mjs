@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-027': ['src/modules/catalog/catalog.postgres.spec.ts'],
   'T-026': ['src/modules/catalog/catalog.postgres.spec.ts'],
   'T-153': ['src/modules/categories/categories.postgres.spec.ts'],
   'T-023': ['src/modules/vendors/vendors.postgres.spec.ts', 'src/storage/local-storage.service.spec.ts'],
@@ -38,12 +39,12 @@ if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-00
 }
 if (process.env.CHECK_LAYER) {
   tasks = tasks.filter(id => process.env.CHECK_LAYER === 'api'
-    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-183'].includes(id));
+    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-183'].includes(id));
   if (!tasks.length) { console.error('No focused task for the affected layer. Register its task checks first.'); process.exit(1); }
 }
 for (const task of tasks) {
   if (task === 'T-002') { run(api('infra:check')); continue; }
-  if (apiTests[task] && !(task === 'T-017' && process.env.CHECK_LAYER === 'mobile')) {
+  if (apiTests[task] && !(['T-017', 'T-027'].includes(task) && process.env.CHECK_LAYER === 'mobile')) {
     if (task === 'T-184') run(['node', '--test', 'tools/checks.spec.mjs']);
     if (!process.env.NATIVE_TEST_DATABASE_URL || !process.env.ABUSE_TEST_DATABASE_URL) {
       console.error('Native task checks require dedicated NATIVE_TEST_DATABASE_URL and ABUSE_TEST_DATABASE_URL; no skipped-DB success.');
@@ -64,11 +65,18 @@ for (const task of tasks) {
     if (task === 'T-022' || task === 'T-151') process.env.KYC_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-021' || task === 'T-023') process.env.VENDORS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-020') process.env.MEDIA_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
-    if (task === 'T-026') process.env.CATALOG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+    if (task === 'T-026' || task === 'T-027') process.env.CATALOG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     run(api('exec', 'jest', '--runInBand', '--runTestsByPath', ...apiTests[task]));
     run(api('exec', 'jest', '--config', 'test/jest-e2e.json', '--runInBand', '--runTestsByPath', 'test/native-runtime.e2e-spec.ts'));
-    if (task !== 'T-017' || process.env.CHECK_LAYER === 'api') continue;
+    if (!['T-017', 'T-027'].includes(task) || process.env.CHECK_LAYER === 'api') continue;
+  }
+  if (task === 'T-027') {
+    const mobile = resolve(root, 'apps/mobile');
+    run([flutter, 'analyze'], mobile);
+    run([flutter, 'test', 'test/features/products', 'test/core/router/guards_test.dart'], mobile);
+    run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json'], mobile);
+    continue;
   }
   if (task === 'T-017') {
     const mobile = resolve(root, 'apps/mobile');

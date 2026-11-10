@@ -129,6 +129,11 @@ the broader settings and separate pincode routes above remain future contracts.
 | GET | `/admin/media/{id}/content` | KYC_DOC/SHOP_PHOTO stream with `kyc.documents` permission and persisted per-read audit; no-store, nosniff, attachment disposition |
 
 ### 4.4 Catalog (FR-030–FR-036)
+T-027 adds `GET /vendor/products/options` → `{ productTypes: string[] }` for the
+signed-in vendor's category. It uses the same active vendor-role/ownership and
+suspension checks as catalog reads; types come from the admin-managed category,
+with no client-invented taxonomy or cross-vendor category parameter.
+
 `GET/POST /vendor/products`, `GET/PATCH/DELETE /vendor/products/{id}`, `POST /vendor/products/{id}/stock-adjustments` `{ delta, reason }`.
 
 T-026 uses the held and active VENDOR role and derives vendor ownership from the

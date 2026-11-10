@@ -465,4 +465,173 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get areaSaveLocation => 'Save shop location';
+
+  @override
+  String get productsTitle => 'Products';
+
+  @override
+  String get productsAdd => 'Add product';
+
+  @override
+  String get productsEdit => 'Edit product';
+
+  @override
+  String get productsSave => 'Save product';
+
+  @override
+  String get productsSearch => 'Search products by name';
+
+  @override
+  String get productsFilter => 'Product type filter';
+
+  @override
+  String get productsAll => 'All';
+
+  @override
+  String get productsMilk => 'Milk';
+
+  @override
+  String get productsPaneer => 'Paneer';
+
+  @override
+  String get productsCurd => 'Curd';
+
+  @override
+  String get productsOther => 'Other';
+
+  @override
+  String get productsGhee => 'Ghee';
+
+  @override
+  String get productsEmpty =>
+      'No products found. Add a product or change your search.';
+
+  @override
+  String get productsOffline =>
+      'Showing your saved catalog. Refresh online before making changes. Photos may be unavailable offline.';
+
+  @override
+  String get productsPending =>
+      'A saved request needs confirmation. Retry it before making another change.';
+
+  @override
+  String get productsRetryPending => 'Retry saved request';
+
+  @override
+  String get productsName => 'Product name';
+
+  @override
+  String get productsType => 'Product type';
+
+  @override
+  String get productsMilkType => 'Milk type';
+
+  @override
+  String get productsCow => 'Cow';
+
+  @override
+  String get productsBuffalo => 'Buffalo';
+
+  @override
+  String get productsToned => 'Toned';
+
+  @override
+  String get productsDoubleToned => 'Double toned';
+
+  @override
+  String get productsFullCream => 'Full cream';
+
+  @override
+  String get productsUnitValue => 'Pack size (up to 3 decimal places)';
+
+  @override
+  String get productsUnit250 => '250 ml';
+
+  @override
+  String get productsUnit500 => '500 ml';
+
+  @override
+  String get productsUnitLitre => '1 L';
+
+  @override
+  String get productsUnitType => 'Pack unit';
+
+  @override
+  String get productsSellingPrice => 'Selling price (₹)';
+
+  @override
+  String get productsSubscriptionPrice => 'Subscription price (₹, optional)';
+
+  @override
+  String get productsStock => 'Stock (packs)';
+
+  @override
+  String get productsMoq => 'Minimum order (packs)';
+
+  @override
+  String get productsDescription => 'Description (optional)';
+
+  @override
+  String get productsActive => 'Active';
+
+  @override
+  String get productsInactive => 'Inactive';
+
+  @override
+  String get productsDelete => 'Delete product';
+
+  @override
+  String get productsDeleteConfirm =>
+      'Delete this product? Its stock and sales history will be kept.';
+
+  @override
+  String get productsCancel => 'Cancel';
+
+  @override
+  String get productsInUse =>
+      'This product has active or paused subscriptions. End those subscriptions before deleting it. You can deactivate it instead.';
+
+  @override
+  String get productsInsufficient =>
+      'Stock cannot be reduced below zero. Refresh and check the quantity.';
+
+  @override
+  String get productsAdjust => 'Adjust stock';
+
+  @override
+  String get productsDelta => 'Change in packs (for example, -2 or 5)';
+
+  @override
+  String get productsReason => 'Reason for adjustment';
+
+  @override
+  String get productsApply => 'Apply adjustment';
+
+  @override
+  String get productsInvalid =>
+      'Check the name, pack size, whole-pack quantities and prices. Subscription price must not exceed selling price.';
+
+  @override
+  String get productsPhoto => 'Product photo';
+
+  @override
+  String get productsChoosePhoto => 'Choose product photo';
+
+  @override
+  String get productsRemovePhoto => 'Remove photo';
+
+  @override
+  String get productsPhotoOnly => 'Choose a JPEG or PNG image up to 5 MB.';
+
+  @override
+  String get productsPhotoUnavailable => 'Product photo unavailable';
+
+  @override
+  String get productsNoTypes =>
+      'No product types are configured for your category. Contact support.';
+
+  @override
+  String productsStockValue(int quantity) {
+    return 'Stock: $quantity packs';
+  }
 }

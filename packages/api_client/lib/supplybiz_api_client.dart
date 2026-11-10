@@ -46,6 +46,7 @@ export 'package:supplybiz_api_client/src/model/media_response.dart';
 export 'package:supplybiz_api_client/src/model/product_deleted.dart';
 export 'package:supplybiz_api_client/src/model/product_input.dart';
 export 'package:supplybiz_api_client/src/model/product_list.dart';
+export 'package:supplybiz_api_client/src/model/product_options.dart';
 export 'package:supplybiz_api_client/src/model/product_patch.dart';
 export 'package:supplybiz_api_client/src/model/product_response.dart';
 export 'package:supplybiz_api_client/src/model/refresh_dto.dart';

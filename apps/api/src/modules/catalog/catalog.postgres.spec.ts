@@ -69,6 +69,12 @@ native('T-026 catalog HTTP → native PostgreSQL (TC-035–TC-041 focused founda
     for (const key of Object.keys(process.env)) if (!(key in before)) delete process.env[key];
     Object.assign(process.env, before);
   });
+  it('T-027 returns current category product options only to the active vendor role', async () => {
+    expect((await get('/options').expect(200)).body).toEqual({ productTypes: ['MILK','PANEER','OTHER'] });
+    await get('/options', '').expect(401); await get('/options', customer).expect(403);
+    await db.categories.update({ where: { id: categoryId }, data: { product_types: ['MILK','PANEER','OTHER','SYNTHETIC_CUSTOM_TYPE'] } });
+    expect((await get('/options').expect(200)).body.productTypes).toContain('SYNTHETIC_CUSTOM_TYPE');
+  });
   it('TC-035 creates one priced product/opening movement across concurrent retry and restart', async () => {
     expect((await get().expect(200)).body).toEqual({ items: [], total: 0 });
     const key = randomUUID(), result = await Promise.all([create(input, key), create(input, key)]);

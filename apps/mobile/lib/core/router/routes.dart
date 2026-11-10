@@ -6,6 +6,7 @@ import 'guards.dart';
 import '../../features/auth/auth_pages.dart';
 import '../../features/onboarding/onboarding_pages.dart';
 import '../../features/service_area/service_area_page.dart';
+import '../../features/products/products_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
@@ -139,7 +140,7 @@ class VendorProductsRoute extends GoRouteData with _$VendorProductsRoute {
   const VendorProductsRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.products);
+      const ProductsPage();
 }
 
 class VendorCustomersBranch extends StatefulShellBranchData {

@@ -1,5 +1,91 @@
 # Supply Biz Mobile
 
+## T-027 products handoff (2026-11-10): READY_FOR_VERIFY
+
+Products tab `/vendor/products` implements S-V-06 list/search/type filters,
+S-V-07 Add/Edit and S-V-35 stock adjustment. English ARB strings, accessible
+UI-kit controls and 200% layouts cover exact integer-paise prices, unit presets/
+custom sizes, MOQ, activity, private product images, deletion confirmation and
+PRODUCT_IN_USE/stock errors. Add/Edit and Adjust/Delete are reachable in the editor.
+
+The complete catalog is read in 100-row pages and cached with category types in the
+existing SQLCipher-backed draft store, keyed by API environment/account. No database
+migration or dependency was added. Offline cache is read-only. Exact product mutation
+payloads/keys persist before sending; Retry saved request explicitly recovers lost
+responses after restart, without submitting an offline edit automatically. Definitive
+validation/conflict/not-found errors permit editing again; authorization denial purges
+cache, provider disposal fences late writes and existing logout wipes encrypted storage.
+
+The only API addition is owned GET `/api/v1/vendor/products/options` → `{ productTypes }`,
+using active vendor role, category and suspension checks. Types remain admin-managed.
+Clients were regenerated. Full editor PATCH uses the shared NetworkClient/generated
+response model: generated ProductPatch serialization omits nulls and supplies stock
+defaults. Focused tests verify clearing optional values without resetting stock or
+sending vendor identity. Other catalog/media operations use generated endpoints.
+
+Executed from apps/mobile:
+```powershell
+flutter gen-l10n
+flutter analyze --no-pub
+flutter test --no-pub test/features/products test/core/router/guards_test.dart
+flutter test integration_test/products_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+The final normal dev APK was rebuilt after the native test, installed successfully
+on the existing emulator, and the test app was stopped. From repository root:
+```powershell
+adb -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev
+adb -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+The emulator and pre-existing host services were preserved. Normal interactive
+login/catalog verification was not started as a separate RUN workflow.
+17 focused checks pass (12 products, 5 guards). One Android emulator smoke passes
+encrypted cache close/reopen, non-plaintext DB bytes, account separation, durable
+lost-response retry and a 200% cached screen. Its HTTP responses are simulated.
+Separate native API checks pass all 10 catalog HTTP/PostgreSQL/private-file cases,
+including product-options authorization/taxonomy updates. API lint/typecheck/build,
+generated TS compile/Dart analysis and 4 runner guards pass. The native smoke uses
+a separate products-test directory/secure-store namespace and wipes it in teardown.
+Initial harness corrections covered fake-async setup, lazy scrolling, semantics-handle
+cleanup and JSON-map assertions; no application checks were weakened.
+
+Executed from apps/api, with CATALOG_TEST_DATABASE_URL loaded privately for existing
+supplybiz_service_area_test and NODE_ENV=test/OTP_DELIVERY_MODE=disabled:
+```powershell
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\jest.cmd --silent --runInBand --testTimeout=60000 --runTestsByPath src/modules/catalog/catalog.postgres.spec.ts
+.\node_modules\.bin\ts-node.cmd scripts/generate-openapi.ts
+```
+At root, executed the same installed openapi-typescript/openapi-generator-cli,
+normalizer, Dart formatter and generated TS compile commands documented under
+T-026 in apps/api/README.md, plus `node --test tools/checks.spec.mjs`. From
+packages/api_client, executed:
+```powershell
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' run build_runner build '--build-filter=lib/src/model/*.g.dart'
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' analyze
+```
+Serializer generation's sandboxed pub.dev advisory lookup initially failed; the
+approved rerun succeeded. Native API tests ran outside the sandbox for existing
+Windows ACL verification. The full task runner was not invoked; its T-027 API/mobile
+commands are registered and were executed directly. No separate RUN workflow started.
+
+Manual verification (suggested, not PASS):
+1. Run the migrated local API/app, sign in as an onboarded vendor and open Products.
+   Add a product with prices/unit/stock/MOQ; refresh/relaunch and check the real DB.
+   Live login still needs Q-09 or the existing development auth harness.
+2. Search/filter, edit/clear prices, change type, toggle activity and upload/remove
+   a JPEG/PNG via Android SAF; check authenticated image display and picker cancellation.
+3. Adjust stock with a reason; reject zero/fractional adjustments/negative stock.
+   Confirm deletion; verify real ACTIVE/PAUSED subscription blocking with T-072 later.
+4. Load online, disconnect/reopen and confirm cached search with disabled mutations.
+   Reconnect/refresh. Interrupt a sent write, reopen/Retry saved request and confirm
+   exactly one server effect from the saved key.
+5. Check TalkBack/200% layouts and logout/account switching with no cache exposure.
+   Live UI/API/DB, SAF picker, TalkBack/manual PASS and G0/G1 remain NOT_RUN/pending;
+   native HTTP simulation is not live integration evidence. iOS is deferred.
+
 Flutter entrypoints are `lib/main_dev.dart`, `lib/main_staging.dart`, and
 `lib/main_prod.dart`. Use the matching native flavor/scheme and
 `config/<flavor>.json` when running or building. Firebase is opt-in per

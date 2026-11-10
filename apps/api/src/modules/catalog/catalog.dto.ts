@@ -64,4 +64,7 @@ export class ProductList {
   @ApiProperty({ type: [ProductResponse] }) items!: ProductResponse[];
   @ApiProperty({ type: 'integer' }) total!: number;
 }
+export class ProductOptions {
+  @ApiProperty({ type: [String], description: 'Admin-managed product type codes for the signed-in vendor category.' }) productTypes!: string[];
+}
 export class ProductDeleted { @ApiProperty({ format: 'uuid' }) id!: string; @ApiProperty() deleted!: boolean; }

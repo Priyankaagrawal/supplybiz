@@ -87,6 +87,33 @@ paths:
         - catalog
       security:
         - bearer: []
+  /api/v1/vendor/products/options:
+    get:
+      operationId: CatalogController_options
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductOptions'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: PRODUCT_NOT_FOUND (including another owner or soft-deleted).
+        '409':
+          description: PRODUCT_IN_USE, INSUFFICIENT_STOCK or CATEGORY_REQUIRED.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - catalog
+      security:
+        - bearer: []
   /api/v1/vendor/products/{id}:
     get:
       operationId: CatalogController_get
@@ -1223,6 +1250,16 @@ components:
       required:
         - items
         - total
+    ProductOptions:
+      type: object
+      properties:
+        productTypes:
+          description: Admin-managed product type codes for the signed-in vendor category.
+          type: array
+          items:
+            type: string
+      required:
+        - productTypes
     ProductInput:
       type: object
       properties:

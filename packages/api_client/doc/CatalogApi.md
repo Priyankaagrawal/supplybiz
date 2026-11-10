@@ -13,6 +13,7 @@ Method | HTTP request | Description
 [**catalogControllerCreate**](CatalogApi.md#catalogcontrollercreate) | **POST** /api/v1/vendor/products |
 [**catalogControllerGet**](CatalogApi.md#catalogcontrollerget) | **GET** /api/v1/vendor/products/{id} |
 [**catalogControllerList**](CatalogApi.md#catalogcontrollerlist) | **GET** /api/v1/vendor/products |
+[**catalogControllerOptions**](CatalogApi.md#catalogcontrolleroptions) | **GET** /api/v1/vendor/products/options |
 [**catalogControllerPatch**](CatalogApi.md#catalogcontrollerpatch) | **PATCH** /api/v1/vendor/products/{id} |
 [**catalogControllerRemove**](CatalogApi.md#catalogcontrollerremove) | **DELETE** /api/v1/vendor/products/{id} |
 
@@ -181,6 +182,43 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**ProductList**](ProductList.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **catalogControllerOptions**
+> ProductOptions catalogControllerOptions()
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getCatalogApi();
+
+try {
+    final response = api.catalogControllerOptions();
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling CatalogApi->catalogControllerOptions: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**ProductOptions**](ProductOptions.md)
 
 ### Authorization
 

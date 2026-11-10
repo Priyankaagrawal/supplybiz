@@ -4,7 +4,7 @@ import { Request } from 'express';
 import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
 import { CatalogService } from './catalog.service';
-import { ProductDeleted, ProductInput, ProductList, ProductPatch, ProductQuery, ProductResponse, StockAdjustment } from './catalog.dto';
+import { ProductDeleted, ProductInput, ProductList, ProductOptions, ProductPatch, ProductQuery, ProductResponse, StockAdjustment } from './catalog.dto';
 
 type VendorRequest = Request & { session: { userId: string } };
 @ApiTags('catalog') @ApiBearerAuth() @UseGuards(SessionGuard)
@@ -19,6 +19,8 @@ export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
   @Get() @Header('Cache-Control', 'no-store') @ApiResponse({ status: 200, type: ProductList })
   list(@Req() req: VendorRequest, @Query() query: ProductQuery) { return this.catalog.list(req.session.userId, query); }
+  @Get('options') @Header('Cache-Control', 'no-store') @ApiResponse({ status: 200, type: ProductOptions })
+  options(@Req() req: VendorRequest) { return this.catalog.options(req.session.userId); }
   @Get(':id') @Header('Cache-Control', 'no-store') @ApiResponse({ status: 200, type: ProductResponse })
   get(@Req() req: VendorRequest, @Param('id', ParseUUIDPipe) id: string) { return this.catalog.get(req.session.userId, id); }
   @Post() @Header('Cache-Control', 'no-store') @ApiHeader({ name: 'Idempotency-Key', required: true })

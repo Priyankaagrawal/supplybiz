@@ -23,6 +23,7 @@ import 'package:supplybiz_api_client/src/model/media_response.dart';
 import 'package:supplybiz_api_client/src/model/product_deleted.dart';
 import 'package:supplybiz_api_client/src/model/product_input.dart';
 import 'package:supplybiz_api_client/src/model/product_list.dart';
+import 'package:supplybiz_api_client/src/model/product_options.dart';
 import 'package:supplybiz_api_client/src/model/product_patch.dart';
 import 'package:supplybiz_api_client/src/model/product_response.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
@@ -122,6 +123,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return ProductInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ProductList':
       return ProductList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ProductOptions':
+      return ProductOptions.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ProductPatch':
       return ProductPatch.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ProductResponse':

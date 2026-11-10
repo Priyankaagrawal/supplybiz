@@ -12,6 +12,11 @@ type StockChange = { vendorId: string; productId: string; actorId: string; delta
 @Injectable()
 export class CatalogService {
   constructor(private readonly db: PrismaService, private readonly idempotency: IdempotencyService) {}
+  async options(userId: string) {
+    const vendor = await this.authorize(this.db, userId);
+    const types = vendor.category.product_types;
+    return { productTypes: Array.isArray(types) ? types.filter((value): value is string => typeof value === 'string') : [] };
+  }
   async list(userId: string, query: ProductQuery) {
     return this.db.$transaction(async tx => {
       const vendor = await this.authorize(tx, userId);

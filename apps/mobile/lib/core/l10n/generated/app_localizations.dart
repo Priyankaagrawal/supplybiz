@@ -927,6 +927,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save shop location'**
   String get areaSaveLocation;
+
+  /// No description provided for @productsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get productsTitle;
+
+  /// No description provided for @productsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product'**
+  String get productsAdd;
+
+  /// No description provided for @productsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit product'**
+  String get productsEdit;
+
+  /// No description provided for @productsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save product'**
+  String get productsSave;
+
+  /// No description provided for @productsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search products by name'**
+  String get productsSearch;
+
+  /// No description provided for @productsFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Product type filter'**
+  String get productsFilter;
+
+  /// No description provided for @productsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get productsAll;
+
+  /// No description provided for @productsMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk'**
+  String get productsMilk;
+
+  /// No description provided for @productsPaneer.
+  ///
+  /// In en, this message translates to:
+  /// **'Paneer'**
+  String get productsPaneer;
+
+  /// No description provided for @productsCurd.
+  ///
+  /// In en, this message translates to:
+  /// **'Curd'**
+  String get productsCurd;
+
+  /// No description provided for @productsOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get productsOther;
+
+  /// No description provided for @productsGhee.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghee'**
+  String get productsGhee;
+
+  /// No description provided for @productsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No products found. Add a product or change your search.'**
+  String get productsEmpty;
+
+  /// No description provided for @productsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing your saved catalog. Refresh online before making changes. Photos may be unavailable offline.'**
+  String get productsOffline;
+
+  /// No description provided for @productsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'A saved request needs confirmation. Retry it before making another change.'**
+  String get productsPending;
+
+  /// No description provided for @productsRetryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved request'**
+  String get productsRetryPending;
+
+  /// No description provided for @productsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Product name'**
+  String get productsName;
+
+  /// No description provided for @productsType.
+  ///
+  /// In en, this message translates to:
+  /// **'Product type'**
+  String get productsType;
+
+  /// No description provided for @productsMilkType.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk type'**
+  String get productsMilkType;
+
+  /// No description provided for @productsCow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cow'**
+  String get productsCow;
+
+  /// No description provided for @productsBuffalo.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffalo'**
+  String get productsBuffalo;
+
+  /// No description provided for @productsToned.
+  ///
+  /// In en, this message translates to:
+  /// **'Toned'**
+  String get productsToned;
+
+  /// No description provided for @productsDoubleToned.
+  ///
+  /// In en, this message translates to:
+  /// **'Double toned'**
+  String get productsDoubleToned;
+
+  /// No description provided for @productsFullCream.
+  ///
+  /// In en, this message translates to:
+  /// **'Full cream'**
+  String get productsFullCream;
+
+  /// No description provided for @productsUnitValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack size (up to 3 decimal places)'**
+  String get productsUnitValue;
+
+  /// No description provided for @productsUnit250.
+  ///
+  /// In en, this message translates to:
+  /// **'250 ml'**
+  String get productsUnit250;
+
+  /// No description provided for @productsUnit500.
+  ///
+  /// In en, this message translates to:
+  /// **'500 ml'**
+  String get productsUnit500;
+
+  /// No description provided for @productsUnitLitre.
+  ///
+  /// In en, this message translates to:
+  /// **'1 L'**
+  String get productsUnitLitre;
+
+  /// No description provided for @productsUnitType.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack unit'**
+  String get productsUnitType;
+
+  /// No description provided for @productsSellingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Selling price (₹)'**
+  String get productsSellingPrice;
+
+  /// No description provided for @productsSubscriptionPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription price (₹, optional)'**
+  String get productsSubscriptionPrice;
+
+  /// No description provided for @productsStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock (packs)'**
+  String get productsStock;
+
+  /// No description provided for @productsMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order (packs)'**
+  String get productsMoq;
+
+  /// No description provided for @productsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get productsDescription;
+
+  /// No description provided for @productsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get productsActive;
+
+  /// No description provided for @productsInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get productsInactive;
+
+  /// No description provided for @productsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete product'**
+  String get productsDelete;
+
+  /// No description provided for @productsDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this product? Its stock and sales history will be kept.'**
+  String get productsDeleteConfirm;
+
+  /// No description provided for @productsCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get productsCancel;
+
+  /// No description provided for @productsInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This product has active or paused subscriptions. End those subscriptions before deleting it. You can deactivate it instead.'**
+  String get productsInUse;
+
+  /// No description provided for @productsInsufficient.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock cannot be reduced below zero. Refresh and check the quantity.'**
+  String get productsInsufficient;
+
+  /// No description provided for @productsAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust stock'**
+  String get productsAdjust;
+
+  /// No description provided for @productsDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'Change in packs (for example, -2 or 5)'**
+  String get productsDelta;
+
+  /// No description provided for @productsReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for adjustment'**
+  String get productsReason;
+
+  /// No description provided for @productsApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply adjustment'**
+  String get productsApply;
+
+  /// No description provided for @productsInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the name, pack size, whole-pack quantities and prices. Subscription price must not exceed selling price.'**
+  String get productsInvalid;
+
+  /// No description provided for @productsPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Product photo'**
+  String get productsPhoto;
+
+  /// No description provided for @productsChoosePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose product photo'**
+  String get productsChoosePhoto;
+
+  /// No description provided for @productsRemovePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get productsRemovePhoto;
+
+  /// No description provided for @productsPhotoOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a JPEG or PNG image up to 5 MB.'**
+  String get productsPhotoOnly;
+
+  /// No description provided for @productsPhotoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Product photo unavailable'**
+  String get productsPhotoUnavailable;
+
+  /// No description provided for @productsNoTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'No product types are configured for your category. Contact support.'**
+  String get productsNoTypes;
+
+  /// No description provided for @productsStockValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock: {quantity} packs'**
+  String productsStockValue(int quantity);
 }
 
 class _AppLocalizationsDelegate

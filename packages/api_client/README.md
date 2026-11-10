@@ -80,6 +80,7 @@ Class | Method | HTTP request | Description
 [*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerCreate**](doc/CatalogApi.md#catalogcontrollercreate) | **POST** /api/v1/vendor/products |
 [*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerGet**](doc/CatalogApi.md#catalogcontrollerget) | **GET** /api/v1/vendor/products/{id} |
 [*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerList**](doc/CatalogApi.md#catalogcontrollerlist) | **GET** /api/v1/vendor/products |
+[*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerOptions**](doc/CatalogApi.md#catalogcontrolleroptions) | **GET** /api/v1/vendor/products/options |
 [*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerPatch**](doc/CatalogApi.md#catalogcontrollerpatch) | **PATCH** /api/v1/vendor/products/{id} |
 [*CatalogApi*](doc/CatalogApi.md) | [**catalogControllerRemove**](doc/CatalogApi.md#catalogcontrollerremove) | **DELETE** /api/v1/vendor/products/{id} |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerCreate**](doc/CategoriesApi.md#categoriescontrollercreate) | **POST** /api/v1/admin/categories |
@@ -136,6 +137,7 @@ Class | Method | HTTP request | Description
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)
+ - [ProductOptions](doc/ProductOptions.md)
  - [ProductPatch](doc/ProductPatch.md)
  - [ProductResponse](doc/ProductResponse.md)
  - [RefreshDto](doc/RefreshDto.md)
