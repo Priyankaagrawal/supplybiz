@@ -456,7 +456,7 @@ Manual verification (pending; use synthetic documents/accounts only):
 
 ## T-025 service area implementation handoff (2026-11-10)
 
-IN_PROGRESS: Vendor → More → Service area (`/vendor/service-area`, S-V-30).
+READY_FOR_VERIFY: Vendor → More → Service area (`/vendor/service-area`, S-V-30).
 T-016 and T-023 are READY_FOR_VERIFY and permit work against their stable contracts.
 Day 4 catalog T-026 was skipped because its required BUSINESS+ low-stock alert behavior
 still references open Q-34 threshold and Q-04 entitlement policies; those tasks/statuses
@@ -486,42 +486,67 @@ flutter --version
 flutter gen-l10n
 dart run build_runner build --build-filter=lib/core/router/routes.g.dart --delete-conflicting-outputs
 dart format lib/features/service_area lib/core/storage/device_location.dart test/features/service_area lib/core/router/routes.dart lib/core/router/route_widgets.dart
+dart format integration_test/service_area_test.dart
 flutter analyze --no-pub
 flutter test --no-pub --reporter expanded test/features/service_area/service_area_test.dart test/core/router/guards_test.dart
 flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+flutter test integration_test/service_area_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub --reporter expanded
 ```
 Generation/formatting succeed; analysis is clean; all 9 focused checks pass. The widget
 smoke exercises GPS denial and invalid coverage at 200% text; simulated HTTP tests exercise
 saved-value reload, interrupted request recreation/key reuse, changed-payload keys and
-server re-verification rejection. This is not native Android or live API/DB evidence.
+server re-verification rejection. Those focused tests use simulated HTTP responses.
 The initial generator run without `--delete-conflicting-outputs` failed on its existing
 generated output; the corrected scoped command passed. Initial analysis errors and a
 widget-test async setup stall were corrected before the passing checks.
 
-APK build: NOT PASSED. Online attempts stalled in Gradle and were cancelled. An offline
+Initial attempt (superseded by the successful checks below): online attempts stalled in
+Gradle and were cancelled. An offline
 diagnostic from `apps/mobile/android` (`.\gradlew.bat :app:assembleDevDebug --offline
 --console=plain -Ptarget=lib/main_dev.dart -Ptarget-platform=android-arm64`) failed while
 configuring existing `flutter_secure_storage`: missing cached AGP/builder 8.13.2,
 Kotlin reflect/stdlib 2.2.0 and analytics protos 31.13.2. PowerShell split the unquoted
 target argument in that diagnostic; dependency resolution failed before target evaluation.
-No APK/native Kotlin compilation success is claimed. Do not downgrade dependencies or
-disable checks to bypass this prerequisite; restore artifact access and rerun the normal
-Flutter build above. No build/test service is intentionally left running.
+The build blocker was resolved on resumption: the normal Flutter build completed in
+557 seconds, compiling native Kotlin and producing `build/app/outputs/flutter-apk/app-dev-debug.apk`.
+No dependency, Gradle configuration or application-source change was needed. Android
+emulator-5554 was available on resumption; the APK installed successfully.
+
+Two native `integration_test/service_area_test.dart` checks PASS (13 seconds after test
+startup): isolated SQLCipher storage closes/reopens and restores the pending payload/key;
+another owner cannot read it and raw DB bytes do not expose the synthetic pincode; the
+real Android form saves at 200% text using the same key and clears pending state; native
+location requests can complete/cancel twice without leaving the channel busy. The test
+uses separate secure-storage/DB files and cleans them afterward. API responses are
+simulated, not live server/DB evidence. A successful GPS fix and OS permission dialogs
+remain manual checks. The integration APK build also passed (80.7 seconds).
 
 Executed from repository root:
 ```powershell
 adb devices
+adb -s emulator-5554 install -r -g apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk
 node --check tools/check-task.mjs
 node --test tools/checks.spec.mjs
 git diff --check
 ```
-ADB lists no devices; the installed `C:/Android` SDK has no emulator executable.
+ADB initially listed no devices; emulator-5554 was connected for the successful checks.
+The normal APK was preserved at ignored `.dart_tool/t025-normal-app-dev-debug.apk` before
+the integration build, then restored with `adb -s emulator-5554 install -r
+.dart_tool/t025-normal-app-dev-debug.apk` so the test entrypoint is not left installed.
+The normal APK also replaces the integration APK in the standard build output path.
+Location permission grants used by the smoke were revoked afterward with `adb -s
+emulator-5554 shell pm revoke in.supplybiz.mobile.dev android.permission.ACCESS_FINE_LOCATION`
+and the equivalent `ACCESS_COARSE_LOCATION` command, allowing manual permission testing.
+Only the Gradle/Kotlin daemons started by these checks were stopped; the existing
+emulator and services are preserved.
 Runner syntax and all 4 guard checks pass; diff whitespace check passes. T-025 focused
 checks are registered in the existing runner; full runner/hosted CI/module suites NOT_RUN.
-Native GPS permission/fix, app → live API/PostgreSQL, TalkBack and manual PASS are NOT_RUN.
-iOS checks are DEFERRED (ADR-025). G0/G1 remain pending; task is not READY_FOR_VERIFY/DONE.
+GPS permission prompts/fix, app → live API/PostgreSQL, TalkBack and user manual PASS are
+NOT_RUN. iOS checks are DEFERRED (ADR-025). G0/G1 remain pending. Task is READY_FOR_VERIFY;
+DONE requires manual PASS under AGENTS §11/PROMPTS §6. The pre-existing emulator/services
+are preserved; no newly started build/test process is intentionally left running.
 
-Manual verification after a successful Android build (not executed):
+Manual verification (pending; Android build prerequisite now passes):
 1. Start the existing test API with the T-023 migration applied. On Android sign in as a
    synthetic vendor, complete business onboarding, then open More → Service area. Confirm
    server location and coverage prefill; save valid shop details and reopen to verify DB

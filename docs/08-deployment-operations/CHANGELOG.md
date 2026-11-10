@@ -4,7 +4,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
-- T-025 (IN_PROGRESS, 2026-11-10): vendor More → Service area form for shop address/coordinates and radius OR additional pincodes, optional foreground Android GPS with manual fallback, generated-client saves, encrypted interrupted-request recovery and server re-verification errors. Nine focused checks and analysis pass; APK/native-device/live API verification remain incomplete because Gradle artifacts are missing and no Android device is connected. See mobile README handoff; iOS deferred.
+- T-025 (READY_FOR_VERIFY, 2026-11-10): vendor More → Service area form for shop address/coordinates and radius OR additional pincodes, optional foreground Android GPS with manual fallback, generated-client saves, encrypted interrupted-request recovery and server re-verification errors. Nine focused checks, clean analysis, Android dev APK build/install, two native encrypted-retry/form/200%-text/location-channel smoke checks and four runner guards pass. Previous Gradle/device blockers resolved; mobile HTTP responses simulated. Live API/DB, GPS fix/permission prompts, TalkBack/manual PASS and G0/G1 pending; see mobile README; iOS deferred.
 
 - T-023 (READY_FOR_VERIFY, 2026-11-10): owned, idempotent service-area radius/pincode configuration with PostGIS radius OR pincode coverage and regenerated clients. Windows storage now validates private ACLs for directories/media while preserving POSIX checks. Eleven native HTTP/PostGIS checks, six storage/ACL checks, two runtime smoke checks, four runner guards and API/client checks pass. Manual PASS and G0/G1 pending; see API README.
 
