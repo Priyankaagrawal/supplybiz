@@ -62,6 +62,10 @@ String? guardRedirect(RouteAccess access, String path) {
   if (requiredRole != null && requiredRole != access.activeRole) {
     return '/common/switch-role';
   }
+  if (access.activeRole == AppRole.vendor &&
+      path == '/vendor/onboarding/status') {
+    return null;
+  }
   if (isEntryRoute(path) || path.startsWith('/vendor/onboarding/')) {
     return unlessHere(access.home);
   }

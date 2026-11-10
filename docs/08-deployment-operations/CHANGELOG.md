@@ -4,6 +4,8 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ## [Unreleased]
 
+- T-024 (READY_FOR_VERIFY, 2026-11-10): Android vendor category/business/KYC/status screens use existing generated APIs, encrypted resumable drafts with v1→v2 migration, durable form retry keys, private uploads/previews, manual Aadhaar image masking and FLAG_SECURE. Manual-review/rejection/resubmission and unverified status guidance are wired. Twenty-two focused checks, clean analysis, Android dev build and native encrypted-storage/security smoke pass; HTTP responses in mobile checks are simulated. Live API/DB, SAF/PDF interaction, TalkBack/manual PASS and G0/G1 remain pending; iOS deferred. See mobile README handoff.
+
 - T-022 (READY_FOR_VERIFY, local API): manual KYC submission/rejection/resubmission/approval with encrypted PAN/bank input, owned document attachments, OPS/SUPER_ADMIN authorization, concurrent/restart-safe replay, immutable review evidence, transactional audit and durable in-app notices; regenerated clients. Nine native KYC checks, two runtime checks and lightweight API/client/consumer checks pass. Manual PASS and G0/G1 pending; push is NOT_RUN and staging/production KYC writes fail closed pending KMS encryption. See API README handoff.
 
 - T-152 (READY_FOR_VERIFY): append-only audit storage, atomic redacted admin-account/auth/private-document history, historical event backfill and SUPER_ADMIN-only S-A-16 viewer with filters/cursor pagination; regenerated clients. Six focused native audit checks (including production Next.js/API/DB smoke), lightweight API/admin/client checks and runner guards pass. Manual browser/accessibility/PASS and G1 pending; retention remains Q-20. See admin README for evidence and verification steps.

@@ -233,4 +233,189 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get configUnavailable =>
       'App configuration is unavailable. Check your connection and try again.';
+
+  @override
+  String get onboardingInvalid => 'Enter a valid value.';
+
+  @override
+  String get onboardingAccountMismatch => 'Account numbers must match.';
+
+  @override
+  String onboardingStep(int step) {
+    return 'Step $step of 4';
+  }
+
+  @override
+  String get onboardingCategory => 'Choose your business category';
+
+  @override
+  String get onboardingNoCategories =>
+      'No categories are available. Try again later.';
+
+  @override
+  String get onboardingBusinessName => 'Business name';
+
+  @override
+  String get onboardingGstin => 'GSTIN (optional)';
+
+  @override
+  String get onboardingAddress => 'Shop address';
+
+  @override
+  String get onboardingCity => 'City';
+
+  @override
+  String get onboardingState => 'State';
+
+  @override
+  String get onboardingPincode => 'Pincode';
+
+  @override
+  String get onboardingLatitude => 'Shop latitude';
+
+  @override
+  String get onboardingLongitude => 'Shop longitude';
+
+  @override
+  String get onboardingShopPhoto => 'Shop photo';
+
+  @override
+  String get onboardingAadhaarFront => 'Masked Aadhaar front';
+
+  @override
+  String get onboardingAadhaarBack => 'Masked Aadhaar back';
+
+  @override
+  String get onboardingPanPhoto => 'PAN document';
+
+  @override
+  String get onboardingPan => 'PAN number';
+
+  @override
+  String get onboardingHolder => 'Account holder name';
+
+  @override
+  String get onboardingBank => 'Bank name';
+
+  @override
+  String get onboardingAccount => 'Account number';
+
+  @override
+  String get onboardingConfirmAccount => 'Confirm account number';
+
+  @override
+  String get onboardingIfsc => 'IFSC';
+
+  @override
+  String get onboardingUpi => 'UPI ID (optional)';
+
+  @override
+  String get onboardingSecurityNote =>
+      'Used only for verification. Screenshots are blocked on these screens.';
+
+  @override
+  String get onboardingMaskGuide =>
+      'Hide the first 8 Aadhaar digits everywhere on the document, including any reverse-side copies. Supply an already masked document or use the image masking tool. Do not upload a full Aadhaar number.';
+
+  @override
+  String get onboardingMaskedPdf =>
+      'PDFs must already be masked. Check every page before choosing this file.';
+
+  @override
+  String get onboardingMaskConfirm =>
+      'I confirm that all Aadhaar numbers have their first 8 digits hidden.';
+
+  @override
+  String get onboardingMaskTool => 'Add a black masking rectangle';
+
+  @override
+  String get onboardingMaskX => 'Mask horizontal position';
+
+  @override
+  String get onboardingMaskY => 'Mask vertical position';
+
+  @override
+  String get onboardingMaskWidth => 'Mask width';
+
+  @override
+  String get onboardingMaskHeight => 'Mask height';
+
+  @override
+  String get onboardingUseDocument => 'Use masked document';
+
+  @override
+  String get onboardingClose => 'Close';
+
+  @override
+  String get onboardingFileError =>
+      'Choose a valid JPG, PNG or PDF up to 5 MB (images up to 20 megapixels).';
+
+  @override
+  String get onboardingSecureError =>
+      'Screen protection is unavailable. Retry before entering verification details.';
+
+  @override
+  String get onboardingPreviewError =>
+      'Unable to open the attachment. Try again.';
+
+  @override
+  String get onboardingDocumentsRequired =>
+      'Attach all three verification documents.';
+
+  @override
+  String get onboardingContinue => 'Save & Continue';
+
+  @override
+  String get onboardingSubmit => 'Submit for verification';
+
+  @override
+  String get onboardingEditBusiness => 'Edit business details';
+
+  @override
+  String get onboardingResubmit => 'Resubmit verification';
+
+  @override
+  String get onboardingRefresh => 'Refresh status';
+
+  @override
+  String get onboardingVerified => 'Verified by manual review';
+
+  @override
+  String get onboardingRejected => 'Verification rejected';
+
+  @override
+  String get onboardingReview => 'Awaiting manual review';
+
+  @override
+  String get onboardingNotVerified => 'Not verified';
+
+  @override
+  String get onboardingHidden =>
+      'Your shop is hidden from customer discovery until verification is approved.';
+
+  @override
+  String get onboardingManualMethod => 'Verification method: manual review';
+
+  @override
+  String get onboardingProviderNotRun => 'Automated provider checks: NOT_RUN';
+
+  @override
+  String onboardingMaskedAccount(String last4) {
+    return 'Account ending $last4';
+  }
+
+  @override
+  String onboardingUpload(String label) {
+    return 'Choose / replace $label';
+  }
+
+  @override
+  String onboardingView(String label) {
+    return 'View $label';
+  }
+
+  @override
+  String onboardingRetryUpload(String label) {
+    return 'Retry upload: $label';
+  }
 }

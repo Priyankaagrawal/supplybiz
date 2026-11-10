@@ -9,6 +9,8 @@ import 'routing_controller.dart';
 import 'routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/auth_pages.dart';
+import '../../features/onboarding/onboarding_controller.dart';
+import '../../features/onboarding/onboarding_pages.dart';
 
 class AppRoutingScope extends InheritedWidget {
   const AppRoutingScope(
@@ -110,6 +112,22 @@ class RoutePlaceholder extends StatelessWidget {
               header: true,
               child: Text(routeLabel(context, title),
                   style: Theme.of(context).textTheme.headlineSmall)),
+          if (title == RouteTitle.home &&
+              scope.controller.access.activeRole == AppRole.vendor)
+            Consumer(builder: (context, ref, _) {
+              if (!ref.watch(authEnabledProvider)) {
+                return const SizedBox.shrink();
+              }
+              final model = ref.watch(onboardingProvider);
+              return Column(children: [
+                VerificationStatus(model: model),
+                TextButton(
+                    onPressed: () =>
+                        const OnboardingRoute(OnboardingStep.status)
+                            .go(context),
+                    child: Text(l10n.onboardingRefresh))
+              ]);
+            }),
           const SizedBox(height: 16),
           Text(
               title == RouteTitle.switchRole

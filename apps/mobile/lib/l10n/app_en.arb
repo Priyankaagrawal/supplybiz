@@ -76,5 +76,95 @@
   "updateRequired": "Update Supply Biz to continue.",
   "updateAction": "Update",
   "updateStoreUnavailable": "The store could not be opened. Try again when it is available.",
-  "configUnavailable": "App configuration is unavailable. Check your connection and try again."
+  "configUnavailable": "App configuration is unavailable. Check your connection and try again.",
+  "onboardingInvalid": "Enter a valid value.",
+  "onboardingAccountMismatch": "Account numbers must match.",
+  "onboardingStep": "Step {step} of 4",
+  "@onboardingStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingCategory": "Choose your business category",
+  "onboardingNoCategories": "No categories are available. Try again later.",
+  "onboardingBusinessName": "Business name",
+  "onboardingGstin": "GSTIN (optional)",
+  "onboardingAddress": "Shop address",
+  "onboardingCity": "City",
+  "onboardingState": "State",
+  "onboardingPincode": "Pincode",
+  "onboardingLatitude": "Shop latitude",
+  "onboardingLongitude": "Shop longitude",
+  "onboardingShopPhoto": "Shop photo",
+  "onboardingAadhaarFront": "Masked Aadhaar front",
+  "onboardingAadhaarBack": "Masked Aadhaar back",
+  "onboardingPanPhoto": "PAN document",
+  "onboardingPan": "PAN number",
+  "onboardingHolder": "Account holder name",
+  "onboardingBank": "Bank name",
+  "onboardingAccount": "Account number",
+  "onboardingConfirmAccount": "Confirm account number",
+  "onboardingIfsc": "IFSC",
+  "onboardingUpi": "UPI ID (optional)",
+  "onboardingSecurityNote": "Used only for verification. Screenshots are blocked on these screens.",
+  "onboardingMaskGuide": "Hide the first 8 Aadhaar digits everywhere on the document, including any reverse-side copies. Supply an already masked document or use the image masking tool. Do not upload a full Aadhaar number.",
+  "onboardingMaskedPdf": "PDFs must already be masked. Check every page before choosing this file.",
+  "onboardingMaskConfirm": "I confirm that all Aadhaar numbers have their first 8 digits hidden.",
+  "onboardingMaskTool": "Add a black masking rectangle",
+  "onboardingMaskX": "Mask horizontal position",
+  "onboardingMaskY": "Mask vertical position",
+  "onboardingMaskWidth": "Mask width",
+  "onboardingMaskHeight": "Mask height",
+  "onboardingUseDocument": "Use masked document",
+  "onboardingClose": "Close",
+  "onboardingFileError": "Choose a valid JPG, PNG or PDF up to 5 MB (images up to 20 megapixels).",
+  "onboardingSecureError": "Screen protection is unavailable. Retry before entering verification details.",
+  "onboardingPreviewError": "Unable to open the attachment. Try again.",
+  "onboardingDocumentsRequired": "Attach all three verification documents.",
+  "onboardingContinue": "Save & Continue",
+  "onboardingSubmit": "Submit for verification",
+  "onboardingEditBusiness": "Edit business details",
+  "onboardingResubmit": "Resubmit verification",
+  "onboardingRefresh": "Refresh status",
+  "onboardingVerified": "Verified by manual review",
+  "onboardingRejected": "Verification rejected",
+  "onboardingReview": "Awaiting manual review",
+  "onboardingNotVerified": "Not verified",
+  "onboardingHidden": "Your shop is hidden from customer discovery until verification is approved.",
+  "onboardingManualMethod": "Verification method: manual review",
+  "onboardingProviderNotRun": "Automated provider checks: NOT_RUN",
+  "onboardingMaskedAccount": "Account ending {last4}",
+  "@onboardingMaskedAccount": {
+    "placeholders": {
+      "last4": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingUpload": "Choose / replace {label}",
+  "@onboardingUpload": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingView": "View {label}",
+  "@onboardingView": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "onboardingRetryUpload": "Retry upload: {label}",
+  "@onboardingRetryUpload": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  }
 }

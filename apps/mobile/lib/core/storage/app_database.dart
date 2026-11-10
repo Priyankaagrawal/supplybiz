@@ -16,14 +16,20 @@ class AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => const [];
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (migrator) => migrator.createAll(),
+        onCreate: (migrator) async {
+          await migrator.createAll();
+          await _createOnboardingDrafts();
+        },
         onUpgrade: (migrator, from, to) async {
-          // Add explicit, tested version steps as feature schemas are introduced.
-          throw StateError('Unsupported local database migration.');
+          if (from == 1 && to == 2) {
+            await _createOnboardingDrafts();
+          } else {
+            throw StateError('Unsupported local database migration.');
+          }
         },
         beforeOpen: (_) async {
           final cipher = await customSelect('PRAGMA cipher_version').get();
@@ -34,6 +40,9 @@ class AppDatabase extends GeneratedDatabase {
           await customStatement('PRAGMA foreign_keys = ON');
         },
       );
+
+  Future<void> _createOnboardingDrafts() => customStatement(
+      'CREATE TABLE onboarding_drafts (owner TEXT PRIMARY KEY, payload TEXT NOT NULL)');
 
   Future<void> open() async {
     await customSelect('SELECT count(*) FROM sqlite_master').getSingle();

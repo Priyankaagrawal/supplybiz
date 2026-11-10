@@ -15,6 +15,7 @@ import 'core/router/route_widgets.dart';
 import 'core/router/guards.dart';
 import 'features/auth/auth_pages.dart';
 import 'features/auth/session_controller.dart';
+import 'features/onboarding/onboarding_controller.dart';
 
 class SupplyBizApp extends StatefulWidget {
   const SupplyBizApp(
@@ -132,6 +133,10 @@ class _SessionBridgeState extends ConsumerState<_SessionBridge>
       final next = widget.enabled ? ref.read(sessionProvider) : null;
       final config = widget.configEnabled ? ref.read(configProvider) : null;
       final old = widget.controller.access;
+      final onboarding =
+          widget.enabled && next?.user?.activeRole?.value == 'VENDOR'
+              ? ref.read(onboardingProvider)
+              : null;
       final role = next?.user?.activeRole?.value;
       widget.controller.update(RouteAccess(
           initialized: (next?.ready ?? true) && (config?.ready ?? true),
@@ -144,11 +149,22 @@ class _SessionBridgeState extends ConsumerState<_SessionBridge>
                   : role == 'CUSTOMER'
                       ? AppRole.customer
                       : null,
-          onboardingComplete: old.onboardingComplete,
-          onboardingStep: old.onboardingStep));
+          onboardingComplete: widget.enabled
+              ? (onboarding?.complete ?? false)
+              : old.onboardingComplete,
+          onboardingStep: onboarding == null
+              ? (widget.enabled ? OnboardingStep.category : old.onboardingStep)
+              : OnboardingStep.values[(onboarding.step - 1).clamp(0, 3)]));
     }
 
-    if (widget.enabled) ref.listen(sessionProvider, (_, __) => sync());
+    if (widget.enabled) {
+      ref.listen(sessionProvider, (_, __) => sync());
+      final user = ref.watch(sessionProvider
+          .select((s) => (s.user?.id, s.user?.activeRole?.value)));
+      if (user.$1 != null && user.$2 == 'VENDOR') {
+        ref.listen(onboardingProvider, (_, __) => sync());
+      }
+    }
     if (widget.configEnabled) ref.listen(configProvider, (_, __) => sync());
     return widget.child;
   }

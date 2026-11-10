@@ -17,6 +17,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.security.MessageDigest
 
 class MainActivity : FlutterActivity() {
+    private val onboardingFiles by lazy { OnboardingFiles(this) }
     private var receiver: BroadcastReceiver? = null
     private var channel: MethodChannel? = null
 
@@ -43,6 +44,7 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/onboarding").setMethodCallHandler(onboardingFiles::handle)
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/sms")
         channel?.setMethodCallHandler { call, result ->
             when (call.method) {
@@ -93,7 +95,11 @@ class MainActivity : FlutterActivity() {
         receiver?.let { unregisterReceiver(it) }
         receiver = null
     }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onboardingFiles.selected(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data)
+    }
     override fun onDestroy() {
+        onboardingFiles.dispose()
         stopRetriever()
         channel?.setMethodCallHandler(null)
         super.onDestroy()

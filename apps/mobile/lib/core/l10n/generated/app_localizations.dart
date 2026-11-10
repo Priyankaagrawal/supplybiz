@@ -513,6 +513,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App configuration is unavailable. Check your connection and try again.'**
   String get configUnavailable;
+
+  /// No description provided for @onboardingInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid value.'**
+  String get onboardingInvalid;
+
+  /// No description provided for @onboardingAccountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Account numbers must match.'**
+  String get onboardingAccountMismatch;
+
+  /// No description provided for @onboardingStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of 4'**
+  String onboardingStep(int step);
+
+  /// No description provided for @onboardingCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your business category'**
+  String get onboardingCategory;
+
+  /// No description provided for @onboardingNoCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories are available. Try again later.'**
+  String get onboardingNoCategories;
+
+  /// No description provided for @onboardingBusinessName.
+  ///
+  /// In en, this message translates to:
+  /// **'Business name'**
+  String get onboardingBusinessName;
+
+  /// No description provided for @onboardingGstin.
+  ///
+  /// In en, this message translates to:
+  /// **'GSTIN (optional)'**
+  String get onboardingGstin;
+
+  /// No description provided for @onboardingAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop address'**
+  String get onboardingAddress;
+
+  /// No description provided for @onboardingCity.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get onboardingCity;
+
+  /// No description provided for @onboardingState.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get onboardingState;
+
+  /// No description provided for @onboardingPincode.
+  ///
+  /// In en, this message translates to:
+  /// **'Pincode'**
+  String get onboardingPincode;
+
+  /// No description provided for @onboardingLatitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop latitude'**
+  String get onboardingLatitude;
+
+  /// No description provided for @onboardingLongitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop longitude'**
+  String get onboardingLongitude;
+
+  /// No description provided for @onboardingShopPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop photo'**
+  String get onboardingShopPhoto;
+
+  /// No description provided for @onboardingAadhaarFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Masked Aadhaar front'**
+  String get onboardingAadhaarFront;
+
+  /// No description provided for @onboardingAadhaarBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Masked Aadhaar back'**
+  String get onboardingAadhaarBack;
+
+  /// No description provided for @onboardingPanPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'PAN document'**
+  String get onboardingPanPhoto;
+
+  /// No description provided for @onboardingPan.
+  ///
+  /// In en, this message translates to:
+  /// **'PAN number'**
+  String get onboardingPan;
+
+  /// No description provided for @onboardingHolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Account holder name'**
+  String get onboardingHolder;
+
+  /// No description provided for @onboardingBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank name'**
+  String get onboardingBank;
+
+  /// No description provided for @onboardingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number'**
+  String get onboardingAccount;
+
+  /// No description provided for @onboardingConfirmAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm account number'**
+  String get onboardingConfirmAccount;
+
+  /// No description provided for @onboardingIfsc.
+  ///
+  /// In en, this message translates to:
+  /// **'IFSC'**
+  String get onboardingIfsc;
+
+  /// No description provided for @onboardingUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID (optional)'**
+  String get onboardingUpi;
+
+  /// No description provided for @onboardingSecurityNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Used only for verification. Screenshots are blocked on these screens.'**
+  String get onboardingSecurityNote;
+
+  /// No description provided for @onboardingMaskGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the first 8 Aadhaar digits everywhere on the document, including any reverse-side copies. Supply an already masked document or use the image masking tool. Do not upload a full Aadhaar number.'**
+  String get onboardingMaskGuide;
+
+  /// No description provided for @onboardingMaskedPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDFs must already be masked. Check every page before choosing this file.'**
+  String get onboardingMaskedPdf;
+
+  /// No description provided for @onboardingMaskConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirm that all Aadhaar numbers have their first 8 digits hidden.'**
+  String get onboardingMaskConfirm;
+
+  /// No description provided for @onboardingMaskTool.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a black masking rectangle'**
+  String get onboardingMaskTool;
+
+  /// No description provided for @onboardingMaskX.
+  ///
+  /// In en, this message translates to:
+  /// **'Mask horizontal position'**
+  String get onboardingMaskX;
+
+  /// No description provided for @onboardingMaskY.
+  ///
+  /// In en, this message translates to:
+  /// **'Mask vertical position'**
+  String get onboardingMaskY;
+
+  /// No description provided for @onboardingMaskWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Mask width'**
+  String get onboardingMaskWidth;
+
+  /// No description provided for @onboardingMaskHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Mask height'**
+  String get onboardingMaskHeight;
+
+  /// No description provided for @onboardingUseDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Use masked document'**
+  String get onboardingUseDocument;
+
+  /// No description provided for @onboardingClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get onboardingClose;
+
+  /// No description provided for @onboardingFileError.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a valid JPG, PNG or PDF up to 5 MB (images up to 20 megapixels).'**
+  String get onboardingFileError;
+
+  /// No description provided for @onboardingSecureError.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen protection is unavailable. Retry before entering verification details.'**
+  String get onboardingSecureError;
+
+  /// No description provided for @onboardingPreviewError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open the attachment. Try again.'**
+  String get onboardingPreviewError;
+
+  /// No description provided for @onboardingDocumentsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach all three verification documents.'**
+  String get onboardingDocumentsRequired;
+
+  /// No description provided for @onboardingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Continue'**
+  String get onboardingContinue;
+
+  /// No description provided for @onboardingSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for verification'**
+  String get onboardingSubmit;
+
+  /// No description provided for @onboardingEditBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit business details'**
+  String get onboardingEditBusiness;
+
+  /// No description provided for @onboardingResubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Resubmit verification'**
+  String get onboardingResubmit;
+
+  /// No description provided for @onboardingRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh status'**
+  String get onboardingRefresh;
+
+  /// No description provided for @onboardingVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified by manual review'**
+  String get onboardingVerified;
+
+  /// No description provided for @onboardingRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification rejected'**
+  String get onboardingRejected;
+
+  /// No description provided for @onboardingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting manual review'**
+  String get onboardingReview;
+
+  /// No description provided for @onboardingNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not verified'**
+  String get onboardingNotVerified;
+
+  /// No description provided for @onboardingHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop is hidden from customer discovery until verification is approved.'**
+  String get onboardingHidden;
+
+  /// No description provided for @onboardingManualMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification method: manual review'**
+  String get onboardingManualMethod;
+
+  /// No description provided for @onboardingProviderNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Automated provider checks: NOT_RUN'**
+  String get onboardingProviderNotRun;
+
+  /// No description provided for @onboardingMaskedAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account ending {last4}'**
+  String onboardingMaskedAccount(String last4);
+
+  /// No description provided for @onboardingUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose / replace {label}'**
+  String onboardingUpload(String label);
+
+  /// No description provided for @onboardingView.
+  ///
+  /// In en, this message translates to:
+  /// **'View {label}'**
+  String onboardingView(String label);
+
+  /// No description provided for @onboardingRetryUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry upload: {label}'**
+  String onboardingRetryUpload(String label);
 }
 
 class _AppLocalizationsDelegate

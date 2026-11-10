@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'route_widgets.dart';
 import 'guards.dart';
 import '../../features/auth/auth_pages.dart';
+import '../../features/onboarding/onboarding_pages.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
 
@@ -66,8 +68,10 @@ class OnboardingRoute extends GoRouteData with _$OnboardingRoute {
   const OnboardingRoute(this.step);
   final OnboardingStep step;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.onboarding);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const OnboardingPage()
+          : const RoutePlaceholder(title: RouteTitle.onboarding));
 }
 
 @TypedStatefulShellRoute<VendorShell>(branches: [

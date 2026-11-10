@@ -364,3 +364,92 @@ Manual verification (suggested commands/actions, not an automated PASS):
 4. Restore the original test policy and resume/Retry: the block should clear. With
    TalkBack and 200% text, review labels, targets, scrolling and the store error.
    Restore all test data and stop the manually started API; record manual PASS separately.
+
+## T-024 vendor onboarding handoff (2026-11-10)
+
+S-V-01–04 now use the existing generated onboarding/KYC/media clients. Vendor session
+restoration loads the server's saved step. Category selection, validated business
+fields/manual coordinates, owned shop-photo attachment, KYC uploads, bank validation,
+manual-review status/rejection reason and resubmission are connected. Submitted vendors
+can enter the existing vendor shell; its status banner links back to verification.
+Dashboard business metrics remain T-031. Discovery enforcement remains server-owned;
+this task does not claim a discovery journey or resolve plan/visibility policy questions.
+
+Unfinished fields and opaque attachment IDs are serialized to account/API-scoped SQLCipher
+rows (local schema v2, additive migration from v1). Form mutation keys/payloads persist
+before requests, retaining the key for identical retries. Successful KYC submission clears
+full PAN/account inputs and its retry payload from the draft; status only shows account
+last-four. Logout's existing database wipe removes drafts. Disposed account controllers
+cannot enqueue further writes. No document bytes enter drafts or logs.
+
+Android uses the Storage Access Framework without broad storage permissions or a new
+package. Selection is bounded to 5 MB, validates decoded image type/dimensions, re-encodes
+images with EXIF removal/orientation, and leaves PDFs unchanged. Uploads use opaque media
+IDs and authenticated reads; images display in a private dialog and PDFs preview their
+first page. PDFs must be supplied already masked on every page. Aadhaar image selection
+includes masking guidance, an accessible adjustable black-rectangle fallback and explicit
+masking confirmation. Encoded masking is flattened into pixels; no automatic OCR/masking
+verification is claimed (ADR-027). Supply pre-masked files for documents with multiple
+number copies that need more than one rectangle. Server byte/decode/ownership checks
+remain authoritative. Transient failed uploads retain their in-memory bytes/key for Retry;
+non-retryable validation failures permit selecting a replacement.
+
+All onboarding screens acquire owner-scoped Android FLAG_SECURE before exposing fields
+and release it when disposed. Failure blocks the forms with Retry while Settings stays
+available for role switching/logout. Sensitive form data is never sent to diagnostics.
+No iOS source/configuration changed; iOS build/run/security checks are DEFERRED (ADR-025).
+No API contract changed; only ARB localization output was regenerated.
+
+Executed from `apps/mobile`, pinned Flutter 3.35.7 / Dart 3.9.2, JDK 21:
+```sh
+/Users/ankit/.pub-cache/bin/fvm flutter gen-l10n
+/Users/ankit/.pub-cache/bin/fvm dart format lib/features/onboarding lib/core/storage/onboarding_device.dart test/features/onboarding integration_test/onboarding_test.dart
+/Users/ankit/.pub-cache/bin/fvm flutter analyze --no-pub
+/Users/ankit/.pub-cache/bin/fvm flutter test --no-pub --reporter expanded test/features/onboarding test/core/router/guards_test.dart test/core/storage/app_storage_test.dart test/features/auth/auth_pages_test.dart
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home /Users/ankit/.pub-cache/bin/fvm flutter test integration_test/onboarding_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub --reporter expanded
+JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk-21.jdk/Contents/Home /Users/ankit/.pub-cache/bin/fvm flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Results: clean analysis; 22 focused checks; one Android native smoke; normal dev APK built.
+The native smoke exercises real SQLCipher v1→v2 migration, close/reopen persistence,
+plaintext absence in the DB file, owner separation, restored KYC fields and native secure
+flag acquisition/release, using isolated secrets/files with cleanup. Generated-client
+HTTP responses are simulated: mobile → live API/PostgreSQL/provider delivery is NOT_RUN.
+The native file-picker interaction and PDF rendering are NOT_RUN by automation; they need
+manual checks below. Prior API T-020–022 evidence remains separate. Initial test fixture,
+widget async/lint and Settings-on-security-failure defects were corrected; final commands
+pass. The first native install failed with an offline emulator; retry after boot passed.
+
+Executed from repository root:
+```sh
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+git diff --check
+/Users/ankit/Library/Android/sdk/platform-tools/adb -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+Four task-runner guard tests pass. T-024 is registered for focused mobile CI; the full task
+runner/hosted CI and comprehensive G0/G1 suites were NOT_RUN. No API/worker/manual harness
+was started. The headless emulator launched for this check exited; a separately launched
+emulator subsequently available on emulator-5554 is preserved. The normal dev APK replaces
+the integration-test APK after checking; no test process is left running.
+
+Manual verification (pending; use synthetic documents/accounts only):
+1. Start the documented T-016 development/test auth harness or an existing test API against
+   an appropriately migrated dedicated test DB, private UPLOAD_ROOT and the local-only KYC
+   encryption configuration described in the API T-022 README. Use the normal Android dev
+   entrypoint, log in and choose Vendor. Verify category selection is required; save business
+   fields with coordinates and optional GSTIN; reject invalid names/GSTIN/pincode/coordinates.
+2. Choose a JPG/PNG and a PDF shop attachment; preview/reload it through the authenticated API.
+   Reject a >5 MB or unsupported file; try offline upload then Retry. Kill/relaunch during a
+   partially filled step: saved fields and completed attachments must resume for this account.
+3. Attach already-masked synthetic Aadhaar front/back and PAN. Exercise image masking and
+   confirm encoded preview hides the first eight digits; PDFs must already be masked on all
+   pages (in-app preview shows the first page only). Mismatched account confirmation, malformed
+   PAN/IFSC/UPI and missing documents must prevent submission. Check screenshots are blocked.
+4. Submit once, retry/refresh/relaunch and confirm the API/DB has one manual-review case and
+   provider checks remain NOT_RUN. Use the T-022 authorized API review instructions (T-151 UI
+   is still TODO) to reject with a reason; refresh, correct/resubmit, then approve. Confirm the
+   reason/status/masked account and vendor-shell banner reflect server results.
+5. Review all four screens, file controls and mask sliders with TalkBack and 200% text. Switch
+   roles/log out, sign in as a different synthetic user and verify draft isolation; log back
+   in and verify the expected server step. Stop manually started services afterward. Record
+   task-specific manual PASS separately; T-024 is not DONE and no module gate is passed.
