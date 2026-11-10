@@ -1,5 +1,67 @@
 # Admin — T-150 handoff
 
+## T-153 — Categories implementation handoff (2026-11-10)
+
+S-A-08 is `/categories`, linked from the workspace for OPS/SUPER_ADMIN.
+Create/edit English name, code, icon identifier, type, availability, display order
+and product types. Hidden preserves vendor references; referenced category types
+cannot change. BILL taxonomy creates no bill-payment flow. Writes use the generated
+server-side client, origin/session-bound CSRF, stable form retry keys and atomic
+actor-scoped replay/category/audit persistence. No schema migration was needed.
+
+Status: READY_FOR_VERIFY. API lint/typecheck/build, regenerated TypeScript/Dart
+clients, admin lint/TypeScript/production build and Dart client analysis pass.
+Native test DB `supplybiz_service_area_test` has all 12 migrations. Seven focused
+checks pass, including production Next.js → BFF → API → PostgreSQL rendering/save,
+cross-origin denial and restricted-role page denial. Four admin security tests,
+two native-runtime checks and four task-runner guard checks also pass. The
+audit-failure injection targets AppModule's database instance explicitly
+(AuthModule has another instance) and proves the category write rolls back.
+The earlier permission blocker is resolved by user approval; the initial sandbox
+startup timeout is resolved by running the native checks outside the sandbox.
+No manual PASS or G0/G1 pass is claimed.
+
+Executed commands (repository root unless a directory is specified):
+```powershell
+pnpm.cmd --filter @supplybiz/api typecheck
+pnpm.cmd --filter @supplybiz/api lint
+pnpm.cmd --filter @supplybiz/api build
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+pnpm.cmd --filter @supplybiz/api exec prisma migrate status --schema src/prisma/schema.prisma
+pnpm.cmd --filter @supplybiz/admin typecheck # initially failed; fixed, then tsc below passed
+pnpm.cmd --filter @supplybiz/admin lint
+pnpm.cmd --filter @supplybiz/admin build
+pnpm.cmd --filter @supplybiz/admin test
+# In apps/admin and apps/api respectively:
+node node_modules/typescript/bin/tsc --noEmit
+# In packages/api_client:
+dart.bat analyze
+# Root, with ADMIN_TEST_DATABASE_URL and DATABASE_URL loaded from ignored local
+# environment credentials, restricted to localhost/supplybiz_service_area_test:
+$env:CATEGORIES_ADMIN_SMOKE = '1'
+node apps/api/node_modules/jest/bin/jest.js --config apps/api/jest.config.ts --runInBand --testTimeout=30000 --runTestsByPath apps/api/src/modules/categories/categories.postgres.spec.ts
+# NATIVE_TEST_DATABASE_URL and DATABASE_URL use that same isolated local database:
+node apps/api/node_modules/jest/bin/jest.js --config apps/api/test/jest-e2e.json --runInBand --testTimeout=30000 --runTestsByPath apps/api/test/native-runtime.e2e-spec.ts
+node --test tools/checks.spec.mjs
+git diff --check
+```
+NOT_RUN: browser keyboard/200%/manual PASS and deployed HTTPS. No new check services
+remain running; the production smoke server on port 3143 was stopped by its test.
+Local Node 23 differs from the pinned Node 20 baseline. The registered T-153 task
+runner includes admin checks and enables this production smoke automatically.
+
+Manual verification after checks, using the existing local setup below:
+1. Sign in as OPS/SUPER_ADMIN; open Categories, create a SUPPLY category, then
+   reload and verify its icon, product types and display order persist.
+2. Edit its name/order and set Coming soon, Enabled, then Hidden; verify the
+   enabled supply list used by onboarding includes only enabled supply categories.
+3. Repeat a save submission and try a duplicate code/invalid fields; confirm one
+   write/audit for the replay and an understandable error for invalid changes.
+4. As SUPER_ADMIN, filter Audit log by CATEGORY_CREATE/CATEGORY_UPDATE and check
+   actor/before/after. SUPPORT/FINANCE must have no link or category API access.
+5. Check keyboard focus, labels, expansion and saving at 200% zoom; hide a category
+   referenced by a vendor and confirm that vendor record remains intact.
+
 T-150 implements S-A-01 / FR-400 and ADR-026. Status: READY_FOR_VERIFY; manual PASS and G1 remain pending.
 
 ## Local setup (suggested commands; services are stopped after automated checks)

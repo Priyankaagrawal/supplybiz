@@ -16,6 +16,13 @@ part 'audit_snapshot.g.dart';
 class AuditSnapshot {
   /// Returns a new [AuditSnapshot] instance.
   AuditSnapshot({
+    this.code,
+    this.name,
+    this.icon,
+    this.type,
+    this.sortOrder,
+    this.productTypes,
+    this.id,
     this.role,
     this.status,
     this.failedAttempts,
@@ -26,6 +33,55 @@ class AuditSnapshot {
     this.providerChecks,
     this.reviewerId,
   });
+
+  @JsonKey(
+    name: r'code',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? code;
+
+  @JsonKey(
+    name: r'name',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? name;
+
+  @JsonKey(
+    name: r'icon',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? icon;
+
+  @JsonKey(
+    name: r'type',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? type;
+
+  @JsonKey(
+    name: r'sortOrder',
+    required: false,
+    includeIfNull: false,
+  )
+  final num? sortOrder;
+
+  @JsonKey(
+    name: r'productTypes',
+    required: false,
+    includeIfNull: false,
+  )
+  final List<String>? productTypes;
+
+  @JsonKey(
+    name: r'id',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? id;
 
   @JsonKey(
     name: r'role',
@@ -94,6 +150,13 @@ class AuditSnapshot {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AuditSnapshot &&
+          other.code == code &&
+          other.name == name &&
+          other.icon == icon &&
+          other.type == type &&
+          other.sortOrder == sortOrder &&
+          other.productTypes == productTypes &&
+          other.id == id &&
           other.role == role &&
           other.status == status &&
           other.failedAttempts == failedAttempts &&
@@ -106,6 +169,13 @@ class AuditSnapshot {
 
   @override
   int get hashCode =>
+      code.hashCode +
+      name.hashCode +
+      (icon == null ? 0 : icon.hashCode) +
+      type.hashCode +
+      sortOrder.hashCode +
+      productTypes.hashCode +
+      id.hashCode +
       role.hashCode +
       status.hashCode +
       failedAttempts.hashCode +

@@ -13,6 +13,7 @@ export default async function Home() {
  return <><h1 className="text-2xl font-semibold">Admin workspace</h1><p className="my-4">Signed in as {data.role}. Sessions end after 30 minutes of inactivity or eight hours.</p>
  {data.permissions.includes('audit.read') && <a className="inline-flex min-h-12 items-center underline" href="/audit-logs">Open audit log</a>}
  {data.permissions.includes('kyc.review') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/kyc">Open manual KYC queue</a>}
+ {data.permissions.includes('categories.manage') && <a className="inline-flex min-h-12 items-center underline" href="/categories">Manage categories</a>}
  <h2 className="text-xl font-semibold">Your account permissions</h2><ul className="my-4 list-inside list-disc">{data.permissions.map(permission => <li key={permission}>{labels[permission]}</li>)}</ul>
  <form action="/auth/logout" method="post"><input type="hidden" name="csrf" value={csrf(token)} /><button className="min-h-12 rounded bg-slate-800 px-6 text-white">Sign out</button></form></>;
 }

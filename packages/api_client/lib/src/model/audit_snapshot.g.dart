@@ -12,6 +12,14 @@ AuditSnapshot _$AuditSnapshotFromJson(Map<String, dynamic> json) =>
       json,
       ($checkedConvert) {
         final val = AuditSnapshot(
+          code: $checkedConvert('code', (v) => v as String?),
+          name: $checkedConvert('name', (v) => v as String?),
+          icon: $checkedConvert('icon', (v) => v as String?),
+          type: $checkedConvert('type', (v) => v as String?),
+          sortOrder: $checkedConvert('sortOrder', (v) => v as num?),
+          productTypes: $checkedConvert('productTypes',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
+          id: $checkedConvert('id', (v) => v as String?),
           role: $checkedConvert('role', (v) => v as String?),
           status: $checkedConvert('status', (v) => v as String?),
           failedAttempts: $checkedConvert('failed_attempts', (v) => v as num?),
@@ -38,6 +46,13 @@ AuditSnapshot _$AuditSnapshotFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$AuditSnapshotToJson(AuditSnapshot instance) =>
     <String, dynamic>{
+      if (instance.code case final value?) 'code': value,
+      if (instance.name case final value?) 'name': value,
+      if (instance.icon case final value?) 'icon': value,
+      if (instance.type case final value?) 'type': value,
+      if (instance.sortOrder case final value?) 'sortOrder': value,
+      if (instance.productTypes case final value?) 'productTypes': value,
+      if (instance.id case final value?) 'id': value,
       if (instance.role case final value?) 'role': value,
       if (instance.status case final value?) 'status': value,
       if (instance.failedAttempts case final value?) 'failed_attempts': value,

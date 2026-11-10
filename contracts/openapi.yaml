@@ -1,5 +1,86 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/categories:
+    get:
+      operationId: CategoriesController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryList'
+      tags:
+        - categories
+      security:
+        - bearer: []
+    post:
+      operationId: CategoriesController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryRow'
+      tags:
+        - categories
+      security:
+        - bearer: []
+  /api/v1/admin/categories/{id}:
+    put:
+      operationId: CategoriesController_update
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryRow'
+      tags:
+        - categories
+      security:
+        - bearer: []
   /api/v1/vendor/kyc:
     get:
       operationId: KycController_status
@@ -833,6 +914,89 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    CategoryRow:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          description: Icon identifier, not a URL or HTML. Empty clears the icon.
+        type:
+          type: string
+          enum:
+            - SUPPLY
+            - BILL
+        status:
+          type: string
+          enum:
+            - ENABLED
+            - COMING_SOON
+            - HIDDEN
+        sortOrder:
+          type: number
+        productTypes:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+          format: uuid
+      required:
+        - code
+        - name
+        - icon
+        - type
+        - status
+        - sortOrder
+        - productTypes
+        - id
+    CategoryList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryRow'
+      required:
+        - items
+    CategoryInput:
+      type: object
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          description: Icon identifier, not a URL or HTML. Empty clears the icon.
+        type:
+          type: string
+          enum:
+            - SUPPLY
+            - BILL
+        status:
+          type: string
+          enum:
+            - ENABLED
+            - COMING_SOON
+            - HIDDEN
+        sortOrder:
+          type: number
+        productTypes:
+          type: array
+          items:
+            type: string
+      required:
+        - code
+        - name
+        - icon
+        - type
+        - status
+        - sortOrder
+        - productTypes
     KycResponse:
       type: object
       properties:
@@ -981,6 +1145,24 @@ components:
     AuditSnapshot:
       type: object
       properties:
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+        type:
+          type: string
+        sortOrder:
+          type: number
+        productTypes:
+          type: array
+          items:
+            type: string
+        id:
+          type: string
+          format: uuid
         role:
           type: string
         status:

@@ -211,6 +211,17 @@ T-150 implements password login → five-minute challenge → mandatory TOTP ver
 
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?beforeId=`, `GET /admin/kyc/{submissionId}`, `POST /admin/kyc/{submissionId}/decision` (T-022); document reads use `GET /admin/media/{mediaId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
+T-153 implements `GET/POST /admin/categories` and `PUT /admin/categories/{id}`.
+OPS/SUPER_ADMIN require `categories.manage`; writes also require CSRF and a
+1–120 character Idempotency-Key. Fields: `code` (uppercase identifier), `name`
+(English), `icon` (identifier or empty), `type` (SUPPLY/BILL), `status`
+(ENABLED/COMING_SOON/HIDDEN), nonnegative integer `sortOrder`, `productTypes`
+(up to 50 unique nonblank names). List returns `{ items }` in order/code order.
+Hidden replaces removal and preserves vendor references. Type changes are rejected
+when a vendor references the category. Duplicate code returns 409, missing ID 404,
+changed retry payload/path 422. Actor-scoped concurrent replay, category write and
+immutable before/after audit commit together. No bill-payment actions are added.
+
 T-152 implements `GET /admin/audit-logs` with `audit.read` (SUPER_ADMIN only), no-store responses and no write endpoint. Optional `action` (uppercase/underscore, ≤64), `actorId` and `beforeId` (UUID cursor) filters return `{items, hasMore}` in descending `(at,id)` order, at most 50 rows. Each item includes actor type/id, action, entity/id, redacted before/after, socket IP and UTC time. Historical unavailable values remain null. S-A-16 calls this only from the Next.js server; no staff token reaches the browser.
 
 ## 5. Key Examples

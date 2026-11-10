@@ -10,6 +10,13 @@ export class AuditQuery {
   @ApiPropertyOptional({ format: 'uuid' }) @IsOptional() @IsUUID() actorId?: string;
 }
 class AuditSnapshot {
+  @ApiPropertyOptional() code?: string;
+  @ApiPropertyOptional() name?: string;
+  @ApiPropertyOptional({ type: String, nullable: true }) icon?: string | null;
+  @ApiPropertyOptional() type?: string;
+  @ApiPropertyOptional() sortOrder?: number;
+  @ApiPropertyOptional({ type: [String] }) productTypes?: string[];
+  @ApiPropertyOptional({ format: 'uuid' }) id?: string;
   @ApiPropertyOptional() role?: string;
   @ApiPropertyOptional() status?: string;
   @ApiPropertyOptional({ type: Number }) failed_attempts?: number;
