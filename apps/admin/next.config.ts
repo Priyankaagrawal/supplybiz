@@ -7,6 +7,9 @@ const config: NextConfig = {
     { key: 'X-Content-Type-Options', value: 'nosniff' },
     { key: 'Referrer-Policy', value: 'no-referrer' },
     { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; form-action 'self'; base-uri 'none'" },
+  ] }, { source: '/kyc/:id/documents/:kind', headers: [
+    { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+    { key: 'Content-Security-Policy', value: "default-src 'none'; frame-ancestors 'self'" },
   ] }]; },
 };
 export default config;

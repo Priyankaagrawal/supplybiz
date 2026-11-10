@@ -199,3 +199,89 @@ Suggested manual verification (use T-150 setup above; these are not executed):
 NOT_RUN: manual PASS, browser keyboard/screen-reader/200% checks, hosted CI,
 deployed HTTPS/proxy verification and comprehensive G1. Q-33 still owns production
 domains; Q-20 owns retention. iOS remains deferred; this task changes no mobile UI.
+
+
+## T-151 — Manual KYC review handoff (2026-11-10)
+
+READY_FOR_VERIFY; FR-402 / S-A-03–04 / TC-402/403/509. OPS and SUPER_ADMIN
+can open `/kyc` from the workspace, page through the oldest waiting cases and
+open `/kyc/{submissionId}`. SUPPORT/FINANCE are denied navigation, case data,
+documents and decisions. The API rechecks current permissions for each operation.
+The queue handles empty/error states; cases show persisted status, reviewer,
+reason, UTC timestamps, masked PAN/account endings and MANUAL_REVIEW/NOT_RUN.
+
+Documents are opened explicitly, never prefetched. The BFF resolves only the
+chosen case's front/back/PAN attachment and proxies the existing audited private
+stream using the server-held session. API access auditing completes before bytes
+are returned. Responses are uncached, inline and restricted to PNG/JPEG/PDF;
+credentials, filenames and storage paths never enter the page. The viewer overlays
+CONFIDENTIAL, reviewer ID and current UTC time, with no application download
+button. PDF toolbar hiding uses the browser viewer's `#toolbar=0`; actual browser
+PDF behavior remains a manual check. Only `/kyc/:id/documents/:kind` permits
+same-origin framing; all other admin pages retain DENY/frame-ancestors none.
+Watermarking is a UI overlay, not alteration of retained originals.
+
+Decisions require a reason (3–500 trimmed characters), signed session/case-bound
+retry key, expiring form CSRF, configured Origin and API session CSRF. Repeated
+POSTs reuse the key. The API atomically persists vendor status, immutable case
+review, redacted audit and in-app notice; conflicting decisions cannot overwrite
+an earlier review. Errors return to the current persisted case so an uncertain
+network outcome can be checked before retrying. Reviewed cases have no decision
+form. VERIFIED explicitly means manual approval; provider checks and push delivery
+are NOT_RUN. The existing T-022 staging/production KMS limitation still applies.
+No API/schema change or client regeneration was required.
+
+Executed successfully against existing migrated native PostgreSQL 17.11,
+isolated `supplybiz_sessions_test` (no migration applied by this task):
+
+```sh
+DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test NATIVE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test ABUSE_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test node tools/check-task.mjs T-151
+node --test tools/checks.spec.mjs
+git diff --check
+```
+
+The registered task runner passed API/admin lint, typecheck and builds, 4 admin
+CSRF/cookie/retry-key/document-selector checks, 10 focused native KYC checks and
+2 native runtime checks; runner guards passed 4/4. The KYC suite includes a
+production Next.js server on 3141 → native API → PostgreSQL/private files smoke:
+role denial, login redirect, queue/case rendering without raw account/session data,
+attachment selection, access audit, cache/framing headers, cross-origin/CSRF/key
+and blank-reason rejection, persisted rejection and duplicate form replay with
+one notice/audit. Existing focused API cases cover approval, rejection/resubmission,
+concurrent conflicting decisions, immutable audit, rollback and provider truthfulness.
+Temporary servers/files are stopped/removed; disabled synthetic accounts and
+immutable test audits/revisions remain only in the isolated database. The successful
+runner log is `/tmp/supplybiz-t151-checks.log` (local, uncommitted).
+
+Standalone admin typecheck/lint/build, API lint, and runner guards also passed.
+Initial sandboxed `pnpm --filter @supplybiz/admin test` could not create its IPC
+socket and was rerun successfully through the permitted native task runner.
+The first runner attempt caught a test lint escape; later smoke attempts corrected
+an assertion for Next.js streamed redirects and caught/fixed the global framing
+header blocking embedded documents. A focused intermediate command was:
+`KYC_TEST_DATABASE_URL=postgresql://ankit@localhost:5432/supplybiz_sessions_test KYC_ADMIN_SMOKE=1 pnpm --filter @supplybiz/api exec jest --runInBand --runTestsByPath src/modules/kyc/kyc.postgres.spec.ts`.
+All final registered task checks pass; earlier failures are not counted as passes.
+
+Suggested manual verification (not executed; use T-150 local setup above):
+
+1. Start API/admin against the same migrated local DB. Submit synthetic masked
+   documents through the T-024 flow or existing T-022 API instructions, then sign
+   in as OPS and open the manual KYC queue/case; confirm persisted identity/status
+   summaries and provider NOT_RUN. Exercise pagination/empty/error recovery.
+2. Open each PNG/JPEG/PDF attachment. Confirm readable masked documents,
+   reviewer/time watermark, no application download button and a new immutable
+   KYC_DOCUMENT_READ audit row per view (SUPER_ADMIN audit viewer). Check PDF
+   rendering/toolbar behavior in the supported browser.
+3. Reject with a reason, reload and check vendor status/reason/in-app notice;
+   resubmit as the vendor, then approve the fresh case. Confirm MANUAL_REVIEW
+   method, one audit/notice per decision and no form on a reviewed submission.
+4. Use SUPPORT/FINANCE and signed-out sessions to try direct queue/case/document
+   URLs; confirm denial. Test expired forms and two reviewers deciding one case;
+   the saved decision must remain immutable.
+5. Check keyboard focus, screen-reader labels/errors and 200% zoom; briefly stop
+   the API and confirm recoverable queue/case/document errors.
+
+NOT_RUN: manual PASS; browser PDF/visual/keyboard/screen-reader/200% checks;
+deployed HTTPS/proxy and hosted CI; push/provider delivery; comprehensive G0/G1.
+Q-09 live OTP and production KMS/domain prerequisites remain outside this local
+admin handoff. Mobile is unchanged; iOS checks remain deferred under ADR-025.

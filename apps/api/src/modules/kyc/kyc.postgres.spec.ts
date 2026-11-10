@@ -3,7 +3,9 @@ import { Test } from '@nestjs/testing';
 import { createDecipheriv, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { spawn } from 'node:child_process';
+import { AddressInfo } from 'node:net';
 import sharp from 'sharp';
 import request from 'supertest';
 import { ConfigService } from '@nestjs/config';
@@ -184,6 +186,78 @@ native('T-022 TC-024–026/509 manual KYC HTTP → native PostgreSQL', () => {
     expect(await db.kyc_notices.count({ where: { submission_id: submissionId } })).toBe(1);
     expect(await db.audit_logs.count({ where: { entity_id: submissionId, actor_type: 'ADMIN' } })).toBe(1);
   });
+  (process.env.KYC_ADMIN_SMOKE ? it : it.skip)('T-151 TC-402/403/509 production admin → BFF → native API/DB review', async () => {
+    submissionId = (await submit().expect(201)).body.id as string;
+    await app.listen(0, '127.0.0.1');
+    const port = (app.getHttpServer().address() as AddressInfo).port;
+    const adminRoot = resolve(__dirname, '../../../../', 'admin'), origin = 'http://127.0.0.1:3141';
+    const child = spawn(process.execPath, [join(adminRoot, 'node_modules/next/dist/bin/next'), 'start', '--hostname', '127.0.0.1', '--port', '3141'], {
+      cwd: adminRoot, env: { ...process.env, NODE_ENV: 'production', ADMIN_ORIGIN: origin,
+        ADMIN_API_URL: `http://127.0.0.1:${port}`, ADMIN_CSRF_KEY: randomBytes(32).toString('hex'), NEXT_TELEMETRY_DISABLED: '1' }, stdio: 'ignore' });
+    let spawnError = false; child.on('error', () => { spawnError = true; });
+    const cookie = (token: string) => `sb_admin=${token}; sb_csrf=synthetic`;
+    const page = (path: string, token = ops) => fetch(`${origin}${path}`, { headers: { Cookie: cookie(token) }, redirect: 'manual' });
+    try {
+      let ready = false;
+      for (let i = 0; i < 100; i++) {
+        if (spawnError || child.exitCode !== null) throw new Error('Next.js smoke server did not start');
+        try { if ((await fetch(`${origin}/login`)).ok) { ready = true; break; } } catch { /* startup */ }
+        await new Promise(done => setTimeout(done, 100));
+      }
+      expect(ready).toBe(true);
+      const unsigned = await page('/kyc', '');
+      if (unsigned.status === 200) {
+        const redirectHtml = await unsigned.text(); expect(redirectHtml).toContain('/login'); expect(redirectHtml).not.toContain('Review case');
+      } else expect(unsigned.status).toBe(307);
+      for (const token of [support, finance]) {
+        expect(await (await page('/', token)).text()).not.toContain('Open manual KYC queue');
+        expect(await (await page('/kyc', token)).text()).toContain('do not have permission');
+        expect(await (await page(`/kyc/${submissionId}`, token)).text()).toContain('do not have permission');
+        expect((await page(`/kyc/${submissionId}/documents/front`, token)).status).toBe(403);
+      }
+      expect(await (await page('/')).text()).toContain('Open manual KYC queue');
+      const queue = await page('/kyc'); expect(queue.headers.get('cache-control')).toContain('no-store');
+      expect(await queue.text()).toContain(`/kyc/${submissionId}`);
+      const html = await (await page(`/kyc/${submissionId}?document=front`)).text();
+      expect(html).toContain('NOT_RUN'); expect(html).toContain('CONFIDENTIAL');
+      expect(html).toContain('iframe'); expect(html).not.toContain(ops); expect(html).not.toContain(input.accountNumber);
+      const before = await db.media_access_events.count({ where: { media_id: input.aadhaarFrontMediaId } });
+      const document = await page(`/kyc/${submissionId}/documents/front`);
+      expect(document.status).toBe(200); expect(document.headers.get('content-type')).toBe('image/png');
+      expect(document.headers.get('content-disposition')).toBe('inline');
+      expect(document.headers.get('x-frame-options')).toBe('SAMEORIGIN');
+      expect(document.headers.get('content-security-policy')).toContain("frame-ancestors 'self'");
+      expect(document.headers.get('cache-control')).toContain('no-store'); await document.arrayBuffer();
+      expect(await db.media_access_events.count({ where: { media_id: input.aadhaarFrontMediaId } })).toBe(before + 1);
+      expect(await db.audit_logs.count({ where: { entity_id: input.aadhaarFrontMediaId, action: 'KYC_DOCUMENT_READ' } })).toBeGreaterThan(0);
+      expect((await page(`/kyc/${submissionId}/documents/constructor`)).status).toBe(404);
+      expect((await page(`/kyc/${randomUUID()}/documents/front`)).status).toBe(404);
+      function field(name: string) {
+        const value = html.match(new RegExp(`name="${name}" value="([^"]+)"`))?.[1];
+        if (!value) throw new Error(`Missing ${name} field`); return value;
+      }
+      const form = new URLSearchParams({ csrf: field('csrf'), key: field('key'), signature: field('signature'), decision: 'REJECTED', reason: 'Synthetic UI rejection' });
+      const post = (body = form, token = ops, requestOrigin = origin) => fetch(`${origin}/kyc/${submissionId}/decision`, {
+        method: 'POST', headers: { Cookie: cookie(token), Origin: requestOrigin }, body, redirect: 'manual' });
+      expect((await post(form, ops, 'https://other.example.invalid')).status).toBe(403);
+      const tampered = new URLSearchParams(form); tampered.set('csrf', 'bad'); expect((await post(tampered)).status).toBe(403);
+      tampered.set('csrf', field('csrf')); tampered.set('key', randomUUID()); expect((await post(tampered)).status).toBe(403);
+      const invalid = new URLSearchParams(form); invalid.set('reason', '  '); expect((await post(invalid)).status).toBe(400);
+      const saved = await post(); expect(saved.status).toBe(303); expect(saved.headers.get('location')).toContain('result=saved');
+      const replay = await post(); expect(replay.headers.get('location')).toContain('result=saved');
+      expect(await db.kyc_notices.count({ where: { submission_id: submissionId } })).toBe(1);
+      const decisionAudit = await db.audit_logs.findMany({ where: { entity_id: submissionId, action: 'KYC_REJECTED' } });
+      expect(decisionAudit).toHaveLength(1); expect(decisionAudit[0]!.after).toMatchObject({ providerChecks: 'NOT_RUN' });
+      expect((await db.vendors.findUniqueOrThrow({ where: { id: vendorId } })).kyc_status).toBe('REJECTED');
+      const reviewed = await (await page(`/kyc/${submissionId}?result=saved`)).text();
+      expect(reviewed).toContain('Synthetic UI rejection'); expect(reviewed).toContain('No further decision');
+      expect(reviewed).not.toContain('name="decision"');
+    } finally {
+      if (child.exitCode === null) {
+        const stopped = new Promise<void>(done => child.once('exit', () => done())); child.kill('SIGTERM'); await stopped;
+      }
+    }
+  }, 30000);
   it('TC-025 approval by SUPER_ADMIN persists VERIFIED with NOT_RUN and prevents further submission', async () => {
     submissionId = (await submit().expect(201)).body.id as string;
     await decision(submissionId, 'VERIFIED', randomUUID(), superAdmin).expect(201);
