@@ -634,4 +634,120 @@ class AppLocalizationsEn extends AppLocalizations {
   String productsStockValue(int quantity) {
     return 'Stock: $quantity packs';
   }
+
+  @override
+  String get notificationsReadItem => 'Read notification';
+
+  @override
+  String get notificationsNow => 'Just now';
+
+  @override
+  String get notificationsUnreadItem => 'Unread notification';
+
+  @override
+  String notificationsHours(int count) {
+    return '$count hr ago';
+  }
+
+  @override
+  String get notificationsClearConfirm =>
+      'Clear all notifications for this role?';
+
+  @override
+  String get notificationsContinue => 'Continue';
+
+  @override
+  String notificationsUnread(int count) {
+    return '$count unread';
+  }
+
+  @override
+  String get notificationsPreferences => 'Push preferences';
+
+  @override
+  String get notificationsOpenFailed =>
+      'Could not open this notification. Refresh the inbox and try again.';
+
+  @override
+  String get notificationsPermissionDenied =>
+      'Alerts are blocked. You can allow notifications in Android Settings. Your inbox still works.';
+
+  @override
+  String get notificationsPermissionAllowed =>
+      'Permission allowed. Alerts will be available after device registration succeeds.';
+
+  @override
+  String get notificationsSignIn => 'Sign in to view notifications.';
+
+  @override
+  String get notificationsPermissionBody =>
+      'Enable alerts for orders, payments and account updates? Android will ask for notification permission after you continue. Your inbox works without alerts.';
+
+  @override
+  String get notificationsMandatory =>
+      'Preferences affect optional push alerts only. Security and KYC updates remain enabled. Inbox items are kept for 90 days.';
+
+  @override
+  String get notificationsSystem => 'System';
+
+  @override
+  String get notificationsUnavailable =>
+      'Push alerts are unavailable in this build. The inbox and preferences still work.';
+
+  @override
+  String get notificationsEmpty => 'No notifications in this category.';
+
+  @override
+  String get notificationsRetrySaved => 'Retry saved action';
+
+  @override
+  String notificationsMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String get notificationsDelivery => 'Delivery';
+
+  @override
+  String get notificationsOpen => 'Open';
+
+  @override
+  String get notificationsEnable => 'Enable push alerts';
+
+  @override
+  String get notificationsPayments => 'Payments';
+
+  @override
+  String get notificationsVendor => 'Vendor';
+
+  @override
+  String get notificationsCustomer => 'Customer';
+
+  @override
+  String get notificationsCancel => 'Cancel';
+
+  @override
+  String get notificationsAll => 'All';
+
+  @override
+  String notificationsSwitchRole(String role) {
+    return 'Switch to $role to open this notification?';
+  }
+
+  @override
+  String get notificationsRefresh => 'Refresh';
+
+  @override
+  String get notificationsReadAll => 'Mark all as read';
+
+  @override
+  String get notificationsNew => 'You have a new notification.';
+
+  @override
+  String notificationsDays(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get notificationsClear => 'Clear all notifications';
 }

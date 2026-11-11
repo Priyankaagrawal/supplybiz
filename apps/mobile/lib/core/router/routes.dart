@@ -7,6 +7,7 @@ import '../../features/auth/auth_pages.dart';
 import '../../features/onboarding/onboarding_pages.dart';
 import '../../features/service_area/service_area_page.dart';
 import '../../features/products/products_page.dart';
+import '../../features/notifications/notifications_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
@@ -49,18 +50,20 @@ class CommonRoute extends GoRouteData with _$CommonRoute {
   final CommonPage page;
   @override
   Widget build(BuildContext context, GoRouterState state) =>
-      page == CommonPage.settings || page == CommonPage.switchRole
-          ? AuthPage(page == CommonPage.settings
-              ? RouteTitle.settings
-              : RouteTitle.switchRole)
-          : RoutePlaceholder(
-              title: switch (page) {
-              CommonPage.update => RouteTitle.update,
-              CommonPage.legal => RouteTitle.legal,
-              CommonPage.notifications => RouteTitle.notifications,
-              CommonPage.settings => RouteTitle.settings,
-              CommonPage.switchRole => RouteTitle.switchRole,
-            });
+      page == CommonPage.notifications
+          ? const NotificationsPage()
+          : page == CommonPage.settings || page == CommonPage.switchRole
+              ? AuthPage(page == CommonPage.settings
+                  ? RouteTitle.settings
+                  : RouteTitle.switchRole)
+              : RoutePlaceholder(
+                  title: switch (page) {
+                  CommonPage.update => RouteTitle.update,
+                  CommonPage.legal => RouteTitle.legal,
+                  CommonPage.notifications => RouteTitle.notifications,
+                  CommonPage.settings => RouteTitle.settings,
+                  CommonPage.switchRole => RouteTitle.switchRole,
+                });
 }
 
 enum CommonPage { update, legal, notifications, settings, switchRole }

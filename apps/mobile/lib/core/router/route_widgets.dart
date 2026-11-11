@@ -93,6 +93,12 @@ class RoutePlaceholder extends StatelessWidget {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.appName), actions: [
+        if (scope.controller.access.signedIn)
+          SbIconButton(
+              icon: Icons.notifications_outlined,
+              semanticLabel: l10n.routeNotifications,
+              onPressed: () => const CommonRoute(CommonPage.notifications)
+                  .push<void>(context)),
         Consumer(
             builder: (context, ref, _) => ref.watch(authEnabledProvider) &&
                     scope.controller.access.signedIn

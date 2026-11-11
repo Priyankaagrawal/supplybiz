@@ -1245,6 +1245,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stock: {quantity} packs'**
   String productsStockValue(int quantity);
+
+  /// No description provided for @notificationsReadItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Read notification'**
+  String get notificationsReadItem;
+
+  /// No description provided for @notificationsNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get notificationsNow;
+
+  /// No description provided for @notificationsUnreadItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread notification'**
+  String get notificationsUnreadItem;
+
+  /// No description provided for @notificationsHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hr ago'**
+  String notificationsHours(int count);
+
+  /// No description provided for @notificationsClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all notifications for this role?'**
+  String get notificationsClearConfirm;
+
+  /// No description provided for @notificationsContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get notificationsContinue;
+
+  /// No description provided for @notificationsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread'**
+  String notificationsUnread(int count);
+
+  /// No description provided for @notificationsPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Push preferences'**
+  String get notificationsPreferences;
+
+  /// No description provided for @notificationsOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open this notification. Refresh the inbox and try again.'**
+  String get notificationsOpenFailed;
+
+  /// No description provided for @notificationsPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts are blocked. You can allow notifications in Android Settings. Your inbox still works.'**
+  String get notificationsPermissionDenied;
+
+  /// No description provided for @notificationsPermissionAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Permission allowed. Alerts will be available after device registration succeeds.'**
+  String get notificationsPermissionAllowed;
+
+  /// No description provided for @notificationsSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to view notifications.'**
+  String get notificationsSignIn;
+
+  /// No description provided for @notificationsPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable alerts for orders, payments and account updates? Android will ask for notification permission after you continue. Your inbox works without alerts.'**
+  String get notificationsPermissionBody;
+
+  /// No description provided for @notificationsMandatory.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences affect optional push alerts only. Security and KYC updates remain enabled. Inbox items are kept for 90 days.'**
+  String get notificationsMandatory;
+
+  /// No description provided for @notificationsSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get notificationsSystem;
+
+  /// No description provided for @notificationsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Push alerts are unavailable in this build. The inbox and preferences still work.'**
+  String get notificationsUnavailable;
+
+  /// No description provided for @notificationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications in this category.'**
+  String get notificationsEmpty;
+
+  /// No description provided for @notificationsRetrySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved action'**
+  String get notificationsRetrySaved;
+
+  /// No description provided for @notificationsMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String notificationsMinutes(int count);
+
+  /// No description provided for @notificationsDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get notificationsDelivery;
+
+  /// No description provided for @notificationsOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get notificationsOpen;
+
+  /// No description provided for @notificationsEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable push alerts'**
+  String get notificationsEnable;
+
+  /// No description provided for @notificationsPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get notificationsPayments;
+
+  /// No description provided for @notificationsVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get notificationsVendor;
+
+  /// No description provided for @notificationsCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get notificationsCustomer;
+
+  /// No description provided for @notificationsCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get notificationsCancel;
+
+  /// No description provided for @notificationsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsAll;
+
+  /// No description provided for @notificationsSwitchRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {role} to open this notification?'**
+  String notificationsSwitchRole(String role);
+
+  /// No description provided for @notificationsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get notificationsRefresh;
+
+  /// No description provided for @notificationsReadAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get notificationsReadAll;
+
+  /// No description provided for @notificationsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'You have a new notification.'**
+  String get notificationsNew;
+
+  /// No description provided for @notificationsDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String notificationsDays(int count);
+
+  /// No description provided for @notificationsClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all notifications'**
+  String get notificationsClear;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,67 @@
 # Supply Biz Mobile
 
+## T-033 notifications handoff (2026-11-11): READY_FOR_VERIFY
+
+The home-header bell opens `/common/notifications` (S-V-18 / S-C-26).
+The signed-in role controls All/Orders/Payments/System tabs, with Delivery for
+vendors. The center loads all 100-row API pages, displays relative timestamps and
+read state, marks opened items read, confirms role-wide clearing and saves optional
+push preferences. Mandatory security/KYC behavior remains server-enforced. Errors
+retain the current in-memory view; there is no disk inbox cache. Pull to refresh.
+Uncertain mutations retain the exact request/key for explicit retry in the current
+account controller; they are never automatically submitted after restart.
+
+The Android push bridge handles foreground alerts in-app, background notification
+taps and cold starts, token refresh and resume registration. A push supplies only
+an inbox ID/role hint: the client resolves it through the authenticated role inbox,
+confirms switching to an already-held role and only opens allowlisted internal
+destinations after marking read. Raw push paths/text are ignored. Logout/account
+changes fence delayed responses and pending alerts; the API clears session tokens.
+Existing legacy customer subscription paths normalize to the typed mobile route.
+Vendor plans/delivery/Khata destinations whose screens are not implemented yet
+fall back to the inbox; domain tasks must wire their final destinations. No deferred
+offers features, contract changes, migrations or generated API edits were added.
+
+Opening the inbox never requests OS permission. Explicit **Enable push alerts**
+first explains the purpose, then requests permission. Account/environment consent
+uses the existing encrypted draft store and logout wipe. Denial gives Android
+Settings guidance and clears device registration on synchronization; an allowed
+device registers/retries on consent, session/token changes and resume. Firebase
+Messaging auto-init defaults off. Firebase-disabled builds retain a working inbox
+and preferences and report push unavailable. Background system display uses the
+existing server notification+data payload; no background data worker is needed.
+
+Dependency justification: pinned `firebase_messaging` 15.2.10 matches the existing
+Firebase Core 3.15.2 baseline. The Google-maintained FlutterFire package uses
+[BSD-3-Clause](https://pub.dev/packages/firebase_messaging/versions/15.2.10).
+It adds the FCM bridge/native SDK plus three Dart transitive packages; the cached
+plugin source is 1,106,929 bytes (not installed APK overhead). Release-size impact
+has not been measured. No local-notifications or analytics dependency was added.
+Integration follows [Firebase receive/tap guidance](https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages).
+
+Executed checks (from `apps/mobile`, unless stated otherwise):
+
+- `flutter pub get` and `flutter gen-l10n`: PASS; only notification dependency/l10n generated changes.
+- `flutter analyze --no-pub`: PASS, no issues.
+- `flutter test --no-pub test/features/notifications test/core/router/guards_test.dart`: PASS, 13 checks. Simulated HTTP/FCM; pagination, category/role scoping, response-loss replay, read/clear/preferences, authorization purge, safe paths, disposal, permission timing/200%, warm/cold taps and logout during confirmation.
+- `flutter test integration_test/notifications_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub`: PASS, one native Android smoke. Checks the 200% inbox/permission denial and encrypted consent across storage restart, using a separate SQLCipher/secure-storage test namespace. Initial harness lacked the UI-kit loading localization delegate; corrected to match production. A 200% dialog overflow was fixed during the focused tests.
+- `flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub`: PASS; final normal debug APK is 206,473,797 bytes (universal debug artifact; no release-size comparison).
+- From repository root, `C:\Android\platform-tools\adb.exe -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev` and `C:\Android\platform-tools\adb.exe -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk`: PASS. Restored the normal dev app after the native test; emulator and pre-existing services preserved, no separate RUN workflow started.
+- From repository root, `git diff --check`: PASS.
+
+Manual verification (not yet PASS):
+
+1. Run the existing dev build against the API after applying T-032's migration; sign in and open the home bell. Check both roles' categories, empty/error/pull-refresh states and 200% text/TalkBack.
+2. Open an owned inbox item, return, restart, mark all read and clear with confirmation. Check persisted server state and role isolation.
+3. Toggle category preferences, reopen, and confirm security/KYC remain mandatory. Test offline failure and explicit retry of a lost response.
+4. With private native Firebase config and `FIREBASE_ENABLED=true`, enable alerts, deny/allow Android permission, rotate the token and resume. Verify owned registration and logout revocation with real T-032 FCM configured.
+5. Deliver a real owned notification in foreground/background/terminated states. Confirm role switching; cancel once and sign out during confirmation. Verify forged/foreign/expired items do not navigate.
+
+NOT_RUN: real FCM/OS push delivery, live UI-to-API-to-DB journey, manual TalkBack/PASS
+and module gates. Dev Firebase is disabled and private provider config is absent.
+Full FR-101/TC-103 fan-out and final missing domain destinations remain with T-052
+and their owning tasks; no module gate claim. iOS checks are deferred per ADR-025.
+
 ## T-027 products handoff (2026-11-10): READY_FOR_VERIFY
 
 Products tab `/vendor/products` implements S-V-06 list/search/type filters,
