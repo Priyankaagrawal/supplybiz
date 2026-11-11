@@ -232,6 +232,26 @@ These endpoints are future reference only; no routes, credentials or tests are r
 | GET | `/vendor/plans` ; GET `/vendor/plan` (current, entitlements) |
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
+T-032 implements these notification routes and PUT `/me/devices/current`.
+Session identity owns all reads/mutations; optional role must be held by that user
+(default active role). Customer DELIVERY filtering is rejected. List supports
+category ALL/ORDERS/PAYMENTS/DELIVERY/SYSTEM, limit 1–100 (default 50), offset ≥0;
+returns items/total and role-wide unreadCount. Items expose id/role/category/type,
+generic English title/body, safe internal path and UTC createdAt/readAt only.
+Rows cleared or ≥90 days old are invisible. Read accepts exactly ids (1–100 UUIDs)
+or all=true, plus optional role; foreign/wrong-role IDs fail atomically. Clear is
+role-scoped. Every mutation requires Idempotency-Key. Preferences replace the four
+orders/payments/delivery/system booleans; they affect optional pushes, not inbox
+storage or mandatory KYC/security. Marketing preferences remain excluded.
+Current-device updates derive the device from the authenticated session, never a
+client device/user ID. pushEnabled is required; a token is required when enabled.
+Null/omitted pushToken with false removes it. Only Android registration is active;
+responses contain deviceId/pushEnabled, never tokens. Logout clears affected tokens.
+Notification creation is internal to authorized domain transactions. FCM acceptance
+is not proof of device delivery; live delivery and T-033 handling require separate
+evidence. Existing low-stock domain events are not consumed without real entitlement
+policy from T-084/T-103; this is not a module/event-coverage pass.
+
 ### 4.13 Admin (`/admin/**`, FR-400–FR-413)
 T-150 implements password login → five-minute challenge → mandatory TOTP verification/enrolment → session. `GET /admin/auth/challenge` reads enrolment setup using the pending bearer credential; `GET /admin/auth/me` returns only id/role/permissions. These are server-to-server BFF operations; the browser receives httpOnly Strict cookies (Secure over HTTPS), while the Next.js server supplies the opaque bearer to the API. Logout additionally requires `X-CSRF-Token`; all mutations require `Idempotency-Key`, but auth responses are never replay-cached. Five password/TOTP failures lock an account for 30 minutes; session expiry is 30 minutes idle/eight hours absolute. Unannotated admin routes and unlisted permissions are denied. Local operator provisioning uses breached-password checks; admin-account management remains T-162.
 

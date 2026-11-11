@@ -1,4 +1,5 @@
 import { INestApplication } from '@nestjs/common';
+import { windowsPrivateDirectory } from '../../storage/windows-private-directory';
 import { Test } from '@nestjs/testing';
 import { createDecipheriv, randomBytes, randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
@@ -61,6 +62,7 @@ native('T-022 TC-024–026/509 manual KYC HTTP → native PostgreSQL', () => {
     if (!url.pathname.endsWith('_test')) throw new Error('Dedicated _test database required');
     const base = join(homedir(), '.local/share/supplybiz/test-uploads');
     await mkdir(base, { recursive: true, mode: 0o700 }); root = await mkdtemp(join(base, 'kyc-'));
+    if (process.platform === 'win32') await windowsPrivateDirectory(root, true);
     Object.assign(process.env, { NODE_ENV: 'test', DATABASE_URL: url.toString(), UPLOAD_ROOT: root,
       FIELD_ENCRYPTION_KEY: encryptionKey.toString('hex'), RATE_LIMIT_MAX_REQUESTS: '2000' });
     await db.$connect(); await boot();

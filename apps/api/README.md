@@ -1,5 +1,109 @@
 # Supply Biz API
 
+## T-032 notification infrastructure handoff (2026-11-11): READY_FOR_VERIFY
+
+Implemented role/owner-scoped operational inbox, persisted read/read-all/clear-all,
+90-day visibility/retention, category push preferences and current-session Android
+token registration. All mutations require Idempotency-Key; tokens are never echoed
+or copied to jobs/logs. Omission/null of pushToken with pushEnabled=false removes
+the token, supporting generated-client serialization. Old-key replay cannot restore
+a rotated token. Logout/current-family and logout-all clear affected device tokens.
+
+KYC decisions atomically preserve their existing notice/audit/state and add a
+mandatory generic inbox item plus per-device outbox jobs. The additive migration
+copies actual last-90-day KYC notice history without retrospective pushes; it does
+not delete legacy KYC records or resolve their separate Q-20 retention policy.
+Server templates contain no KYC/bank/name/address details. Optional category flags
+control pushes, while inbox items persist; KYC/security bypass those flags but
+respect device permission. Offers/campaigns remain excluded under approved SR-05.
+
+FCM uses built-in Node crypto/fetch and fixed Google HTTPS endpoints, with scoped
+RS256 OAuth assertions, bounded HTTP timeouts, token-cache refresh and no new SDK
+dependency. FCM_ENABLED defaults false (unavailable, never simulated success).
+Enable it only with private FCM_SERVICE_ACCOUNT_JSON and a registered Android device.
+Provider failures use existing leased/bounded worker retries and exhaustion alerts;
+only exact FCM UNREGISTERED clears the matching token. A concurrent replacement
+token is preserved. Auth/user locks are not held during external HTTP, so slow
+pushes cannot delay logout. Already in-flight/accepted messages cannot be recalled.
+Inbox/job creation deduplicates by source key; external delivery is at least once,
+using stable notificationId plus Android tag. T-033 must deduplicate by that ID and
+confirm role changes on tap. No live Google message was sent by these checks.
+
+The worker registers NOTIFICATION_PUSH; it also prunes expired inbox rows hourly
+with bounded catch-up batches. Expired rows are hidden immediately. Cleared,
+expired, blocked, signed-out, rotated-token or permission-disabled jobs are skipped.
+The internal dispatchPendingBatch optional event-ID selector uses the same lease/
+retry logic and lets focused checks operate only their own jobs, leaving other
+queued events untouched. No public notification creation/retry endpoint was added.
+
+Final evidence: 13 native notification/worker/session checks and 5 simulated FCM
+adapter checks pass, including slow-provider/logout and token-rotation races.
+Nine KYC native regression cases and 2 readiness/disabled-OTP runtime smoke cases
+pass; the optional production Next.js KYC smoke was skipped (admin UI unchanged).
+Four task-runner guards, API lint/typecheck/build/schema validation, generated TS
+compile and generated Dart analysis pass. Clients/serializers were regenerated.
+The migration was applied only to existing supplybiz_service_area_test. A separate
+test-DB provisioning attempt could not proceed without local admin credentials;
+no new database was created, and helper edits were reverted. Scoped job checks
+used the existing isolated DB. No API/worker service was left running by this task.
+
+Executed commands from apps/api (connection secrets loaded privately from ignored
+.env; DATABASE_URL overridden to supplybiz_service_area_test for migrations;
+NOTIFICATIONS_TEST_DATABASE_URL/KYC_TEST_DATABASE_URL/NATIVE_TEST_DATABASE_URL
+point to that isolated DB; NODE_ENV=test, OTP_DELIVERY_MODE=disabled, FCM_ENABLED=false):
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\jest.cmd --silent --runInBand --runTestsByPath src/modules/notifications/fcm.service.spec.ts
+.\node_modules\.bin\jest.cmd --silent --runInBand --testTimeout=60000 --runTestsByPath src/modules/notifications/notifications.postgres.spec.ts src/modules/kyc/kyc.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --silent --runInBand --testTimeout=60000 --runTestsByPath src/modules/notifications/fcm.service.spec.ts src/modules/notifications/notifications.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\ts-node.cmd scripts/generate-openapi.ts
+```
+At repository root, executed the same openapi-typescript/openapi-generator-cli,
+normalizer, Dart formatter and generated TS compile commands documented below for
+T-026, plus `node --test tools/checks.spec.mjs`. From packages/api_client:
+```powershell
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' run build_runner build '--build-filter=lib/src/model/*.g.dart'
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' analyze
+```
+The full task runner was not invoked; its focused T-032 commands are registered.
+Native checks ran with permission for existing private Windows storage/ACL handling.
+The KYC fixture now initializes ACLs on its newly created temporary test directory;
+application storage validation was preserved. No dependencies/checks were disabled.
+
+Manual verification (suggested, not manual PASS):
+1. Apply migrations to your selected local DB before restarting API/worker. Sign in
+   on Android and PUT /api/v1/me/devices/current with its token/pushEnabled and a new
+   key. Check the response has deviceId/permission only, and another account cannot
+   claim the registered token. With FCM disabled, inbox still works; push jobs must
+   never be reported as SENT.
+2. Review a synthetic vendor KYC submission through the existing authorized admin
+   workflow. GET /api/v1/notifications?role=VENDOR&category=SYSTEM; verify generic
+   KYC text, persisted read/all-read/clear and isolation from another account/role.
+3. PUT /api/v1/me/notification-prefs with all four booleans. Verify optional pushes
+   are suppressed while KYC/security bypass category preferences. Real order/POS/
+   subscription producer integration is checked with their owning tasks, not faked.
+4. Configure live FCM privately, register your permitted Android device, produce a
+   fresh synthetic KYC decision and check actual delivery. Rotate/unregister/logout
+   and confirm later queued attempts are skipped. Check failure/retry/exhaustion
+   records without exposing tokens. Real FCM/Android delivery is NOT_RUN here.
+
+Remaining: T-033 mobile inbox/push handling; T-052 order fan-out and owning-domain
+producers; actual STOCK_LOW consumption must wait for T-084/T-103 server entitlement
+rules (no fabricated BUSINESS plans or ungated stock pushes). Existing STOCK_LOW
+jobs retain their explicit missing-handler state. Full FR-101/TC-103 coverage,
+manual PASS and G0/G1/G2 gates remain pending. No Android/iOS builds were needed for
+this API-only task; iOS remains deferred. No separate RUN or DONE finalization.
+
+Protocol references: [FCM HTTP v1](https://firebase.google.com/docs/cloud-messaging/send/v1-api),
+[service-account OAuth](https://developers.google.com/identity/protocols/oauth2/service-account),
+[FCM error codes](https://firebase.google.com/docs/cloud-messaging/error-codes).
+
 ## T-026 catalog handoff (2026-11-10): READY_FOR_VERIFY
 
 Final checks: 9 focused native PostgreSQL/HTTP/private-image cases pass (no skipped

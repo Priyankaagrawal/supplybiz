@@ -20,6 +20,8 @@ export const envSchema = z
       }
     }),
     OTP_DELIVERY_MODE: z.enum(["disabled", "console"]).default("disabled"),
+    FCM_ENABLED: z.enum(["true", "false"]).default("false").transform(value => value === "true"),
+    FCM_SERVICE_ACCOUNT_JSON: z.string().min(16).max(20000).optional(),
     OTP_HMAC_PEPPER: z.string().min(32).optional(),
     OTP_DEVICE_SENDS_PER_HOUR: z.coerce.number().int().positive().default(5),
     OTP_LOCKOUT_BASE_SECONDS: z.coerce.number().int().positive().default(30),
@@ -36,6 +38,9 @@ export const envSchema = z
 
   })
   .superRefine((value, context) => {
+    if (value.FCM_ENABLED && !value.FCM_SERVICE_ACCOUNT_JSON) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['FCM_SERVICE_ACCOUNT_JSON'], message: 'Required when FCM is enabled.' });
+    }
     if (["staging", "production"].includes(value.NODE_ENV) && !value.UPLOAD_ROOT) {
       context.addIssue({ code: z.ZodIssueCode.custom, path: ["UPLOAD_ROOT"],
         message: "Persistent storage must be explicitly configured outside development/test." });

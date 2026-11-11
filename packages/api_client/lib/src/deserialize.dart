@@ -11,7 +11,11 @@ import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
+import 'package:supplybiz_api_client/src/model/device_push_input.dart';
+import 'package:supplybiz_api_client/src/model/device_push_response.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
+import 'package:supplybiz_api_client/src/model/inbox_item.dart';
+import 'package:supplybiz_api_client/src/model/inbox_response.dart';
 import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
 import 'package:supplybiz_api_client/src/model/kyc_page.dart';
@@ -20,12 +24,15 @@ import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
+import 'package:supplybiz_api_client/src/model/notification_mutation_response.dart';
+import 'package:supplybiz_api_client/src/model/notification_preferences.dart';
 import 'package:supplybiz_api_client/src/model/product_deleted.dart';
 import 'package:supplybiz_api_client/src/model/product_input.dart';
 import 'package:supplybiz_api_client/src/model/product_list.dart';
 import 'package:supplybiz_api_client/src/model/product_options.dart';
 import 'package:supplybiz_api_client/src/model/product_patch.dart';
 import 'package:supplybiz_api_client/src/model/product_response.dart';
+import 'package:supplybiz_api_client/src/model/read_notifications.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
@@ -94,9 +101,20 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DeviceDto':
       return DeviceDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DevicePushInput':
+      return DevicePushInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DevicePushResponse':
+      return DevicePushResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
           value as Map<String, dynamic>) as ReturnType;
+    case 'InboxItem':
+      return InboxItem.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'InboxResponse':
+      return InboxResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'KycDecisionDto':
       return KycDecisionDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -116,6 +134,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'MediaResponse':
       return MediaResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'NotificationMutationResponse':
+      return NotificationMutationResponse.fromJson(
+          value as Map<String, dynamic>) as ReturnType;
+    case 'NotificationPreferences':
+      return NotificationPreferences.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ProductDeleted':
       return ProductDeleted.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -130,6 +154,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return ProductPatch.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ProductResponse':
       return ProductResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReadNotifications':
+      return ReadNotifications.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'RefreshDto':
       return RefreshDto.fromJson(value as Map<String, dynamic>) as ReturnType;

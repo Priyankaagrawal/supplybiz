@@ -180,7 +180,8 @@ dispatcher attempts fail explicitly as WORKER_HANDLER_MISSING, never as delivery
 | Table | Key columns |
 |---|---|
 | `reviews` | id, order_id UNIQUE, vendor_id, user_id, rating 1–5, text, status (PUBLISHED/HIDDEN), created_at |
-| `notifications` | id, user_id, role, category, type, title, body, data JSONB (deep link), read_at, created_at (TTL 90 d) |
+| `notifications` | id, user_id, role, category, type, source_key UNIQUE, title, body, data JSONB (internal path), mandatory, read_at, cleared_at, created_at (TTL 90 d) |
+| `notification_pushes` | id, notification_id, device_id, token_hash, status (PENDING/SENT/SKIPPED/INVALID), event_id UNIQUE, sent_at | Unique(notification_id,device_id); outbox leases/retries; no raw token snapshot |
 | `banners`, `faqs`, `legal_documents` (type, version, locale, body_md, effective_at), `app_config` (key, value JSONB, updated_at) | T-017 public `mobile` value: minVersionAndroid and boolean flags; admin writes/audit follow T-158/T-152 |
 | `coupons` | TBD (Q-06) |
 | `bill_payments` | TBD (Q-07) |

@@ -83,6 +83,9 @@ export class SessionsService {
       // Revoke the whole current family, including a concurrent rotated successor.
       await tx.sessions.updateMany({ where: all ? { user_id: userId } : { user_id: userId, family_id: session.family_id },
         data: { status: "REVOKED", revoked_at: new Date() } });
+      // T-032: a signed-out device must not keep receiving private account pushes.
+      if (all || session.device_id) await tx.devices.updateMany({ where: { user_id: userId,
+        ...(all ? {} : { id: session.device_id! }) }, data: { push_token: null, push_enabled: false } });
     });
   }
 

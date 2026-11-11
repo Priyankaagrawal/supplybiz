@@ -6,11 +6,12 @@ import { createCipheriv, createHash, createHmac, randomBytes } from 'node:crypto
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdminAuthService } from '../admin-auth/admin-auth.service';
 import { KycDecisionDto, KycResponse, KycSubmissionDto } from './kyc.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class KycService {
   constructor(private readonly db: PrismaService, private readonly config: ConfigService,
-    private readonly admins: AdminAuthService) {}
+    private readonly admins: AdminAuthService, private readonly notifications: NotificationsService) {}
 
   private key(): Buffer {
     const key = this.config.get<string>('FIELD_ENCRYPTION_KEY');
@@ -98,6 +99,7 @@ export class KycService {
       await this.audit(tx, 'ADMIN', admin.id, updated, `KYC_${input.decision}`, ip);
       // Actual durable in-app notice; no claim of push/SMS delivery before T-032.
       await tx.kyc_notices.create({ data: { user_id: vendor.user_id, submission_id: id, status: input.decision, reason: updated.reason } });
+      await this.notifications.enqueue(tx, { recipientId: vendor.user_id, role: 'VENDOR', type: 'KYC_STATUS', sourceKey: `kyc:${id}` });
       return this.present(updated);
     }, async () => { await this.admins.authenticate(token, 'kyc.review', csrf); });
   }

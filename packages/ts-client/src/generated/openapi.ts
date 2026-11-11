@@ -4,6 +4,70 @@
  */
 
 export interface paths {
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["NotificationsController_list"];
+        put?: never;
+        post?: never;
+        delete: operations["NotificationsController_clear"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["NotificationsController_read"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notification-prefs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["NotificationsController_preferences"];
+        put: operations["NotificationsController_savePreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/devices/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["NotificationsController_device"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/products": {
         parameters: {
             query?: never;
@@ -605,6 +669,56 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        InboxItem: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            role: "VENDOR" | "CUSTOMER";
+            /** @enum {string} */
+            category: "ORDERS" | "PAYMENTS" | "DELIVERY" | "SYSTEM";
+            type: string;
+            title: string;
+            body: string;
+            path: string;
+            /** Format: date-time */
+            readAt: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        InboxResponse: {
+            items: components["schemas"]["InboxItem"][];
+            total: number;
+            unreadCount: number;
+        };
+        ReadNotifications: {
+            /** @enum {string} */
+            role?: "VENDOR" | "CUSTOMER";
+            /** @description Provide IDs or all=true, exclusively. */
+            ids?: string[];
+            all?: boolean;
+        };
+        NotificationMutationResponse: {
+            changed: number;
+        };
+        NotificationPreferences: {
+            orders: boolean;
+            payments: boolean;
+            delivery: boolean;
+            /** @description Optional system pushes only; security/KYC always bypass this preference. */
+            system: boolean;
+        };
+        DevicePushInput: {
+            /** @description Required when enabled. Null/omission with pushEnabled=false removes the current token. Never echoed. */
+            pushToken?: string | null;
+            pushEnabled: boolean;
+            appVersion?: string;
+            osVersion?: string;
+        };
+        DevicePushResponse: {
+            /** Format: uuid */
+            deviceId: string;
+            pushEnabled: boolean;
+        };
         ProductResponse: {
             /** Format: uuid */
             id: string;
@@ -973,6 +1087,147 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    NotificationsController_list: {
+        parameters: {
+            query?: {
+                role?: "VENDOR" | "CUSTOMER";
+                category?: "ALL" | "ORDERS" | "PAYMENTS" | "DELIVERY" | "SYSTEM";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxResponse"];
+                };
+            };
+        };
+    };
+    NotificationsController_clear: {
+        parameters: {
+            query?: {
+                role?: "VENDOR" | "CUSTOMER";
+            };
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationMutationResponse"];
+                };
+            };
+        };
+    };
+    NotificationsController_read: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadNotifications"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationMutationResponse"];
+                };
+            };
+        };
+    };
+    NotificationsController_preferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+        };
+    };
+    NotificationsController_savePreferences: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationPreferences"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+        };
+    };
+    NotificationsController_device: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DevicePushInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DevicePushResponse"];
+                };
+            };
+        };
+    };
     CatalogController_list: {
         parameters: {
             query?: {

@@ -1,5 +1,173 @@
 openapi: 3.0.0
 paths:
+  /api/v1/notifications:
+    get:
+      operationId: NotificationsController_list
+      parameters:
+        - name: role
+          required: false
+          in: query
+          schema:
+            enum:
+              - VENDOR
+              - CUSTOMER
+            type: string
+        - name: category
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - ORDERS
+              - PAYMENTS
+              - DELIVERY
+              - SYSTEM
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 50
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InboxResponse'
+      tags:
+        - notifications
+      security:
+        - bearer: []
+    delete:
+      operationId: NotificationsController_clear
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: role
+          required: false
+          in: query
+          schema:
+            enum:
+              - VENDOR
+              - CUSTOMER
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationMutationResponse'
+      tags:
+        - notifications
+      security:
+        - bearer: []
+  /api/v1/notifications/read:
+    post:
+      operationId: NotificationsController_read
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadNotifications'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationMutationResponse'
+      tags:
+        - notifications
+      security:
+        - bearer: []
+  /api/v1/me/notification-prefs:
+    get:
+      operationId: NotificationsController_preferences
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+      tags:
+        - notifications
+      security:
+        - bearer: []
+    put:
+      operationId: NotificationsController_savePreferences
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+      tags:
+        - notifications
+      security:
+        - bearer: []
+  /api/v1/me/devices/current:
+    put:
+      operationId: NotificationsController_device
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevicePushInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePushResponse'
+      tags:
+        - notifications
+      security:
+        - bearer: []
   /api/v1/vendor/products:
     get:
       operationId: CatalogController_list
@@ -1181,6 +1349,130 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    InboxItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum:
+            - VENDOR
+            - CUSTOMER
+        category:
+          type: string
+          enum:
+            - ORDERS
+            - PAYMENTS
+            - DELIVERY
+            - SYSTEM
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        path:
+          type: string
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - role
+        - category
+        - type
+        - title
+        - body
+        - path
+        - readAt
+        - createdAt
+    InboxResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InboxItem'
+        total:
+          type: integer
+        unreadCount:
+          type: integer
+      required:
+        - items
+        - total
+        - unreadCount
+    ReadNotifications:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+            - VENDOR
+            - CUSTOMER
+        ids:
+          description: Provide IDs or all=true, exclusively.
+          type: array
+          items:
+            type: string
+            format: uuid
+        all:
+          type: boolean
+    NotificationMutationResponse:
+      type: object
+      properties:
+        changed:
+          type: integer
+      required:
+        - changed
+    NotificationPreferences:
+      type: object
+      properties:
+        orders:
+          type: boolean
+        payments:
+          type: boolean
+        delivery:
+          type: boolean
+        system:
+          type: boolean
+          description: Optional system pushes only; security/KYC always bypass this preference.
+      required:
+        - orders
+        - payments
+        - delivery
+        - system
+    DevicePushInput:
+      type: object
+      properties:
+        pushToken:
+          type: string
+          nullable: true
+          description: Required when enabled. Null/omission with pushEnabled=false removes the current token. Never echoed.
+        pushEnabled:
+          type: boolean
+        appVersion:
+          type: string
+        osVersion:
+          type: string
+      required:
+        - pushEnabled
+    DevicePushResponse:
+      type: object
+      properties:
+        deviceId:
+          type: string
+          format: uuid
+        pushEnabled:
+          type: boolean
+      required:
+        - deviceId
+        - pushEnabled
     ProductResponse:
       type: object
       properties:

@@ -64,7 +64,8 @@ Android emulator reaches host API at `10.0.2.2`; set in `config/dev.json`.
 | `UPLOAD_ROOT` | ~/.local/share/supplybiz/uploads (dev default; configure absolute path) | no |
 | `UPLOAD_MAX_BYTES`, `UPLOAD_MAX_PIXELS` | 5242880, 20000000 | no |
 | `KMS_KEY_ID` / `FIELD_ENCRYPTION_KEY` (dev only) | — | yes |
-| `FCM_SERVICE_ACCOUNT_JSON` | — | yes |
+| `FCM_ENABLED` | false (explicitly unavailable until configured) | no |
+| `FCM_SERVICE_ACCOUNT_JSON` | private Google service-account JSON, never committed | when FCM_ENABLED=true |
 | Existing basic crash config (if used) | per configured Android environment | no new advanced telemetry requirement |
 | `TEST_OTP_ALLOWLIST` | +919999900001,… (dev/staging only) | no |
 Validated at startup with zod; app refuses to start on missing/invalid keys or if console OTP simulation enabled in staging/production.

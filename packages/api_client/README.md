@@ -101,6 +101,12 @@ Class | Method | HTTP request | Description
 [*MediaApi*](doc/MediaApi.md) | [**adminMediaControllerContent**](doc/MediaApi.md#adminmediacontrollercontent) | **GET** /api/v1/admin/media/{id}/content |
 [*MediaApi*](doc/MediaApi.md) | [**mediaControllerContent**](doc/MediaApi.md#mediacontrollercontent) | **GET** /api/v1/media/{id}/content |
 [*MediaApi*](doc/MediaApi.md) | [**mediaControllerUpload**](doc/MediaApi.md#mediacontrollerupload) | **POST** /api/v1/media |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerClear**](doc/NotificationsApi.md#notificationscontrollerclear) | **DELETE** /api/v1/notifications |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerDevice**](doc/NotificationsApi.md#notificationscontrollerdevice) | **PUT** /api/v1/me/devices/current |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerList**](doc/NotificationsApi.md#notificationscontrollerlist) | **GET** /api/v1/notifications |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerPreferences**](doc/NotificationsApi.md#notificationscontrollerpreferences) | **GET** /api/v1/me/notification-prefs |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerRead**](doc/NotificationsApi.md#notificationscontrollerread) | **POST** /api/v1/notifications/read |
+[*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerSavePreferences**](doc/NotificationsApi.md#notificationscontrollersavepreferences) | **PUT** /api/v1/me/notification-prefs |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
@@ -125,7 +131,11 @@ Class | Method | HTTP request | Description
  - [CategoryRow](doc/CategoryRow.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [DeviceDto](doc/DeviceDto.md)
+ - [DevicePushInput](doc/DevicePushInput.md)
+ - [DevicePushResponse](doc/DevicePushResponse.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [InboxItem](doc/InboxItem.md)
+ - [InboxResponse](doc/InboxResponse.md)
  - [KycDecisionDto](doc/KycDecisionDto.md)
  - [KycNotice](doc/KycNotice.md)
  - [KycPage](doc/KycPage.md)
@@ -134,12 +144,15 @@ Class | Method | HTTP request | Description
  - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
  - [MediaResponse](doc/MediaResponse.md)
+ - [NotificationMutationResponse](doc/NotificationMutationResponse.md)
+ - [NotificationPreferences](doc/NotificationPreferences.md)
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)
  - [ProductOptions](doc/ProductOptions.md)
  - [ProductPatch](doc/ProductPatch.md)
  - [ProductResponse](doc/ProductResponse.md)
+ - [ReadNotifications](doc/ReadNotifications.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)

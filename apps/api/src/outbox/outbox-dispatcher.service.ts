@@ -76,8 +76,11 @@ export class OutboxDispatcherService implements OnModuleDestroy {
     });
   }
 
-  async dispatchPendingBatch(batchSize = 50): Promise<number> {
+  // Optional target supports isolated task checks/manual job drills with identical lease/retry rules.
+  async dispatchPendingBatch(batchSize = 50, eventId?: string): Promise<number> {
     if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 100) throw new Error("Invalid batch size");
+    if (eventId !== undefined && !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(eventId)) throw new Error('Invalid event ID');
+    const targetId = eventId ?? null;
     let completed = 0;
     // Claim only one row per handler execution so queued rows do not age under a batch lease.
     for (let i = 0; i < batchSize; i++) {
@@ -85,6 +88,7 @@ export class OutboxDispatcherService implements OnModuleDestroy {
       const [event] = await this.prisma.$queryRaw<outbox_events[]>`
         WITH candidate AS (
           SELECT id FROM outbox_events WHERE status = 'PENDING'
+            AND (${targetId}::uuid IS NULL OR id = ${targetId}::uuid)
             AND available_at <= clock_timestamp()
             AND (lease_until IS NULL OR lease_until <= clock_timestamp())
           ORDER BY available_at, created_at, id FOR UPDATE SKIP LOCKED LIMIT 1
