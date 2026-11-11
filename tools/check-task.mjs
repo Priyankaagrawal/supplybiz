@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-070': ['src/modules/ledger/ledger.service.spec.ts', 'src/modules/ledger/ledger.postgres.spec.ts'],
   'T-028': ['src/modules/customers/customers.postgres.spec.ts'],
   'T-032': ['src/modules/notifications/fcm.service.spec.ts', 'src/modules/notifications/notifications.postgres.spec.ts', 'src/modules/kyc/kyc.postgres.spec.ts'],
   'T-027': ['src/modules/catalog/catalog.postgres.spec.ts'],
@@ -51,6 +52,13 @@ for (const task of tasks) {
     if (!process.env.NATIVE_TEST_DATABASE_URL || !process.env.ABUSE_TEST_DATABASE_URL) {
       console.error('Native task checks require dedicated NATIVE_TEST_DATABASE_URL and ABUSE_TEST_DATABASE_URL; no skipped-DB success.');
       process.exit(1);
+    }
+    if (task === 'T-070') {
+      process.env.LEDGER_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+      if (!process.env.LEDGER_TEST_ADMIN_URL) {
+        console.error('T-070 requires an isolated LEDGER_TEST_ADMIN_URL and applied operator ledger grants; no skipped grant/reconciliation coverage.');
+        process.exit(1);
+      }
     }
     run(api('lint')); run(api('typecheck')); run(api('build'));
     if (task === 'T-150' || task === 'T-152' || task === 'T-151' || task === 'T-153') {

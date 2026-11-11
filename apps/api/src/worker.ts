@@ -4,6 +4,7 @@ import { AppModule } from "./app.module";
 import { PinoLogger } from "./common/logging/pino.logger";
 import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
 import { NotificationsService } from './modules/notifications/notifications.service';
+import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
 
 async function bootstrapWorker(): Promise<void> {
   const app = await NestFactory.createApplicationContext(AppModule, {
@@ -14,6 +15,8 @@ async function bootstrapWorker(): Promise<void> {
   logger.log("Worker context bootstrapped", "Worker");
   const dispatcher = app.get(OutboxDispatcherService);
   dispatcher.start();
+  const ledgerJobs = app.get(LedgerJobsService);
+  ledgerJobs.start();
   const notifications = app.get(NotificationsService);
   let cleanupRun: Promise<void> | undefined;
   const cleanup = () => cleanupRun ??= (async () => {
@@ -25,6 +28,7 @@ async function bootstrapWorker(): Promise<void> {
 
   const shutdown = async () => {
     clearInterval(cleanupTimer);
+    await ledgerJobs.onModuleDestroy();
     await cleanupRun;
     dispatcher.stop();
     await dispatcher.onModuleDestroy();

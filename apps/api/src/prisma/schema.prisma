@@ -111,6 +111,7 @@ model users {
   notifications notifications[]
   vendor_customers vendor_customers[]
   customer_link_decisions customer_link_decisions[]
+  ledger_entries ledger_entries[]
 }
 
 model user_roles {
@@ -396,6 +397,7 @@ model vendors {
   // T-028 hook: null = never assigned. T-084/T-103 update atomically with assignment;
   // do not clear on expiry/downgrade (Q-04 remains open).
   assigned_customer_limit Int?
+  ledger_entries ledger_entries[]
 }
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
@@ -416,9 +418,55 @@ model vendor_customers {
   user users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
   decisions customer_link_decisions[]
   subscription_links customer_subscription_links[]
+  ledger_entries ledger_entries[]
+  ledger_balance ledger_balances?
+  ledger_findings ledger_reconciliation_findings[]
   @@index([vendor_id, status])
   @@index([user_id])
   @@index([mobile])
+}
+
+// T-070: immutable source entries; only the DB insert trigger changes balances.
+model ledger_entries {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_id String @db.Uuid
+  vendor_customer_id String @db.Uuid
+  type String @db.VarChar(6)
+  amount_paise BigInt
+  ref_type String @db.VarChar(8)
+  ref_id String @db.Uuid
+  reverses_entry_id String? @unique @db.Uuid
+  request_key String? @unique @db.Char(64)
+  request_hash String? @db.Char(64)
+  note String @db.VarChar(500)
+  entry_date DateTime @default(dbgenerated("((clock_timestamp() AT TIME ZONE 'Asia/Kolkata'::text))::date")) @db.Date
+  created_by String @db.Uuid
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  vendor vendors @relation(fields: [vendor_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  customer vendor_customers @relation(fields: [vendor_customer_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  actor users @relation(fields: [created_by], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  original ledger_entries? @relation("LedgerReversal", fields: [reverses_entry_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  reversal ledger_entries? @relation("LedgerReversal")
+  @@unique([ref_type, ref_id, type], map: "ledger_reference_once")
+  @@index([vendor_customer_id, entry_date, id])
+}
+model ledger_balances {
+  vendor_customer_id String @id @db.Uuid
+  total_debit_paise BigInt @default(0)
+  total_credit_paise BigInt @default(0)
+  due_paise BigInt @default(0)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  customer vendor_customers @relation(fields: [vendor_customer_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+}
+model ledger_reconciliation_findings {
+  id String @id @default(uuid()) @db.Uuid
+  business_date DateTime @db.Date
+  vendor_customer_id String @db.Uuid
+  expected Json
+  observed Json?
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  customer vendor_customers @relation(fields: [vendor_customer_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  @@unique([business_date, vendor_customer_id], map: "ledger_reconciliation_finding_business_date_vendor_customer_key")
 }
 
 // Pending requests are derived from verified users.mobile, never vendor-provided user IDs.

@@ -104,6 +104,119 @@ Protocol references: [FCM HTTP v1](https://firebase.google.com/docs/cloud-messag
 [service-account OAuth](https://developers.google.com/identity/protocols/oauth2/service-account),
 [FCM error codes](https://firebase.google.com/docs/cloud-messaging/error-codes).
 
+## T-070 ledger foundation handoff (2026-11-11): READY_FOR_VERIFY
+
+T-005 DONE / T-028 READY_FOR_VERIFY permit this foundation under TASKS §10.
+T-084/T-103 are skipped for unresolved Q-04 feature-mapping/expiry policy.
+This implementation adds internal transaction services, not ungated public
+financial HTTP routes. No plan, payment provider or entitlement policy is invented.
+Future financial endpoints must apply approved entitlements and derive actor/vendor
+from the session before calling these methods. Order/POS/payment/claim state
+transitions and actual UI flows remain owning tasks, including T-049/T-071/T-079/
+T-081/T-082; no financial source transition is simulated as implemented here.
+
+Implemented: append-only ledger entries; positive BIGINT paise; vendor/customer scope;
+source-reference uniqueness; permanent opening/reversal request identity; immutable
+opposite-entry reversal; an insert trigger updating balance and redacted audit
+atomically; database UPDATE/DELETE/TRUNCATE rejection. Internal serialized amounts
+are decimal strings to preserve values above JavaScript safe integers. Default
+entry business dates use PostgreSQL's Asia/Kolkata clock. No history is overwritten.
+
+The worker registers LEDGER_RECONCILE, schedules a daily 00:15 IST cumulative check
+from the DB clock, catches the most recent due check on startup and uses existing
+durable leases/retries. Batches are bounded to 100 customers, with transactional
+continuations scoped to the root run and cursor. Single-statement snapshots compare entry sums and balances without
+false alerts from concurrent commits. Drift records and audits are immutable;
+alerts contain a fixed code, never notes or account details. No automatic repair.
+`ledger:reconcile` processes the latest scheduled run and its continuations; it
+does not create a second daily run if that run already completed.
+
+The operator configuration blocker is resolved. The application role remains
+non-superuser/NOCREATEROLE. The additive migration and separate ownership/grants
+were applied only to `supplybiz_service_area_test`; the configured app DB was not
+migrated or granted here. The runtime can SELECT/INSERT entries/findings and SELECT
+balances. Unsafe table/column write privileges fail closed with
+LEDGER_GRANTS_NOT_APPLIED; runtime ownership or administrator privileges are not needed.
+
+POSTGRES_ADMIN_URL is in ignored `.env.ledger-operator.local`, separate from the
+normal API `.env`. Normal API/worker startup must never load the operator file.
+For another environment, copy `.env.ledger-operator.example` to that ignored file
+and configure it privately. The operator uses `tools/ledger-grants.sql` with an existing runtime
+role and a dedicated non-login owner. It transfers only the new ledger tables/
+trigger functions, grants runtime SELECT/INSERT on entries/findings and SELECT on
+balances, and rejects unsafe table/column permissions or owner-role membership.
+Future migrations changing these owned objects need operator/migration ownership,
+not elevated API credentials. The SQL script applied and reapplied successfully
+to the isolated test DB without elevating the runtime login. No credential values
+were printed, committed or used by the runtime-only CLI smoke.
+
+Executed checks (apps/api, native URL privately loaded from ignored .env and
+overridden to supplybiz_service_area_test):
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\tsc.cmd --noEmit --strict --esModuleInterop --experimentalDecorators --emitDecoratorMetadata --target ES2021 --module commonjs --moduleResolution node --skipLibCheck scripts/reconcile-ledger.ts
+.\node_modules\.bin\jest.cmd --runInBand --runTestsByPath src/modules/ledger/ledger.service.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/ledger/ledger.service.spec.ts src/modules/ledger/ledger.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\ts-node.cmd scripts/reconcile-ledger.ts
+```
+Final focused checks pass: 6 boundary/IST-clock unit and 11 real PostgreSQL cases.
+Native cases cover source replay/concurrency/reconnect, atomic source/entry/balance/
+audit rollback, precision above JS safe integers, int64 overflow rollback, permanent
+opening identity, sequential/concurrent reversal, tenant/role/suspension denial,
+DB-level scope/reversal validation, table and column privileges, immutable drift
+evidence without silent repair, scheduling and bounded continuation after reconnect.
+The column-grant test restores its temporary operator grant in finally. Synthetic
+append-only ledger/audit fixtures remain in the isolated DB. Drift-fixture balance
+changes are restored by the test operator, not the reconciliation job.
+
+Both native startup/readiness checks pass. The runtime-only CLI completed 3 durable
+batches and closed its context. Before that CLI run, POSTGRES_ADMIN_URL,
+LEDGER_TEST_ADMIN_URL and PGPASSWORD were removed from the child process environment;
+only the restricted runtime test URL was supplied. No process/service was retained.
+No API contract/client codegen or Android build was needed; iOS remains deferred.
+
+At repository root, executed `node --test tools/checks.spec.mjs` (5 guards PASS)
+and `git diff --check` (PASS). T-070's new task registration refuses missing
+native administrator/grant coverage before running commands. The full task runner
+was not invoked on Windows; its registered checks were executed directly using
+installed binaries. No manual PASS or module gate is claimed.
+
+Executed operator command (repository root; administrator connection/password and
+runtime role loaded privately from the separate files; psql 18 client):
+```powershell
+& 'C:\Program Files\PostgreSQL\18\bin\psql.exe' -X -w -v ON_ERROR_STOP=1 -h $taskAdmin.Host -p $taskAdmin.Port -U ([uri]::UnescapeDataString($taskAdminAuth[0])) -d supplybiz_service_area_test -v "runtime_role=$taskRuntimeRole" -v ledger_owner=supplybiz_ledger_test_owner -f tools/ledger-grants.sql
+```
+The password was supplied only through the operator child's PGPASSWORD, not a
+command argument. For native tests, LEDGER_TEST_DATABASE_URL used the restricted
+login and LEDGER_TEST_ADMIN_URL the operator login, both explicitly targeting the
+same local `_test` DB. The CLI and runtime smokes used the restricted login only.
+
+Next verification steps (suggested, not executed):
+1. On your selected verification environment, apply the migration and use the
+   operator-only credentials for `tools/ledger-grants.sql` with `runtime_role` and `ledger_owner`.
+   Verify the API login cannot UPDATE/DELETE/TRUNCATE entries or mutate balances.
+2. Set LEDGER_TEST_DATABASE_URL to the runtime test URL and LEDGER_TEST_ADMIN_URL
+   to the operator URL pointing to that same local `_test` DB. Run the focused
+   `src/modules/ledger/ledger.postgres.spec.ts` suite. Its 11 cases cover concurrency/
+   reconnect replay, rollback, precision, opening/reversal, isolation, actual DB
+   permissions, drift evidence and durable scheduling; failed grants cannot skip.
+3. Check reversal leaves the original and one audited opposite entry; changed
+   opening payload under the same permanent key must fail. Financial source
+   reference replay must not add another balance effect.
+4. Run `ledger:reconcile` using runtime credentials against the isolated DB.
+   Check job counts and immutable findings; simulate drift only through the test
+   suite's operator fixture, and confirm the job reports rather than repairs it.
+
+Full ordering/delivery/payment/claim integration and G2 follow their owning tasks.
+Operator setup is complete for the isolated DB. Manual PASS, actual worker-process
+restart/alert drill and G2 remain pending. Stop at READY_FOR_VERIFY; do not mark DONE.
+
 ## T-028 customers handoff (2026-11-11): READY_FOR_VERIFY
 
 ADR-028 resolves the pre-assignment policy: allow 50 active customers, excluding

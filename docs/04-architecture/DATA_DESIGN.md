@@ -168,8 +168,9 @@ customer or consume another slot. Deactivation preserves all future history.
 ### 3.6 Ledger & payments
 | Table | Key columns | Notes |
 |---|---|---|
-| `ledger_entries` | id, vendor_id, vendor_customer_id, type (DEBIT/CREDIT), amount_paise (>0), ref_type (ORDER/SALE/PAYMENT/CLAIM/OPENING/REVERSAL), ref_id, reverses_entry_id NULL, note, entry_date DATE, created_by, created_at | **append-only** (no UPDATE/DELETE grants); index(vendor_customer_id, entry_date) |
+| `ledger_entries` | id, vendor_id, vendor_customer_id, type (DEBIT/CREDIT), amount_paise BIGINT (>0), ref_type (ORDER/SALE/PAYMENT/CLAIM/OPENING/REVERSAL), ref_id, reverses_entry_id NULL UNIQUE, request_key NULL UNIQUE, request_hash NULL, note, entry_date DATE, created_by, created_at | Append-only; source UNIQUE(ref_type,ref_id,type); opening/reversal keys/hashes persist with entries rather than expiring cache. No UPDATE/DELETE/TRUNCATE runtime grants. |
 | `ledger_balances` | vendor_customer_id, total_debit_paise, total_credit_paise, due_paise, updated_at | updated in same transaction as entry insert |
+| `ledger_reconciliation_findings` | id, business_date, vendor_customer_id, expected JSONB, observed JSONB NULL, created_at | Immutable drift evidence; UNIQUE(business_date,vendor_customer_id); alert without silent repair. |
 | `payments` | id, vendor_id, vendor_customer_id, amount_paise, method (CASH/UPI/BANK/WALLET), received_on, note, client_ref, created_at | |
 | `payment_claims` | id, vendor_customer_id, amount_paise, method (UPI/CASH), upi_txn_ref NULL, status (PENDING/CONFIRMED/REJECTED), decided_by, decided_at, reject_reason | |
 

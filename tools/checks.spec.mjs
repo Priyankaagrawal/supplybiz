@@ -5,9 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { missingPrerequisites } from './module-prerequisites.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-function run(script, arg) {
+function run(script, arg, extraEnv = {}) {
   return spawnSync(process.execPath, [script, arg], { cwd: root, encoding: 'utf8',
-    env: { ...process.env, TASK_ID: '', TASK_TITLE: '', NATIVE_TEST_DATABASE_URL: '', ABUSE_TEST_DATABASE_URL: '' } });
+    env: { ...process.env, TASK_ID: '', TASK_TITLE: '', NATIVE_TEST_DATABASE_URL: '', ABUSE_TEST_DATABASE_URL: '', ...extraEnv } });
 }
 test('unknown tasks cannot report success without focused checks', () => {
   const result = run('tools/check-task.mjs', 'T-999');
@@ -18,6 +18,16 @@ test('task mode refuses silently skipped native database coverage', () => {
   const result = run('tools/check-task.mjs', 'T-182');
   assert.equal(result.status, 1);
   assert.match(result.stderr, /no skipped-DB success/);
+});
+
+test('ledger task refuses skipped administrator/grant verification before running commands', () => {
+  const result = run('tools/check-task.mjs', 'T-070', {
+    CHECK_LAYER: 'api', NATIVE_TEST_DATABASE_URL: 'postgresql://localhost/supplybiz_guard_test',
+    ABUSE_TEST_DATABASE_URL: 'postgresql://localhost/supplybiz_guard_test', LEDGER_TEST_ADMIN_URL: '',
+  });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /no skipped grant\/reconciliation coverage/);
+  assert.doesNotMatch(result.stdout, /Running pnpm/);
 });
 test('module readiness requires manual DONE and the prior gate PASS', () => {
   const approved = '| T-017 | task | DONE |\n| T-018 | task | DONE |\n| T-122 | task | DONE |\n| G4 Business/admin | PASS | evidence |';

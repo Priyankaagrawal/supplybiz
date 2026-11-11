@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node src/main.ts",
     "dev:worker": "ts-node src/worker.ts",
+    "ledger:reconcile": "ts-node scripts/reconcile-ledger.ts",
     "openapi:generate": "ts-node scripts/generate-openapi.ts",
     "infra:check": "ts-node scripts/check-local-infra.ts",
     "prisma:generate": "prisma generate --schema src/prisma/schema.prisma",
