@@ -40,6 +40,7 @@
 | ADR-026 | Approved admin roles and default-deny permissions (Q-25) | Accepted (user, 2026-11-04) |
 | ADR-027 | T-020 document validation scope | Accepted (user, 2026-11-04) |
 | ADR-028 | Pre-assignment active customer limit | Accepted (user, 2026-11-11) |
+| ADR-029 | Day-4 plan feature/lifecycle policy (Q-04) | Accepted (user, 2026-11-11) |
 
 ---
 
@@ -182,3 +183,14 @@
 - **Decision:** Before any plan assignment, a vendor may have up to 50 active customers. Inactive customers do not count. Creating or reactivating a customer must enforce the cap atomically. This allowance does not assign a plan or grant plan features/discovery eligibility.
 - **Preserve:** Assigned-plan customer limits remain BASIC 100, STANDARD 250, BUSINESS 500, PREMIUM 1000. No plan catalog values change. T-084/T-103/T-156 remain responsible for real audited assignments and server entitlements.
 - **Resolution:** Clears T-028's pre-assignment policy blocker. Q-04 trial, grace, expiry/downgrade and final feature mapping remain open; an expired assignment must not silently be treated as never assigned. This decision supplies no manual PASS or module-gate evidence.
+
+### ADR-029 Day-4 plan feature/lifecycle policy — Accepted, 2026-11-11
+- **Authority:** User selected all three recommended options: all four assigned plans for the proposed capabilities, no automatic trial/grace with the stated expiry restrictions, and retaining records while restricting additions after an over-limit downgrade. ADR-028 remains accepted and unchanged.
+- **Already settled:** 50 active customers before any assignment; assigned BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000; inactive customers excluded; no default plan or paid-feature/discovery entitlement from the allowance. Manual assignment/extension requires the existing authorized admin role, reason, valid dates, idempotency and atomic audit. Automated billing, invoices and wallet/settlement remain outside active delivery.
+- **Decision 1 — feature rows:** Quick Sale, Khata/payment records and basic report summaries are included on every assigned plan. Retain the other PRD §5 gates and existing customer caps. This does not grant paid features before assignment.
+- **Decision 2 — trial/expiry:** No automatic trial and no automatic grace period; the 50-customer setup allowance is not a timed trial. At expiry, retain history and allow payment recording/claim decisions and completion/cancellation of existing orders only where normal authorization/state rules permit. Block new orders, POS sales, subscriptions/generation and customer additions/reactivations until renewed. Retain records; do not reset to the pre-assignment allowance, delete customers, or fabricate a BASIC assignment. Existing order cancellation/cutoff rules remain unchanged.
+- **Decision 3 — downgrade over limit:** Retain every customer/history record, enforce the new feature gates and block additions/reactivations while active count is at or above the new cap. Existing customers can continue permitted business under the new active tier. Do not reject the downgrade solely because the current count exceeds the new limit, and do not automatically deactivate/delete customers.
+- **Visibility boundary:** Retain the existing A-04 baseline for discovery: verified KYC plus effective active-plan eligibility. The 50-customer allowance grants no discovery eligibility. Q-18 is not a prerequisite for implementing the Day-4 manual assignment service; it does not justify skipping that workstream.
+- **Resolution/precedence:** Q-04 is resolved for active delivery. This decision replaces the proposed PRD rows and open trial/grace/expiry/downgrade clauses in the owning requirements. Other documented feature gates remain; wallet/settlement and automated billing are not enabled. Accepted historical ADRs remain unchanged.
+- **Implementation sequence:** T-084 → T-103 → T-156 under the existing dependency/status rules. These policy questions no longer justify skipping Day-4 plan work. READY_FOR_VERIFY dependencies permit provisional implementation, not a G0/G1 gate pass. T-084's T-028/T-015 prerequisites are READY_FOR_VERIFY; downstream tasks still wait for their declared dependencies.
+- **Evidence:** User policy approval and documentation reconciliation only. Tasks remain unimplemented/TODO; no manual PASS or module-gate result is supplied by this decision.

@@ -150,11 +150,13 @@
 ## 14. Plans (E-13)
 | ID | Scenario | Expected | Refs | Level |
 |---|---|---|---|---|
-| TC-120 | Feature gating per tier | Matrix test per PRD §5 for all gated endpoints | FR-123 | A |
+| TC-120 | Feature gating per tier | Matrix per PRD §5/ADR-029; Quick Sale/Khata/payment records/basic reports on every assigned tier; retain other gates; no paid-feature grant before assignment | FR-123 | A |
 | TC-121 | Customer limit per tier | 100/250/500/1000 boundaries | FR-122 | A |
 | TC-122 | POST-DELIVERY (SR-03): Purchase activation | Entitlement only after verified payment/webhook; replayed webhook ignored | FR-121 | DEFERRED (SR-03); not executed/not PASS |
 | TC-123 | Expiry reminders | Notifications at 7/3/1 days and expiry | FR-124 | A |
 | TC-124 | Plans screen | Prices/limits/features displayed; Most Popular on BUSINESS | FR-120 | W |
+| TC-125 | No trial/grace and expiry restrictions | No automatic trial/grace; pre-assignment setup remains capped at 50 without a plan. Expiry retains history/settlement and normally permitted existing-order operations, blocks new business/customer additions/reactivations, and never resets to the pre-assignment allowance. Renewal restores only the assigned valid entitlements | FR-124, FR-125, RULE-26, ADR-029 | A |
+| TC-126 | Over-limit downgrade | Retain every customer/history record and apply new tier features; allow permitted existing-customer business, deny additions/reactivations while at/above new cap, and allow additions only after count falls below cap. No automatic deactivation/deletion or rejection solely for excess count | FR-122, FR-406, RULE-12, ADR-029 | A |
 
 ## 15. Settings & Help (E-14)
 | ID | Scenario | Expected | Refs | Level |

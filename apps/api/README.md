@@ -107,7 +107,8 @@ Protocol references: [FCM HTTP v1](https://firebase.google.com/docs/cloud-messag
 ## T-070 ledger foundation handoff (2026-11-11): READY_FOR_VERIFY
 
 T-005 DONE / T-028 READY_FOR_VERIFY permit this foundation under TASKS §10.
-T-084/T-103 are skipped for unresolved Q-04 feature-mapping/expiry policy.
+Day-4 plan policy is now approved in ADR-029 (Q-04 resolved); implement T-084 then
+T-103/T-156 in dependency order rather than skipping that workstream.
 This implementation adds internal transaction services, not ungated public
 financial HTTP routes. No plan, payment provider or entitlement policy is invented.
 Future financial endpoints must apply approved entitlements and derive actor/vendor
@@ -222,7 +223,8 @@ restart/alert drill and G2 remain pending. Stop at READY_FOR_VERIFY; do not mark
 ADR-028 resolves the pre-assignment policy: allow 50 active customers, excluding
 inactive records; no default plan or feature entitlement is granted. Assigned
 catalog caps remain BASIC 100, STANDARD 250, BUSINESS 500, PREMIUM 1000; seed data
-is unchanged. User approval resolves this cap only, not Q-04 expiry/trial policy.
+is unchanged. ADR-028 resolves this cap; ADR-029 now resolves Q-04 trial/expiry/
+downgrade policy. T-084/T-103 must wire the approved lifecycle checks into this hook.
 
 Implemented owned vendor customer list/detail/create/PATCH (inactivation retains
 history), case-insensitive name/mobile search, All/Active/Inactive/Subscription

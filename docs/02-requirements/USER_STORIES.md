@@ -22,12 +22,12 @@
 | RULE-04 | Customer can cancel only while order is NEW (Q-16). | FR-242 |
 | RULE-05 | Cart holds items of one vendor only. | FR-220 |
 | RULE-06 | One-time order qty ≥ MOQ and ≤ current stock. Subscription orders are generated regardless of stock; low stock triggers an alert. | FR-225, FR-074 |
-| RULE-07 | No subscription order is generated for a date that is: not a selected delivery day, before start/after end, inside a pause, skipped, a vendor holiday, while vendor delivery is paused, or when vendor is suspended/plan inactive (Q-04). | FR-074 |
+| RULE-07 | No subscription order is generated for a date that is: not a selected delivery day, before start/after end, inside a pause, skipped, a vendor holiday, while vendor delivery is paused, or when vendor is suspended/plan inactive (ADR-029; no expiry grace). | FR-074 |
 | RULE-08 | Subscription changes made before cutoff (21:00 IST D-1) affect date D; after cutoff they affect D+1 onward. | FR-073, FR-232 |
 | RULE-09 | Ledger entries are append-only; corrections use a reversal entry referencing the original with a reason. | FR-116 |
 | RULE-10 | DEBIT is posted when an order becomes DELIVERED or a customer quick sale completes; CREDIT is posted when a payment is recorded or a claim confirmed. If payment is collected at delivery, both entries are posted. | FR-111 |
 | RULE-11 | Walk-in POS sales must be fully paid (Paid = Total). | FR-053 |
-| RULE-12 | Active customers per vendor ≤ 50 before any plan assignment (ADR-028), otherwise the server-assigned plan customer limit. Inactive customers are excluded. Create/reactivate attempts exceeding the cap return `PLAN_CUSTOMER_LIMIT` with support-assisted plan-change guidance (no checkout). Assigned-plan caps remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. | FR-061, FR-122 |
+| RULE-12 | Before any plan assignment allow up to 50 active customers (ADR-028); otherwise use the assigned cap: BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. Inactive customers are excluded. Create/reactivate attempts exceeding the cap return `PLAN_CUSTOMER_LIMIT` with support-assisted guidance. An approved downgrade may leave existing active count above the new cap: keep records, allow business permitted by the new active tier, and block additions/reactivations while at/above the cap. Expired assignments block additions/reactivations until renewed and never fall back to 50 (ADR-029). | FR-061, FR-122 |
 | RULE-13 | Customers see only vendors that are VERIFIED, not suspended, with active plan, serving the selected location. | FR-017, FR-210 |
 | RULE-14 | Subscription orders use subscription price (else selling price). | FR-036 |
 | RULE-15 | Orders store a price snapshot; later product price changes do not alter existing orders or subscriptions' generated orders. Subscriptions use the price current at generation time. | FR-032 |
@@ -41,6 +41,7 @@
 | RULE-23 | A user cannot place orders with their own vendor business. | FR-225 |
 | RULE-24 | Business dates (delivery date, holidays, reports) use IST; storage uses UTC. | All |
 | RULE-25 | Order number format `ORD` + zero-padded sequence (e.g., ORD00012345), unique platform-wide. | FR-041 |
+| RULE-26 | No automatic trial or expiry grace. At expiry retain history, payment recording/claim decisions and completion/cancellation of existing orders under normal authorization/state rules. Block new orders, POS sales, subscriptions/generation and customer additions/reactivations until renewal. Keep customers, subscriptions and financial history; do not fabricate a fallback assignment (ADR-029). | FR-123–FR-125 |
 
 ## 3. Stories
 
@@ -216,7 +217,8 @@
 - AC1: Plans show catalog and current assignment/validity/limits/features; authorized admin assignment/extension updates server entitlements and writes audit with reason/dates. No checkout/payment-link/receipt/invoice CTA or fake payment (SR-03).
 
 **US-121** As a vendor, I want to know when I hit plan limits or my plan expires. — FR-122–FR-125 · P1
-- AC1: Locked features explain the assigned-tier limit and support-assisted plan change; reminders at 7/3/1 days remain. Expiry/trial behavior follows approved Q-04 rules; no billing screen dependency.
+- AC1: Locked features explain the assigned-tier limit and support-assisted plan change; reminders at 7/3/1 days remain. Apply ADR-029/RULE-26: no automatic trial/grace, preserved history/settlement/existing-order operations and blocked new business after expiry; no billing screen dependency.
+- AC2: Downgrading above the new customer cap retains all customers/history and applies the new tier's feature gates; additions/reactivations stay blocked until below the cap. Existing permitted business continues; no automatic deactivation/deletion or rejection solely for excess count.
 
 ### Epic E-14 Vendor Settings & Help
 **US-130** As a vendor, I want to manage business, KYC/bank, delivery and notification settings. — FR-130–FR-132 · P1

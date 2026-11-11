@@ -97,7 +97,7 @@
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-060 | Customer list: search by name/mobile; filters All/Active/Subscription/Inactive; card shows photo, name, mobile, address, status, total orders, subscription type, total purchase. | P0 |
-| FR-061 | Vendor shall add/edit an offline customer: name (required), mobile (required, unique per vendor), email, address, preferred payment method. Create/reactivate is blocked above 50 active customers before any plan assignment (ADR-028), or above the assigned plan customer limit (RULE-12). Assigned-plan limits remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. | P0 |
+| FR-061 | Vendor shall add/edit an offline customer: name (required), mobile (required, unique per vendor), email, address, preferred payment method. Create/reactivate must respect 50 active customers before any assignment (ADR-028), or the assigned cap (RULE-12); no additions/reactivations after assignment expiry until renewed. Downgrade preserves over-limit records and restricts growth rather than deleting/deactivating them. Assigned caps remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. | P0 |
 | FR-062 | Customer detail: Call, Edit, Add Order; stats (total orders, total purchase, pending amount); subscription summary; info; tabs Order History / Current Subscription / Payments. | P0 |
 | FR-063 | Vendor shall mark a customer Inactive (keeps history; excluded from limit count). | P1 |
 | FR-064 | When a person registers as Customer with a mobile matching a vendor's offline customer, the system links them after the customer accepts a link prompt; the ledger becomes visible to the customer. | P0 |
@@ -161,8 +161,8 @@
 | FR-121 | **POST-DELIVERY — SR-03**. Future requirement: Vendor purchases/renews/upgrades a plan through the billing channel decided in ADR-015 (Q-03); entitlement activated only after server-verified payment. | DEFERRED |
 | FR-122 | Customer-limit enforcement (RULE-12). | P1 |
 | FR-123 | Feature gating per [PRD §5](../01-business/PRD.md#5-plan-feature-gating), enforced server-side (`403 PLAN_FEATURE_LOCKED`). | P1 |
-| FR-124 | Expiry reminders at 7, 3, 1 days and on expiry; grace period and post-expiry behaviour TBD (Q-04). | P1 |
-| FR-125 | Free trial: TBD (Q-04). | P1 |
+| FR-124 | Expiry reminders at 7, 3, 1 days and on expiry; no automatic grace. After expiry retain history, payment recording/claim decisions and completion/cancellation of existing orders under normal authorization/state rules. Block new orders, POS sales, subscriptions/generation and customer additions/reactivations until renewal; do not revert to the pre-assignment allowance (ADR-029, RULE-26). | P1 |
+| FR-125 | No automatic free trial. The 50-active-customer allowance before any assignment is setup access, not a timed trial, paid-feature grant or discovery entitlement (ADR-028/ADR-029). | P1 |
 | FR-126 | **POST-DELIVERY — SR-03**. Future requirement: Plan invoices (GST treatment TBD Q-24) downloadable by vendor. | DEFERRED |
 
 ### 3.14 Vendor Settings & Help (F-14)
@@ -269,7 +269,7 @@
 | FR-403 | Vendor management: search, view, suspend/reinstate (suspended = hidden + cannot accept orders), assign badges, view plan. | P0 |
 | FR-404 | Customer management: search, view, block/unblock. | P0 |
 | FR-405 | Category management: create/edit, icon, order, enabled/coming soon, type (SUPPLY/BILL). | P0 |
-| FR-406 | Admin manages plan catalog/limits/features and assigns or extends a vendor plan with valid dates, permission check, idempotency and required reason; assignment and effective entitlement changes are audited atomically. Existing/new business flows enforce server entitlements and limits. Automated purchases, payment receipts and invoices are deferred (SR-03); expiry/trial policy remains Q-04. | P1 |
+| FR-406 | Admin manages plan catalog/limits/features and assigns or extends a vendor plan with valid dates, permission check, idempotency and required reason; assignment and effective entitlement changes are audited atomically. Existing/new business flows enforce server entitlements and limits. Apply ADR-029 expiry/no-trial policy and preserve over-limit customers on downgrade while restricting additions/reactivations and applying the new feature gates. Automated purchases, payment receipts and invoices remain deferred (SR-03). | P1 |
 | FR-407 | **POST-DELIVERY — SR-05**. Future requirement: Banners (image, deep link, schedule, city) and coupons (Q-06). | DEFERRED |
 | FR-408 | CMS manages English FAQs and versioned Terms/Privacy. Basic API-backed app config exposes min supported version and simple feature flags with audit; no Remote Config campaign/personalization or advanced experimentation work (SR-06). | P0 |
 | FR-409 | **POST-DELIVERY — SR-05**. Future requirement: Broadcast push to segment (role, city, category) with schedule. | DEFERRED |

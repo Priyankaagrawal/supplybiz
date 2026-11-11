@@ -64,14 +64,14 @@ Defines product features (`F-xx`), priorities, plan gating and success metrics. 
 | F-D4 | Platform-collected customer payments / settlement / commission | Direct-payment model (ADR-008) |
 
 ## 5. Plan Feature Gating
-Derived from source "feature progression". Rows marked *(proposed)* are not explicit in the source and need confirmation (Q-04).
+Derived from source "feature progression". The former proposed rows and active plan lifecycle policy were approved by the user under ADR-029 (2026-11-11); Q-04 is resolved.
 
 | Capability | BASIC | STANDARD | BUSINESS | PREMIUM |
 |---|---|---|---|---|
 | Max linked customers | 100 | 250 | 500 | 1,000 |
 | Products, orders, accept/reject | ✓ | ✓ | ✓ | ✓ |
-| Quick Sale, Khata, payment records *(proposed)* | ✓ | ✓ | ✓ | ✓ |
-| Basic reports (summary cards) *(proposed)* | ✓ | ✓ | ✓ | ✓ |
+| Quick Sale, Khata, payment records | ✓ | ✓ | ✓ | ✓ |
+| Basic reports (summary cards) | ✓ | ✓ | ✓ | ✓ |
 | Customer subscriptions | ✗ | ✓ | ✓ | ✓ |
 | Delivery management & holidays | ✗ | ✓ | ✓ | ✓ |
 | Auto-accept subscription orders | ✗ | ✗ | ✓ | ✓ |
@@ -80,7 +80,9 @@ Derived from source "feature progression". Rows marked *(proposed)* are not expl
 | "Wallet/Settlement" | ✗ | ✗ | ✗ | TBD (Q-05) |
 | Priority support | ✗ | ✗ | ✗ | ✓ (definition TBD) |
 
-Gating is enforced **server-side** using audited admin-assigned plans. Locked UI offers support-assisted plan-change guidance, with no checkout or external payment link. Expiry/trial rules remain Q-04; grants are not payments or revenue.
+Gating is enforced **server-side** using audited admin-assigned plans. Locked UI offers support-assisted plan-change guidance, with no checkout or external payment link. Grants are not payments or revenue.
+
+ADR-028/ADR-029: before any assignment, allow 50 active customers for setup without assigning a plan or granting paid features/discovery eligibility. There is no automatic trial or grace period. At expiry, preserve history and allow payment recording/claim decisions and normal completion/cancellation of existing orders; block new orders, POS sales, subscriptions/generation and customer additions/reactivations until renewal. An expired assignment does not revert to the pre-assignment allowance. On downgrade, preserve all records and apply the new feature gates; if at/above the new customer cap, block additions/reactivations until below it. Existing customers may continue business permitted by the new active tier; do not automatically deactivate/delete them or reject the downgrade solely for excess count.
 
 ## 6. Success Metrics
 Source KPIs; targets **TBD** (Q-27). Event definitions in [QUALITY_OBSERVABILITY](../04-architecture/QUALITY_OBSERVABILITY.md#4-analytics).

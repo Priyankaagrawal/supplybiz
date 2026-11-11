@@ -101,7 +101,7 @@
 | T-081 | Mobile vendor Khata S-V-23–S-V-26 (payments, claims, opening, reversal) | MOB | US-110–US-114 | T-070, T-082, T-016 | TC-110–TC-116 | TODO |
 | T-082 | Customer Khata API (summary, vendor entries, claims) + personal contacts/entries API | API | FR-250–FR-253 | T-070 | TC-250–TC-255 | TODO |
 | T-083 | Mobile customer Khata S-C-17–S-C-20 with Android UPI intent and no-UPI-app fallback; iOS validation after Android release | MOB | US-250–US-252 | T-082, T-016 | TC-250–TC-256 | TODO |
-| T-084 | Plan gating guard and customer-limit hook using audited manual assignments; default plans for test fixtures only | API | FR-122, FR-123 | T-028, T-015 | TC-120–TC-121 | TODO |
+| T-084 | Plan gating guard and customer-limit hook using audited manual assignments; default plans for test fixtures only | API | FR-122, FR-123, ADR-029 | T-028, T-015 | TC-120–TC-121, TC-125–TC-126 policy guards | TODO (Q-04 resolved by user 2026-11-11, ADR-029; next eligible Day-4 implementation: both direct prerequisites READY_FOR_VERIFY; implementation/manual PASS/G1 still pending) |
 
 ## 6. M4 — Business Features & Admin Completion
 | ID | Task | Layer | Refs | Deps | Done when | Status |
@@ -109,7 +109,7 @@
 | T-100 | Reports API: SQL summary, daily-sales table and product-wise data; chart polish deferred | API | FR-090–FR-093, FR-095 | T-079, T-070 | TC-095–TC-096 reduced table scope; paise/IST totals reconcile | TODO |
 | T-101 | CSV-only server-authorized report export/share; PDF deferred | API | FR-094, SR-04, TC-512 | T-100 | CSV matches reports, tenant authorization and safe cell encoding; download/share works | TODO (Q-23 resolved: CSV-only under approved SR-04) |
 | T-102 | Mobile report summaries/tables and CSV download/share | MOB | US-090, US-091, SR-04 | T-100, T-101 | Summary/daily/product tables render; CSV shares; locked tier enforced; no chart/PDF requirement | TODO |
-| T-103 | Plan catalog, audited manual assignment service, server entitlements and expiry reminders | API | FR-120, FR-122–FR-125, FR-406, ADR-024 | T-084, T-181, T-152 | Admin grant/extension with reason/dates/idempotency changes entitlements atomically and audits; expiry policy Q-04; no purchase prerequisite | TODO |
+| T-103 | Plan catalog, audited manual assignment service, server entitlements and expiry reminders | API | FR-120, FR-122–FR-125, FR-406, ADR-024, ADR-029 | T-084, T-181, T-152 | Admin grant/extension with reason/dates/idempotency changes entitlements atomically and audits; approved ADR-029 trial/expiry/downgrade policy; no purchase prerequisite | TODO (Q-04 policy resolved; waits for T-084 readiness under existing dependency rules) |
 | T-104 | POST-DELIVERY: Billing provider implementation per ADR-015 | API/MOB | FR-121, FR-126 | T-103 | Future acceptance only; excluded from G0–G6 by SR-03. TC-122 | DEFERRED (SR-03; user approved 2026-10-29) |
 | T-105 | Mobile plan catalog/current assignment/validity and locked-feature guidance; no checkout or invoice UI | MOB | US-120, US-121, SR-03 | T-103, T-016 | Assigned plan and limits reflect DB; support-assisted guidance; no payment-link/checkout/invoice CTA | TODO |
 | T-106 | Vendor settings S-V-20, S-V-31–S-V-33 incl. re-verification rule | MOB/API | FR-130–FR-132, RULE-22 | T-021, T-022, T-016 | TC-130–TC-131 | TODO |
@@ -117,7 +117,7 @@
 | T-108 | POST-DELIVERY: Reviews API + S-C-35 + vendor rating aggregation | API/MOB | FR-213 | T-045 | Future acceptance only; excluded from G0–G6 by SR-05. TC-211–TC-212 | DEFERRED (SR-05; user approved 2026-10-29) |
 | T-154 | Admin dashboard S-A-02 | ADM/API | FR-401 | T-150 | Real DB values; plan grants never counted as paid revenue; unavailable billing metric explicit | TODO |
 | T-155 | Admin vendors & customers S-A-05–S-A-07 (suspend/block, badges) | ADM/API | FR-403, FR-404 | T-150 | TC-404–TC-405 | TODO |
-| T-156 | Admin plan catalog and audited vendor assignment/extension; billing deferred | ADM/API | FR-406, SR-03, TC-510 | T-103, T-150, T-152 | Authorized reason/dates/idempotency flow updates effective limits with audit; invalid/unauthorized grants denied; no payments/invoices fabricated | TODO |
+| T-156 | Admin plan catalog and audited vendor assignment/extension; billing deferred | ADM/API | FR-406, SR-03, TC-510, ADR-029 | T-103, T-150, T-152 | Authorized reason/dates/idempotency flow updates effective limits with audit; invalid/unauthorized grants denied; no payments/invoices fabricated; ADR-029 behavior | TODO (policy resolved; waits for T-103 readiness under existing dependency rules) |
 | T-157 | POST-DELIVERY: Admin banners S-A-11 (coupons blocked Q-06) | ADM/API | FR-407 | T-150 | Future acceptance only; excluded from G0–G6 by SR-05. CRUD tests | DEFERRED (SR-05; user approved 2026-10-29) |
 | T-158 | Admin CMS & app config S-A-12/13 | ADM/API | FR-408 | T-150 | TC-407 | TODO |
 | T-159 | POST-DELIVERY: Admin broadcasts S-A-14 | ADM/API | FR-409 | T-032, T-150 | Future acceptance only; excluded from G0–G6 by SR-05. TC-409 | DEFERRED (SR-05; user approved 2026-10-29) |
@@ -179,7 +179,7 @@ flowchart LR
 ```
 
 - T-070 ledger foundation may proceed with vendor/customer APIs; T-049 cannot be considered delivered with a ledger stub. T-071 verifies the atomic financial wiring rather than postponing it.
-- T-084 server-side entitlements precedes discovery/order access; default development plans are test fixtures, not production purchase evidence. Q-04/Q-18 visibility/expiry decisions still apply.
+- T-084 server-side entitlements precedes discovery/order access; default development plans are test fixtures, not production purchase evidence. Q-04 is resolved by ADR-029: use its feature/trial/expiry/downgrade rules. Retain A-04/RULE-13 discovery eligibility; Q-18 does not block Day-4 manual plan administration. Prioritize T-084 → T-103 → T-156 before later-day work when their declared dependencies permit.
 - Each task uses build/lint/smoke plus focused critical checks. Comprehensive TC sets in `Done when` are module-gate coverage, not instructions to run the full suite on every task.
 - No gate may pass with a stub on the demonstrated path. READY_FOR_VERIFY dependencies permit provisional development only. Module gates require relevant tasks DONE, manual PASS and the comprehensive module suite.
 - G0–G6 are module gates defined in ROADMAP, not task statuses. Record actual gate evidence below; all are currently NOT RUN under the revised baseline.

@@ -681,9 +681,10 @@ Manual verification (pending; use synthetic documents/accounts only):
 
 READY_FOR_VERIFY: Vendor → More → Service area (`/vendor/service-area`, S-V-30).
 T-016 and T-023 are READY_FOR_VERIFY and permit work against their stable contracts.
-Day 4 catalog T-026 was skipped because its required BUSINESS+ low-stock alert behavior
-still references open Q-34 threshold and Q-04 entitlement policies; those tasks/statuses
-were not changed. Existing API, migration and generated-client working edits were preserved.
+At this handoff, Day 4 catalog T-026 was skipped pending Q-34/Q-04 policy decisions.
+Those decisions have since been resolved; Q-04 is accepted in ADR-029. See TASKS.md
+for current readiness and dependency order. Existing API, migration and generated-client
+working edits were preserved at this handoff.
 
 The form reads the authenticated generated vendor API. Shop address, pincode and finite
 coordinates save through the existing business endpoint, preserving business name, GSTIN

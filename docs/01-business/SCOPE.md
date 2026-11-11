@@ -106,7 +106,7 @@ See [README](../../README.md#document-dependencies).
 | Q-01 | Launch city/region and public launch date? Internal 15-day delivery window is set by ROADMAP; store/public launch remains external. | Roadmap, seed data | PO |
 | Q-02 | Cloud provider (AWS ap-south-1 / GCP asia-south1 / other)? | Hosting, ADR-023 | PO + Architect |
 | Q-03 | Vendor SaaS plan purchase channel: Apple IAP + Google Play Billing, or web checkout (Razorpay) outside app? | POST-DELIVERY SR-03; billing-channel decision deferred | PO + Legal |
-| Q-04 | Free trial? Grace period after expiry? Behaviour on expiry/downgrade? Final feature-to-plan mapping? | FR-123–FR-125 | PO |
+| Q-04 | RESOLVED (user, 2026-11-11; ADR-029): Quick Sale/Khata/payment records/basic reports on all assigned tiers; no automatic trial/grace; expiry retains history/settlement/existing-order completion but blocks new business; downgrade retains over-limit records and restricts additions/reactivations. ADR-028 pre-assignment 50 and assigned 100/250/500/1000 caps remain. | FR-122–FR-125 policy resolved; T-084 → T-103 → T-156 implementation remains | PO |
 | Q-05 | Meaning of "Settle to Bank", "Wallet/Settlement" (Premium) and "take-rate" under direct payments? | FR-114, plan gating | PO |
 | Q-06 | Coupons: who creates and funds them (vendor or platform)? Rules? | POST-DELIVERY SR-02; coupon policy deferred | PO |
 | Q-07 | Bill payments: BBPS partner, payment method, commission, licensing? | POST-DELIVERY SR-02; BBPS deferred | PO + Legal |

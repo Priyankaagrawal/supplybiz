@@ -144,8 +144,10 @@ T-028 adds nullable `vendors.assigned_customer_limit`: null means never assigned
 and applies ADR-028's 50-active-customer allowance. T-084/T-103 write a catalog
 limit under the same vendor-row lock in the audited assignment transaction. No
 client can set it; no plan is automatically assigned. Assigned caps remain
-100/250/500/1000. Never clear this field on expiry: Q-04 expiry/downgrade behavior
-remains undecided and the pre-assignment allowance is not an expiry fallback.
+100/250/500/1000. Never clear this field on expiry: ADR-029 forbids a fallback to
+the pre-assignment allowance and blocks additions/reactivations until renewal.
+An over-limit downgrade preserves all customer rows, applies the new cap/features
+and restricts additions/reactivations until below the new cap; no automatic pruning.
 Every customer creator/reactivator must call the capacity lock/count hook within
 its write transaction. Accepting an existing offline row does not add an active
 customer or consume another slot. Deactivation preserves all future history.
@@ -260,7 +262,7 @@ T-180 implements OTP/abuse state in `auth_abuse_state(key varchar(100) PK, value
 ## 9. Approved active data scope (ADR-024)
 Future-only tables for Money transactions, bill payments, referrals, coupons, reviews/rating aggregates and banner/broadcast campaigns are POST-DELIVERY; their earlier schema descriptions are reference only and need no active migrations or seeds. Preserve existing data/source until an implementation task safely reconciles it. Personal contacts/entries, financial ledgers, transactional notifications, privacy/audit records and categories remain active.
 
-KYC stores manual reviewer/method/reason/time and distinguishes provider NOT_RUN from actual verified checks; approval grants business KYC status without faking PAN/bank API success. Vendor plan assignments store catalog tier, validity, reason, actor and audit with idempotent mutation behavior. A grant is not a plan payment; do not seed fabricated invoices/revenue. Existing entitlement history and limits stay consistent. Effective expiry/visibility rules use approved Q-04/Q-18 decisions.
+KYC stores manual reviewer/method/reason/time and distinguishes provider NOT_RUN from actual verified checks; approval grants business KYC status without faking PAN/bank API success. Vendor plan assignments store catalog tier, validity, reason, actor and audit with idempotent mutation behavior. A grant is not a plan payment; do not seed fabricated invoices/revenue. Existing entitlement history and limits stay consistent. Trial/expiry/downgrade behavior follows ADR-029 (Q-04 resolved); retain the A-04/RULE-13 visibility baseline. Q-18 is not a prerequisite for the Day-4 manual assignment service.
 
 T-022 stores bank/PAN/document references together on a KYC revision so rejection and
 resubmission preserve the exact reviewed data. Full Aadhaar numbers are not collected;
