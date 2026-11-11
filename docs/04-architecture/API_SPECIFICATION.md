@@ -160,6 +160,32 @@ T-032 must gate notification delivery against real STOCK_ALERTS entitlements
 ### 4.5 Vendor customers (FR-060–FR-064)
 `GET/POST /vendor/customers`, `GET/PATCH /vendor/customers/{id}`, `GET /vendor/customers/{id}/orders|subscriptions|ledger`. Customer side: `GET /customer/link-requests`, `POST /customer/link-requests/{id}/accept|decline`.
 
+T-028 implements customer list/detail/create/PATCH and link-request list/accept/decline.
+List accepts `search`, `filter=ALL|ACTIVE|SUBSCRIPTION|INACTIVE`, `limit` (1–100,
+default 50), `offset`; response is `{items,total,activeCount,customerLimit}`.
+Creation takes `name`, Indian `mobile` (10 digits or +91), optional `email`,
+`address`, `preferredPayment=CASH|UPI|BANK|WALLET`; PATCH also accepts
+`status=ACTIVE|INACTIVE`. Mobile is stored as +91 and unique per vendor, including
+inactive rows. Null only clears email. Inactivation retains linkage/history;
+linked mobile changes return 409 `LINKED_MOBILE_IMMUTABLE`.
+
+ADR-028 permits exactly 50 active customers before any assignment, without
+granting a plan. T-084/T-103 set the server-only assigned customer-limit projection
+atomically with audited assignment; catalog caps remain 100/250/500/1000.
+Create/reactivate lock the vendor and enforce capacity (422 `PLAN_CUSTOMER_LIMIT`),
+including concurrent requests. No public field can set ownership, user linkage or
+the limit. Every mutation requires Idempotency-Key; changed-body/path replay is 422.
+
+Link requests are derived at read time from the authenticated, verified account's
+mobile and unlinked vendor-customer records, so later registration is supported
+without automatically linking. List accepts `limit`/`offset`, returning
+`{items:[{id,vendorId,businessName}],total}`. IDs are vendor-customer IDs.
+Decline persists and removes the prompt; only accept sets user_id. Another user's
+ID/mobile, suspended vendor, or stale match is 404; conflicting decisions are 409.
+Downstream ledger readers must use the accepted-link guard, never mobile matching.
+Order/subscription/ledger histories and computed purchase/payment statistics remain
+with their owning modules; T-028 does not return fabricated totals or history.
+
 ### 4.6 Orders & deliveries (FR-040–FR-046, FR-080–FR-081, FR-220–FR-225, FR-240–FR-243)
 | Method | Path | Notes |
 |---|---|---|

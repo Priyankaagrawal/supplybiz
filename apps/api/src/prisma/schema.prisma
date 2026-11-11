@@ -109,6 +109,8 @@ model users {
   preferences user_preferences?
   stock_movements stock_movements[]
   notifications notifications[]
+  vendor_customers vendor_customers[]
+  customer_link_decisions customer_link_decisions[]
 }
 
 model user_roles {
@@ -390,6 +392,53 @@ model vendors {
   settings vendor_settings?
   service_pincodes vendor_service_pincodes[]
   products products[]
+  customers vendor_customers[]
+  // T-028 hook: null = never assigned. T-084/T-103 update atomically with assignment;
+  // do not clear on expiry/downgrade (Q-04 remains open).
+  assigned_customer_limit Int?
+}
+
+// FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
+model vendor_customers {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_id String @db.Uuid
+  user_id String? @db.Uuid
+  name String @db.VarChar(120)
+  mobile String @db.VarChar(13)
+  email String? @db.VarChar(254)
+  address_text String @default("") @db.VarChar(500)
+  preferred_payment String @default("CASH") @db.VarChar(8)
+  status String @default("ACTIVE") @db.VarChar(8)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  vendor vendors @relation(fields: [vendor_id], references: [id], onDelete: Restrict)
+  user users? @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  decisions customer_link_decisions[]
+  subscription_links customer_subscription_links[]
+  @@index([vendor_id, status])
+  @@index([user_id])
+  @@index([mobile])
+}
+
+// Pending requests are derived from verified users.mobile, never vendor-provided user IDs.
+model customer_link_decisions {
+  vendor_customer_id String @db.Uuid
+  user_id String @db.Uuid
+  decision String @db.VarChar(8)
+  decided_at DateTime @default(now()) @db.Timestamptz(6)
+  customer vendor_customers @relation(fields: [vendor_customer_id], references: [id], onDelete: Restrict)
+  user users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  @@id([vendor_customer_id, user_id])
+}
+
+// T-072 maintains in its subscription transaction; no fabricated subscriptions.
+model customer_subscription_links {
+  subscription_id String @id @db.Uuid
+  vendor_customer_id String @db.Uuid
+  status String @db.VarChar(12)
+  customer vendor_customers @relation(fields: [vendor_customer_id], references: [id], onDelete: Restrict)
+  @@index([vendor_customer_id, status])
 }
 
 // T-026: catalog foundation. Money and quantities are integral.

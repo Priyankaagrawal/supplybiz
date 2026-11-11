@@ -27,7 +27,7 @@
 | RULE-09 | Ledger entries are append-only; corrections use a reversal entry referencing the original with a reason. | FR-116 |
 | RULE-10 | DEBIT is posted when an order becomes DELIVERED or a customer quick sale completes; CREDIT is posted when a payment is recorded or a claim confirmed. If payment is collected at delivery, both entries are posted. | FR-111 |
 | RULE-11 | Walk-in POS sales must be fully paid (Paid = Total). | FR-053 |
-| RULE-12 | Active linked customers per vendor ≤ plan customer limit; exceeding attempts return `PLAN_CUSTOMER_LIMIT` with support-assisted plan-change guidance (no checkout). | FR-061, FR-122 |
+| RULE-12 | Active customers per vendor ≤ 50 before any plan assignment (ADR-028), otherwise the server-assigned plan customer limit. Inactive customers are excluded. Create/reactivate attempts exceeding the cap return `PLAN_CUSTOMER_LIMIT` with support-assisted plan-change guidance (no checkout). Assigned-plan caps remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. | FR-061, FR-122 |
 | RULE-13 | Customers see only vendors that are VERIFIED, not suspended, with active plan, serving the selected location. | FR-017, FR-210 |
 | RULE-14 | Subscription orders use subscription price (else selling price). | FR-036 |
 | RULE-15 | Orders store a price snapshot; later product price changes do not alter existing orders or subscriptions' generated orders. Subscriptions use the price current at generation time. | FR-032 |

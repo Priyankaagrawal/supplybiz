@@ -13,11 +13,13 @@ import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/catalog_api.dart';
 import 'package:supplybiz_api_client/src/api/categories_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
+import 'package:supplybiz_api_client/src/api/customer_links_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
 import 'package:supplybiz_api_client/src/api/kyc_api.dart';
 import 'package:supplybiz_api_client/src/api/me_api.dart';
 import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/notifications_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
 
@@ -173,6 +175,12 @@ class SupplybizApiClient {
     return ConfigurationApi(dio);
   }
 
+  /// Get CustomerLinksApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CustomerLinksApi getCustomerLinksApi() {
+    return CustomerLinksApi(dio);
+  }
+
   /// Get HealthApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   HealthApi getHealthApi() {
@@ -201,6 +209,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   NotificationsApi getNotificationsApi() {
     return NotificationsApi(dio);
+  }
+
+  /// Get VendorCustomersApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorCustomersApi getVendorCustomersApi() {
+    return VendorCustomersApi(dio);
   }
 
   /// Get VendorOnboardingApi instance, base route and serializer can be overridden by a given but be careful,

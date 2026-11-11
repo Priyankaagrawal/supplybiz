@@ -97,7 +97,7 @@
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-060 | Customer list: search by name/mobile; filters All/Active/Subscription/Inactive; card shows photo, name, mobile, address, status, total orders, subscription type, total purchase. | P0 |
-| FR-061 | Vendor shall add/edit an offline customer: name (required), mobile (required, unique per vendor), email, address, preferred payment method. Blocked above plan customer limit (RULE-12). | P0 |
+| FR-061 | Vendor shall add/edit an offline customer: name (required), mobile (required, unique per vendor), email, address, preferred payment method. Create/reactivate is blocked above 50 active customers before any plan assignment (ADR-028), or above the assigned plan customer limit (RULE-12). Assigned-plan limits remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. | P0 |
 | FR-062 | Customer detail: Call, Edit, Add Order; stats (total orders, total purchase, pending amount); subscription summary; info; tabs Order History / Current Subscription / Payments. | P0 |
 | FR-063 | Vendor shall mark a customer Inactive (keeps history; excluded from limit count). | P1 |
 | FR-064 | When a person registers as Customer with a mobile matching a vendor's offline customer, the system links them after the customer accepts a link prompt; the ledger becomes visible to the customer. | P0 |

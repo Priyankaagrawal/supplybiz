@@ -4,6 +4,86 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_list"];
+        put?: never;
+        post: operations["CustomersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/customers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomersController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CustomersController_patch"];
+        trace?: never;
+    };
+    "/api/v1/customer/link-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerLinksController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/link-requests/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerLinksController_accept"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/link-requests/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerLinksController_decline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/notifications": {
         parameters: {
             query?: never;
@@ -669,6 +749,76 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CustomerResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            mobile: string;
+            email: string | null;
+            address: string;
+            /** @enum {string} */
+            preferredPayment: "CASH" | "UPI" | "BANK" | "WALLET";
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            /** @enum {string} */
+            linkStatus: "UNLINKED" | "LINKED";
+            /** Format: uuid */
+            userId: string | null;
+        };
+        CustomerList: {
+            items: components["schemas"]["CustomerResponse"][];
+            total: number;
+            activeCount: number;
+            customerLimit: number;
+        };
+        CustomerInput: {
+            name: string;
+            /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
+            mobile: string;
+            email?: string | null;
+            /** @description Defaults to empty on creation; omission preserves the address on PATCH. */
+            address?: string;
+            /**
+             * @description Defaults to CASH on creation; omission preserves the method on PATCH.
+             * @enum {string}
+             */
+            preferredPayment?: "CASH" | "UPI" | "BANK" | "WALLET";
+        };
+        CustomerPatch: {
+            name?: string;
+            /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
+            mobile?: string;
+            email?: string | null;
+            /** @description Defaults to empty on creation; omission preserves the address on PATCH. */
+            address?: string;
+            /**
+             * @description Defaults to CASH on creation; omission preserves the method on PATCH.
+             * @enum {string}
+             */
+            preferredPayment?: "CASH" | "UPI" | "BANK" | "WALLET";
+            /** @enum {string} */
+            status?: "ACTIVE" | "INACTIVE";
+        };
+        LinkRequestResponse: {
+            /**
+             * Format: uuid
+             * @description The matching vendor-customer record ID.
+             */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            businessName: string | null;
+        };
+        LinkRequestList: {
+            items: components["schemas"]["LinkRequestResponse"][];
+            total: number;
+        };
+        LinkDecisionResponse: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            decision: "ACCEPTED" | "DECLINED";
+        };
         InboxItem: {
             /** Format: uuid */
             id: string;
@@ -1087,6 +1237,465 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CustomersController_list: {
+        parameters: {
+            query?: {
+                search?: string;
+                filter?: "ALL" | "ACTIVE" | "INACTIVE" | "SUBSCRIPTION";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerList"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_NOT_FOUND, including other vendors. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_NOT_FOUND, including other vendors. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_NOT_FOUND, including other vendors. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomersController_patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerResponse"];
+                };
+            };
+            /** @description Invalid input or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_NOT_FOUND, including other vendors. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerLinksController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkRequestList"];
+                };
+            };
+            /** @description Invalid UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_ALREADY_DECIDED or DUPLICATE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerLinksController_accept: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkDecisionResponse"];
+                };
+            };
+            /** @description Invalid UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_ALREADY_DECIDED or DUPLICATE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerLinksController_decline: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LinkDecisionResponse"];
+                };
+            };
+            /** @description Invalid UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LINK_ALREADY_DECIDED or DUPLICATE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     NotificationsController_list: {
         parameters: {
             query?: {

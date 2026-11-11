@@ -87,6 +87,9 @@ Class | Method | HTTP request | Description
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerList**](doc/CategoriesApi.md#categoriescontrollerlist) | **GET** /api/v1/admin/categories |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerUpdate**](doc/CategoriesApi.md#categoriescontrollerupdate) | **PUT** /api/v1/admin/categories/{id} |
 [*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
+[*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
+[*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
+[*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
 [*KycApi*](doc/KycApi.md) | [**adminKycControllerDecide**](doc/KycApi.md#adminkyccontrollerdecide) | **POST** /api/v1/admin/kyc/{id}/decision |
@@ -107,6 +110,10 @@ Class | Method | HTTP request | Description
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerPreferences**](doc/NotificationsApi.md#notificationscontrollerpreferences) | **GET** /api/v1/me/notification-prefs |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerRead**](doc/NotificationsApi.md#notificationscontrollerread) | **POST** /api/v1/notifications/read |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerSavePreferences**](doc/NotificationsApi.md#notificationscontrollersavepreferences) | **PUT** /api/v1/me/notification-prefs |
+[*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerCreate**](doc/VendorCustomersApi.md#customerscontrollercreate) | **POST** /api/v1/vendor/customers |
+[*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerGet**](doc/VendorCustomersApi.md#customerscontrollerget) | **GET** /api/v1/vendor/customers/{id} |
+[*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
+[*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerPatch**](doc/VendorCustomersApi.md#customerscontrollerpatch) | **PATCH** /api/v1/vendor/customers/{id} |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
@@ -130,6 +137,10 @@ Class | Method | HTTP request | Description
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
  - [ConsentDto](doc/ConsentDto.md)
+ - [CustomerInput](doc/CustomerInput.md)
+ - [CustomerList](doc/CustomerList.md)
+ - [CustomerPatch](doc/CustomerPatch.md)
+ - [CustomerResponse](doc/CustomerResponse.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [DevicePushInput](doc/DevicePushInput.md)
  - [DevicePushResponse](doc/DevicePushResponse.md)
@@ -141,6 +152,9 @@ Class | Method | HTTP request | Description
  - [KycPage](doc/KycPage.md)
  - [KycResponse](doc/KycResponse.md)
  - [KycSubmissionDto](doc/KycSubmissionDto.md)
+ - [LinkDecisionResponse](doc/LinkDecisionResponse.md)
+ - [LinkRequestList](doc/LinkRequestList.md)
+ - [LinkRequestResponse](doc/LinkRequestResponse.md)
  - [LoginDto](doc/LoginDto.md)
  - [MeResponse](doc/MeResponse.md)
  - [MediaResponse](doc/MediaResponse.md)

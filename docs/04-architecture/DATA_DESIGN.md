@@ -134,9 +134,21 @@ dispatcher attempts fail explicitly as WORKER_HANDLER_MISSING, never as delivery
 ### 3.4 Customers & addresses
 | Table | Key columns | Notes |
 |---|---|---|
-| `vendor_customers` | id, vendor_id, user_id NULL, name, mobile, email, address_text, address_id NULL, preferred_payment, status (ACTIVE/INACTIVE), link_status (UNLINKED/PENDING/LINKED) | UNIQUE(vendor_id, mobile) WHERE deleted_at IS NULL; index(user_id) |
+| `vendor_customers` | id, vendor_id, user_id NULL, name, mobile (+91 normalized), email, address_text, preferred_payment, status (ACTIVE/INACTIVE), deleted_at, created_at, updated_at | UNIQUE(vendor_id, mobile) WHERE deleted_at IS NULL; UNIQUE(vendor_id,user_id) for live linked records; index(user_id), index(mobile). T-040 adds address references when available. |
+| `customer_link_decisions` | vendor_customer_id, user_id, decision (ACCEPTED/DECLINED), decided_at | Composite PK; pending prompts derived from verified mobile match minus decisions; user_id on vendor_customers changes only after acceptance. Link status is derived from user_id, not independently writable. |
+| `customer_subscription_links` | subscription_id, vendor_customer_id, status | T-072 maintains atomically; ACTIVE/PAUSED feeds SUBSCRIPTION filter, not fabricated activity. |
 | `addresses` | id, user_id, label, line1, line2, landmark, city, state, pincode, location geography, is_default, deleted_at | one default per user (partial unique index) |
 | `favorites` | user_id, vendor_id | PK |
+
+T-028 adds nullable `vendors.assigned_customer_limit`: null means never assigned
+and applies ADR-028's 50-active-customer allowance. T-084/T-103 write a catalog
+limit under the same vendor-row lock in the audited assignment transaction. No
+client can set it; no plan is automatically assigned. Assigned caps remain
+100/250/500/1000. Never clear this field on expiry: Q-04 expiry/downgrade behavior
+remains undecided and the pre-assignment allowance is not an expiry fallback.
+Every customer creator/reactivator must call the capacity lock/count hook within
+its write transaction. Accepting an existing offline row does not add an active
+customer or consume another slot. Deactivation preserves all future history.
 
 `vendor_customers` is the **link entity** for all vendor-side relations (orders, subscriptions, ledger). A customer-app order auto-creates/links a `vendor_customers` row (counts toward plan limit — RULE-12; if limit reached, order is rejected with `VENDOR_UNAVAILABLE`, vendor notified to upgrade).
 

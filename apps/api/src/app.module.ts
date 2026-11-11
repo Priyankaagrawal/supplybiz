@@ -1,4 +1,6 @@
 import { CatalogController } from './modules/catalog/catalog.controller';
+import { CustomersController, CustomerLinksController } from './modules/customers/customers.controller';
+import { CustomersService } from './modules/customers/customers.service';
 import { NotificationsController } from './modules/notifications/notifications.controller';
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { FcmService } from './modules/notifications/fcm.service';
@@ -57,9 +59,10 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    CustomersService,
     MediaService,
     VendorsService,
     CatalogService,

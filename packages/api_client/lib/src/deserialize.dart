@@ -10,6 +10,10 @@ import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
+import 'package:supplybiz_api_client/src/model/customer_input.dart';
+import 'package:supplybiz_api_client/src/model/customer_list.dart';
+import 'package:supplybiz_api_client/src/model/customer_patch.dart';
+import 'package:supplybiz_api_client/src/model/customer_response.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_push_input.dart';
 import 'package:supplybiz_api_client/src/model/device_push_response.dart';
@@ -21,6 +25,9 @@ import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
 import 'package:supplybiz_api_client/src/model/kyc_page.dart';
 import 'package:supplybiz_api_client/src/model/kyc_response.dart';
 import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
+import 'package:supplybiz_api_client/src/model/link_decision_response.dart';
+import 'package:supplybiz_api_client/src/model/link_request_list.dart';
+import 'package:supplybiz_api_client/src/model/link_request_response.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
@@ -99,6 +106,17 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return CategoryRow.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'CustomerInput':
+      return CustomerInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CustomerList':
+      return CustomerList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'CustomerPatch':
+      return CustomerPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CustomerResponse':
+      return CustomerResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'DeviceDto':
       return DeviceDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DevicePushInput':
@@ -126,6 +144,15 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return KycResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'KycSubmissionDto':
       return KycSubmissionDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'LinkDecisionResponse':
+      return LinkDecisionResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'LinkRequestList':
+      return LinkRequestList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'LinkRequestResponse':
+      return LinkRequestResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'LoginDto':
       return LoginDto.fromJson(value as Map<String, dynamic>) as ReturnType;

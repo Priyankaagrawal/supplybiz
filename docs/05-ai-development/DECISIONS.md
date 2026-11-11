@@ -39,6 +39,7 @@
 | ADR-025 | Android-only execution until Android release | Accepted (user instruction, 2026-10-29) |
 | ADR-026 | Approved admin roles and default-deny permissions (Q-25) | Accepted (user, 2026-11-04) |
 | ADR-027 | T-020 document validation scope | Accepted (user, 2026-11-04) |
+| ADR-028 | Pre-assignment active customer limit | Accepted (user, 2026-11-11) |
 
 ---
 
@@ -175,3 +176,9 @@
 - **Preserve:** Masked-Aadhaar-only storage remains the requirement for supplied documents. Uploaders must supply already-masked Aadhaar; T-020 does not automatically verify that masking. Retain type/magic-byte/size/pixel/decode validation, EXIF stripping, private storage, idempotency, resource authorization, audited admin KYC access and attachment-only PDF responses.
 - **Precedence:** Supersedes T-020 scanner and automated pre-persistence Aadhaar-validation requirements in LOCAL_FILE_STORAGE, AUTH_SECURITY and FR-013. Earlier accepted ADRs remain unchanged.
 - **Evidence:** Documentation-only scope correction; T-020 returns to TODO. No implementation, manual PASS or module-gate evidence is supplied by this decision.
+
+### ADR-028 Pre-assignment active customer limit — Accepted, 2026-11-11
+- **Authority:** User: “Allow up to 50 active customers before assignment and keep Plan related assignment values as before”.
+- **Decision:** Before any plan assignment, a vendor may have up to 50 active customers. Inactive customers do not count. Creating or reactivating a customer must enforce the cap atomically. This allowance does not assign a plan or grant plan features/discovery eligibility.
+- **Preserve:** Assigned-plan customer limits remain BASIC 100, STANDARD 250, BUSINESS 500, PREMIUM 1000. No plan catalog values change. T-084/T-103/T-156 remain responsible for real audited assignments and server entitlements.
+- **Resolution:** Clears T-028's pre-assignment policy blocker. Q-04 trial, grace, expiry/downgrade and final feature mapping remain open; an expired assignment must not silently be treated as never assigned. This decision supplies no manual PASS or module-gate evidence.

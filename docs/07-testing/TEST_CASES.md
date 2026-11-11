@@ -86,7 +86,7 @@
 |---|---|---|---|---|
 | TC-060 | List filters/search | Correct subsets | FR-060 | A |
 | TC-061 | Duplicate mobile | Same mobile twice for vendor → 409 `DUPLICATE` | FR-061 | A |
-| TC-062 | Plan limit | BASIC with 100 active → add 101st → 422 `PLAN_CUSTOMER_LIMIT`; inactive not counted | RULE-12 | A |
+| TC-062 | Customer limits | Before assignment: 50 active allowed, 51st/reactivation above cap → 422 `PLAN_CUSTOMER_LIMIT`; assigned caps unchanged BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000; inactive not counted; concurrent requests cannot overshoot | RULE-12, ADR-028 | A |
 | TC-063 | Customer stats | Totals equal sums of orders & ledger | FR-062 | A |
 | TC-064 | Link offline customer | Register with matching mobile → link prompt → accept → customer sees ledger | FR-064 | A, E |
 

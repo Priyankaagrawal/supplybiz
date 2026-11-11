@@ -53,6 +53,7 @@ Approved reductions SR-01–SR-06 below define post-delivery scope and replace t
 | A-16 | Delivery charge, minimum order value and time slots are configured per vendor in Delivery Settings | Q-13 |
 | A-17 | Customer bottom navigation: Home · Orders · Khata · Services · Profile; Money/insights entries absent in this delivery (SR-01) | Q-10 |
 | A-18 | A subscription has one product line (as in mockups) | — |
+| A-19 | Before any plan assignment, vendors may have up to 50 active customers; inactive customers do not count. Assigned-plan caps remain BASIC 100 / STANDARD 250 / BUSINESS 500 / PREMIUM 1000. No plan/features are granted by this allowance. | User approved 2026-11-11; ADR-028 |
 
 ## 4. Constraints
 | ID | Constraint |

@@ -1,5 +1,286 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/customers:
+    get:
+      operationId: CustomersController_list
+      parameters:
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: filter
+          required: false
+          in: query
+          schema:
+            default: ALL
+            enum:
+              - ALL
+              - ACTIVE
+              - INACTIVE
+              - SUBSCRIPTION
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 100
+            default: 50
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerList'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: CUSTOMER_NOT_FOUND, including other vendors.
+        '409':
+          description: DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED.
+        '422':
+          description: PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-customers
+      security:
+        - bearer: []
+    post:
+      operationId: CustomersController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: CUSTOMER_NOT_FOUND, including other vendors.
+        '409':
+          description: DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED.
+        '422':
+          description: PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-customers
+      security:
+        - bearer: []
+  /api/v1/vendor/customers/{id}:
+    get:
+      operationId: CustomersController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: CUSTOMER_NOT_FOUND, including other vendors.
+        '409':
+          description: DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED.
+        '422':
+          description: PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-customers
+      security:
+        - bearer: []
+    patch:
+      operationId: CustomersController_patch
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          description: Invalid input or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+        '404':
+          description: CUSTOMER_NOT_FOUND, including other vendors.
+        '409':
+          description: DUPLICATE, LINKED_MOBILE_IMMUTABLE or CATEGORY_REQUIRED.
+        '422':
+          description: PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-customers
+      security:
+        - bearer: []
+  /api/v1/customer/link-requests:
+    get:
+      operationId: CustomerLinksController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 100
+            default: 50
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkRequestList'
+        '400':
+          description: Invalid UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended.'
+        '409':
+          description: LINK_ALREADY_DECIDED or DUPLICATE.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-links
+      security:
+        - bearer: []
+  /api/v1/customer/link-requests/{id}/accept:
+    post:
+      operationId: CustomerLinksController_accept
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkDecisionResponse'
+        '400':
+          description: Invalid UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended.'
+        '409':
+          description: LINK_ALREADY_DECIDED or DUPLICATE.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-links
+      security:
+        - bearer: []
+  /api/v1/customer/link-requests/{id}/decline:
+    post:
+      operationId: CustomerLinksController_decline
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkDecisionResponse'
+        '400':
+          description: Invalid UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'LINK_REQUEST_NOT_FOUND: not matched to authenticated mobile, deleted or suspended.'
+        '409':
+          description: LINK_ALREADY_DECIDED or DUPLICATE.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-links
+      security:
+        - bearer: []
   /api/v1/notifications:
     get:
       operationId: NotificationsController_list
@@ -1349,6 +1630,165 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    CustomerResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        mobile:
+          type: string
+        email:
+          type: string
+          nullable: true
+        address:
+          type: string
+        preferredPayment:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        linkStatus:
+          type: string
+          enum:
+            - UNLINKED
+            - LINKED
+        userId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - id
+        - name
+        - mobile
+        - email
+        - address
+        - preferredPayment
+        - status
+        - linkStatus
+        - userId
+    CustomerList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomerResponse'
+        total:
+          type: integer
+        activeCount:
+          type: integer
+        customerLimit:
+          type: integer
+      required:
+        - items
+        - total
+        - activeCount
+        - customerLimit
+    CustomerInput:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+          description: Indian mobile, ten digits or +91-prefixed. Stored in +91 form.
+        email:
+          type: string
+          nullable: true
+        address:
+          type: string
+          description: Defaults to empty on creation; omission preserves the address on PATCH.
+        preferredPayment:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+          description: Defaults to CASH on creation; omission preserves the method on PATCH.
+      required:
+        - name
+        - mobile
+    CustomerPatch:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+          description: Indian mobile, ten digits or +91-prefixed. Stored in +91 form.
+        email:
+          type: string
+          nullable: true
+        address:
+          type: string
+          description: Defaults to empty on creation; omission preserves the address on PATCH.
+        preferredPayment:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+          description: Defaults to CASH on creation; omission preserves the method on PATCH.
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+    LinkRequestResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The matching vendor-customer record ID.
+        vendorId:
+          type: string
+          format: uuid
+        businessName:
+          type: string
+          nullable: true
+      required:
+        - id
+        - vendorId
+        - businessName
+    LinkRequestList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkRequestResponse'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    LinkDecisionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        decision:
+          type: string
+          enum:
+            - ACCEPTED
+            - DECLINED
+      required:
+        - id
+        - decision
     InboxItem:
       type: object
       properties:

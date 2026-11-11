@@ -104,6 +104,110 @@ Protocol references: [FCM HTTP v1](https://firebase.google.com/docs/cloud-messag
 [service-account OAuth](https://developers.google.com/identity/protocols/oauth2/service-account),
 [FCM error codes](https://firebase.google.com/docs/cloud-messaging/error-codes).
 
+## T-028 customers handoff (2026-11-11): READY_FOR_VERIFY
+
+ADR-028 resolves the pre-assignment policy: allow 50 active customers, excluding
+inactive records; no default plan or feature entitlement is granted. Assigned
+catalog caps remain BASIC 100, STANDARD 250, BUSINESS 500, PREMIUM 1000; seed data
+is unchanged. User approval resolves this cap only, not Q-04 expiry/trial policy.
+
+Implemented owned vendor customer list/detail/create/PATCH (inactivation retains
+history), case-insensitive name/mobile search, All/Active/Inactive/Subscription
+filters and pagination. Normalize Indian mobiles to +91 and enforce per-vendor
+uniqueness even for inactive records. Creation/reactivation locks the vendor and
+counts active rows in the same transaction; simultaneous final-slot attempts
+cannot exceed the limit. Mutations require a body/path-sensitive idempotency key.
+Clients cannot supply vendorId, userId or customerLimit.
+
+GET `/api/v1/customer/link-requests` derives pending prompts from the authenticated
+verified mobile, including accounts registered after the offline record existed.
+Only explicit accept writes user_id; decline is durable. IDs are vendor-customer
+IDs, not user IDs. Declining removes the prompt. Cached writes still require a
+current authorized role; wrong owner/match and suspended vendors are denied.
+Linking an existing row does not consume a second customer slot. Linked mobile
+cannot be edited; inactivation preserves accepted linkage and history.
+
+Internal transaction hooks: `requireCapacity` locks/counts before future customer
+creation by orders; `setAssignedCustomerLimit` writes a real catalog limit within
+T-084/T-103's audited assignment transaction; `setSubscriptionReference` must be
+maintained by T-072; `requireLinked` must guard later customer ledger/history
+reads. The nullable vendors.assigned_customer_limit means never assigned, not
+expired. Never clear it on expiry to reinstate the 50 allowance. No assignment
+API, expiry behavior, subscription/order/ledger history or financial totals are
+fabricated by this slice. TC-063 and full TC-064 ledger visibility remain NOT_RUN
+until their owning modules exist; T-029/T-053 own the mobile flows. Audited plan
+assignment integration remains T-084/T-103/T-156. G0/G1/manual PASS remain pending.
+Generated Dart nullable fields omit null on serialization; T-029's email-clear
+request must preserve an explicit `email:null` in its request map.
+
+Checks executed: 8 focused customer PostgreSQL/HTTP tests (two API instances and
+restart), 2 native runtime smoke tests, 4 task-runner guards, API lint/typecheck/
+build/schema, regenerated TS compile and Dart serializer generation/analysis pass.
+The first runtime attempt stopped at sandbox Windows private-upload ACL access;
+the host-access rerun exposed independent ephemeral signing keys in the test
+harness. Sharing a newly generated test-only key across instances fixed the
+harness; no production auth code changed. The final 8 tests all pass. Initial
+Dart generation needed host network access for pub.dev advisories. Client analysis
+also caught an enum-default generator issue; removing wire defaults from optional
+input fields fixed it and prevents PATCH from overwriting omitted fields.
+No new dependencies. No check process/service was left running. iOS is deferred;
+this API-only task required no Android build. Local Node 23 differs from pinned 20.
+
+Executed commands (apps/api, env loaded privately; only the existing isolated
+`supplybiz_service_area_test` DB was migrated, never the configured app DB):
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+# CUSTOMERS_TEST_DATABASE_URL and NATIVE_TEST_DATABASE_URL point to the isolated DB:
+.\node_modules\.bin\jest.cmd --silent --runInBand --testTimeout=60000 --runTestsByPath src/modules/customers/customers.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\ts-node.cmd scripts/generate-openapi.ts
+```
+At repository root (installed codegen binaries, same options as tools/codegen.sh):
+```powershell
+.\node_modules\.bin\openapi-typescript.cmd contracts/openapi.yaml -o packages/ts-client/src/generated/openapi.ts
+.\node_modules\.bin\openapi-generator-cli.cmd generate -g dart-dio -i contracts/openapi.yaml -o packages/api_client --template-dir tools/openapi/dart-dio --global-property=apiTests=false,modelTests=false --skip-validate-spec --additional-properties=pubName=supplybiz_api_client,pubVersion=0.1.0,serializationLibrary=json_serializable,skipCopyWith=true
+node tools/normalize-generated-docs.mjs
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' format packages/api_client/lib
+.\apps\api\node_modules\.bin\tsc.cmd packages/ts-client/src/generated/openapi.ts --noEmit --skipLibCheck
+node --test tools/checks.spec.mjs
+git diff --check
+```
+From packages/api_client:
+```powershell
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' run build_runner build '--build-filter=lib/src/model/*.g.dart'
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' analyze
+```
+The task-runner command itself was not invoked on Windows; its registered focused
+commands were run directly. Its new T-028 registration requires native DB coverage.
+The module gate was not run. Migration is additive; rollback is to stop using the
+new handlers while retaining new tables/column and all data; no reset/drop needed.
+
+Manual verification (suggested; not executed as manual PASS):
+1. Apply the additive migration to your selected local DB and start the API with
+   an active vendor session/category. POST `/api/v1/vendor/customers` with a fresh
+   Idempotency-Key and a synthetic `{name,mobile,address,preferredPayment}` record;
+   replay it, confirm one row and normalized +91 mobile. Duplicate mobile with a
+   fresh key must return 409 DUPLICATE. Search/filter and edit the record.
+2. With no assignment, reach 50 active synthetic customers; the 51st must return
+   422 PLAN_CUSTOMER_LIMIT. Inactivate one, add another, then try reactivating the
+   old one: it must fail until another slot is freed. Assigned-cap hook tests cover
+   100/250/500/1000; real admin-assignment verification waits for T-103/T-156.
+3. Use a second vendor and customer-role session: cross-vendor detail/edit must
+   return 404, and customer access to vendor routes 403. Attempting forged owner,
+   linkage or limit fields must return 400.
+4. Register/sign in with the synthetic offline record's matching verified mobile,
+   hold/select CUSTOMER role, GET link-requests, and accept with a fresh key.
+   Vendor detail must show LINKED and retain the same customer ID. Another
+   account must not list/accept it. Retry accept without duplicating decisions.
+5. Decline a separate matching record, reload and restart: its prompt must stay
+   absent and user_id remain null. Deactivate an accepted record: the linkage is
+   retained. Verify actual ledger/UI visibility only with the owning later tasks.
+
 ## T-026 catalog handoff (2026-11-10): READY_FOR_VERIFY
 
 Final checks: 9 focused native PostgreSQL/HTTP/private-image cases pass (no skipped
