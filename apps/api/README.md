@@ -1049,3 +1049,90 @@ Manual PASS, T-024/T-151 screens/accessibility, live notifications, staging/prod
 KMS and G0/G1 remain pending; no mobile native checks were needed for this API task.
 iOS testing remains deferred under ADR-025. Migration is additive: rollback API
 code while preserving review/audit data; do not drop evidence tables to roll back.
+
+## T-084 plan entitlement implementation handoff (2026-11-11)
+
+READY_FOR_VERIFY. ADR-029 policy is implemented as a reusable PlanGuard and
+transactional PlanEntitlementsService. SessionGuard runs before PlanGuard;
+the guard derives the vendor from the authenticated active vendor role.
+Business mutations must also call requireFeature/requireOperation inside their
+own transaction so a concurrent expiry/downgrade cannot bypass authorization.
+Those methods supplement existing ownership/order-state/cutoff rules.
+
+Assignment validity uses database time after the vendor-row lock (start inclusive,
+end exclusive), with no trial or grace. The approved tier allowlist excludes
+wallet/settlement and undefined support actions. Customer creation/reactivation
+now checks effective validity and capacity under that same lock. Never-assigned
+vendors retain 50 setup slots; assigned caps stay 100/250/500/1000. Expiry cannot
+restore setup access; over-cap downgrades keep all rows and block growth until
+below the new cap. Customer reads/edits/inactivation remain available. Stock
+opening, adjustments and quantity-changing stockQty PATCH require BUSINESS+;
+zero-stock setup and edits with unchanged quantity remain available. Existing
+delivery/reversal stock changes remain subject
+to their owning transaction's order/financial rules.
+
+The additive vendor_plan_assignments table requires catalog/admin/audit links,
+valid dates/reason and one non-superseded row per vendor. Effective grants require
+matching ADMIN/PLAN_ASSIGNED/VENDOR audit evidence. T-103 must implement actual
+authorized, idempotent assignment/extension writes: lock vendor, supersede current
+assignment, write audit/assignment and update assigned_customer_limit atomically.
+No public assignment endpoint, production default assignment, billing or fake
+revenue was added. Test grants live only in test/fixtures/plans.ts, excluded from
+the production build. The fixture guard routes exist only in the testing module.
+
+Executed in apps/api (PowerShell; local binaries avoid a stalled pnpm launcher):
+
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:CATALOG_TEST_DATABASE_URL = $env:NATIVE_TEST_DATABASE_URL
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/plans/plans.postgres.spec.ts src/modules/customers/customers.postgres.spec.ts src/modules/catalog/catalog.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+
+From repository root: `node --test tools/checks.spec.mjs` and `git diff --check`.
+Results: 30 focused native checks (12 plan, 8 customer, 10 catalog), 2 runtime
+smokes and 5 runner guards PASS; lint/typecheck/build/schema PASS. The first native
+run was blocked by sandbox ACL inspection; permitted reruns used the existing
+Windows private-storage checks. Test expectations were corrected for the public
+problem-detail envelope and disabled-user 403; retained synthetic fixture mobile
+IDs were made unique across reruns. The final focused test log is in the host
+temporary directory as supplybiz-t084-focused.log. No client contract changed;
+OpenAPI/client generation NOT_RUN (unneeded). Only the isolated test DB migration
+was applied; dev/staging/production migrations NOT_RUN. Test servers were closed;
+pre-existing services were preserved. Synthetic append-only audit/stock fixtures
+remain in the isolated DB.
+
+Manual verification (suggested, NOT executed; dedicated local _test DB only):
+1. Apply the migration to that isolated DB, start the API using its configuration
+   and authenticate a synthetic vendor using the existing T-015 instructions.
+   Create customers through the API: slot 50 succeeds and slot 51 returns 422
+   PLAN_CUSTOMER_LIMIT with support guidance. No default assignment is created.
+2. For this test DB only, use a ts-node REPL to import PrismaService and
+   assignPlanFixture from test/fixtures/plans. Call the fixture in a transaction
+   for that vendor with BASIC, then BUSINESS. Verify the displayed cap changes
+   100 to 500 and stock adjustments/opening quantities require BUSINESS+.
+3. Use the fixture's optional start/end Dates to assign an already-expired plan.
+   Verify create/reactivate return 403 PLAN_FEATURE_LOCKED, reads/edits remain,
+   and the count/records are retained. Renew to BASIC and verify capacity returns.
+4. With more than 100 active synthetic customers under BUSINESS, assign BASIC.
+   Verify no records are removed, new additions/reactivations are blocked, and
+   growth resumes only below 100. Repeat attempts using another vendor's token
+   and confirm ownership denial. Stop manually started processes afterward.
+
+Remaining: T-103/T-156 actual admin workflow; downstream orders/POS/subscriptions/
+generation/settlement/reports must call the transaction hooks as implemented.
+Manual PASS and G0/G1 remain pending. Mobile/iOS checks NOT_RUN (API task; iOS
+deferred under ADR-025). Preserve assignment/audit data during code rollback;
+do not delete history or clear the projection to regain setup access.

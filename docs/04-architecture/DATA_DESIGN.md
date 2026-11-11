@@ -188,8 +188,16 @@ customer or consume another slot. Deactivation preserves all future history.
 |---|---|---|
 | `plans` | id, code (BASIC/STANDARD/BUSINESS/PREMIUM), name, customer_limit, features TEXT[], is_popular, status | |
 | `plan_prices` | id, plan_id, duration (MONTHLY/HALF_YEARLY/YEARLY), price_paise, store_product_id NULL | |
+| `vendor_plan_assignments` | id, vendor_id, plan_id, starts_at, ends_at, reason, granted_by_admin, audit_id UNIQUE, superseded_at NULL, created_at | Active manual-assignment foundation (T-084); FK to vendor/catalog/admin/audit; one non-superseded row per vendor; end strictly after start. T-103 owns permission/reason/idempotency/extension writes under the vendor lock with the limit projection and audit in one transaction. |
 | `vendor_plan_subscriptions` | id, vendor_id, plan_price_id, status (PENDING_PAYMENT/ACTIVE/EXPIRED/CANCELLED), starts_at, ends_at, provider, provider_ref, granted_by_admin NULL | index(vendor_id, status) |
 | `plan_payments` | id, vendor_plan_subscription_id, amount_paise, provider, provider_payment_id, status, raw_webhook JSONB (redacted), invoice_no | UNIQUE(provider, provider_payment_id) |
+
+The provider subscription/payment tables above remain post-delivery SR-03 design,
+not the active manual-assignment source. T-084 reads assignment validity using DB
+time after the vendor lock; a matching ADMIN/PLAN_ASSIGNED/VENDOR audit is required.
+The approved ADR-029 tier allowlist and fixed caps are enforced independently of
+client values or stale catalog feature strings. Expiry preserves the projection;
+assignment history prevents a return to setup access even if no current row exists.
 
 ### 3.9 Engagement, content, platform
 | Table | Key columns |

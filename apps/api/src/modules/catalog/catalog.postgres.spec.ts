@@ -8,6 +8,7 @@ import { PinoLogger } from '../../common/logging/pino.logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SessionTokensService } from '../auth/session-tokens.service';
 import { CatalogService } from './catalog.service';
+import { assignPlanFixture } from '../../../test/fixtures/plans';
 
 const native = process.env.CATALOG_TEST_DATABASE_URL ? describe : describe.skip;
 native('T-026 catalog HTTP → native PostgreSQL (TC-035–TC-041 focused foundation)', () => {
@@ -62,6 +63,7 @@ native('T-026 catalog HTTP → native PostgreSQL (TC-035–TC-041 focused founda
     token = await account('VENDOR'); other = await account('VENDOR'); customer = await account('CUSTOMER');
     owner = accounts[0]!.id;
     vendorId = (await db.vendors.findUniqueOrThrow({ where: { user_id: owner } })).id;
+    await db.$transaction(tx => assignPlanFixture(tx, vendorId, 'BUSINESS'));
   });
   afterAll(async () => {
     // Append-only movements retain synthetic fixtures in the dedicated test DB.

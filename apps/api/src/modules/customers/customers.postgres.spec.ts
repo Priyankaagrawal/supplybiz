@@ -7,6 +7,7 @@ import { PinoLogger } from '../../common/logging/pino.logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SessionTokensService } from '../auth/session-tokens.service';
 import { CustomersService } from './customers.service';
+import { assignPlanFixture } from '../../../test/fixtures/plans';
 
 const testDatabaseUrl = process.env.CUSTOMERS_TEST_DATABASE_URL ?? process.env.NATIVE_TEST_DATABASE_URL;
 const native = testDatabaseUrl ? describe : describe.skip;
@@ -65,6 +66,7 @@ native('T-028 TC-060–TC-064 customer foundation over native PostgreSQL/HTTP', 
     await db.customer_link_decisions.deleteMany({ where: { customer: where } });
     await db.customer_subscription_links.deleteMany({ where: { customer: where } });
     await db.vendor_customers.deleteMany({ where });
+    await db.vendor_plan_assignments.deleteMany({ where: { vendor: { user_id: { in: ids } } } });
     await db.vendors.deleteMany({ where: { user_id: { in: ids } } });
     await db.idempotency_keys.deleteMany({ where: { user_id: { in: ids } } });
     await db.sessions.deleteMany({ where: { user_id: { in: ids } } });
@@ -130,9 +132,9 @@ native('T-028 TC-060–TC-064 customer foundation over native PostgreSQL/HTTP', 
   });
   it('TC-062 assignment hook preserves 100/250/500/1000 limits and rolls back atomically without changing catalog', async () => {
     const catalogBefore = await db.plans.findMany({ orderBy: { code: 'asc' } });
-    for (const limit of [100,250,500,1000]) {
+    for (const [code, limit] of [['BASIC',100],['STANDARD',250],['BUSINESS',500],['PREMIUM',1000]] as const) {
       const owner = await account('VENDOR');
-      await db.$transaction(tx => service.setAssignedCustomerLimit(tx, owner.vendorId, limit));
+      await db.$transaction(tx => assignPlanFixture(tx, owner.vendorId, code));
       await fill(owner.vendorId, limit - 1);
       const race = await Promise.all([create(input(), randomUUID(), owner.token), create(input(), randomUUID(), owner.token, peer)]);
       expect(race.map(r => r.status).sort()).toEqual([201,422]);

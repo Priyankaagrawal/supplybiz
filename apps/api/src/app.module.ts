@@ -1,4 +1,6 @@
 import { CatalogController } from './modules/catalog/catalog.controller';
+import { PlanEntitlementsService } from './modules/plans/plan-entitlements.service';
+import { PlanGuard } from './modules/plans/plan.guard';
 import { LedgerService } from './modules/ledger/ledger.service';
 import { LedgerReconciliationService } from './modules/ledger/ledger-reconciliation.service';
 import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
@@ -65,6 +67,8 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
   controllers: [CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    PlanEntitlementsService,
+    PlanGuard,
     LedgerService,
     LedgerReconciliationService,
     LedgerJobsService,

@@ -4,17 +4,20 @@ import { createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IdempotencyService } from '../idempotency/idempotency.service';
 import { CustomerInput, CustomerPatch, CustomerQuery, LinkRequestQuery } from './customers.dto';
+import { PlanEntitlementsService } from '../plans/plan-entitlements.service';
+export { PRE_ASSIGNMENT_CUSTOMER_LIMIT } from '../plans/plan-entitlements.service';
 
 type Tx = Prisma.TransactionClient;
-export const PRE_ASSIGNMENT_CUSTOMER_LIMIT = 50;
 const mobile = (value: string) => value.startsWith('+91') ? value : `+91${value}`;
 @Injectable()
 export class CustomersService {
-  constructor(private readonly db: PrismaService, private readonly idempotency: IdempotencyService) {}
+  constructor(private readonly db: PrismaService, private readonly idempotency: IdempotencyService,
+    private readonly plans: PlanEntitlementsService) {}
 
   async list(userId: string, query: CustomerQuery) {
     return this.db.$transaction(async tx => {
       const vendor = await this.vendor(tx, userId);
+      const entitlement = await this.plans.resolve(tx, vendor.id);
       const where: Prisma.vendor_customersWhereInput = { vendor_id: vendor.id, deleted_at: null,
         ...(['ACTIVE','INACTIVE'].includes(query.filter ?? '') ? { status: query.filter } : {}),
         ...(query.filter === 'SUBSCRIPTION' ? { subscription_links: { some: { status: { in: ['ACTIVE','PAUSED'] } } } } : {}),
@@ -24,7 +27,7 @@ export class CustomersService {
         tx.vendor_customers.count({ where }), tx.vendor_customers.count({ where: { vendor_id: vendor.id, status: 'ACTIVE', deleted_at: null } }),
       ]);
       return { items: rows.map(row => this.present(row)), total, activeCount,
-        customerLimit: vendor.assigned_customer_limit ?? PRE_ASSIGNMENT_CUSTOMER_LIMIT };
+        customerLimit: entitlement.customerLimit };
     }, { isolationLevel: 'RepeatableRead' });
   }
   async get(userId: string, id: string) {
@@ -92,10 +95,10 @@ export class CustomersService {
   /** Every future APP/order/link customer creator must use this lock/count in its transaction. */
   async requireCapacity(tx: Tx, vendorId: string) {
     await this.lockVendor(tx, vendorId);
-    const vendor = await tx.vendors.findUniqueOrThrow({ where: { id: vendorId } });
-    const limit = vendor.assigned_customer_limit ?? PRE_ASSIGNMENT_CUSTOMER_LIMIT;
+    const limit = await this.plans.requireCustomerGrowth(tx, vendorId);
     const count = await tx.vendor_customers.count({ where: { vendor_id: vendorId, status: 'ACTIVE', deleted_at: null } });
-    if (count >= limit) throw new UnprocessableEntityException({ code: 'PLAN_CUSTOMER_LIMIT', customerLimit: limit });
+    if (count >= limit) throw new UnprocessableEntityException({ code: 'PLAN_CUSTOMER_LIMIT',
+      detail: `The active customer limit is ${limit}. Contact support to change the assigned plan.` });
   }
   /** T-072 maintains current subscription membership atomically with its own state. */
   async setSubscriptionReference(tx: Tx, subscriptionId: string, customerId: string,

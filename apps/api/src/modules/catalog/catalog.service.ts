@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IdempotencyService } from '../idempotency/idempotency.service';
 import { ProductInput, ProductPatch, ProductQuery, StockAdjustment } from './catalog.dto';
+import { PlanEntitlementsService } from '../plans/plan-entitlements.service';
 
 export const LOW_STOCK_THRESHOLD = 10;
 type Tx = Prisma.TransactionClient;
@@ -11,7 +12,8 @@ type StockChange = { vendorId: string; productId: string; actorId: string; delta
   reason: 'ADJUST' | 'ORDER' | 'SALE' | 'REVERSAL'; note: string; refId?: string };
 @Injectable()
 export class CatalogService {
-  constructor(private readonly db: PrismaService, private readonly idempotency: IdempotencyService) {}
+  constructor(private readonly db: PrismaService, private readonly idempotency: IdempotencyService,
+    private readonly plans: PlanEntitlementsService) {}
   async options(userId: string) {
     const vendor = await this.authorize(this.db, userId);
     const types = vendor.category.product_types;
@@ -37,6 +39,7 @@ export class CatalogService {
   create(userId: string, key: string, input: ProductInput) {
     return this.mutate(userId, key, 'POST', 'create', input, async (tx, vendor) => {
       await this.validate(tx, vendor, userId, input);
+      if (input.stockQty) await this.plans.requireFeature(tx, vendor.id, 'STOCK_MANAGEMENT');
       const row = await tx.products.create({ data: { vendor_id: vendor.id, ...this.fields(input),
         name: input.name, product_type: input.productType, unit_type: input.unitType,
         unit_value: input.unitValue, selling_price_paise: input.sellingPricePaise, stock_qty: input.stockQty ?? 0 } });
@@ -47,6 +50,13 @@ export class CatalogService {
   }
   patch(userId: string, key: string, id: string, input: ProductPatch) {
     return this.mutate(userId, key, 'PATCH', id, input, async (tx, vendor) => {
+      // Vendor lock precedes product locks, matching assignment/capacity lock order.
+      if (input.stockQty !== undefined) {
+        await this.owned(tx, vendor.id, id);
+        // Lock even for unchanged quantity; only an actual stock change consumes
+        // the paid capability. This keeps ordinary catalog edits usable on BASIC.
+        await this.plans.resolve(tx, vendor.id);
+      }
       const row = await this.lock(tx, vendor.id, id);
       await this.validate(tx, vendor, userId, { ...this.present(row), ...input });
       const delta = (input.stockQty ?? row.stock_qty) - row.stock_qty;
@@ -75,6 +85,10 @@ export class CatalogService {
   async changeStock(tx: Tx, change: StockChange): Promise<products> {
     if (!Number.isInteger(change.delta) || !change.delta || Math.abs(change.delta) > 2147483647 ||
       !change.note.trim() || change.note.length > 200) throw new BadRequestException({ code: 'INVALID_STOCK_ADJUSTMENT' });
+    if (change.reason === 'ADJUST') {
+      await this.owned(tx, change.vendorId, change.productId);
+      await this.plans.requireFeature(tx, change.vendorId, 'STOCK_MANAGEMENT');
+    }
     const row = await this.lock(tx, change.vendorId, change.productId);
     const quantity = row.stock_qty + change.delta;
     if (quantity < 0) throw new ConflictException({ code: 'INSUFFICIENT_STOCK' });
