@@ -35,13 +35,13 @@ const apiTests = {
   'T-182': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
   'T-184': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
 };
-if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-025', 'T-183'].includes(id))) {
+if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-025', 'T-029', 'T-183'].includes(id))) {
   console.error('Provide a supported T-ID in the PR title or TASK_ID. Add explicit focused checks for new tasks; unsupported tasks cannot silently pass.');
   process.exit(1);
 }
 if (process.env.CHECK_LAYER) {
   tasks = tasks.filter(id => process.env.CHECK_LAYER === 'api'
-    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-183'].includes(id));
+    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-029', 'T-183'].includes(id));
   if (!tasks.length) { console.error('No focused task for the affected layer. Register its task checks first.'); process.exit(1); }
 }
 for (const task of tasks) {
@@ -77,6 +77,13 @@ for (const task of tasks) {
     run(api('exec', 'jest', '--runInBand', '--runTestsByPath', ...apiTests[task]));
     run(api('exec', 'jest', '--config', 'test/jest-e2e.json', '--runInBand', '--runTestsByPath', 'test/native-runtime.e2e-spec.ts'));
     if (!['T-017', 'T-027'].includes(task) || process.env.CHECK_LAYER === 'api') continue;
+  }
+  if (task === 'T-029') {
+    const mobile = resolve(root, 'apps/mobile');
+    run([flutter, 'analyze'], mobile);
+    run([flutter, 'test', 'test/features/customers', 'test/core/router/guards_test.dart', 'test/core/router/app_router_test.dart'], mobile);
+    run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json'], mobile);
+    continue;
   }
   if (task === 'T-027') {
     const mobile = resolve(root, 'apps/mobile');

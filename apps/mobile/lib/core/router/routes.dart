@@ -7,6 +7,8 @@ import '../../features/auth/auth_pages.dart';
 import '../../features/onboarding/onboarding_pages.dart';
 import '../../features/service_area/service_area_page.dart';
 import '../../features/products/products_page.dart';
+import '../../features/customers/customers_page.dart';
+import '../../features/customers/customer_editor.dart';
 import '../../features/notifications/notifications_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -91,6 +93,10 @@ class OnboardingRoute extends GoRouteData with _$OnboardingRoute {
       routes: [TypedGoRoute<VendorProductsRoute>(path: '/vendor/products')]),
   TypedStatefulShellBranch<VendorCustomersBranch>(routes: [
     TypedGoRoute<VendorCustomersRoute>(path: '/vendor/customers', routes: [
+      TypedGoRoute<VendorCustomerNewRoute>(path: 'new'),
+      TypedGoRoute<VendorCustomerRoute>(
+          path: ':id',
+          routes: [TypedGoRoute<VendorCustomerEditRoute>(path: 'edit')]),
       TypedGoRoute<VendorSubscriptionRoute>(path: 'subscriptions/:id')
     ])
   ]),
@@ -153,8 +159,34 @@ class VendorCustomersBranch extends StatefulShellBranchData {
 class VendorCustomersRoute extends GoRouteData with _$VendorCustomersRoute {
   const VendorCustomersRoute();
   @override
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const CustomersPage()
+          : const RoutePlaceholder(title: RouteTitle.customers));
+}
+
+class VendorCustomerNewRoute extends GoRouteData with _$VendorCustomerNewRoute {
+  const VendorCustomerNewRoute();
+  @override
   Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.customers);
+      const CustomerEditorPage();
+}
+
+class VendorCustomerRoute extends GoRouteData with _$VendorCustomerRoute {
+  const VendorCustomerRoute(this.id);
+  final String id;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      CustomerDetailPage(id: id);
+}
+
+class VendorCustomerEditRoute extends GoRouteData
+    with _$VendorCustomerEditRoute {
+  const VendorCustomerEditRoute(this.id);
+  final String id;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      CustomerEditorPage(id: id);
 }
 
 class VendorSubscriptionRoute extends GoRouteData

@@ -62,6 +62,81 @@ and module gates. Dev Firebase is disabled and private provider config is absent
 Full FR-101/TC-103 fan-out and final missing domain destinations remain with T-052
 and their owning tasks; no module gate claim. iOS checks are deferred per ADR-025.
 
+## T-029 customers handoff (2026-11-11): READY_FOR_VERIFY
+
+Vendor Customers `/vendor/customers` implements S-V-12 search by name/mobile,
+All/Active/Subscription/Inactive filters, 20-row display with scroll/Show more and
+pull refresh. Typed routes `/vendor/customers/new`, `/vendor/customers/{id}` and
+`/vendor/customers/{id}/edit` provide S-V-13 Add/Edit and S-V-14 detail/status.
+Required name/Indian mobile, optional email/address and preferred payment are
+validated; linked mobiles are read-only, email clearing sends explicit null.
+Inactivation/reactivation needs confirmation and keeps the same customer ID.
+The API supplies capacity (50 before assignment under ADR-028, assigned caps
+unchanged); duplicate/limit errors give specific messages and support guidance.
+Android Call opens ACTION_DIAL without CALL_PHONE permission or a new dependency.
+
+Complete customer and current-subscription membership snapshots are fetched in
+100-row API pages before replacing the encrypted, environment/account-scoped
+cache. This prevents offline search/filter from silently covering just one page.
+Offline snapshots are read-only. Exact mutation payload/key persist before send;
+Retry saved request handles response loss/restart without automatically submitting
+an offline edit. Definitive rejections release the request for editing; auth denial
+purges private cache, disposal fences late network writes, and existing logout
+wipes the encrypted store. No new DB migration or API/contract/client changes.
+Only typed routes and English l10n generated output changed.
+
+Order history, current subscription/payment activity and Add Order remain clearly
+unavailable until their owning M2/M3 tasks, as explicitly allowed by T-029. No
+financial totals or history are fabricated. T-053 owns customer-side linking UI.
+
+Executed checks (`apps/mobile`, Flutter 3.35.7, HTTP simulated):
+```powershell
+flutter gen-l10n
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' run build_runner build '--build-filter=lib/core/router/routes.g.dart'
+& 'C:\flutter\bin\cache\dart-sdk\bin\dart.exe' format lib/features/customers lib/core/storage/customer_device.dart lib/core/router/routes.dart test/features/customers integration_test/customers_test.dart
+flutter analyze --no-pub
+flutter test --no-pub test/features/customers test/core/router/guards_test.dart test/core/router/app_router_test.dart
+flutter test integration_test/customers_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Focused suite: 23 checks pass (12 customer, 11 router). Native smoke: 1 pass for
+encrypted snapshot/retry across storage restart, owner isolation, 200% detail,
+one committed change after response-loss replay and native invalid-number
+rejection. Actual valid-number dialer launch is NOT_RUN. Initial route codegen
+needed pub.dev advisory access outside the sandbox. Widget harness fixes used
+runAsync for simulated HTTP, settled scrolling/field focus, expired snackbars and
+explicit scrollable selection; no lint/tests were disabled. Auth-disabled scaffold
+route tests retain placeholders; production auth-enabled routes use the new pages.
+The registered task commands were executed directly, not through the full runner.
+From repository root, `node --test tools/checks.spec.mjs` passes all 4 guards and
+`git diff --check` passes. The final normal dev APK build passes; after the native
+test the normal app is restored using these executed commands:
+```powershell
+& 'C:\Android\platform-tools\adb.exe' -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev
+& 'C:\Android\platform-tools\adb.exe' -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+The emulator and pre-existing host services are preserved. Kotlin's local compiler
+cache is now ignored in .gitignore; generated API clients under packages are unchanged.
+
+Manual verification (suggested, not manual PASS):
+1. With a real vendor session and T-028 migration applied, open Customers; add/edit
+   synthetic records, clear email, verify reload, name/mobile search and filters.
+2. At 50 active pre-assignment records, confirm another create/reactivation gets
+   PLAN_CUSTOMER_LIMIT guidance; inactivate a record and retry. Confirm identity
+   and future history are retained, and assigned-plan caps come from the API.
+3. Open detail, use Call to open the dialer without placing a call, and edit a
+   linked customer: mobile must stay read-only. Unavailable activity has no fake
+   totals or active Add Order destination.
+4. Go offline and reopen: saved data is read-only. Interrupt a response, restart
+   and explicitly retry; inspect DB for one change. Sign out/switch account and
+   confirm no previous customer's data or pending request appears.
+5. Check TalkBack, all action targets and 200% text on list/editor/detail; try a
+   foreign customer ID and wrong-role route. Confirm API authorization denies it.
+
+NOT_RUN: live mobile UI → API → DB journey, valid dialer launch/manual TalkBack/
+manual PASS and G0/G1 gates. iOS remains deferred per ADR-025. No separate RUN,
+finalization or DONE claim; no new check process/service is retained.
+
 ## T-027 products handoff (2026-11-10): READY_FOR_VERIFY
 
 Products tab `/vendor/products` implements S-V-06 list/search/type filters,

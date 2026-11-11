@@ -249,6 +249,20 @@ RouteBase get $vendorShell => StatefulShellRouteData.$route(
               factory: _$VendorCustomersRoute._fromState,
               routes: [
                 GoRouteData.$route(
+                  path: 'new',
+                  factory: _$VendorCustomerNewRoute._fromState,
+                ),
+                GoRouteData.$route(
+                  path: ':id',
+                  factory: _$VendorCustomerRoute._fromState,
+                  routes: [
+                    GoRouteData.$route(
+                      path: 'edit',
+                      factory: _$VendorCustomerEditRoute._fromState,
+                    ),
+                  ],
+                ),
+                GoRouteData.$route(
                   path: 'subscriptions/:id',
                   factory: _$VendorSubscriptionRoute._fromState,
                 ),
@@ -373,6 +387,83 @@ mixin _$VendorCustomersRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/vendor/customers',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$VendorCustomerNewRoute on GoRouteData {
+  static VendorCustomerNewRoute _fromState(GoRouterState state) =>
+      const VendorCustomerNewRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/vendor/customers/new',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$VendorCustomerRoute on GoRouteData {
+  static VendorCustomerRoute _fromState(GoRouterState state) =>
+      VendorCustomerRoute(
+        state.pathParameters['id']!,
+      );
+
+  VendorCustomerRoute get _self => this as VendorCustomerRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/vendor/customers/${Uri.encodeComponent(_self.id)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$VendorCustomerEditRoute on GoRouteData {
+  static VendorCustomerEditRoute _fromState(GoRouterState state) =>
+      VendorCustomerEditRoute(
+        state.pathParameters['id']!,
+      );
+
+  VendorCustomerEditRoute get _self => this as VendorCustomerEditRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/vendor/customers/${Uri.encodeComponent(_self.id)}/edit',
       );
 
   @override

@@ -25,6 +25,7 @@ build/
 
 # Android local config
 **/local.properties
+apps/mobile/android/.kotlin/
 
 # Env files
 *.env

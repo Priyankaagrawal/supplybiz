@@ -94,6 +94,294 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @customersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add customer'**
+  String get customersAdd;
+
+  /// No description provided for @customersEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit customer'**
+  String get customersEdit;
+
+  /// No description provided for @customersView.
+  ///
+  /// In en, this message translates to:
+  /// **'View customer'**
+  String get customersView;
+
+  /// No description provided for @customersDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer details'**
+  String get customersDetail;
+
+  /// No description provided for @customersSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save customer'**
+  String get customersSave;
+
+  /// No description provided for @customersConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get customersConfirm;
+
+  /// No description provided for @customersSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer saved.'**
+  String get customersSaved;
+
+  /// No description provided for @customersName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (required)'**
+  String get customersName;
+
+  /// No description provided for @customersMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile (required)'**
+  String get customersMobile;
+
+  /// No description provided for @customersEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get customersEmail;
+
+  /// No description provided for @customersAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address (optional)'**
+  String get customersAddress;
+
+  /// No description provided for @customersPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred payment method'**
+  String get customersPayment;
+
+  /// No description provided for @customersCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get customersCash;
+
+  /// No description provided for @customersUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get customersUpi;
+
+  /// No description provided for @customersBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get customersBank;
+
+  /// No description provided for @customersWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get customersWallet;
+
+  /// No description provided for @customersInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid value.'**
+  String get customersInvalid;
+
+  /// No description provided for @customersAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get customersAll;
+
+  /// No description provided for @customersActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get customersActive;
+
+  /// No description provided for @customersInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get customersInactive;
+
+  /// No description provided for @customersSubscribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get customersSubscribed;
+
+  /// No description provided for @customersSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or mobile'**
+  String get customersSearch;
+
+  /// No description provided for @customersFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter customers'**
+  String get customersFilter;
+
+  /// No description provided for @customersMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more customers'**
+  String get customersMore;
+
+  /// No description provided for @customersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No customers match. Add a customer or change your filters.'**
+  String get customersEmpty;
+
+  /// No description provided for @customersOfflineAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline customer'**
+  String get customersOfflineAccount;
+
+  /// No description provided for @customersLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked app account'**
+  String get customersLinked;
+
+  /// No description provided for @customersNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This customer is not available.'**
+  String get customersNotFound;
+
+  /// No description provided for @customersNoAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'No address added.'**
+  String get customersNoAddress;
+
+  /// No description provided for @customersCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call customer'**
+  String get customersCall;
+
+  /// No description provided for @customersDialUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'A phone app could not be opened.'**
+  String get customersDialUnavailable;
+
+  /// No description provided for @customersDeactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark inactive'**
+  String get customersDeactivate;
+
+  /// No description provided for @customersReactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate customer'**
+  String get customersReactivate;
+
+  /// No description provided for @customersStatusConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the status of {name}?'**
+  String customersStatusConfirm(String name);
+
+  /// No description provided for @customersKeepHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'The customer will stop counting toward your limit. Their history will be kept.'**
+  String get customersKeepHistory;
+
+  /// No description provided for @customersCheckCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivation counts toward your active customer limit.'**
+  String get customersCheckCapacity;
+
+  /// No description provided for @customersCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active customers · limit {limit}'**
+  String customersCapacity(int count, int limit);
+
+  /// No description provided for @customersDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This mobile number is already in your customer list.'**
+  String get customersDuplicate;
+
+  /// No description provided for @customersLimitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your active customer limit has been reached. Mark a customer inactive or contact support about a plan change.'**
+  String get customersLimitReached;
+
+  /// No description provided for @customersLinkedMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'The mobile number of a linked app account cannot be changed.'**
+  String get customersLinkedMobile;
+
+  /// No description provided for @customersOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline — showing saved customers. Changes are unavailable until you refresh online.'**
+  String get customersOffline;
+
+  /// No description provided for @customersPending.
+  ///
+  /// In en, this message translates to:
+  /// **'A saved request needs confirmation. Retry it before making another change.'**
+  String get customersPending;
+
+  /// No description provided for @customersRetrySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved request'**
+  String get customersRetrySaved;
+
+  /// No description provided for @customersActivityUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer activity details are not available yet.'**
+  String get customersActivityUnavailable;
+
+  /// No description provided for @customersAddOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add order'**
+  String get customersAddOrder;
+
+  /// No description provided for @customersOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Order history'**
+  String get customersOrders;
+
+  /// No description provided for @customersSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Current subscription'**
+  String get customersSubscriptions;
+
+  /// No description provided for @customersPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get customersPayments;
+
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:

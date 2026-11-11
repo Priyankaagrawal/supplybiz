@@ -24,6 +24,15 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/customers").setMethodCallHandler { call, result ->
+            if (call.method != "dial") { result.notImplemented(); return@setMethodCallHandler }
+            val mobile = call.argument<String>("mobile") ?: ""
+            if (!Regex("^\\+91[6-9][0-9]{9}$").matches(mobile)) { result.success(false); return@setMethodCallHandler }
+            try {
+                startActivity(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", mobile, null)))
+                result.success(true)
+            } catch (_: Exception) { result.success(false) }
+        }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/location").setMethodCallHandler { call, result ->
             when (call.method) {
                 "current" -> deviceLocation.current(result)

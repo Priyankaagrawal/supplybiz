@@ -9,6 +9,163 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get customersAdd => 'Add customer';
+
+  @override
+  String get customersEdit => 'Edit customer';
+
+  @override
+  String get customersView => 'View customer';
+
+  @override
+  String get customersDetail => 'Customer details';
+
+  @override
+  String get customersSave => 'Save customer';
+
+  @override
+  String get customersConfirm => 'Confirm';
+
+  @override
+  String get customersSaved => 'Customer saved.';
+
+  @override
+  String get customersName => 'Name (required)';
+
+  @override
+  String get customersMobile => 'Mobile (required)';
+
+  @override
+  String get customersEmail => 'Email (optional)';
+
+  @override
+  String get customersAddress => 'Address (optional)';
+
+  @override
+  String get customersPayment => 'Preferred payment method';
+
+  @override
+  String get customersCash => 'Cash';
+
+  @override
+  String get customersUpi => 'UPI';
+
+  @override
+  String get customersBank => 'Bank transfer';
+
+  @override
+  String get customersWallet => 'Wallet';
+
+  @override
+  String get customersInvalid => 'Enter a valid value.';
+
+  @override
+  String get customersAll => 'All';
+
+  @override
+  String get customersActive => 'Active';
+
+  @override
+  String get customersInactive => 'Inactive';
+
+  @override
+  String get customersSubscribed => 'Subscription';
+
+  @override
+  String get customersSearch => 'Search by name or mobile';
+
+  @override
+  String get customersFilter => 'Filter customers';
+
+  @override
+  String get customersMore => 'Show more customers';
+
+  @override
+  String get customersEmpty =>
+      'No customers match. Add a customer or change your filters.';
+
+  @override
+  String get customersOfflineAccount => 'Offline customer';
+
+  @override
+  String get customersLinked => 'Linked app account';
+
+  @override
+  String get customersNotFound => 'This customer is not available.';
+
+  @override
+  String get customersNoAddress => 'No address added.';
+
+  @override
+  String get customersCall => 'Call customer';
+
+  @override
+  String get customersDialUnavailable => 'A phone app could not be opened.';
+
+  @override
+  String get customersDeactivate => 'Mark inactive';
+
+  @override
+  String get customersReactivate => 'Reactivate customer';
+
+  @override
+  String customersStatusConfirm(String name) {
+    return 'Change the status of $name?';
+  }
+
+  @override
+  String get customersKeepHistory =>
+      'The customer will stop counting toward your limit. Their history will be kept.';
+
+  @override
+  String get customersCheckCapacity =>
+      'Reactivation counts toward your active customer limit.';
+
+  @override
+  String customersCapacity(int count, int limit) {
+    return '$count active customers · limit $limit';
+  }
+
+  @override
+  String get customersDuplicate =>
+      'This mobile number is already in your customer list.';
+
+  @override
+  String get customersLimitReached =>
+      'Your active customer limit has been reached. Mark a customer inactive or contact support about a plan change.';
+
+  @override
+  String get customersLinkedMobile =>
+      'The mobile number of a linked app account cannot be changed.';
+
+  @override
+  String get customersOffline =>
+      'Offline — showing saved customers. Changes are unavailable until you refresh online.';
+
+  @override
+  String get customersPending =>
+      'A saved request needs confirmation. Retry it before making another change.';
+
+  @override
+  String get customersRetrySaved => 'Retry saved request';
+
+  @override
+  String get customersActivityUnavailable =>
+      'Customer activity details are not available yet.';
+
+  @override
+  String get customersAddOrder => 'Add order';
+
+  @override
+  String get customersOrders => 'Order history';
+
+  @override
+  String get customersSubscriptions => 'Current subscription';
+
+  @override
+  String get customersPayments => 'Payments';
+
+  @override
   String get appName => 'Supply Biz';
 
   @override
