@@ -3,6 +3,8 @@ import 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_me_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_session_response.dart';
 import 'package:supplybiz_api_client/src/model/app_config_response.dart';
+import 'package:supplybiz_api_client/src/model/assign_plan_input.dart';
+import 'package:supplybiz_api_client/src/model/assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/audit_page.dart';
 import 'package:supplybiz_api_client/src/model/audit_row.dart';
 import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
@@ -10,6 +12,7 @@ import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
+import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
 import 'package:supplybiz_api_client/src/model/customer_input.dart';
 import 'package:supplybiz_api_client/src/model/customer_list.dart';
 import 'package:supplybiz_api_client/src/model/customer_patch.dart';
@@ -17,6 +20,7 @@ import 'package:supplybiz_api_client/src/model/customer_response.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_push_input.dart';
 import 'package:supplybiz_api_client/src/model/device_push_response.dart';
+import 'package:supplybiz_api_client/src/model/extend_plan_input.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
 import 'package:supplybiz_api_client/src/model/inbox_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_response.dart';
@@ -33,6 +37,9 @@ import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
 import 'package:supplybiz_api_client/src/model/notification_mutation_response.dart';
 import 'package:supplybiz_api_client/src/model/notification_preferences.dart';
+import 'package:supplybiz_api_client/src/model/plan_catalog_response.dart';
+import 'package:supplybiz_api_client/src/model/plan_catalog_row.dart';
+import 'package:supplybiz_api_client/src/model/plan_price_response.dart';
 import 'package:supplybiz_api_client/src/model/product_deleted.dart';
 import 'package:supplybiz_api_client/src/model/product_input.dart';
 import 'package:supplybiz_api_client/src/model/product_list.dart';
@@ -48,6 +55,7 @@ import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
@@ -90,6 +98,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'AppConfigResponse':
       return AppConfigResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'AssignPlanInput':
+      return AssignPlanInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AssignmentResponse':
+      return AssignmentResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'AuditPage':
       return AuditPage.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'AuditRow':
@@ -106,6 +120,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return CategoryRow.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'CurrentPlanResponse':
+      return CurrentPlanResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'CustomerInput':
       return CustomerInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -124,6 +141,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'DevicePushResponse':
       return DevicePushResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ExtendPlanInput':
+      return ExtendPlanInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
@@ -167,6 +187,15 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'NotificationPreferences':
       return NotificationPreferences.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'PlanCatalogResponse':
+      return PlanCatalogResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PlanCatalogRow':
+      return PlanCatalogRow.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PlanPriceResponse':
+      return PlanPriceResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ProductDeleted':
       return ProductDeleted.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -205,6 +234,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'TotpDto':
       return TotpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'VendorAssignmentResponse':
+      return VendorAssignmentResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'VendorBusinessDto':
       return VendorBusinessDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;

@@ -9,6 +9,7 @@ export const eventTemplates = {
   SUBSCRIPTION_REQUEST: ['VENDOR', 'ORDERS', 'Subscription request', '/vendor/customers/subscriptions/'],
   PAYMENT_CLAIM: ['VENDOR', 'PAYMENTS', 'Payment claim received', '/vendor/khata/'],
   PLAN_EXPIRING: ['VENDOR', 'SYSTEM', 'Plan expiring', '/vendor/plans'],
+  PLAN_EXPIRED: ['VENDOR', 'SYSTEM', 'Plan expired', '/vendor/plans'],
   ORDER_ACCEPTED: ['CUSTOMER', 'ORDERS', 'Order accepted', '/customer/orders/'],
   ORDER_REJECTED: ['CUSTOMER', 'ORDERS', 'Order rejected', '/customer/orders/'],
   OUT_FOR_DELIVERY: ['CUSTOMER', 'ORDERS', 'Order out for delivery', '/customer/orders/'],

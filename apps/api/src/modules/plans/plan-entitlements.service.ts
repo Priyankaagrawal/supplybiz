@@ -21,7 +21,7 @@ export class PlanEntitlementsService {
       assignment.audit.entity === 'VENDOR' && assignment.audit.entity_id === vendorId && assignment.audit.action === 'PLAN_ASSIGNED';
     const active = !!(audited && assignment.plan.status === 'ACTIVE' && assignment.starts_at <= clock!.now && clock!.now < assignment.ends_at);
     const history = !assignment && await tx.vendor_plan_assignments.findFirst({ where: { vendor_id: vendorId }, select: { id: true } });
-    return { assignment, active, expired: !!(audited && assignment.ends_at <= clock!.now), everAssigned: !!assignment || !!history || vendor.assigned_customer_limit !== null,
+    return { assignment, active, scheduled: !!(audited && assignment.plan.status === 'ACTIVE' && assignment.starts_at > clock!.now), expired: !!(audited && assignment.ends_at <= clock!.now), everAssigned: !!assignment || !!history || vendor.assigned_customer_limit !== null,
       customerLimit: assignment ? CUSTOMER_LIMITS[assignment.plan.code] : vendor.assigned_customer_limit ?? PRE_ASSIGNMENT_CUSTOMER_LIMIT };
   }
   async requireFeature(tx: Tx, vendorId: string, feature: PlanFeature) {
@@ -34,6 +34,18 @@ export class PlanEntitlementsService {
     const state = await this.resolve(tx, vendorId);
     if (!state.active) {
       if (state.expired && EXPIRY_OPERATIONS.includes(operation)) return state;
+      if (EXPIRY_OPERATIONS.includes(operation)) {
+        // A future-dated replacement must preserve earlier history/settlement access.
+        // A first future assignment still grants no paid features before its start.
+        const [history] = await tx.$queryRaw<{ allowed: boolean }[]>`SELECT EXISTS (
+          SELECT 1 FROM vendor_plan_assignments a JOIN audit_logs l ON l.id = a.audit_id
+          WHERE a.vendor_id = ${vendorId}::uuid AND a.superseded_at IS NOT NULL
+            AND a.starts_at <= a.superseded_at AND a.starts_at <= clock_timestamp()
+            AND l.actor_type = 'ADMIN' AND l.actor_id = a.granted_by_admin
+            AND l.action = 'PLAN_ASSIGNED' AND l.entity = 'VENDOR' AND l.entity_id = a.vendor_id
+        ) AS allowed`;
+        if (history?.allowed) return state;
+      }
       this.locked();
     }
     if (!state.assignment || !PLAN_FEATURES[state.assignment.plan.code].includes(OPERATION_FEATURES[operation])) this.locked();

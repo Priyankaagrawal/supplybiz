@@ -99,21 +99,21 @@ export class AdminAuthService {
     return result;
   }
   async authenticate(token: string, permission?: string, csrf?: string): Promise<{ id: string; role: string; permissions: string[] }> {
-    const result = await this.db.$transaction(async tx => {
+    return this.db.$transaction(tx => this.authenticateInTransaction(tx, token, permission, csrf));
+  }
+  /** Domain mutations keep the admin/session lock through their atomic write and replay. */
+  async authenticateInTransaction(tx: Prisma.TransactionClient, token: string, permission?: string, csrf?: string): Promise<{ id: string; role: string; permissions: string[] }> {
       const session = await tx.admin_sessions.findUnique({ where: { token_hash: digest(token) } });
-      if (!session) return null;
+      if (!session) throw denied();
       const user = await this.lock(tx, session.admin_id), now = await this.clock(tx);
       const current = await tx.admin_sessions.findUnique({ where: { token_hash: digest(token) } });
       if (!current || user.status !== 'ACTIVE' || current.expires_at <= now ||
-          current.last_used_at.getTime() + 30 * 60000 <= now.getTime() || !permissions(user.role).length) return null;
+          current.last_used_at.getTime() + 30 * 60000 <= now.getTime() || !permissions(user.role).length) throw denied();
       if (csrf !== undefined && digest(csrf) !== current.csrf_hash) throw new ForbiddenException('Invalid CSRF token.');
       const grants = permissions(user.role);
       if (permission && !grants.includes(permission)) throw new ForbiddenException();
       await tx.admin_sessions.update({ where: { token_hash: current.token_hash }, data: { last_used_at: now } });
       return { id: user.id, role: user.role, permissions: grants };
-    });
-    if (!result) throw denied();
-    return result;
   }
   async logout(token: string, csrf: string, ip?: string): Promise<void> {
     // Check + deletion under the same user lock used by authenticate.

@@ -1,5 +1,147 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/plans:
+    get:
+      operationId: AdminPlansController_catalog
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanCatalogResponse'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/plan:
+    get:
+      operationId: AdminPlansController_current
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentPlanResponse'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/plan-assignments:
+    post:
+      operationId: AdminPlansController_assign
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignPlanInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentResponse'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/plan-assignments/{assignmentId}/extend:
+    post:
+      operationId: AdminPlansController_extend
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: assignmentId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExtendPlanInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentResponse'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/vendor/plans:
+    get:
+      operationId: VendorPlansController_catalog
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanCatalogResponse'
+      tags:
+        - vendor-plans
+      security:
+        - bearer: []
+  /api/v1/vendor/plan:
+    get:
+      operationId: VendorPlansController_current
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentPlanResponse'
+      tags:
+        - vendor-plans
+      security:
+        - bearer: []
   /api/v1/vendor/customers:
     get:
       operationId: CustomersController_list
@@ -1630,6 +1772,194 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    PlanPriceResponse:
+      type: object
+      properties:
+        duration:
+          type: string
+          enum:
+            - MONTHLY
+            - HALF_YEARLY
+            - YEARLY
+        pricePaise:
+          type: integer
+          minimum: 0
+      required:
+        - duration
+        - pricePaise
+    PlanCatalogRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+          enum:
+            - BASIC
+            - STANDARD
+            - BUSINESS
+            - PREMIUM
+        name:
+          type: string
+        customerLimit:
+          type: integer
+        features:
+          type: array
+          items:
+            type: string
+        isPopular:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanPriceResponse'
+      required:
+        - id
+        - code
+        - name
+        - customerLimit
+        - features
+        - isPopular
+        - status
+        - prices
+    PlanCatalogResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanCatalogRow'
+      required:
+        - items
+    VendorAssignmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - planId
+        - code
+        - startsAt
+        - endsAt
+    CurrentPlanResponse:
+      type: object
+      properties:
+        assignment:
+          nullable: true
+          allOf:
+            - $ref: '#/components/schemas/VendorAssignmentResponse'
+        status:
+          type: string
+          enum:
+            - UNASSIGNED
+            - SCHEDULED
+            - ACTIVE
+            - EXPIRED
+            - UNAVAILABLE
+        customerLimit:
+          type: integer
+        activeCustomers:
+          type: integer
+        canAddCustomer:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+      required:
+        - assignment
+        - status
+        - customerLimit
+        - activeCustomers
+        - canAddCustomer
+        - features
+    AssignPlanInput:
+      type: object
+      properties:
+        endsAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        planId:
+          type: string
+          format: uuid
+        startsAt:
+          type: string
+          format: date-time
+      required:
+        - endsAt
+        - reason
+        - planId
+        - startsAt
+    AssignmentResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        grantedByAdmin:
+          type: string
+          format: uuid
+        auditId:
+          type: string
+          format: uuid
+      required:
+        - id
+        - vendorId
+        - planId
+        - code
+        - startsAt
+        - endsAt
+        - reason
+        - grantedByAdmin
+        - auditId
+    ExtendPlanInput:
+      type: object
+      properties:
+        endsAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+      required:
+        - endsAt
+        - reason
     CustomerResponse:
       type: object
       properties:

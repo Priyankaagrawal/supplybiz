@@ -201,6 +201,7 @@ model admin_users {
   auth_events admin_auth_events[]
   media_reads media_access_events[]
   plan_assignments vendor_plan_assignments[]
+  plan_requests plan_assignment_requests[]
 }
 
 model categories {
@@ -250,6 +251,17 @@ model vendor_plan_assignments {
   admin admin_users @relation(fields: [granted_by_admin], references: [id], onDelete: Restrict)
   audit audit_logs @relation(fields: [audit_id], references: [id], onDelete: Restrict)
   @@index([vendor_id])
+}
+
+// T-103: permanent replay identity for audited plan grants, independent of short HTTP caches.
+model plan_assignment_requests {
+  request_key String @id @db.VarChar(64)
+  admin_id String @db.Uuid
+  path String @db.VarChar(100)
+  request_hash String @db.VarChar(64)
+  response Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  admin admin_users @relation(fields: [admin_id], references: [id], onDelete: Restrict)
 }
 
 model plan_prices {

@@ -1,6 +1,9 @@
 import { CatalogController } from './modules/catalog/catalog.controller';
 import { PlanEntitlementsService } from './modules/plans/plan-entitlements.service';
 import { PlanGuard } from './modules/plans/plan.guard';
+import { PlansService } from './modules/plans/plans.service';
+import { PlanRemindersService } from './modules/plans/plan-reminders.service';
+import { AdminPlansController, VendorPlansController } from './modules/plans/plans.controller';
 import { LedgerService } from './modules/ledger/ledger.service';
 import { LedgerReconciliationService } from './modules/ledger/ledger-reconciliation.service';
 import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
@@ -64,11 +67,13 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
     PlanEntitlementsService,
     PlanGuard,
+    PlansService,
+    PlanRemindersService,
     LedgerService,
     LedgerReconciliationService,
     LedgerJobsService,

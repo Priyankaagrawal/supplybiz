@@ -258,6 +258,30 @@ These endpoints are future reference only; no routes, credentials or tests are r
 | GET | `/vendor/plans` ; GET `/vendor/plan` (current, entitlements) |
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
+T-103 implements `/vendor/plans` (active DB catalog, integer-paise prices, approved
+tier features/caps) and `/vendor/plan` (owned assignment ID/tier/dates, lifecycle
+status, effective features, active customer count and growth availability).
+Vendor responses exclude internal reasons/admin/audit identifiers. States are
+UNASSIGNED, SCHEDULED, ACTIVE, EXPIRED and UNAVAILABLE; setup has limit 50 and no
+paid features. No checkout, invoice or payment record is fabricated.
+
+Plan administrators (SUPER_ADMIN/FINANCE, `plans.manage`) use GET `/admin/plans`
+and `/admin/vendors/{id}/plan`, POST `/admin/vendors/{id}/plan-assignments`
+`{ planId, startsAt, endsAt, reason }`, and POST
+`/admin/vendors/{id}/plan-assignments/{assignmentId}/extend` `{ endsAt, reason }`.
+Mutations require bearer session, X-CSRF-Token and Idempotency-Key. Dates must be
+timezone-qualified ISO timestamps; end must be after start and DB now. Extension
+targets the current owned assignment and strictly increases its end; it returns
+a new assignment ID while retaining old dates/audit as history. A new assignment
+supersedes the current row immediately; a future start remains SCHEDULED without
+new-business access until validity begins. Earlier authorized history/settlement
+operations remain available under ADR-029 and their normal domain rules.
+Permanent actor-scoped replay returns the original result; changed payload/path
+returns 422 IDEMPOTENCY_MISMATCH. Invalid input/dates return 400; unavailable plan
+409; unknown vendor/current assignment 404; forbidden role/CSRF/suspension 403.
+Assignment, audit, cap projection, replay identity and 7/3/1/expiry jobs commit
+atomically. Catalog editing/admin screens remain T-156; billing remains deferred.
+
 T-032 implements these notification routes and PUT `/me/devices/current`.
 Session identity owns all reads/mutations; optional role must be held by that user
 (default active role). Customer DELIVERY filtering is rejected. List supports

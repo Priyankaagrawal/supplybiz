@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-103': ['src/modules/plans/plan-assignments.postgres.spec.ts', 'src/modules/plans/plans.postgres.spec.ts', 'src/modules/admin-auth/admin-auth.postgres.spec.ts'],
   'T-084': ['src/modules/plans/plans.postgres.spec.ts', 'src/modules/customers/customers.postgres.spec.ts', 'src/modules/catalog/catalog.postgres.spec.ts'],
   'T-070': ['src/modules/ledger/ledger.service.spec.ts', 'src/modules/ledger/ledger.postgres.spec.ts'],
   'T-028': ['src/modules/customers/customers.postgres.spec.ts'],
@@ -77,6 +78,7 @@ for (const task of tasks) {
     if (task === 'T-021' || task === 'T-023') process.env.VENDORS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-020') process.env.MEDIA_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-028') process.env.CUSTOMERS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
+    if (task === 'T-103') process.env.ADMIN_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     if (task === 'T-084') {
       process.env.CUSTOMERS_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
       process.env.CATALOG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
@@ -87,7 +89,7 @@ for (const task of tasks) {
       process.env.KYC_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     }
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
-    run(api('exec', 'jest', '--runInBand', '--runTestsByPath', ...apiTests[task]));
+    run(api('exec', 'jest', '--runInBand', ...(task === 'T-103' ? ['--testTimeout=60000'] : []), '--runTestsByPath', ...apiTests[task]));
     run(api('exec', 'jest', '--config', 'test/jest-e2e.json', '--runInBand', '--runTestsByPath', 'test/native-runtime.e2e-spec.ts'));
     if (!['T-017', 'T-027'].includes(task) || process.env.CHECK_LAYER === 'api') continue;
   }

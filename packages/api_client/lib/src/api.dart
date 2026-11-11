@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/src/auth/basic_auth.dart';
 import 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 import 'package:supplybiz_api_client/src/auth/oauth.dart';
 import 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
+import 'package:supplybiz_api_client/src/api/admin_plans_api.dart';
 import 'package:supplybiz_api_client/src/api/audit_api.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/catalog_api.dart';
@@ -21,6 +22,7 @@ import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/notifications_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_plans_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
 
 class SupplybizApiClient {
@@ -145,6 +147,12 @@ class SupplybizApiClient {
     return AdminAuthApi(dio);
   }
 
+  /// Get AdminPlansApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AdminPlansApi getAdminPlansApi() {
+    return AdminPlansApi(dio);
+  }
+
   /// Get AuditApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   AuditApi getAuditApi() {
@@ -221,6 +229,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorOnboardingApi getVendorOnboardingApi() {
     return VendorOnboardingApi(dio);
+  }
+
+  /// Get VendorPlansApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorPlansApi getVendorPlansApi() {
+    return VendorPlansApi(dio);
   }
 
   /// Get VersionApi instance, base route and serializer can be overridden by a given but be careful,

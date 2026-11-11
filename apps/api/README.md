@@ -1136,3 +1136,95 @@ generation/settlement/reports must call the transaction hooks as implemented.
 Manual PASS and G0/G1 remain pending. Mobile/iOS checks NOT_RUN (API task; iOS
 deferred under ADR-025). Preserve assignment/audit data during code rollback;
 do not delete history or clear the projection to regain setup access.
+
+## T-103 audited plan assignment implementation handoff (2026-11-11)
+
+The API now supplies GET /vendor/plans and /vendor/plan, plus plans.manage-gated
+GET /admin/plans and /admin/vendors/{id}/plan. Catalog names/prices/popularity
+come from the database; approved tier caps/features are server-owned. Vendor
+responses omit the internal assignment reason and admin/audit identifiers.
+SUPER_ADMIN and FINANCE may POST /admin/vendors/{id}/plan-assignments with
+{planId, startsAt, endsAt, reason}; extend the current assignment with POST
+/admin/vendors/{id}/plan-assignments/{assignmentId}/extend and {endsAt, reason}.
+Both require a live bearer session, matching X-CSRF-Token and Idempotency-Key.
+
+Authorization/session, permanent actor-scoped replay, vendor lock, before/after
+audit, assignment history, effective customer-limit projection and reminder jobs
+share one transaction. A replay cannot bypass a revoked role/session. Changed
+payload/path returns 422; failed writes reserve no key. Extensions preserve the
+old record, retain its start and create a new current assignment ID with a later
+end. End must be after start and DB now. New assignments replace the current row
+immediately; future dates show SCHEDULED without paid/new-business access until
+start. Previously authorized history/settlement/existing-order operations remain
+subject to their normal domain rules. No trial/grace, fallback plan, automatic
+customer deletion, checkout, invoice or revenue write is introduced.
+
+No API timer is added. Existing worker/outbox leases execute persisted 7/3/1-day
+and expiry jobs scheduled relative to the assignment end. Due stages before the
+grant/start are omitted; restart catches up the latest meaningful stage and
+skips obsolete stages or superseded assignments. Notification source identity
+prevents duplicate inbox rows; expiry uses PLAN_EXPIRED. Actual provider push
+delivery is NOT_RUN; notification preferences/ownership checks remain in force.
+
+Executed from apps/api (PowerShell; credentials read locally without printing):
+
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:ADMIN_TEST_DATABASE_URL = $env:NATIVE_TEST_DATABASE_URL
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/plans/plan-assignments.postgres.spec.ts src/modules/plans/plans.postgres.spec.ts src/modules/admin-auth/admin-auth.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext ../../packages/ts-client/src/generated/openapi.ts
+```
+
+From root: `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter.bat analyze lib`.
+From apps/admin: `.\node_modules\.bin\tsc.cmd --noEmit`.
+
+Results: 30 focused native checks (9 assignment/reminder, 12 entitlement, 9 admin
+auth including production Next.js BFF), 2 runtime smokes and 5 runner guards PASS.
+API lint/typecheck/build/schema, TS/Dart generation, TS client compile, Dart
+client analysis and admin consumer typecheck PASS. Manual PASS/G0/G1 pending.
+
+Native checks used permission for Windows ownership/ACL inspection. The existing
+admin-auth fixture needed private ACL initialization and a longer production
+Next.js startup allowance; its real BFF login/TOTP/logout smoke is included.
+The stalled Windows pnpm.cmd version probe was cancelled; local binaries and
+canonical Bash codegen completed. TS/Dart clients were regenerated from source.
+Only the isolated _test DB migration was applied; dev/staging/production migration
+is NOT_RUN. Immutable synthetic fixtures remain in that DB; test servers were
+closed and pre-existing services preserved. Focused output is in the host temp
+directory as supplybiz-t103-focused.log.
+
+Manual verification (suggested, NOT executed):
+1. Apply the migration to the intended local dev DB and start API/worker using
+   the existing instructions. Use a synthetic vendor and a real local FINANCE
+   or SUPER_ADMIN login/TOTP session; capture its CSRF token locally.
+2. Read GET /admin/plans, assign a catalog plan with timezone-qualified dates,
+   reason and fresh key. Check GET /vendor/plan and the audit viewer; repeat the
+   request with the same key and confirm the same ID and one audit/grant.
+3. Extend the current ID with a later end. Verify the returned ID changes, the
+   old row/audit remains and vendor validity/cap reflect the new current record.
+   Attempt a stale ID, wrong CSRF, changed payload/key and SUPPORT session.
+4. Downgrade a synthetic vendor above the new cap. Verify every customer remains,
+   additions/reactivations are denied and permitted existing business continues.
+5. In the isolated test DB only, inspect the 7/3/1/expiry jobs and use the focused
+   job drill to dispatch due stages. Verify one inbox entry per stage, expired
+   new-business locks and successful renewal. Stop manually started processes.
+
+T-156 still owns admin catalog editing/screens; T-105 owns the mobile plan UI.
+Downstream domain services must use T-084's transactional operation hooks.
+Manual PASS, live push and G0/G1 remain pending. Android/iOS builds NOT_RUN for
+this API task; iOS validation remains deferred by ADR-025.

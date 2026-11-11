@@ -70,6 +70,10 @@ Class | Method | HTTP request | Description
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerAssign**](doc/AdminPlansApi.md#adminplanscontrollerassign) | **POST** /api/v1/admin/vendors/{id}/plan-assignments |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCatalog**](doc/AdminPlansApi.md#adminplanscontrollercatalog) | **GET** /api/v1/admin/plans |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCurrent**](doc/AdminPlansApi.md#adminplanscontrollercurrent) | **GET** /api/v1/admin/vendors/{id}/plan |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerExtend**](doc/AdminPlansApi.md#adminplanscontrollerextend) | **POST** /api/v1/admin/vendors/{id}/plan-assignments/{assignmentId}/extend |
 [*AuditApi*](doc/AuditApi.md) | [**auditControllerList**](doc/AuditApi.md#auditcontrollerlist) | **GET** /api/v1/admin/audit-logs |
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json |
@@ -120,6 +124,8 @@ Class | Method | HTTP request | Description
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerProfile**](doc/VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerSaveServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollersaveservicearea) | **PUT** /api/v1/vendor/settings/service-area |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollerservicearea) | **GET** /api/v1/vendor/settings/service-area |
+[*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
+[*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
@@ -130,6 +136,8 @@ Class | Method | HTTP request | Description
  - [AdminMeResponse](doc/AdminMeResponse.md)
  - [AdminSessionResponse](doc/AdminSessionResponse.md)
  - [AppConfigResponse](doc/AppConfigResponse.md)
+ - [AssignPlanInput](doc/AssignPlanInput.md)
+ - [AssignmentResponse](doc/AssignmentResponse.md)
  - [AuditPage](doc/AuditPage.md)
  - [AuditRow](doc/AuditRow.md)
  - [AuditSnapshot](doc/AuditSnapshot.md)
@@ -137,6 +145,7 @@ Class | Method | HTTP request | Description
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
  - [ConsentDto](doc/ConsentDto.md)
+ - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
  - [CustomerInput](doc/CustomerInput.md)
  - [CustomerList](doc/CustomerList.md)
  - [CustomerPatch](doc/CustomerPatch.md)
@@ -144,6 +153,7 @@ Class | Method | HTTP request | Description
  - [DeviceDto](doc/DeviceDto.md)
  - [DevicePushInput](doc/DevicePushInput.md)
  - [DevicePushResponse](doc/DevicePushResponse.md)
+ - [ExtendPlanInput](doc/ExtendPlanInput.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
  - [InboxItem](doc/InboxItem.md)
  - [InboxResponse](doc/InboxResponse.md)
@@ -160,6 +170,9 @@ Class | Method | HTTP request | Description
  - [MediaResponse](doc/MediaResponse.md)
  - [NotificationMutationResponse](doc/NotificationMutationResponse.md)
  - [NotificationPreferences](doc/NotificationPreferences.md)
+ - [PlanCatalogResponse](doc/PlanCatalogResponse.md)
+ - [PlanCatalogRow](doc/PlanCatalogRow.md)
+ - [PlanPriceResponse](doc/PlanPriceResponse.md)
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)
@@ -175,6 +188,7 @@ Class | Method | HTTP request | Description
  - [StockAdjustment](doc/StockAdjustment.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
+ - [VendorAssignmentResponse](doc/VendorAssignmentResponse.md)
  - [VendorBusinessDto](doc/VendorBusinessDto.md)
  - [VendorCategoryDto](doc/VendorCategoryDto.md)
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)

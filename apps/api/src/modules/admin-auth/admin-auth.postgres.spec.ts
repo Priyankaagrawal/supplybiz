@@ -20,6 +20,7 @@ class PolicyProbe {
 }
 import { base32, decryptSecret, digest, encryptSecret, totp } from './admin-crypto';
 import { permissions } from './admin-policy';
+import { windowsPrivateDirectory } from '../../storage/windows-private-directory';
 const native = process.env.ADMIN_TEST_DATABASE_URL ? describe : describe.skip;
 native('T-150 TC-400/401 real PostgreSQL admin HTTP/session smoke', () => {
  const db = new PrismaService({ datasources: { db: { url: process.env.ADMIN_TEST_DATABASE_URL } } });
@@ -37,6 +38,7 @@ native('T-150 TC-400/401 real PostgreSQL admin HTTP/session smoke', () => {
    if (!url.pathname.endsWith('_test')) throw new Error('Dedicated _test database required');
    const base = join(homedir(), '.local/share/supplybiz/test-uploads');
    await mkdir(base, { recursive: true, mode: 0o700 }); root = await mkdtemp(join(base, 'admin-'));
+   if (process.platform === 'win32') await windowsPrivateDirectory(root, true);
    Object.assign(process.env, { NODE_ENV: 'test', DATABASE_URL: url.toString(), ADMIN_TOTP_KEY: key.toString('hex'),
      UPLOAD_ROOT: root, RATE_LIMIT_MAX_REQUESTS: '1000' });
    hash = await argon2.hash(password, { type: argon2.argon2id });
@@ -160,8 +162,10 @@ native('T-150 TC-400/401 real PostgreSQL admin HTTP/session smoke', () => {
    const child = spawn(process.execPath, [join(adminRoot, 'node_modules/next/dist/bin/next'), 'start', '--hostname', '127.0.0.1', '--port', '3139'], {
      cwd: adminRoot, env: { ...process.env, NODE_ENV: 'production', ADMIN_ORIGIN: origin,
        ADMIN_API_URL: `http://127.0.0.1:${port}`, ADMIN_CSRF_KEY: randomBytes(32).toString('hex'), NEXT_TELEMETRY_DISABLED: '1' },
-     stdio: 'ignore',
+     stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true,
    });
+   let startupError = '';
+   child.stderr?.on('data', (chunk: Buffer) => { startupError = (startupError + chunk.toString()).slice(-4000); });
    let spawnError = false; child.on('error', () => { spawnError = true; });
    const jar = new Map<string, string>();
    async function call(path: string, body?: URLSearchParams, suppliedOrigin = origin) {
@@ -181,12 +185,12 @@ native('T-150 TC-400/401 real PostgreSQL admin HTTP/session smoke', () => {
    }
    try {
      let ready = false;
-     for (let i = 0; i < 60; i++) {
+     for (let i = 0; i < 200; i++) {
        if (spawnError || child.exitCode !== null) throw new Error('Next.js smoke server did not start');
        try { if ((await fetch(`${origin}/login`)).ok) { ready = true; break; } } catch { /* startup */ }
        await new Promise(done => setTimeout(done, 100));
      }
-     expect(ready).toBe(true);
+     if (!ready) throw new Error(`Next.js smoke server did not become ready: ${startupError}`);
      const user = await fixture('SUPPORT');
      // loading.tsx enables streamed redirects, whose HTTP status can be 200.
      const anonymous = await call('/');
@@ -219,6 +223,6 @@ native('T-150 TC-400/401 real PostgreSQL admin HTTP/session smoke', () => {
        child.kill('SIGTERM'); await stopped;
      }
    }
- }, 20000);
+ }, 60000);
 
 });
