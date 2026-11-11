@@ -14,6 +14,7 @@ PlanCatalogRow _$PlanCatalogRowFromJson(Map<String, dynamic> json) =>
         $checkKeys(
           json,
           requiredKeys: const [
+            'updatedAt',
             'id',
             'code',
             'name',
@@ -25,6 +26,8 @@ PlanCatalogRow _$PlanCatalogRowFromJson(Map<String, dynamic> json) =>
           ],
         );
         final val = PlanCatalogRow(
+          updatedAt:
+              $checkedConvert('updatedAt', (v) => DateTime.parse(v as String)),
           id: $checkedConvert('id', (v) => v as String),
           code: $checkedConvert(
               'code', (v) => $enumDecode(_$PlanCatalogRowCodeEnumEnumMap, v)),
@@ -49,6 +52,7 @@ PlanCatalogRow _$PlanCatalogRowFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$PlanCatalogRowToJson(PlanCatalogRow instance) =>
     <String, dynamic>{
+      'updatedAt': instance.updatedAt.toIso8601String(),
       'id': instance.id,
       'code': _$PlanCatalogRowCodeEnumEnumMap[instance.code]!,
       'name': instance.name,

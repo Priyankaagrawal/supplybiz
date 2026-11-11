@@ -20,6 +20,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AdminPlansController_save"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/plan-vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminPlansController_vendors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/vendors/{id}/plan-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminPlansController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/vendors/{id}/plan": {
         parameters: {
             query?: never;
@@ -851,6 +899,8 @@ export interface components {
             pricePaise: number;
         };
         PlanCatalogRow: {
+            /** Format: date-time */
+            updatedAt: string;
             /** Format: uuid */
             id: string;
             /** @enum {string} */
@@ -865,6 +915,54 @@ export interface components {
         };
         PlanCatalogResponse: {
             items: components["schemas"]["PlanCatalogRow"][];
+        };
+        CatalogPriceInput: {
+            /** @enum {string} */
+            duration: "MONTHLY" | "HALF_YEARLY" | "YEARLY";
+            pricePaise: number;
+        };
+        CatalogPlanInput: {
+            name: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            isPopular: boolean;
+            /** Format: date-time */
+            expectedUpdatedAt: string;
+            reason: string;
+            prices: components["schemas"]["CatalogPriceInput"][];
+        };
+        PlanVendorRow: {
+            /** Format: uuid */
+            id: string;
+            businessName: string | null;
+        };
+        PlanVendorList: {
+            items: components["schemas"]["PlanVendorRow"][];
+            total: number;
+        };
+        PlanHistoryRow: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            planId: string;
+            code: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            reason: string;
+            /** Format: uuid */
+            grantedByAdmin: string;
+            /** Format: uuid */
+            auditId: string;
+            /** Format: date-time */
+            supersededAt: string | null;
+        };
+        PlanHistoryResponse: {
+            items: components["schemas"]["PlanHistoryRow"][];
+            total: number;
         };
         VendorAssignmentResponse: {
             /** Format: uuid */
@@ -1421,6 +1519,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlanCatalogResponse"];
+                };
+            };
+        };
+    };
+    AdminPlansController_save: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CatalogPlanInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanCatalogRow"];
+                };
+            };
+        };
+    };
+    AdminPlansController_vendors: {
+        parameters: {
+            query?: {
+                search?: string;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanVendorList"];
+                };
+            };
+        };
+    };
+    AdminPlansController_history: {
+        parameters: {
+            query?: {
+                search?: string;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanHistoryResponse"];
                 };
             };
         };

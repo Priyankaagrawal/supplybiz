@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**updatedAt** | [**DateTime**](DateTime.md) |  |
 **id** | **String** |  |
 **code** | **String** |  |
 **name** | **String** |  |

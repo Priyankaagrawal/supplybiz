@@ -190,6 +190,10 @@ customer or consume another slot. Deactivation preserves all future history.
 | `plan_prices` | id, plan_id, duration (MONTHLY/HALF_YEARLY/YEARLY), price_paise, store_product_id NULL | |
 | `vendor_plan_assignments` | id, vendor_id, plan_id, starts_at, ends_at, reason, granted_by_admin, audit_id UNIQUE, superseded_at NULL, created_at | Active manual-assignment foundation (T-084); FK to vendor/catalog/admin/audit; one non-superseded row per vendor; end strictly after start. T-103 owns permission/reason/idempotency/extension writes under the vendor lock with the limit projection and audit in one transaction. |
 | `plan_assignment_requests` | request_key SHA-256 PK, admin_id FK, path, request_hash, response JSONB, created_at | T-103 permanent actor-scoped grant/extension replay. Append-only/no-truncate triggers; committed with the assignment/audit/cap/jobs, independent of short-lived HTTP caches. |
+
+T-156 reuses this replay identity for catalog writes (`catalog/{planId}` path),
+committed with catalog/prices and PLAN_CATALOG_UPDATE before/after audit. Existing
+catalog timestamps provide stale-edit detection; no additional migration is needed.
 | `vendor_plan_subscriptions` | id, vendor_id, plan_price_id, status (PENDING_PAYMENT/ACTIVE/EXPIRED/CANCELLED), starts_at, ends_at, provider, provider_ref, granted_by_admin NULL | index(vendor_id, status) |
 | `plan_payments` | id, vendor_plan_subscription_id, amount_paise, provider, provider_payment_id, status, raw_webhook JSONB (redacted), invoice_no | UNIQUE(provider, provider_payment_id) |
 

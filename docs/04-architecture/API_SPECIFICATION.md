@@ -280,7 +280,24 @@ Permanent actor-scoped replay returns the original result; changed payload/path
 returns 422 IDEMPOTENCY_MISMATCH. Invalid input/dates return 400; unavailable plan
 409; unknown vendor/current assignment 404; forbidden role/CSRF/suspension 403.
 Assignment, audit, cap projection, replay identity and 7/3/1/expiry jobs commit
-atomically. Catalog editing/admin screens remain T-156; billing remains deferred.
+atomically. Catalog editing/admin screens are supplied by T-156; billing remains deferred.
+
+T-156 implements PUT `/admin/plans/{id}` with `{ name, status, isPopular,
+expectedUpdatedAt, reason, prices: [{ duration, pricePaise }] }`. All three catalog
+durations are required once each; paise must be non-negative safe integers.
+Approved tier codes/caps/features are read-only; attempts to submit policy fields
+are rejected. `updatedAt` is returned by catalog reads; stale edits return 409
+PLAN_CATALOG_CHANGED. Catalog metadata/prices, audit and permanent replay commit
+atomically. INACTIVE catalog status also removes active assignment entitlements;
+the admin screen explains this effect. Prices remain reference data, not payments.
+
+GET `/admin/plan-vendors?search=&offset=` is a plans.manage-scoped lookup returning
+only vendor ID/business name, 20 rows per page. It grants no KYC/customer/contact
+access. GET `/admin/vendors/{id}/plan-history?offset=` returns 20 retained records
+with reason, validity, superseded time, admin/audit IDs. Search is limited to 80
+characters; offset is an integer from 0 to 1,000,000. All routes require the
+existing SUPER_ADMIN/FINANCE plan permission. Admin BFF forms retain server-only
+credentials and require same origin, session CSRF and operation/target-bound keys.
 
 T-032 implements these notification routes and PUT `/me/devices/current`.
 Session identity owns all reads/mutations; optional role must be held by that user

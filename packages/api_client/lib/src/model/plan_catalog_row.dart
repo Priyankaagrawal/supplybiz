@@ -17,6 +17,7 @@ part 'plan_catalog_row.g.dart';
 class PlanCatalogRow {
   /// Returns a new [PlanCatalogRow] instance.
   PlanCatalogRow({
+    required this.updatedAt,
     required this.id,
     required this.code,
     required this.name,
@@ -26,6 +27,13 @@ class PlanCatalogRow {
     required this.status,
     required this.prices,
   });
+
+  @JsonKey(
+    name: r'updatedAt',
+    required: true,
+    includeIfNull: false,
+  )
+  final DateTime updatedAt;
 
   @JsonKey(
     name: r'id',
@@ -87,6 +95,7 @@ class PlanCatalogRow {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is PlanCatalogRow &&
+          other.updatedAt == updatedAt &&
           other.id == id &&
           other.code == code &&
           other.name == name &&
@@ -98,6 +107,7 @@ class PlanCatalogRow {
 
   @override
   int get hashCode =>
+      updatedAt.hashCode +
       id.hashCode +
       code.hashCode +
       name.hashCode +

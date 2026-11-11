@@ -15,6 +15,99 @@ paths:
         - admin-plans
       security:
         - bearer: []
+  /api/v1/admin/plans/{id}:
+    put:
+      operationId: AdminPlansController_save
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatalogPlanInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanCatalogRow'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/admin/plan-vendors:
+    get:
+      operationId: AdminPlansController_vendors
+      parameters:
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanVendorList'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/plan-history:
+    get:
+      operationId: AdminPlansController_history
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanHistoryResponse'
+      tags:
+        - admin-plans
+      security:
+        - bearer: []
   /api/v1/admin/vendors/{id}/plan:
     get:
       operationId: AdminPlansController_current
@@ -1790,6 +1883,9 @@ components:
     PlanCatalogRow:
       type: object
       properties:
+        updatedAt:
+          type: string
+          format: date-time
         id:
           type: string
           format: uuid
@@ -1820,6 +1916,7 @@ components:
           items:
             $ref: '#/components/schemas/PlanPriceResponse'
       required:
+        - updatedAt
         - id
         - code
         - name
@@ -1837,6 +1934,129 @@ components:
             $ref: '#/components/schemas/PlanCatalogRow'
       required:
         - items
+    CatalogPriceInput:
+      type: object
+      properties:
+        duration:
+          type: string
+          enum:
+            - MONTHLY
+            - HALF_YEARLY
+            - YEARLY
+        pricePaise:
+          type: integer
+          minimum: 0
+          maximum: 9007199254740991
+      required:
+        - duration
+        - pricePaise
+    CatalogPlanInput:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+        isPopular:
+          type: boolean
+        expectedUpdatedAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogPriceInput'
+      required:
+        - name
+        - status
+        - isPopular
+        - expectedUpdatedAt
+        - reason
+        - prices
+    PlanVendorRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        businessName:
+          type: string
+          nullable: true
+      required:
+        - id
+        - businessName
+    PlanVendorList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanVendorRow'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    PlanHistoryRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        planId:
+          type: string
+          format: uuid
+        code:
+          type: string
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        grantedByAdmin:
+          type: string
+          format: uuid
+        auditId:
+          type: string
+          format: uuid
+        supersededAt:
+          type: string
+          nullable: true
+          format: date-time
+      required:
+        - id
+        - vendorId
+        - planId
+        - code
+        - startsAt
+        - endsAt
+        - reason
+        - grantedByAdmin
+        - auditId
+        - supersededAt
+    PlanHistoryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanHistoryRow'
+        total:
+          type: integer
+      required:
+        - items
+        - total
     VendorAssignmentResponse:
       type: object
       properties:

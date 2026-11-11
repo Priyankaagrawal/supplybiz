@@ -347,3 +347,102 @@ NOT_RUN: manual PASS; browser PDF/visual/keyboard/screen-reader/200% checks;
 deployed HTTPS/proxy and hosted CI; push/provider delivery; comprehensive G0/G1.
 Q-09 live OTP and production KMS/domain prerequisites remain outside this local
 admin handoff. Mobile is unchanged; iOS checks remain deferred under ADR-025.
+
+## T-156 plan catalog and assignment handoff (2026-11-11)
+
+READY_FOR_VERIFY: S-A-09 `/plans` and S-A-10 `/plans/vendors/{vendorId}`.
+The workspace link appears only for plans.manage (SUPER_ADMIN and FINANCE).
+Scoped vendor search returns business name/ID without granting broader vendor,
+contact, customer or KYC access. Pages use Server Components and the generated
+TypeScript client; API bearer credentials stay in HttpOnly cookies/server calls.
+
+Catalog forms edit English name, availability, popularity and three reference
+prices. Approved caps and feature gates remain read-only. Decimal rupees convert
+to integer paise without floating-point rounding. A required reason, stable key
+and expectedUpdatedAt protect audited writes against duplicate/stale submissions.
+Changing availability to INACTIVE also removes active entitlements; the form
+explains this effect. No purchase, receipt, invoice or revenue flow is added.
+
+Vendor pages display real status, cap/count/growth availability, features, validity
+and paginated assignment/audit history. Assignment and extension forms send IST
+dates as timezone-qualified timestamps, with reason and current assignment ID.
+The backend retains records and applies ADR-029 expiry/downgrade rules. Dates and
+money are independent of the browser/host timezone. Only audit.read users receive
+a link to the existing audit viewer; FINANCE still sees plan assignment evidence.
+
+Every mutation checks origin, session CSRF and a session/operation/target-bound
+request key. A connection failure creates a signed, HttpOnly/Strict recovery
+cookie under `/plans` for 10 minutes, preserving the same key and submitted body.
+`/plans/retry` offers a safe retry; success clears recovery state. The API still
+rechecks permission/session, payload identity, validity and ownership before any
+write/replay. Loading, empty, unavailable, denied and success states are rendered.
+Controls use associated labels and 48px targets; full browser/accessibility PASS
+remains manual. No client component or dependency was added.
+
+Executed from apps/admin (PowerShell):
+
+```powershell
+.\node_modules\.bin\eslint.cmd . --max-warnings=0
+node node_modules/next/dist/bin/next typegen
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsx.cmd --test test/*.test.ts
+node node_modules/next/dist/bin/next build --webpack
+```
+
+Executed from apps/api:
+
+```powershell
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext ../../packages/ts-client/src/generated/openapi.ts
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/plans/plan-admin.postgres.spec.ts src/modules/plans/plan-assignments.postgres.spec.ts src/modules/plans/plans.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+```
+
+From root: `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter.bat analyze lib`.
+
+Results: 25 native checks PASS (4 catalog/admin with production Next.js/BFF/DB,
+9 assignment/reminder and 12 entitlement), 8 admin security/form checks PASS,
+2 runtime smokes and 5 runner guards PASS. API/admin lint/typecheck/build/schema,
+TS/Dart generation and client compile/analysis PASS. The native drill stopped and
+restarted its API, preserved the form/key, replayed without duplicate grants,
+extended the assignment and read retained escaped history. Requests used synthetic
+sessions; this is not live OTP/provider or manual-browser verification. The tsx
+runner initially failed sandbox Windows user-info access; permitted rerun passed.
+Native checks/build used permission for Windows ACL/host calls. No new migration
+was required or applied. Only the dedicated test DB was exercised; catalog
+metadata/prices were restored afterward and immutable synthetic audit/replay/
+assignment records retained. Temporary servers were closed; pre-existing services
+were preserved. Native output: host temp `supplybiz-t156-focused.log`.
+
+Manual verification (suggested, NOT executed):
+1. Apply pending T-103 migrations to the intended local dev DB and start the API
+   and admin using existing instructions. Sign in as FINANCE or SUPER_ADMIN;
+   open Manage plans and assignments. SUPPORT/OPS must see no forms/access.
+2. Edit a catalog reference price/name with a reason. Confirm refreshed values
+   and audit, fixed caps/features, rejection of invalid prices/blank reasons,
+   and conflict/reload when submitting an older tab after another edit.
+3. Find a synthetic vendor, choose an active tier and valid IST start/end with
+   reason. Confirm persisted current plan/cap/features and one audit/history row.
+   Resubmit the same form and confirm no duplicate grant.
+4. Extend the current plan and verify the old record remains. Use an over-cap
+   downgrade/expired synthetic fixture to confirm retained customers, restricted
+   growth and the documented renewal behavior. No payment/invoice should appear.
+5. Check keyboard order, labels, errors and 200% zoom. Briefly stop only your
+   manually started API during a request, then restart it and use Retry this
+   request safely. Verify one result; stop your manually started services.
+
+NOT_RUN: manual PASS, browser/screen-reader/200% acceptance, deployed HTTPS,
+live push and G0/G1 comprehensive gates. Mobile builds are not needed for this
+ADM/API change; iOS remains deferred under ADR-025. Roll back source/clients
+together and retain existing catalog/assignment/audit/replay evidence.

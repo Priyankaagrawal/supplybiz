@@ -8,7 +8,7 @@ import { IdempotencyService } from '../idempotency/idempotency.service';
 import { CustomersService } from '../customers/customers.service';
 import { PlanEntitlementsService } from './plan-entitlements.service';
 import { CUSTOMER_LIMITS, PLAN_FEATURES } from './plan-policy';
-import { AssignPlanInput, AssignmentResponse, CurrentPlanResponse, ExtendPlanInput } from './plans.dto';
+import { AssignPlanInput, AssignmentResponse, CatalogPlanInput, CurrentPlanResponse, ExtendPlanInput, PlanAdminQuery } from './plans.dto';
 import { PlanRemindersService } from './plan-reminders.service';
 
 @Injectable()
@@ -19,13 +19,66 @@ export class PlansService {
   async catalog(userId?: string) {
     if (userId) await this.vendor(this.db, userId);
     const rows = await this.db.plans.findMany({ where: userId ? { status: 'ACTIVE' } : {}, include: { prices: { orderBy: { duration: 'asc' } } }, orderBy: { customer_limit: 'asc' } });
-    return { items: rows.map(row => ({ id: row.id, code: row.code, name: row.name,
+    return { items: rows.map(row => ({ id: row.id, code: row.code, name: row.name, updatedAt: row.updated_at.toISOString(),
       customerLimit: CUSTOMER_LIMITS[row.code], features: [...PLAN_FEATURES[row.code]], isPopular: row.is_popular, status: row.status,
       prices: row.prices.map(price => {
         const value = Number(price.price_paise);
         if (!Number.isSafeInteger(value) || value < 0) throw new ServiceUnavailableException({ code: 'PLAN_CATALOG_UNAVAILABLE' });
         return { duration: price.duration, pricePaise: value };
       }) })) };
+  }
+  async vendors(query: PlanAdminQuery) {
+    const search = query.search?.trim();
+    const where: Prisma.vendorsWhereInput = search ? { OR: [{ business_name: { contains: search, mode: 'insensitive' } },
+      ...(/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(search) ? [{ id: search }] : [])] } : {};
+    return this.db.$transaction(async tx => {
+      const [items, total] = await Promise.all([tx.vendors.findMany({ where, select: { id: true, business_name: true },
+        orderBy: [{ created_at: 'desc' }, { id: 'asc' }], take: 20, skip: query.offset ?? 0 }), tx.vendors.count({ where })]);
+      return { items: items.map(row => ({ id: row.id, businessName: row.business_name })), total };
+    }, { isolationLevel: 'RepeatableRead' });
+  }
+  async history(vendorId: string, query: PlanAdminQuery) {
+    return this.db.$transaction(async tx => {
+      if (!await tx.vendors.findUnique({ where: { id: vendorId }, select: { id: true } })) throw new NotFoundException({ code: 'VENDOR_NOT_FOUND' });
+      const where = { vendor_id: vendorId };
+      const [rows, total] = await Promise.all([tx.vendor_plan_assignments.findMany({ where, include: { plan: true },
+        orderBy: [{ created_at: 'desc' }, { id: 'desc' }], take: 20, skip: query.offset ?? 0 }), tx.vendor_plan_assignments.count({ where })]);
+      return { items: rows.map(row => ({ ...this.present(row, row.plan.code), supersededAt: row.superseded_at?.toISOString() ?? null })), total };
+    }, { isolationLevel: 'RepeatableRead' });
+  }
+  async saveCatalog(token: string, csrf: string, key: string, id: string, input: CatalogPlanInput, ip?: string) {
+    if (!key?.trim() || key.length > 120) throw new BadRequestException({ code: 'VALIDATION_FAILED' });
+    return this.db.$transaction(async tx => {
+      const actor = await this.auth.authenticateInTransaction(tx, token, 'plans.manage', csrf);
+      await auditContext(tx, actor.id, ip);
+      const requestKey = createHash('sha256').update(`${actor.id}:${key}`).digest('hex'), path = `catalog/${id}`, hash = this.keys.hashRequestBody(input);
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`plan:${requestKey}`}, 0))::text`;
+      const cached = await tx.plan_assignment_requests.findUnique({ where: { request_key: requestKey } });
+      if (cached) {
+        if (cached.path !== path || cached.request_hash !== hash) throw new UnprocessableEntityException({ code: 'IDEMPOTENCY_MISMATCH' });
+        return cached.response;
+      }
+      await tx.$queryRaw`SELECT id FROM plans WHERE id = ${id}::uuid FOR UPDATE`;
+      const before = await tx.plans.findUnique({ where: { id }, include: { prices: true } });
+      if (!before) throw new NotFoundException({ code: 'PLAN_NOT_FOUND' });
+      if (before.updated_at.getTime() !== new Date(input.expectedUpdatedAt).getTime()) throw new ConflictException({ code: 'PLAN_CATALOG_CHANGED' });
+      // Approved caps/features are fixed policy. Catalog editing cannot mutate entitlements.
+      const row = await tx.plans.update({ where: { id }, data: { name: input.name.trim(), status: input.status, is_popular: input.isPopular } });
+      for (const price of input.prices) await tx.plan_prices.upsert({ where: { plan_id_duration: { plan_id: id, duration: price.duration } },
+        create: { plan_id: id, duration: price.duration, price_paise: BigInt(price.pricePaise) }, update: { price_paise: BigInt(price.pricePaise) } });
+      const response = { id, code: row.code, name: row.name, status: row.status, isPopular: row.is_popular,
+        updatedAt: row.updated_at.toISOString(), customerLimit: CUSTOMER_LIMITS[row.code], features: [...PLAN_FEATURES[row.code]],
+        prices: input.prices.map(price => ({ ...price })) };
+      await tx.audit_logs.create({ data: { actor_type: 'ADMIN', actor_id: actor.id, action: 'PLAN_CATALOG_UPDATE', entity: 'plans', entity_id: id, ip,
+        before: { name: before.name, status: before.status, isPopular: before.is_popular,
+          prices: before.prices.map(price => ({ duration: price.duration, pricePaise: price.price_paise.toString() })) },
+        after: { ...response, reason: input.reason.trim() } } });
+      await tx.plan_assignment_requests.create({ data: { request_key: requestKey, admin_id: actor.id, path, request_hash: hash, response } });
+      return response;
+    }, { timeout: 15000 }).catch((error: unknown) => {
+      if (error instanceof HttpException) throw error;
+      throw new ServiceUnavailableException({ code: 'PLAN_WRITE_UNAVAILABLE' });
+    });
   }
   async current(userId: string): Promise<CurrentPlanResponse> {
     return this.db.$transaction(async tx => this.currentVendor(tx, (await this.vendor(tx, userId)).id));

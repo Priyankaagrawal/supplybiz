@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-156': ['src/modules/plans/plan-admin.postgres.spec.ts', 'src/modules/plans/plan-assignments.postgres.spec.ts', 'src/modules/plans/plans.postgres.spec.ts'],
   'T-103': ['src/modules/plans/plan-assignments.postgres.spec.ts', 'src/modules/plans/plans.postgres.spec.ts', 'src/modules/admin-auth/admin-auth.postgres.spec.ts'],
   'T-084': ['src/modules/plans/plans.postgres.spec.ts', 'src/modules/customers/customers.postgres.spec.ts', 'src/modules/catalog/catalog.postgres.spec.ts'],
   'T-070': ['src/modules/ledger/ledger.service.spec.ts', 'src/modules/ledger/ledger.postgres.spec.ts'],
@@ -63,7 +64,7 @@ for (const task of tasks) {
       }
     }
     run(api('lint')); run(api('typecheck')); run(api('build'));
-    if (task === 'T-150' || task === 'T-152' || task === 'T-151' || task === 'T-153') {
+    if (task === 'T-150' || task === 'T-152' || task === 'T-151' || task === 'T-153' || task === 'T-156') {
       process.env.ADMIN_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
       run(['pnpm', '--filter', '@supplybiz/admin', 'lint']);
       run(['pnpm', '--filter', '@supplybiz/admin', 'typecheck']);
@@ -89,7 +90,7 @@ for (const task of tasks) {
       process.env.KYC_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
     }
     if (task === 'T-017') process.env.CONFIG_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
-    run(api('exec', 'jest', '--runInBand', ...(task === 'T-103' ? ['--testTimeout=60000'] : []), '--runTestsByPath', ...apiTests[task]));
+    run(api('exec', 'jest', '--runInBand', ...(['T-103', 'T-156'].includes(task) ? ['--testTimeout=60000'] : []), '--runTestsByPath', ...apiTests[task]));
     run(api('exec', 'jest', '--config', 'test/jest-e2e.json', '--runInBand', '--runTestsByPath', 'test/native-runtime.e2e-spec.ts'));
     if (!['T-017', 'T-027'].includes(task) || process.env.CHECK_LAYER === 'api') continue;
   }

@@ -13,6 +13,9 @@ Method | HTTP request | Description
 [**adminPlansControllerCatalog**](AdminPlansApi.md#adminplanscontrollercatalog) | **GET** /api/v1/admin/plans |
 [**adminPlansControllerCurrent**](AdminPlansApi.md#adminplanscontrollercurrent) | **GET** /api/v1/admin/vendors/{id}/plan |
 [**adminPlansControllerExtend**](AdminPlansApi.md#adminplanscontrollerextend) | **POST** /api/v1/admin/vendors/{id}/plan-assignments/{assignmentId}/extend |
+[**adminPlansControllerHistory**](AdminPlansApi.md#adminplanscontrollerhistory) | **GET** /api/v1/admin/vendors/{id}/plan-history |
+[**adminPlansControllerSave**](AdminPlansApi.md#adminplanscontrollersave) | **PUT** /api/v1/admin/plans/{id} |
+[**adminPlansControllerVendors**](AdminPlansApi.md#adminplanscontrollervendors) | **GET** /api/v1/admin/plan-vendors |
 
 
 # **adminPlansControllerAssign**
@@ -185,6 +188,141 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **adminPlansControllerHistory**
+> PlanHistoryResponse adminPlansControllerHistory(id, search, offset)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getAdminPlansApi();
+final String id = id_example; // String |
+final String search = search_example; // String |
+final int offset = 56; // int |
+
+try {
+    final response = api.adminPlansControllerHistory(id, search, offset);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling AdminPlansApi->adminPlansControllerHistory: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+ **search** | **String**|  | [optional]
+ **offset** | **int**|  | [optional]
+
+### Return type
+
+[**PlanHistoryResponse**](PlanHistoryResponse.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **adminPlansControllerSave**
+> PlanCatalogRow adminPlansControllerSave(id, idempotencyKey, xCSRFToken, catalogPlanInput)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getAdminPlansApi();
+final String id = id_example; // String |
+final String idempotencyKey = idempotencyKey_example; // String |
+final String xCSRFToken = xCSRFToken_example; // String |
+final CatalogPlanInput catalogPlanInput = ; // CatalogPlanInput |
+
+try {
+    final response = api.adminPlansControllerSave(id, idempotencyKey, xCSRFToken, catalogPlanInput);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling AdminPlansApi->adminPlansControllerSave: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+ **idempotencyKey** | **String**|  |
+ **xCSRFToken** | **String**|  |
+ **catalogPlanInput** | [**CatalogPlanInput**](CatalogPlanInput.md)|  |
+
+### Return type
+
+[**PlanCatalogRow**](PlanCatalogRow.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **adminPlansControllerVendors**
+> PlanVendorList adminPlansControllerVendors(search, offset)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getAdminPlansApi();
+final String search = search_example; // String |
+final int offset = 56; // int |
+
+try {
+    final response = api.adminPlansControllerVendors(search, offset);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling AdminPlansApi->adminPlansControllerVendors: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **search** | **String**|  | [optional]
+ **offset** | **int**|  | [optional]
+
+### Return type
+
+[**PlanVendorList**](PlanVendorList.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

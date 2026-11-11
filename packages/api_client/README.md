@@ -74,6 +74,9 @@ Class | Method | HTTP request | Description
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCatalog**](doc/AdminPlansApi.md#adminplanscontrollercatalog) | **GET** /api/v1/admin/plans |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCurrent**](doc/AdminPlansApi.md#adminplanscontrollercurrent) | **GET** /api/v1/admin/vendors/{id}/plan |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerExtend**](doc/AdminPlansApi.md#adminplanscontrollerextend) | **POST** /api/v1/admin/vendors/{id}/plan-assignments/{assignmentId}/extend |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerHistory**](doc/AdminPlansApi.md#adminplanscontrollerhistory) | **GET** /api/v1/admin/vendors/{id}/plan-history |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerSave**](doc/AdminPlansApi.md#adminplanscontrollersave) | **PUT** /api/v1/admin/plans/{id} |
+[*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerVendors**](doc/AdminPlansApi.md#adminplanscontrollervendors) | **GET** /api/v1/admin/plan-vendors |
 [*AuditApi*](doc/AuditApi.md) | [**auditControllerList**](doc/AuditApi.md#auditcontrollerlist) | **GET** /api/v1/admin/audit-logs |
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json |
@@ -141,6 +144,8 @@ Class | Method | HTTP request | Description
  - [AuditPage](doc/AuditPage.md)
  - [AuditRow](doc/AuditRow.md)
  - [AuditSnapshot](doc/AuditSnapshot.md)
+ - [CatalogPlanInput](doc/CatalogPlanInput.md)
+ - [CatalogPriceInput](doc/CatalogPriceInput.md)
  - [CategoryInput](doc/CategoryInput.md)
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
@@ -172,7 +177,11 @@ Class | Method | HTTP request | Description
  - [NotificationPreferences](doc/NotificationPreferences.md)
  - [PlanCatalogResponse](doc/PlanCatalogResponse.md)
  - [PlanCatalogRow](doc/PlanCatalogRow.md)
+ - [PlanHistoryResponse](doc/PlanHistoryResponse.md)
+ - [PlanHistoryRow](doc/PlanHistoryRow.md)
  - [PlanPriceResponse](doc/PlanPriceResponse.md)
+ - [PlanVendorList](doc/PlanVendorList.md)
+ - [PlanVendorRow](doc/PlanVendorRow.md)
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)

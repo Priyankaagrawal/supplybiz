@@ -14,6 +14,7 @@ export default async function Home() {
  {data.permissions.includes('audit.read') && <a className="inline-flex min-h-12 items-center underline" href="/audit-logs">Open audit log</a>}
  {data.permissions.includes('kyc.review') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/kyc">Open manual KYC queue</a>}
  {data.permissions.includes('categories.manage') && <a className="inline-flex min-h-12 items-center underline" href="/categories">Manage categories</a>}
+ {data.permissions.includes('plans.manage') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/plans">Manage plans and assignments</a>}
  <h2 className="text-xl font-semibold">Your account permissions</h2><ul className="my-4 list-inside list-disc">{data.permissions.map(permission => <li key={permission}>{labels[permission]}</li>)}</ul>
  <form action="/auth/logout" method="post"><input type="hidden" name="csrf" value={csrf(token)} /><button className="min-h-12 rounded bg-slate-800 px-6 text-white">Sign out</button></form></>;
 }

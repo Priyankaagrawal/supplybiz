@@ -8,6 +8,8 @@ import 'package:supplybiz_api_client/src/model/assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/audit_page.dart';
 import 'package:supplybiz_api_client/src/model/audit_row.dart';
 import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
+import 'package:supplybiz_api_client/src/model/catalog_plan_input.dart';
+import 'package:supplybiz_api_client/src/model/catalog_price_input.dart';
 import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
@@ -39,7 +41,11 @@ import 'package:supplybiz_api_client/src/model/notification_mutation_response.da
 import 'package:supplybiz_api_client/src/model/notification_preferences.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_response.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_row.dart';
+import 'package:supplybiz_api_client/src/model/plan_history_response.dart';
+import 'package:supplybiz_api_client/src/model/plan_history_row.dart';
 import 'package:supplybiz_api_client/src/model/plan_price_response.dart';
+import 'package:supplybiz_api_client/src/model/plan_vendor_list.dart';
+import 'package:supplybiz_api_client/src/model/plan_vendor_row.dart';
 import 'package:supplybiz_api_client/src/model/product_deleted.dart';
 import 'package:supplybiz_api_client/src/model/product_input.dart';
 import 'package:supplybiz_api_client/src/model/product_list.dart';
@@ -110,6 +116,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return AuditRow.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'AuditSnapshot':
       return AuditSnapshot.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CatalogPlanInput':
+      return CatalogPlanInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CatalogPriceInput':
+      return CatalogPriceInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'CategoryInput':
       return CategoryInput.fromJson(value as Map<String, dynamic>)
@@ -193,8 +205,20 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'PlanCatalogRow':
       return PlanCatalogRow.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'PlanHistoryResponse':
+      return PlanHistoryResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PlanHistoryRow':
+      return PlanHistoryRow.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'PlanPriceResponse':
       return PlanPriceResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PlanVendorList':
+      return PlanVendorList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PlanVendorRow':
+      return PlanVendorRow.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'ProductDeleted':
       return ProductDeleted.fromJson(value as Map<String, dynamic>)
