@@ -12,6 +12,7 @@ import { ConsoleOtpProvider } from "./otp.providers";
 import { OTP_PROVIDERS } from "./otp.types";
 import { SessionTokensService } from "./session-tokens.service";
 import { SessionsService } from "./sessions.service";
+import { windowsPrivateDirectory } from '../../storage/windows-private-directory';
 
 interface UserView { id: string; roles: string[]; activeRole: string | null }
 interface Tokens { accessToken: string; refreshToken: string; expiresInSec: number; user: UserView }
@@ -48,6 +49,7 @@ nativeTests("T-015 native HTTP sessions with development/test OTP only", () => {
     const storageBase = join(homedir(), ".local", "share", "supplybiz", "test-uploads");
     await mkdir(storageBase, { recursive: true, mode: 0o700 });
     uploadRoot = await mkdtemp(join(storageBase, "sessions-"));
+    if (process.platform === 'win32') await windowsPrivateDirectory(uploadRoot, true);
     Object.assign(process.env, {
       NODE_ENV: "test", DATABASE_URL: url.toString(), UPLOAD_ROOT: uploadRoot,
       OTP_DELIVERY_MODE: "console", OTP_HMAC_PEPPER: pepper, RATE_LIMIT_MAX_REQUESTS: "1000",

@@ -1,5 +1,276 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/vendors:
+    get:
+      operationId: ManagementController_vendors
+      parameters:
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedVendorList'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}:
+    get:
+      operationId: ManagementController_vendor
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedVendorDetail'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+    patch:
+      operationId: ManagementController_badges
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BadgeInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResponse'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/customers:
+    get:
+      operationId: ManagementController_customers
+      parameters:
+        - name: search
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedCustomerList'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/customers/{id}:
+    get:
+      operationId: ManagementController_customer
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagedCustomer'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/suspend:
+    post:
+      operationId: ManagementController_suspend
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagementInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResponse'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/vendors/{id}/reinstate:
+    post:
+      operationId: ManagementController_reinstate
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagementInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResponse'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/customers/{id}/block:
+    post:
+      operationId: ManagementController_block
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagementInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResponse'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
+  /api/v1/admin/customers/{id}/unblock:
+    post:
+      operationId: ManagementController_unblock
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ManagementInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementResponse'
+      tags:
+        - admin-management
+      security:
+        - bearer: []
   /api/v1/admin/plans:
     get:
       operationId: AdminPlansController_catalog
@@ -1865,6 +2136,203 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    ManagedCustomer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - BLOCKED
+            - DELETED
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - mobile
+        - status
+        - updatedAt
+    ManagedVendor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        businessName:
+          type: string
+          nullable: true
+        account:
+          $ref: '#/components/schemas/ManagedCustomer'
+        category:
+          type: string
+        city:
+          type: string
+          nullable: true
+        kycStatus:
+          type: string
+        isSuspended:
+          type: boolean
+        badges:
+          type: array
+          items:
+            type: string
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - businessName
+        - account
+        - category
+        - city
+        - kycStatus
+        - isSuspended
+        - badges
+        - updatedAt
+    ManagedVendorList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagedVendor'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    ManagedVendorDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        businessName:
+          type: string
+          nullable: true
+        account:
+          $ref: '#/components/schemas/ManagedCustomer'
+        category:
+          type: string
+        city:
+          type: string
+          nullable: true
+        kycStatus:
+          type: string
+        isSuspended:
+          type: boolean
+        badges:
+          type: array
+          items:
+            type: string
+        updatedAt:
+          type: string
+          format: date-time
+        planCode:
+          type: string
+          nullable: true
+        planStatus:
+          type: string
+          enum:
+            - UNASSIGNED
+            - ACTIVE
+            - EXPIRED
+            - SCHEDULED
+            - UNAVAILABLE
+        planStartsAt:
+          type: string
+          nullable: true
+          format: date-time
+        planEndsAt:
+          type: string
+          nullable: true
+          format: date-time
+        customerLimit:
+          type: integer
+      required:
+        - id
+        - businessName
+        - account
+        - category
+        - city
+        - kycStatus
+        - isSuspended
+        - badges
+        - updatedAt
+        - planCode
+        - planStatus
+        - planStartsAt
+        - planEndsAt
+        - customerLimit
+    ManagedCustomerList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ManagedCustomer'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    ManagementInput:
+      type: object
+      properties:
+        reason:
+          type: string
+        expectedUpdatedAt:
+          type: string
+          format: date-time
+      required:
+        - reason
+        - expectedUpdatedAt
+    ManagementResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+        isSuspended:
+          type: boolean
+        badges:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - updatedAt
+    BadgeInput:
+      type: object
+      properties:
+        reason:
+          type: string
+        expectedUpdatedAt:
+          type: string
+          format: date-time
+        badges:
+          type: array
+          items:
+            type: string
+      required:
+        - reason
+        - expectedUpdatedAt
+        - badges
     PlanPriceResponse:
       type: object
       properties:

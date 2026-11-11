@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/src/model/assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/audit_page.dart';
 import 'package:supplybiz_api_client/src/model/audit_row.dart';
 import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
+import 'package:supplybiz_api_client/src/model/badge_input.dart';
 import 'package:supplybiz_api_client/src/model/catalog_plan_input.dart';
 import 'package:supplybiz_api_client/src/model/catalog_price_input.dart';
 import 'package:supplybiz_api_client/src/model/category_input.dart';
@@ -35,6 +36,13 @@ import 'package:supplybiz_api_client/src/model/link_decision_response.dart';
 import 'package:supplybiz_api_client/src/model/link_request_list.dart';
 import 'package:supplybiz_api_client/src/model/link_request_response.dart';
 import 'package:supplybiz_api_client/src/model/login_dto.dart';
+import 'package:supplybiz_api_client/src/model/managed_customer.dart';
+import 'package:supplybiz_api_client/src/model/managed_customer_list.dart';
+import 'package:supplybiz_api_client/src/model/managed_vendor.dart';
+import 'package:supplybiz_api_client/src/model/managed_vendor_detail.dart';
+import 'package:supplybiz_api_client/src/model/managed_vendor_list.dart';
+import 'package:supplybiz_api_client/src/model/management_input.dart';
+import 'package:supplybiz_api_client/src/model/management_response.dart';
 import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
 import 'package:supplybiz_api_client/src/model/notification_mutation_response.dart';
@@ -117,6 +125,8 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'AuditSnapshot':
       return AuditSnapshot.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'BadgeInput':
+      return BadgeInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CatalogPlanInput':
       return CatalogPlanInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -188,6 +198,27 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'LoginDto':
       return LoginDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ManagedCustomer':
+      return ManagedCustomer.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagedCustomerList':
+      return ManagedCustomerList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagedVendor':
+      return ManagedVendor.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagedVendorDetail':
+      return ManagedVendorDetail.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagedVendorList':
+      return ManagedVendorList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagementInput':
+      return ManagementInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ManagementResponse':
+      return ManagementResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'MeResponse':
       return MeResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'MediaResponse':

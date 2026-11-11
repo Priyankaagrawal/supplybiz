@@ -87,6 +87,14 @@ erDiagram
 | `vendors` | id, user_id, category_id, business_name, gstin, address_line, city, state, pincode, location geography, shop_photo_media_id, onboarding_step, kyc_status, is_suspended, rating_avg, rating_count, badges TEXT[], upi_vpa | UNIQUE(user_id); GIST(location); index(kyc_status) |
 | `vendor_settings` | vendor_id, service_radius_km (1–20), delivery_charge_paise, min_order_paise, time_slots JSONB, same_day_cutoff TIME, auto_accept_subscriptions, accepting_today, delivery_paused, delivery_paused_until, max_daily_orders, daily_milk_capacity_ml, low_stock_threshold, allow_khata_orders, version | PK(vendor_id) |
 | `vendor_service_pincodes` | vendor_id, pincode | PK(vendor_id, pincode) |
+
+T-155 adds `vendors.badges TEXT[] NOT NULL DEFAULT '{}'` (at most 10 display
+labels), retaining existing suspension/KYC/plan states. `management_requests`
+stores permanent admin-scoped request hash/path/result with append-only/no-truncate
+triggers. Status/badge write, safe audit snapshot and replay record share one
+transaction. Customer block uses the session advisory user lock and revokes
+sessions/clears push tokens atomically; vendor mutations take that lock before
+the vendor row. Deleted accounts and stale record versions cannot be overwritten.
 | `vendor_holidays` | id, vendor_id, date, reason | UNIQUE(vendor_id, date) |
 | `vendor_kyc` | id, vendor_id, status, verification_method, provider_checks, aadhaar_front_media_id, aadhaar_back_media_id, pan_media_id, pan_enc, pan_last4, account_number_enc, account_last4, holder_name, bank_name, ifsc, upi_id, reviewer_id, reviewed_at, reason, submitted_at | T-022 revision PK(id); one pending revision/vendor; documents reference private media; closed revisions immutable |
 | `kyc_notices` | id, user_id, submission_id, status, reason, created_at | Unique submission_id; durable owned decision notice; immutable |

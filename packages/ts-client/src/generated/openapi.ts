@@ -4,6 +4,134 @@
  */
 
 export interface paths {
+    "/api/v1/admin/vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ManagementController_vendors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/vendors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ManagementController_vendor"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["ManagementController_badges"];
+        trace?: never;
+    };
+    "/api/v1/admin/customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ManagementController_customers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ManagementController_customer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/vendors/{id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ManagementController_suspend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/vendors/{id}/reinstate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ManagementController_reinstate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ManagementController_block"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/customers/{id}/unblock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ManagementController_unblock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/plans": {
         parameters: {
             query?: never;
@@ -893,6 +1021,78 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ManagedCustomer: {
+            /** Format: uuid */
+            id: string;
+            name: string | null;
+            mobile: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "BLOCKED" | "DELETED";
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ManagedVendor: {
+            /** Format: uuid */
+            id: string;
+            businessName: string | null;
+            account: components["schemas"]["ManagedCustomer"];
+            category: string;
+            city: string | null;
+            kycStatus: string;
+            isSuspended: boolean;
+            badges: string[];
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ManagedVendorList: {
+            items: components["schemas"]["ManagedVendor"][];
+            total: number;
+        };
+        ManagedVendorDetail: {
+            /** Format: uuid */
+            id: string;
+            businessName: string | null;
+            account: components["schemas"]["ManagedCustomer"];
+            category: string;
+            city: string | null;
+            kycStatus: string;
+            isSuspended: boolean;
+            badges: string[];
+            /** Format: date-time */
+            updatedAt: string;
+            planCode: string | null;
+            /** @enum {string} */
+            planStatus: "UNASSIGNED" | "ACTIVE" | "EXPIRED" | "SCHEDULED" | "UNAVAILABLE";
+            /** Format: date-time */
+            planStartsAt: string | null;
+            /** Format: date-time */
+            planEndsAt: string | null;
+            customerLimit: number;
+        };
+        ManagedCustomerList: {
+            items: components["schemas"]["ManagedCustomer"][];
+            total: number;
+        };
+        ManagementInput: {
+            reason: string;
+            /** Format: date-time */
+            expectedUpdatedAt: string;
+        };
+        ManagementResponse: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            updatedAt: string;
+            status?: string;
+            isSuspended?: boolean;
+            badges?: string[];
+        };
+        BadgeInput: {
+            reason: string;
+            /** Format: date-time */
+            expectedUpdatedAt: string;
+            badges: string[];
+        };
         PlanPriceResponse: {
             /** @enum {string} */
             duration: "MONTHLY" | "HALF_YEARLY" | "YEARLY";
@@ -1504,6 +1704,232 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ManagementController_vendors: {
+        parameters: {
+            query?: {
+                search?: string;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedVendorList"];
+                };
+            };
+        };
+    };
+    ManagementController_vendor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedVendorDetail"];
+                };
+            };
+        };
+    };
+    ManagementController_badges: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BadgeInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagementResponse"];
+                };
+            };
+        };
+    };
+    ManagementController_customers: {
+        parameters: {
+            query?: {
+                search?: string;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedCustomerList"];
+                };
+            };
+        };
+    };
+    ManagementController_customer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagedCustomer"];
+                };
+            };
+        };
+    };
+    ManagementController_suspend: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManagementInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagementResponse"];
+                };
+            };
+        };
+    };
+    ManagementController_reinstate: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManagementInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagementResponse"];
+                };
+            };
+        };
+    };
+    ManagementController_block: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManagementInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagementResponse"];
+                };
+            };
+        };
+    };
+    ManagementController_unblock: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManagementInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagementResponse"];
+                };
+            };
+        };
+    };
     AdminPlansController_catalog: {
         parameters: {
             query?: never;

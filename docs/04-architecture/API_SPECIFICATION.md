@@ -324,6 +324,28 @@ T-150 implements password login → five-minute challenge → mandatory TOTP ver
 
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?beforeId=`, `GET /admin/kyc/{submissionId}`, `POST /admin/kyc/{submissionId}/decision` (T-022); document reads use `GET /admin/media/{mediaId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
+T-155 implements GET `/admin/vendors` and `/admin/customers` with optional search
+(name/mobile/ID, at most 80 characters) and offset (0–1,000,000), 20 records/page;
+GET `/admin/vendors/{id}` and `/admin/customers/{id}` return retained details.
+Customer management targets app accounts holding CUSTOMER, including dual-role
+accounts, rather than vendor-owned offline contact records. vendors.read and
+customers.read permit the corresponding views; FINANCE has neither permission.
+Vendor detail includes safe read-only KYC/plan state, not private KYC documents.
+
+POST `/admin/vendors/{id}/suspend|reinstate`, PATCH `/admin/vendors/{id}` (display
+badges), and POST `/admin/customers/{id}/block|unblock` require the corresponding
+manage permission (OPS/SUPER_ADMIN), CSRF and Idempotency-Key. Bodies contain
+`{ reason, expectedUpdatedAt }`; badge PATCH additionally accepts `badges`, up to
+10 unique trimmed display labels, each 1–40 characters. Labels do not alter KYC,
+plan or discovery authorization. Other policy/status fields are rejected.
+All mutations return 200; stale records/deleted accounts return 409, changed
+replay payload/path 422. Status, redacted before/after audit and permanent replay
+commit atomically. Customer block revokes active sessions and clears push tokens
+under the session user lock; verified-OTP login fails ACCOUNT_BLOCKED until
+unblocked. Unblock requires fresh login and cannot reactivate deleted accounts.
+Suspension persists the server guard flag; T-041/T-045 must also enforce it on
+discovery/new order acceptance. Those downstream journeys remain unverified.
+
 T-153 implements `GET/POST /admin/categories` and `PUT /admin/categories/{id}`.
 OPS/SUPER_ADMIN require `categories.manage`; writes also require CSRF and a
 1–120 character Idempotency-Key. Fields: `code` (uppercase identifier), `name`

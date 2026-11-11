@@ -70,6 +70,15 @@ Class | Method | HTTP request | Description
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBadges**](doc/AdminManagementApi.md#managementcontrollerbadges) | **PATCH** /api/v1/admin/vendors/{id} |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBlock**](doc/AdminManagementApi.md#managementcontrollerblock) | **POST** /api/v1/admin/customers/{id}/block |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerCustomer**](doc/AdminManagementApi.md#managementcontrollercustomer) | **GET** /api/v1/admin/customers/{id} |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerCustomers**](doc/AdminManagementApi.md#managementcontrollercustomers) | **GET** /api/v1/admin/customers |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerReinstate**](doc/AdminManagementApi.md#managementcontrollerreinstate) | **POST** /api/v1/admin/vendors/{id}/reinstate |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerSuspend**](doc/AdminManagementApi.md#managementcontrollersuspend) | **POST** /api/v1/admin/vendors/{id}/suspend |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerUnblock**](doc/AdminManagementApi.md#managementcontrollerunblock) | **POST** /api/v1/admin/customers/{id}/unblock |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerVendor**](doc/AdminManagementApi.md#managementcontrollervendor) | **GET** /api/v1/admin/vendors/{id} |
+[*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerVendors**](doc/AdminManagementApi.md#managementcontrollervendors) | **GET** /api/v1/admin/vendors |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerAssign**](doc/AdminPlansApi.md#adminplanscontrollerassign) | **POST** /api/v1/admin/vendors/{id}/plan-assignments |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCatalog**](doc/AdminPlansApi.md#adminplanscontrollercatalog) | **GET** /api/v1/admin/plans |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerCurrent**](doc/AdminPlansApi.md#adminplanscontrollercurrent) | **GET** /api/v1/admin/vendors/{id}/plan |
@@ -144,6 +153,7 @@ Class | Method | HTTP request | Description
  - [AuditPage](doc/AuditPage.md)
  - [AuditRow](doc/AuditRow.md)
  - [AuditSnapshot](doc/AuditSnapshot.md)
+ - [BadgeInput](doc/BadgeInput.md)
  - [CatalogPlanInput](doc/CatalogPlanInput.md)
  - [CatalogPriceInput](doc/CatalogPriceInput.md)
  - [CategoryInput](doc/CategoryInput.md)
@@ -171,6 +181,13 @@ Class | Method | HTTP request | Description
  - [LinkRequestList](doc/LinkRequestList.md)
  - [LinkRequestResponse](doc/LinkRequestResponse.md)
  - [LoginDto](doc/LoginDto.md)
+ - [ManagedCustomer](doc/ManagedCustomer.md)
+ - [ManagedCustomerList](doc/ManagedCustomerList.md)
+ - [ManagedVendor](doc/ManagedVendor.md)
+ - [ManagedVendorDetail](doc/ManagedVendorDetail.md)
+ - [ManagedVendorList](doc/ManagedVendorList.md)
+ - [ManagementInput](doc/ManagementInput.md)
+ - [ManagementResponse](doc/ManagementResponse.md)
  - [MeResponse](doc/MeResponse.md)
  - [MediaResponse](doc/MediaResponse.md)
  - [NotificationMutationResponse](doc/NotificationMutationResponse.md)

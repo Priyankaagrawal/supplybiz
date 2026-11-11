@@ -446,3 +446,104 @@ NOT_RUN: manual PASS, browser/screen-reader/200% acceptance, deployed HTTPS,
 live push and G0/G1 comprehensive gates. Mobile builds are not needed for this
 ADM/API change; iOS remains deferred under ADR-025. Roll back source/clients
 together and retain existing catalog/assignment/audit/replay evidence.
+
+## T-155 vendor/customer administration handoff (2026-11-11)
+
+READY_FOR_VERIFY: S-A-05 `/vendors`, S-A-06 `/vendors/{id}` and S-A-07
+`/customers` / `/customers/{id}`. SUPPORT may search/view; OPS and SUPER_ADMIN
+may also mutate; FINANCE has no general vendor/customer access. Read-only vendor
+detail includes real KYC/plan metadata without exposing private KYC documents.
+Customer management covers app accounts with CUSTOMER role, including dual-role
+accounts. Vendor-owned offline contacts stay in the existing vendor-customer flow.
+
+Suspend/reinstate, badge edits and block/unblock require reason, expected version,
+session CSRF and a stable operation/target-bound key. Destructive status forms
+require confirmation naming the target. Signed HttpOnly/Strict recovery cookies
+preserve the original request/key for 10 minutes after a connection failure;
+success clears recovery state. Backend role/session checks precede every replay.
+Status/badge writes, PII-minimized audit and permanent replay commit together.
+Stale tabs return conflict rather than overwrite another admin's decision.
+
+Vendor suspension uses existing server vendor guards and preserves records,
+KYC and assigned plans. Display badges are editable labels (up to ten, 40 chars
+each), not verification or entitlement grants. Customer blocking applies across
+the shared account's roles, revokes sessions and clears device push tokens under
+the existing auth user lock. Unblock permits fresh sign-in; old tokens remain
+revoked and deleted accounts cannot be restored here. No order/GMV values or
+discovery eligibility are fabricated.
+
+Selection: ROADMAP Day 5 explicitly puts T-040/T-041/T-042 after G1 manual-plan
+pass (currently NOT RUN). T-154's required orders/GMV/delivery sources are absent.
+T-155's T-150 dependency is READY_FOR_VERIFY, so this independent admin lane was
+eligible. No prior task status or gate was changed to bypass those prerequisites.
+
+Executed from apps/admin (PowerShell):
+
+```powershell
+.\node_modules\.bin\eslint.cmd . --max-warnings=0
+node node_modules/next/dist/bin/next typegen
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsx.cmd --test test/*.test.ts
+node node_modules/next/dist/bin/next build --webpack
+```
+
+Executed from apps/api:
+
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:SESSIONS_TEST_DATABASE_URL = $env:NATIVE_TEST_DATABASE_URL
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/management/management.postgres.spec.ts src/modules/auth/sessions.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\tsc.cmd --noEmit --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext ../../packages/ts-client/src/generated/openapi.ts
+```
+
+From root: `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter.bat analyze lib`.
+
+PASS: 14 native checks (6 management including production Next.js/BFF/API/DB and
+real API outage/restart, 8 session regressions), 10 admin security/form checks,
+2 runtime smokes, 5 runner guards, API/admin lint/typecheck/build/schema, regenerated
+TS/Dart clients and client compile/analysis. Blocked-login OTP verification was
+simulated; account/session HTTP and PostgreSQL effects were real. Native UI checks
+used synthetic admin sessions, not a live-provider or manual-browser login pass.
+The rollback drill's first stub targeted the root Prisma delegate rather than
+the transaction; the corrected in-transaction failure proves status/audit/replay
+rollback. The existing session fixture now initializes private Windows ACLs.
+Only the isolated test DB was migrated; immutable synthetic fixtures remain.
+Temporary test servers were closed and pre-existing services preserved. Native
+output: host temp `supplybiz-t155-focused.log`.
+
+Manual verification (suggested, NOT executed):
+1. Apply the migration to the intended local dev DB, start API/admin with the
+   existing instructions, then sign in as SUPPORT. Search/view vendors/customers;
+   confirm mutation forms are absent. FINANCE must be denied these pages.
+2. As OPS/SUPER_ADMIN, suspend a synthetic vendor with reason/confirmation.
+   Confirm stored state, business API denial and audit; reinstate and verify
+   records/KYC/plan metadata are retained. Replaying the old suspension request
+   must not reapply it after reinstatement.
+3. Edit display badges and inspect escaped rendering/audit. Verify duplicates,
+   overlong labels, blank reasons and stale-tab edits are rejected.
+4. Block a synthetic customer and verify existing access/refresh and new login
+   are denied. Unblock, sign in afresh and confirm old sessions stay revoked.
+   Deleted accounts must offer no reactivation form.
+5. Test keyboard order/200% zoom and API-stop/restart recovery with Retry this
+   request safely. Confirm one audit/change and stop manually started services.
+
+NOT_RUN: manual browser/accessibility/PASS, live OTP/push, deployed HTTPS and
+G0/G1 comprehensive gates. Discovery hiding/order-acceptance E2E awaits T-041/
+T-045; existing vendor business denial and the persisted suspension contract were
+checked here. No mobile native build was needed; iOS remains deferred (ADR-025).
+Preserve audit/replay/customer history during source/client rollback.
