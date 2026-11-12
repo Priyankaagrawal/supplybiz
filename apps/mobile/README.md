@@ -1,5 +1,81 @@
 # Supply Biz Mobile
 
+## T-043 customer Home/location/search handoff (2026-11-12): READY_FOR_VERIFY
+
+S-C-01/02/03 / US-200–202 / TC-200–203: `/customer/home` now shows the generated
+T-042 home feed, existing notification bell/unread dot, location selector, search,
+responsive category grid and today's snapshot items/statuses. Coming-soon tiles
+are disabled. Home pagination preserves server ordering, deduplicates IDs and
+reloads the first page if the IST day/cursor changes. Pull refresh and Refresh home
+load current persisted status; the displayed business date comes from the server.
+Existing role shells/guards and bottom tabs are preserved; no marketing/billing/
+review routes/actions were added.
+
+`/customer/location` supports manual area/city/pincode/numeric coordinates,
+explicit optional GPS fill and existing T-047 saved-address selection. Permission
+denial leaves manual fields usable. No GPS request happens on entry and no pincode
+centroid, geocoder or coordinate fallback is used. Selected discovery context is
+stored in the existing encrypted environment/account-scoped draft store; it is
+independent of delivery-address mutations and does not certify vendor coverage.
+An owned default address initializes location when no local selection exists.
+
+`/customer/search?category=<uuid>` calls the generated serviceable vendor/product-name
+search API, with explicit current location, category, keyword and cursor. It shows
+real response names/distances, loading/error/empty/retry states and pagination.
+The latest ten successful nonempty queries persist in encrypted account-scoped
+storage. Provider identity/location fences late responses; role denial clears
+private view/history, including a handled storage-cleanup failure. Recent queries
+and selected location are wiped with existing logout storage. In-memory Home can
+remain visible with a stale warning after a network failure; there is no new disk
+delivery cache. Search results are read-only here: vendor/product details remain
+T-044, and order details/cart/checkout remain their owning tasks. No placeholder
+navigation or fabricated delivery/order action is introduced by these screens.
+
+Executed from apps/mobile unless stated otherwise:
+
+- `flutter gen-l10n`: PASS; generated English ARB output.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' run build_runner build --build-filter=lib/core/router/routes.g.dart`: PASS; only typed routes regenerated.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/home lib/core/router/routes.dart test/features/home integration_test/home_test.dart`: formatter run in the relevant subsets as files were added; PASS.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' fix --apply --code=curly_braces_in_flow_control_structures lib/features/home` and the same command targeting `test/features/home`: focused lint fixes applied to new files only.
+- `flutter analyze --no-pub`: PASS, no issues on final source.
+- `flutter test --no-pub test/features/home test/core/router/guards_test.dart test/core/router/app_router_test.dart`: PASS, 22 checks. Covers typed Home → manual selection → category search; snapshot/status/pagination refresh; account-scoped location and recent queries; IST-day cursor recovery; offline/auth/cache failure; in-flight disposal; coordinate validation; 200% Home/form/search; GPS denial; empty search and existing router guards.
+- `flutter test integration_test/home_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub`: PASS, one final native Android smoke. Verifies selected location and recent searches across SQLCipher/secure-storage restart, account namespace isolation, absence of plaintext in DB/WAL bytes, 200% Home/status refresh and logout wipe. Uses an isolated test database/storage namespace. HTTP is simulated; no live UI/API/DB or GPS/provider delivery claim.
+- `flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub`: PASS, final normal universal dev APK built.
+- From root, `C:/Android/platform-tools/adb.exe -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev` and `C:/Android/platform-tools/adb.exe -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk`: PASS; restored the normal dev APK after native testing.
+- From root, `node --test tools/checks.spec.mjs`: PASS, five runner guards; T-043 registered for focused mobile checks.
+- From root, `git diff --check`: PASS. A read-only Python zipfile check of the final APK kernel also confirmed CustomerHomePage, CustomerLocationPage and CustomerSearchPage are packaged.
+
+SDK/cache access was approved for Flutter generation/checks. Initial analysis found
+a num-to-double conversion in the saved-address adapter plus source/test lint
+issues; corrected before final checks. A cache-cleanup failure guard was added and
+tested. The final responsive category grid was rechecked by the 22 focused checks,
+analysis and native smoke. Logs are in host TEMP supplybiz-t043-focused.log,
+supplybiz-t043-android.log and supplybiz-t043-build.log. New build daemons stopped,
+test storage wiped, pre-existing services/devices preserved. No dependency,
+API/schema/migration or generated API-client changes were needed.
+
+Manual verification (suggested, NOT executed):
+1. Use the restored normal dev build against the configured real API with a CUSTOMER
+   login. Check Home categories, Coming soon, bell/inbox navigation, server business
+   date, real owned deliveries, loading/empty/error and pull-refresh states.
+2. Choose a saved address or enter area/city/pincode/coordinates manually. Deny GPS,
+   verify manual entry remains usable, then optionally allow an actual GPS fix.
+   Restart and verify the chosen discovery location; delivery addresses stay separate.
+3. Open a supply category, search vendor/product names and check serviceable results,
+   empty-location guidance, pagination and recent searches. Change location and check
+   stale results do not reappear. Vendor details/cart continue with T-044/T-046.
+4. In the isolated test environment, refresh changed order statuses and more than
+   twenty deliveries, including midnight cursor recovery. Seeded-read checks are
+   not actual T-045/T-049 delivery/financial-flow PASS. Test offline stale/retry states.
+5. Check TalkBack, keyboard navigation and 200% text on Android. Sign out/switch
+   role/account during loading; confirm another account sees no previous location,
+   recent queries or private deliveries. Verify logout storage wipe.
+
+NOT_RUN: live UI → API → PostgreSQL journey, actual GPS fix/OS permission-dialog
+flow, manual TalkBack/PASS and module gates. These require the configured manual
+environment/provider/device review; simulated HTTP supplies none of that evidence.
+iOS build/run/accessibility checks remain deferred under ADR-025.
+
 ## T-047 addresses handoff (2026-11-12): READY_FOR_VERIFY
 
 S-C-28/29 / FR-291 / US-290: Customer Profile → Addresses opens typed routes

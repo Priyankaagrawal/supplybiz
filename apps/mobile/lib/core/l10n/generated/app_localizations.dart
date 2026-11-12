@@ -94,6 +94,216 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @homeChooseLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose location'**
+  String get homeChooseLocation;
+
+  /// No description provided for @homeLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'{area}, {city} · {pincode}'**
+  String homeLocation(String area, String city, String pincode);
+
+  /// No description provided for @homeLocationHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location to find vendors. Manage delivery addresses separately in Addresses.'**
+  String get homeLocationHelp;
+
+  /// No description provided for @homeArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area or address (required)'**
+  String get homeArea;
+
+  /// No description provided for @homeUseLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location'**
+  String get homeUseLocation;
+
+  /// No description provided for @homeSavedAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a saved address'**
+  String get homeSavedAddresses;
+
+  /// No description provided for @homeSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search vendors and products'**
+  String get homeSearchTitle;
+
+  /// No description provided for @homeSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find vendors by name or by products they carry.'**
+  String get homeSearchHint;
+
+  /// No description provided for @homeSearchAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get homeSearchAction;
+
+  /// No description provided for @homeRecentSearches.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get homeRecentSearches;
+
+  /// No description provided for @homeSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No vendors match in this area. Try another search or change your location.'**
+  String get homeSearchEmpty;
+
+  /// No description provided for @homeLocationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a location to search for vendors.'**
+  String get homeLocationRequired;
+
+  /// No description provided for @homeDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km away'**
+  String homeDistance(String distance);
+
+  /// No description provided for @homeUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications, {count} unread'**
+  String homeUnread(int count);
+
+  /// No description provided for @homeRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh home'**
+  String get homeRefresh;
+
+  /// No description provided for @homeStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the last loaded home. Refresh online for current delivery statuses.'**
+  String get homeStale;
+
+  /// No description provided for @homeCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Supply categories'**
+  String get homeCategories;
+
+  /// No description provided for @homeNoCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No supply categories are available yet.'**
+  String get homeNoCategories;
+
+  /// No description provided for @homeComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — Coming soon'**
+  String homeComingSoon(String name);
+
+  /// No description provided for @homeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s deliveries'**
+  String get homeToday;
+
+  /// No description provided for @homeNoDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries today. Browse the supply categories to find vendors.'**
+  String get homeNoDeliveries;
+
+  /// No description provided for @homeVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get homeVendor;
+
+  /// No description provided for @homeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number}'**
+  String homeOrder(String number);
+
+  /// No description provided for @homeProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} × {qty}'**
+  String homeProduct(String name, int qty);
+
+  /// No description provided for @homeMoreDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'More deliveries'**
+  String get homeMoreDeliveries;
+
+  /// No description provided for @homeMoreVendors.
+  ///
+  /// In en, this message translates to:
+  /// **'More vendors'**
+  String get homeMoreVendors;
+
+  /// No description provided for @homeStatusNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get homeStatusNew;
+
+  /// No description provided for @homeStatusAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get homeStatusAccepted;
+
+  /// No description provided for @homeStatusPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get homeStatusPreparing;
+
+  /// No description provided for @homeStatusOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Out for delivery'**
+  String get homeStatusOut;
+
+  /// No description provided for @homeStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get homeStatusDelivered;
+
+  /// No description provided for @homeStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get homeStatusRejected;
+
+  /// No description provided for @homeStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get homeStatusCancelled;
+
+  /// No description provided for @homeStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get homeStatusFailed;
+
+  /// No description provided for @homeStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Status unavailable'**
+  String get homeStatusUnknown;
+
   /// No description provided for @addressTitle.
   ///
   /// In en, this message translates to:

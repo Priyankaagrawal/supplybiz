@@ -12,9 +12,29 @@ import '../../features/customers/customer_editor.dart';
 import '../../features/addresses/addresses_page.dart';
 import '../../features/addresses/address_editor.dart';
 import '../../features/notifications/notifications_page.dart';
+import '../../features/home/home_page.dart';
+import '../../features/home/location_page.dart';
+import '../../features/home/search_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
+
+@TypedGoRoute<CustomerLocationRoute>(path: '/customer/location')
+class CustomerLocationRoute extends GoRouteData with _$CustomerLocationRoute {
+  const CustomerLocationRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const CustomerLocationPage();
+}
+
+@TypedGoRoute<CustomerSearchRoute>(path: '/customer/search')
+class CustomerSearchRoute extends GoRouteData with _$CustomerSearchRoute {
+  const CustomerSearchRoute({this.category});
+  final String? category;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      CustomerSearchPage(category: category);
+}
 
 @TypedGoRoute<CustomerAddressesRoute>(path: '/customer/addresses', routes: [
   TypedGoRoute<CustomerAddressNewRoute>(path: 'new'),
@@ -285,8 +305,10 @@ class CustomerHomeBranch extends StatefulShellBranchData {
 class CustomerHomeRoute extends GoRouteData with _$CustomerHomeRoute {
   const CustomerHomeRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.home);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const CustomerHomePage()
+          : const RoutePlaceholder(title: RouteTitle.home));
 }
 
 class CustomerVendorRoute extends GoRouteData with _$CustomerVendorRoute {

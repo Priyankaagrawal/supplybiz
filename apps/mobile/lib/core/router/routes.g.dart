@@ -7,6 +7,8 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $customerLocationRoute,
+      $customerSearchRoute,
       $customerAddressesRoute,
       $splashRoute,
       $loginRoute,
@@ -19,6 +21,69 @@ List<RouteBase> get $appRoutes => [
       $customerShell,
       $linkRoute,
     ];
+
+RouteBase get $customerLocationRoute => GoRouteData.$route(
+      path: '/customer/location',
+      factory: _$CustomerLocationRoute._fromState,
+    );
+
+mixin _$CustomerLocationRoute on GoRouteData {
+  static CustomerLocationRoute _fromState(GoRouterState state) =>
+      const CustomerLocationRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/location',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $customerSearchRoute => GoRouteData.$route(
+      path: '/customer/search',
+      factory: _$CustomerSearchRoute._fromState,
+    );
+
+mixin _$CustomerSearchRoute on GoRouteData {
+  static CustomerSearchRoute _fromState(GoRouterState state) =>
+      CustomerSearchRoute(
+        category: state.uri.queryParameters['category'],
+      );
+
+  CustomerSearchRoute get _self => this as CustomerSearchRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/search',
+        queryParams: {
+          if (_self.category != null) 'category': _self.category,
+        },
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $customerAddressesRoute => GoRouteData.$route(
       path: '/customer/addresses',

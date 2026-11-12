@@ -9,6 +9,128 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get homeChooseLocation => 'Choose location';
+
+  @override
+  String homeLocation(String area, String city, String pincode) {
+    return '$area, $city · $pincode';
+  }
+
+  @override
+  String get homeLocationHelp =>
+      'Use this location to find vendors. Manage delivery addresses separately in Addresses.';
+
+  @override
+  String get homeArea => 'Area or address (required)';
+
+  @override
+  String get homeUseLocation => 'Use this location';
+
+  @override
+  String get homeSavedAddresses => 'Choose a saved address';
+
+  @override
+  String get homeSearchTitle => 'Search vendors and products';
+
+  @override
+  String get homeSearchHint =>
+      'Find vendors by name or by products they carry.';
+
+  @override
+  String get homeSearchAction => 'Search';
+
+  @override
+  String get homeRecentSearches => 'Recent searches';
+
+  @override
+  String get homeSearchEmpty =>
+      'No vendors match in this area. Try another search or change your location.';
+
+  @override
+  String get homeLocationRequired => 'Choose a location to search for vendors.';
+
+  @override
+  String homeDistance(String distance) {
+    return '$distance km away';
+  }
+
+  @override
+  String homeUnread(int count) {
+    return 'Notifications, $count unread';
+  }
+
+  @override
+  String get homeRefresh => 'Refresh home';
+
+  @override
+  String get homeStale =>
+      'Showing the last loaded home. Refresh online for current delivery statuses.';
+
+  @override
+  String get homeCategories => 'Supply categories';
+
+  @override
+  String get homeNoCategories => 'No supply categories are available yet.';
+
+  @override
+  String homeComingSoon(String name) {
+    return '$name — Coming soon';
+  }
+
+  @override
+  String get homeToday => 'Today\'s deliveries';
+
+  @override
+  String get homeNoDeliveries =>
+      'No deliveries today. Browse the supply categories to find vendors.';
+
+  @override
+  String get homeVendor => 'Vendor';
+
+  @override
+  String homeOrder(String number) {
+    return 'Order $number';
+  }
+
+  @override
+  String homeProduct(String name, int qty) {
+    return '$name × $qty';
+  }
+
+  @override
+  String get homeMoreDeliveries => 'More deliveries';
+
+  @override
+  String get homeMoreVendors => 'More vendors';
+
+  @override
+  String get homeStatusNew => 'New';
+
+  @override
+  String get homeStatusAccepted => 'Accepted';
+
+  @override
+  String get homeStatusPreparing => 'Preparing';
+
+  @override
+  String get homeStatusOut => 'Out for delivery';
+
+  @override
+  String get homeStatusDelivered => 'Delivered';
+
+  @override
+  String get homeStatusRejected => 'Rejected';
+
+  @override
+  String get homeStatusCancelled => 'Cancelled';
+
+  @override
+  String get homeStatusFailed => 'Failed';
+
+  @override
+  String get homeStatusUnknown => 'Status unavailable';
+
+  @override
   String get addressTitle => 'Addresses';
 
   @override
