@@ -145,7 +145,7 @@ dispatcher attempts fail explicitly as WORKER_HANDLER_MISSING, never as delivery
 | `vendor_customers` | id, vendor_id, user_id NULL, name, mobile (+91 normalized), email, address_text, preferred_payment, status (ACTIVE/INACTIVE), deleted_at, created_at, updated_at | UNIQUE(vendor_id, mobile) WHERE deleted_at IS NULL; UNIQUE(vendor_id,user_id) for live linked records; index(user_id), index(mobile). T-040 adds address references when available. |
 | `customer_link_decisions` | vendor_customer_id, user_id, decision (ACCEPTED/DECLINED), decided_at | Composite PK; pending prompts derived from verified mobile match minus decisions; user_id on vendor_customers changes only after acceptance. Link status is derived from user_id, not independently writable. |
 | `customer_subscription_links` | subscription_id, vendor_customer_id, status | T-072 maintains atomically; ACTIVE/PAUSED feeds SUBSCRIPTION filter, not fabricated activity. |
-| `addresses` | id, user_id, label, line1, line2, landmark, city, state, pincode, location geography, is_default, deleted_at | one default per user (partial unique index) |
+| `addresses` | id, user_id, label, line1, line2, landmark, city, state, pincode, latitude, longitude, location geography, is_default, deleted_at, created_at, updated_at | T-040: validated numeric coordinates; geography generated from lon/lat with GIST index. Partial unique live-default index; per-user transaction lock ensures exactly one default for nonempty live collections. Soft delete clears default and promotes oldest remaining address. User FK RESTRICT retains history. |
 | `favorites` | user_id, vendor_id | PK |
 
 T-028 adds nullable `vendors.assigned_customer_limit`: null means never assigned

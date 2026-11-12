@@ -238,6 +238,25 @@ with their owning modules; T-028 does not return fabricated totals or history.
 | PUT/DELETE | `/customer/favorites/{vendorId}` |
 | GET/POST/PATCH/DELETE | `/customer/addresses[/{id}]` |
 
+T-040 / FR-291: authenticated active CUSTOMER role only. Collection GET returns
+`{ items: AddressResponse[] }` (default first, then creation time/ID); detail GET
+returns one owned live address. POST requires `label`, `line1` (house/flat), `line2`
+(street/area), `city`, `state`, `pincode` (six digits, first nonzero), numeric
+`latitude` [-90,90] and `longitude` [-180,180]. `landmark` is optional and defaults
+to empty; `isDefault` is optional. PATCH accepts the same fields partially; null,
+unknown ownership fields and numeric strings are rejected. Empty landmark clears it.
+All mutations require `Idempotency-Key` (max 120 characters), scoped to the user
+across address method/target/payload, with atomic 24-hour replay; mismatches return
+422 `IDEMPOTENCY_MISMATCH`. First address becomes default; setting another default
+clears the previous one atomically. Clearing the current default without choosing
+another returns 409 `DEFAULT_ADDRESS_REQUIRED`. DELETE soft-deletes, returns
+`{ id, deleted: true }`, and promotes the oldest remaining live address when needed.
+Nonempty collections always have one default. Foreign/deleted IDs return 404
+`ADDRESS_NOT_FOUND`; responses use `Cache-Control: no-store`. Saving addresses
+does not assert vendor coverage: discovery/checkout must combine the transactional
+owned-address lookup with the existing server radius-OR-pincode helper; no provider
+or address-to-coordinate inference is used.
+
 ### 4.11 POST-DELIVERY customer features (SR-01/SR-02)
 These endpoints are future reference only; no routes, credentials or tests are required for this delivery. Personal Khata endpoints in §4.9 remain active.
 | Area | Endpoints |

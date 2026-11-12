@@ -103,6 +103,11 @@ Class | Method | HTTP request | Description
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerList**](doc/CategoriesApi.md#categoriescontrollerlist) | **GET** /api/v1/admin/categories |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerUpdate**](doc/CategoriesApi.md#categoriescontrollerupdate) | **PUT** /api/v1/admin/categories/{id} |
 [*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
+[*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerCreate**](doc/CustomerAddressesApi.md#addressescontrollercreate) | **POST** /api/v1/customer/addresses |
+[*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerGet**](doc/CustomerAddressesApi.md#addressescontrollerget) | **GET** /api/v1/customer/addresses/{id} |
+[*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerList**](doc/CustomerAddressesApi.md#addressescontrollerlist) | **GET** /api/v1/customer/addresses |
+[*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerPatch**](doc/CustomerAddressesApi.md#addressescontrollerpatch) | **PATCH** /api/v1/customer/addresses/{id} |
+[*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerRemove**](doc/CustomerAddressesApi.md#addressescontrollerremove) | **DELETE** /api/v1/customer/addresses/{id} |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
@@ -143,6 +148,11 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AddressDeleted](doc/AddressDeleted.md)
+ - [AddressInput](doc/AddressInput.md)
+ - [AddressList](doc/AddressList.md)
+ - [AddressPatch](doc/AddressPatch.md)
+ - [AddressResponse](doc/AddressResponse.md)
  - [AdminChallengeResponse](doc/AdminChallengeResponse.md)
  - [AdminEnrollmentResponse](doc/AdminEnrollmentResponse.md)
  - [AdminMeResponse](doc/AdminMeResponse.md)

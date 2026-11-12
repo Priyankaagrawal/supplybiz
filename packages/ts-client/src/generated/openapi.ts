@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+    "/api/v1/customer/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AddressesController_list"];
+        put?: never;
+        post: operations["AddressesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/addresses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AddressesController_get"];
+        put?: never;
+        post?: never;
+        delete: operations["AddressesController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["AddressesController_patch"];
+        trace?: never;
+    };
     "/api/v1/admin/vendors": {
         parameters: {
             query?: never;
@@ -1021,6 +1053,61 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AddressResponse: {
+            label: string;
+            /** @description House or flat. */
+            line1: string;
+            /** @description Street or area. */
+            line2: string;
+            landmark: string;
+            city: string;
+            state: string;
+            pincode: string;
+            latitude: number;
+            longitude: number;
+            /** @description First address is always default. Use true to move the default. */
+            isDefault: boolean;
+            /** Format: uuid */
+            id: string;
+        };
+        AddressList: {
+            items: components["schemas"]["AddressResponse"][];
+        };
+        AddressInput: {
+            label: string;
+            /** @description House or flat. */
+            line1: string;
+            /** @description Street or area. */
+            line2: string;
+            landmark?: string;
+            city: string;
+            state: string;
+            pincode: string;
+            latitude: number;
+            longitude: number;
+            /** @description First address is always default. Use true to move the default. */
+            isDefault?: boolean;
+        };
+        AddressPatch: {
+            label?: string;
+            /** @description House or flat. */
+            line1?: string;
+            /** @description Street or area. */
+            line2?: string;
+            landmark?: string;
+            city?: string;
+            state?: string;
+            pincode?: string;
+            latitude?: number;
+            longitude?: number;
+            /** @description First address is always default. Use true to move the default. */
+            isDefault?: boolean;
+        };
+        AddressDeleted: {
+            /** Format: uuid */
+            id: string;
+            deleted: boolean;
+        };
         ManagedCustomer: {
             /** Format: uuid */
             id: string;
@@ -1704,6 +1791,331 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AddressesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressList"];
+                };
+            };
+            /** @description Invalid input, UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADDRESS_NOT_FOUND: missing, deleted or owned by another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DEFAULT_ADDRESS_REQUIRED: select another default first. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"];
+                };
+            };
+            /** @description Invalid input, UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADDRESS_NOT_FOUND: missing, deleted or owned by another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DEFAULT_ADDRESS_REQUIRED: select another default first. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"];
+                };
+            };
+            /** @description Invalid input, UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADDRESS_NOT_FOUND: missing, deleted or owned by another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DEFAULT_ADDRESS_REQUIRED: select another default first. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_remove: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressDeleted"];
+                };
+            };
+            /** @description Invalid input, UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADDRESS_NOT_FOUND: missing, deleted or owned by another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DEFAULT_ADDRESS_REQUIRED: select another default first. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddressPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponse"];
+                };
+            };
+            /** @description Invalid input, UUID or missing Idempotency-Key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADDRESS_NOT_FOUND: missing, deleted or owned by another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description DEFAULT_ADDRESS_REQUIRED: select another default first. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ManagementController_vendors: {
         parameters: {
             query?: {

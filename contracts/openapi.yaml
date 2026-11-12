@@ -1,5 +1,179 @@
 openapi: 3.0.0
 paths:
+  /api/v1/customer/addresses:
+    get:
+      operationId: AddressesController_list
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressList'
+        '400':
+          description: Invalid input, UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'ADDRESS_NOT_FOUND: missing, deleted or owned by another customer.'
+        '409':
+          description: 'DEFAULT_ADDRESS_REQUIRED: select another default first.'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-addresses
+      security:
+        - bearer: []
+    post:
+      operationId: AddressesController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResponse'
+        '400':
+          description: Invalid input, UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'ADDRESS_NOT_FOUND: missing, deleted or owned by another customer.'
+        '409':
+          description: 'DEFAULT_ADDRESS_REQUIRED: select another default first.'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-addresses
+      security:
+        - bearer: []
+  /api/v1/customer/addresses/{id}:
+    get:
+      operationId: AddressesController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResponse'
+        '400':
+          description: Invalid input, UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'ADDRESS_NOT_FOUND: missing, deleted or owned by another customer.'
+        '409':
+          description: 'DEFAULT_ADDRESS_REQUIRED: select another default first.'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-addresses
+      security:
+        - bearer: []
+    patch:
+      operationId: AddressesController_patch
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressResponse'
+        '400':
+          description: Invalid input, UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'ADDRESS_NOT_FOUND: missing, deleted or owned by another customer.'
+        '409':
+          description: 'DEFAULT_ADDRESS_REQUIRED: select another default first.'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-addresses
+      security:
+        - bearer: []
+    delete:
+      operationId: AddressesController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressDeleted'
+        '400':
+          description: Invalid input, UUID or missing Idempotency-Key.
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+        '404':
+          description: 'ADDRESS_NOT_FOUND: missing, deleted or owned by another customer.'
+        '409':
+          description: 'DEFAULT_ADDRESS_REQUIRED: select another default first.'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - customer-addresses
+      security:
+        - bearer: []
   /api/v1/admin/vendors:
     get:
       operationId: ManagementController_vendors
@@ -2136,6 +2310,143 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AddressResponse:
+      type: object
+      properties:
+        label:
+          type: string
+        line1:
+          type: string
+          description: House or flat.
+        line2:
+          type: string
+          description: Street or area.
+        landmark:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9][0-9]{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        isDefault:
+          type: boolean
+          description: First address is always default. Use true to move the default.
+        id:
+          type: string
+          format: uuid
+      required:
+        - label
+        - line1
+        - line2
+        - landmark
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
+        - isDefault
+        - id
+    AddressList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AddressResponse'
+      required:
+        - items
+    AddressInput:
+      type: object
+      properties:
+        label:
+          type: string
+        line1:
+          type: string
+          description: House or flat.
+        line2:
+          type: string
+          description: Street or area.
+        landmark:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9][0-9]{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        isDefault:
+          type: boolean
+          description: First address is always default. Use true to move the default.
+      required:
+        - label
+        - line1
+        - line2
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
+    AddressPatch:
+      type: object
+      properties:
+        label:
+          type: string
+        line1:
+          type: string
+          description: House or flat.
+        line2:
+          type: string
+          description: Street or area.
+        landmark:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9][0-9]{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        isDefault:
+          type: boolean
+          description: First address is always default. Use true to move the default.
+    AddressDeleted:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deleted:
+          type: boolean
+      required:
+        - id
+        - deleted
     ManagedCustomer:
       type: object
       properties:

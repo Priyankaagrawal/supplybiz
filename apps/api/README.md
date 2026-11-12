@@ -1,5 +1,78 @@
 # Supply Biz API
 
+## T-040 addresses handoff (2026-11-12): READY_FOR_VERIFY
+
+FR-291 / US-290 / TC-290: customer-owned list/detail/create/partial edit/soft-delete
+at `/api/v1/customer/addresses`. Required fields: label, line1 (house/flat), line2
+(street/area), city, state, six-digit nonzero-leading pincode, numeric latitude
+[-90,90] and longitude [-180,180]. Optional landmark defaults to empty. Every
+mutation needs a fresh Idempotency-Key (max 120 characters), reused unchanged
+for retries. Keys are user-scoped across method/target/payload for 24 hours.
+First address is default; PATCH `{ "isDefault": true }` moves it atomically.
+Deleting the default promotes the oldest remaining address. Clearing the current
+default alone returns DEFAULT_ADDRESS_REQUIRED; null/forged fields are rejected.
+GET excludes deleted/foreign records. Mutations serialize with session/role writes
+and check current authorization before replay. No user address data is logged.
+
+Executed from apps/api (local binaries avoid Windows package-manager shims):
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/addresses/addresses.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+From root: `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext packages/ts-client/src/generated/openapi.ts`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter.bat analyze lib`; after final response-contract
+regeneration, `flutter.bat analyze --no-pub lib` also passed. Final API
+lint/typecheck/build and generated TypeScript compile were repeated and passed.
+The first Prisma generate was invoked from root with the corresponding root-relative
+schema/binary paths. Test output was redirected to host TEMP supplybiz-t040-focused.log;
+codegen output is in supplybiz-t040-codegen.log. Native tests required approved Windows
+ACL inspection outside the sandbox; codegen required network access for verified pnpm
+selection. Initial runs exposed and corrected a fixture key-type error and the expected
+403 response for a blocked user; sandbox-only startup failed closed on ACL inspection.
+
+Seven focused HTTP/native PostgreSQL/PostGIS checks and two native runtime smokes pass:
+CRUD/default/soft-delete, strict validation, ownership/roles/revocation, cross-instance
+concurrency, restart replay, key mismatches and server coverage-helper composition.
+Five runner guards, API lint/typecheck/build/schema and generated client checks pass.
+Only the isolated _test DB received the additive migration. No dev/staging/production
+migration was run. Test accounts use synthetic DB sessions; live OTP delivery is NOT_RUN.
+All test apps were closed; pre-existing services/devices were preserved.
+
+Manual verification (suggested, NOT executed):
+1. Apply the additive migration to the intended local development DB, start the API
+   using existing setup, and obtain an active CUSTOMER session. POST a synthetic
+   address with all required fields; GET list/detail must show it as default.
+2. Add another address, PATCH it to default, edit its coordinates/landmark, reload
+   both records, and confirm exactly one default plus persisted edits.
+3. Retry identical POST/PATCH/DELETE requests with their original keys; confirm the
+   same responses/IDs. Changed payload or target with the same key must return 422.
+4. Delete the default and reload: oldest remaining address becomes default, deleted
+   detail returns 404; deleting the last address leaves an empty list.
+5. With a different customer, test detail/edit/delete of the first user's ID (404).
+   Try a vendor session (403), missing key, null/string coordinates and invalid pincode
+   (400). Stop only the processes started for this manual check.
+
+T-047 owns Android UI; discovery/checkout must use AddressesService.requireOwned plus
+VendorsService.covers transactionally. Saving an address does not certify vendor coverage.
+Those downstream journeys, manual PASS and G0/G1/G2 remain pending; iOS checks are deferred.
+Rollback: revert consumers first and retain the additive table/history; no destructive
+down migration is supplied.
+
 ## T-032 notification infrastructure handoff (2026-11-11): READY_FOR_VERIFY
 
 Implemented role/owner-scoped operational inbox, persisted read/read-all/clear-all,

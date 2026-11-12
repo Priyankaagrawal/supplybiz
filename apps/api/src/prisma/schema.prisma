@@ -112,6 +112,29 @@ model users {
   vendor_customers vendor_customers[]
   customer_link_decisions customer_link_decisions[]
   ledger_entries ledger_entries[]
+  addresses addresses[]
+}
+
+// FR-291 / T-040. Partial unique default index and generated geography live in SQL.
+model addresses {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  label String @db.VarChar(50)
+  line1 String @db.VarChar(200)
+  line2 String @db.VarChar(200)
+  landmark String @default("") @db.VarChar(200)
+  city String @db.VarChar(100)
+  state String @db.VarChar(100)
+  pincode String @db.VarChar(6)
+  latitude Float
+  longitude Float
+  location Unsupported("geography(Point,4326)") @default(dbgenerated())
+  is_default Boolean @default(false)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+  user users @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  @@index([user_id, deleted_at])
 }
 
 model user_roles {

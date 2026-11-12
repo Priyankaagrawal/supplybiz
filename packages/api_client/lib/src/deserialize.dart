@@ -1,3 +1,8 @@
+import 'package:supplybiz_api_client/src/model/address_deleted.dart';
+import 'package:supplybiz_api_client/src/model/address_input.dart';
+import 'package:supplybiz_api_client/src/model/address_list.dart';
+import 'package:supplybiz_api_client/src/model/address_patch.dart';
+import 'package:supplybiz_api_client/src/model/address_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_challenge_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_me_response.dart';
@@ -97,6 +102,18 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return (valueString == 'true' || valueString == '1') as ReturnType;
     case 'double':
       return (value is double ? value : double.parse('$value')) as ReturnType;
+    case 'AddressDeleted':
+      return AddressDeleted.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AddressInput':
+      return AddressInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'AddressList':
+      return AddressList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'AddressPatch':
+      return AddressPatch.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'AddressResponse':
+      return AddressResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'AdminChallengeResponse':
       return AdminChallengeResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
