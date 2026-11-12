@@ -94,6 +94,120 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @addressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses'**
+  String get addressTitle;
+
+  /// No description provided for @addressAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add address'**
+  String get addressAdd;
+
+  /// No description provided for @addressEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit address'**
+  String get addressEdit;
+
+  /// No description provided for @addressSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save address'**
+  String get addressSave;
+
+  /// No description provided for @addressDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete address'**
+  String get addressDelete;
+
+  /// No description provided for @addressDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {label}? If it is your default address, another saved address will become default.'**
+  String addressDeleteConfirm(String label);
+
+  /// No description provided for @addressEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved addresses. Add an address for deliveries.'**
+  String get addressEmpty;
+
+  /// No description provided for @addressDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Default address'**
+  String get addressDefault;
+
+  /// No description provided for @addressMakeDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Use as default address'**
+  String get addressMakeDefault;
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Label (required)'**
+  String get addressLabel;
+
+  /// No description provided for @addressHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House or flat (required)'**
+  String get addressHouse;
+
+  /// No description provided for @addressArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Street or area (required)'**
+  String get addressArea;
+
+  /// No description provided for @addressLandmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark (optional)'**
+  String get addressLandmark;
+
+  /// No description provided for @addressCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude {latitude}, longitude {longitude}'**
+  String addressCoordinates(String latitude, String longitude);
+
+  /// No description provided for @addressStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh online before changing addresses. Displayed addresses may be out of date.'**
+  String get addressStale;
+
+  /// No description provided for @addressPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An address request needs confirmation. Retry the saved request before making another change.'**
+  String get addressPending;
+
+  /// No description provided for @addressExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The retry window has ended. Refresh and review your addresses, then dismiss the saved request before making another change.'**
+  String get addressExpired;
+
+  /// No description provided for @addressDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss saved request'**
+  String get addressDismiss;
+
+  /// No description provided for @addressDefaultRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another default address before clearing this default.'**
+  String get addressDefaultRequired;
+
   /// No description provided for @customersAdd.
   ///
   /// In en, this message translates to:

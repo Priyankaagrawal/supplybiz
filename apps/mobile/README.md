@@ -1,5 +1,84 @@
 # Supply Biz Mobile
 
+## T-047 addresses handoff (2026-11-12): READY_FOR_VERIFY
+
+S-C-28/29 / FR-291 / US-290: Customer Profile → Addresses opens typed routes
+`/customer/addresses`, `/customer/addresses/new`, `/customer/addresses/{id}/edit`.
+The generated T-040 client loads, creates, edits, sets a default and soft-deletes
+owned addresses. Required house/flat, street/area, label, city/state, six-digit
+pincode and finite latitude/longitude are validated; landmark can be cleared.
+Optional GPS fills coordinates only; denial leaves manual entry usable. The
+current default cannot be unchecked; choose another address instead. Deletion
+requires confirmation and reloads the server's default replacement.
+
+Loading/empty/error/refresh and stale read-only states are implemented with English
+ARB and UI-kit components. Last-loaded addresses remain in memory during a network
+failure; there is no persistent address-list cache. Mutations wait for a successful
+refresh. Uncertain mutations retain exact method/target/body/key in the existing
+encrypted environment/account-scoped draft store, wiped with existing logout storage.
+Restart never automatically resubmits them. Explicit retry uses the original key;
+other edits remain disabled until resolved. Once the 24-hour API retry window ends
+(or the local clock moves backward), retry is blocked: refresh/review addresses and
+explicitly confirm dismissal before submitting a new request. Server time/validation
+remain authoritative; the client window is a conservative retry guard. Role/authorization
+denial clears private view/retry state; provider disposal fences late responses.
+An accepted mutation leaves the editor even if its subsequent list refresh fails;
+successful explicit retry also returns to the list. This prevents the editor from
+offering a second submission after server acceptance. Pending keys are retained if
+clearing encrypted retry storage fails.
+
+Selection followed ADR-030: T-016/T-040 READY_FOR_VERIFY allow implementation.
+T-041 was skipped before selection because FR-210/US-210 require Popular sorting
+without defining its ranking metric; T-042 still depends on T-041. No ranking policy
+or unrelated task status was invented/changed. No API/schema/client contract or new
+dependency was added. Existing Android location support and encrypted storage reused.
+
+Executed from `apps/mobile` unless stated otherwise:
+
+- `flutter gen-l10n`: PASS. Generated English strings from ARB.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' run build_runner build --build-filter=lib/core/router/routes.g.dart`: PASS; only typed route code regenerated.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/addresses test/features/addresses integration_test/addresses_test.dart`: PASS. Routes/route widgets were also formatted using the same formatter.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' fix --apply --code=curly_braces_in_flow_control_structures lib/features/addresses` and the same command targeting `test/features/addresses`: applied focused lint fixes to the new files.
+- `flutter analyze --no-pub`: PASS, no issues.
+- `flutter test --no-pub test/features/addresses test/core/router/guards_test.dart test/core/router/app_router_test.dart`: PASS, 21 checks including validation, generated-client CRUD/default/delete, same-key response-loss recovery, accepted-write/failed-refresh completion, account scoping, expiry, offline/role denial, disposal, 200% list/form/GPS denial, full typed form submission/retry recovery and existing router regressions. HTTP is simulated.
+- `flutter test integration_test/addresses_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub`: PASS, one native Android encrypted-retry/restart/200%/delete smoke. Uses an isolated SQLCipher database and secure-storage namespace; verifies no plaintext address in DB bytes. HTTP is simulated, not live API/DB evidence.
+- `flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub`: PASS on final source; normal universal dev debug APK is 206,473,797 bytes.
+- From root, `C:/Android/platform-tools/adb.exe -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev` and `C:/Android/platform-tools/adb.exe -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk`: PASS; restored normal dev APK after the smoke. Emulator and pre-existing services preserved; isolated test storage wiped. Task-started build daemons were stopped after build completion.
+- `node --test ../../tools/checks.spec.mjs`: PASS, five runner guards; T-047 registered for focused mobile CI checks.
+- From root, `git diff --check`: PASS.
+
+Initial sandboxed Flutter wrappers could not acquire their SDK cache lock and were
+stopped. Sandboxed Dart dependency resolution failed on blocked pub.dev access;
+approved cache/network access completed generation/checks. Initial source/fixture
+type/lint issues were corrected. Widget setup needed runAsync; the router fixture
+was adjusted to avoid starting an unrelated auth screen. The first native smoke
+asserted deletion before asynchronous encrypted storage completed; the corrected
+smoke waits for the operation. Review also found/fixed the accepted-write/failed-refresh
+and editor retry completion paths; the 21 checks, native smoke, analysis and normal
+APK build all passed again against final source. All cited results are subsequent successful runs.
+Focused, Android and normal-build logs are in host TEMP as supplybiz-t047-focused.log,
+supplybiz-t047-android.log and supplybiz-t047-build.log.
+
+Manual verification (suggested, NOT executed):
+1. Use the normal dev build with a CUSTOMER login against the real API after T-040's
+   migration is applied. Open Profile → Addresses, add two addresses, reload/restart
+   and verify both persisted under that customer.
+2. Edit every address field and clear landmark. Try blank house/area, invalid pincode,
+   NaN/out-of-range coordinates, deny GPS, and enter coordinates manually. Optionally
+   allow GPS and verify an actual fix; saving does not certify vendor coverage.
+3. Set the second address as default, reload, cancel one deletion, then confirm deleting
+   the default. Verify the remaining address is default; deleting the last shows empty.
+4. Interrupt a response, restart, refresh online and explicitly retry the saved request;
+   confirm one server record and no duplicate. After expiry, review/dismiss before any
+   new request. Verify offline errors and read-only last-loaded state.
+5. Check TalkBack, keyboard/200% text and navigation. Sign out/switch role or account
+   during a load; confirm private addresses/pending requests do not appear for another
+   user. Backend foreign ownership is also enforced by T-040.
+
+NOT_RUN: live UI → API → DB journey, real GPS fix/permission dialogs, manual TalkBack/
+PASS and G0/G1/G2 acceptance. These need the configured manual environment and review;
+simulated HTTP does not supply that evidence. iOS checks remain deferred by ADR-025.
+
 ## T-033 notifications handoff (2026-11-11): READY_FOR_VERIFY
 
 The home-header bell opens `/common/notifications` (S-V-18 / S-C-26).

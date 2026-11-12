@@ -9,6 +9,72 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get addressTitle => 'Addresses';
+
+  @override
+  String get addressAdd => 'Add address';
+
+  @override
+  String get addressEdit => 'Edit address';
+
+  @override
+  String get addressSave => 'Save address';
+
+  @override
+  String get addressDelete => 'Delete address';
+
+  @override
+  String addressDeleteConfirm(String label) {
+    return 'Delete $label? If it is your default address, another saved address will become default.';
+  }
+
+  @override
+  String get addressEmpty =>
+      'No saved addresses. Add an address for deliveries.';
+
+  @override
+  String get addressDefault => 'Default address';
+
+  @override
+  String get addressMakeDefault => 'Use as default address';
+
+  @override
+  String get addressLabel => 'Label (required)';
+
+  @override
+  String get addressHouse => 'House or flat (required)';
+
+  @override
+  String get addressArea => 'Street or area (required)';
+
+  @override
+  String get addressLandmark => 'Landmark (optional)';
+
+  @override
+  String addressCoordinates(String latitude, String longitude) {
+    return 'Latitude $latitude, longitude $longitude';
+  }
+
+  @override
+  String get addressStale =>
+      'Refresh online before changing addresses. Displayed addresses may be out of date.';
+
+  @override
+  String get addressPending =>
+      'An address request needs confirmation. Retry the saved request before making another change.';
+
+  @override
+  String get addressExpired =>
+      'The retry window has ended. Refresh and review your addresses, then dismiss the saved request before making another change.';
+
+  @override
+  String get addressDismiss => 'Dismiss saved request';
+
+  @override
+  String get addressDefaultRequired =>
+      'Choose another default address before clearing this default.';
+
+  @override
   String get customersAdd => 'Add customer';
 
   @override

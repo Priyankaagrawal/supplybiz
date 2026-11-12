@@ -139,6 +139,14 @@ class RoutePlaceholder extends StatelessWidget {
             SbButton(
                 label: l10n.areaTitle,
                 onPressed: () => const ServiceAreaRoute().push<void>(context)),
+          if (title == RouteTitle.profile)
+            Consumer(
+                builder: (context, ref, _) => ref.watch(authEnabledProvider)
+                    ? SbButton(
+                        label: l10n.addressTitle,
+                        onPressed: () =>
+                            const CustomerAddressesRoute().push<void>(context))
+                    : const SizedBox.shrink()),
           Text(
               title == RouteTitle.switchRole
                   ? l10n.routeSwitchMessage

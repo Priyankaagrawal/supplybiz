@@ -7,6 +7,7 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $customerAddressesRoute,
       $splashRoute,
       $loginRoute,
       $otpRoute,
@@ -18,6 +19,94 @@ List<RouteBase> get $appRoutes => [
       $customerShell,
       $linkRoute,
     ];
+
+RouteBase get $customerAddressesRoute => GoRouteData.$route(
+      path: '/customer/addresses',
+      factory: _$CustomerAddressesRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'new',
+          factory: _$CustomerAddressNewRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: ':id/edit',
+          factory: _$CustomerAddressEditRoute._fromState,
+        ),
+      ],
+    );
+
+mixin _$CustomerAddressesRoute on GoRouteData {
+  static CustomerAddressesRoute _fromState(GoRouterState state) =>
+      const CustomerAddressesRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/addresses',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$CustomerAddressNewRoute on GoRouteData {
+  static CustomerAddressNewRoute _fromState(GoRouterState state) =>
+      const CustomerAddressNewRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/addresses/new',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$CustomerAddressEditRoute on GoRouteData {
+  static CustomerAddressEditRoute _fromState(GoRouterState state) =>
+      CustomerAddressEditRoute(
+        state.pathParameters['id']!,
+      );
+
+  CustomerAddressEditRoute get _self => this as CustomerAddressEditRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/addresses/${Uri.encodeComponent(_self.id)}/edit',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $splashRoute => GoRouteData.$route(
       path: '/splash',

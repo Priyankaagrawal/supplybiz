@@ -9,10 +9,40 @@ import '../../features/service_area/service_area_page.dart';
 import '../../features/products/products_page.dart';
 import '../../features/customers/customers_page.dart';
 import '../../features/customers/customer_editor.dart';
+import '../../features/addresses/addresses_page.dart';
+import '../../features/addresses/address_editor.dart';
 import '../../features/notifications/notifications_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'routes.g.dart';
+
+@TypedGoRoute<CustomerAddressesRoute>(path: '/customer/addresses', routes: [
+  TypedGoRoute<CustomerAddressNewRoute>(path: 'new'),
+  TypedGoRoute<CustomerAddressEditRoute>(path: ':id/edit'),
+])
+class CustomerAddressesRoute extends GoRouteData with _$CustomerAddressesRoute {
+  const CustomerAddressesRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const AddressesPage();
+}
+
+class CustomerAddressNewRoute extends GoRouteData
+    with _$CustomerAddressNewRoute {
+  const CustomerAddressNewRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const AddressEditorPage();
+}
+
+class CustomerAddressEditRoute extends GoRouteData
+    with _$CustomerAddressEditRoute {
+  const CustomerAddressEditRoute(this.id);
+  final String id;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      AddressEditorPage(id: id);
+}
 
 @TypedGoRoute<SplashRoute>(path: '/splash')
 class SplashRoute extends GoRouteData with _$SplashRoute {

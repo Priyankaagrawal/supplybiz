@@ -76,7 +76,7 @@
 | T-044 | Mobile discovery S-C-05–S-C-08, S-C-37 | MOB | US-210, US-211 | T-041, T-016 | TC-204–TC-210 | TODO |
 | T-045 | Orders API: quote, place (FR-225 validations), state machine, history, capacity | API | FR-040–FR-046, FR-220–FR-225 | T-026, T-028, T-006, T-015, T-040, T-022, T-084, T-103 | TC-045–TC-051, TC-220–TC-232 | TODO |
 | T-046 | Mobile cart & checkout S-C-11, place new order S-C-12 | MOB | US-220, US-221 | T-045, T-040, T-016, T-047 | TC-220–TC-232 | TODO |
-| T-047 | Mobile addresses S-C-28/29 | MOB | US-290 | T-040, T-016 | TC-290 | TODO |
+| T-047 | Mobile addresses S-C-28/29 | MOB | US-290 | T-040, T-016 | TC-290 | READY_FOR_VERIFY (2026-11-12: 21 focused mobile/router checks, clean analysis, one native Android encrypted-retry/restart/200%/delete smoke, final dev APK build/install and five runner guards pass. Profile-linked typed list/add/edit, validated manual/GPS coordinates, default switching, confirmed deletion, explicit encrypted account-scoped retries, 24-hour retry guard and accepted-write/failed-refresh recovery implemented. HTTP simulated; live UI/API/DB, actual GPS fix/permissions, manual TalkBack/PASS and G0/G1/G2 pending; iOS deferred. No API/schema/dependency changes; mobile README T-047 handoff.) |
 | T-048 | Mobile vendor orders S-V-08–S-V-10 | MOB | US-040–US-042 | T-045, T-016 | TC-045–TC-050 | TODO |
 | T-049 | Deliveries API + transactional delivered side effects (ledger debit and stock) | API | FR-080, FR-081 | T-045, T-070 | Delivery replay creates exactly one stock movement/debit; full flow at G2 | TODO |
 | T-050 | Mobile deliveries S-V-16 with outbox + sync queue S-V-34 | MOB | US-080 | T-049, T-012 | TC-086–TC-088, TC-504 | TODO |
