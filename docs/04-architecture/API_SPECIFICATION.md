@@ -238,6 +238,14 @@ with their owning modules; T-028 does not return fabricated totals or history.
 | PUT/DELETE | `/customer/favorites/{vendorId}` |
 | GET/POST/PATCH/DELETE | `/customer/addresses[/{id}]` |
 
+Discovery sorting follows ADR-031 / FR-210: apply RULE-13 eligibility first and
+place the current customer's favorites first. Within each favorite/non-favorite
+group, NEARBY sorts by distance ascending; POPULAR sorts by completed (DELIVERED)
+order count in the preceding 30 days descending, then distance ascending. Count
+completion timestamps, not order creation; no qualifying orders means zero.
+Vendor ID breaks remaining ties for deterministic pagination. Ratings, reviews,
+POS sales and plan assignments do not contribute to popularity.
+
 T-040 / FR-291: authenticated active CUSTOMER role only. Collection GET returns
 `{ items: AddressResponse[] }` (default first, then creation time/ID); detail GET
 returns one owned live address. POST requires `label`, `line1` (house/flat), `line2`

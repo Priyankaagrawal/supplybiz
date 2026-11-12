@@ -185,7 +185,7 @@
 ### 3.16 Discovery & Vendor Details (F-16, F-24)
 | ID | Requirement | Pri |
 |---|---|---|
-| FR-210 | Vendor list includes only VERIFIED vendors with an active assigned plan serving the location; Nearby/Popular sorts, image/name/distance/badges/quick add, favorites and pagination remain. Rating sort, ratings and review counts are absent (SR-05). | P0 |
+| FR-210 | Vendor list includes only VERIFIED, non-suspended vendors with an effective active assigned plan serving the location; image/name/distance/badges/quick add, favorites and pagination remain. Favorites appear first in both sorts. Nearby sorts each group by distance ascending. Popular sorts each group by completed (DELIVERED) orders in the preceding 30 days descending, then distance ascending; use completion time, with zero for no qualifying orders and vendor ID as the final deterministic tie-breaker (ADR-031). Rating sort, ratings and review counts are absent (SR-05). | P0 |
 | FR-211 | Vendor details show cover/name/distance/badges and Products, Subscription and About tabs (address/hours/delivery charge/holidays). Reviews/rating UI is absent (SR-05). | P0 |
 | FR-212 | Product details: image, name, price, description, attributes, qty stepper (≥ MOQ), Add to Cart, Subscribe & Save. | P0 |
 | FR-213 | **POST-DELIVERY — SR-05**. Future requirement: After a DELIVERED order, customer may rate the vendor 1–5 with optional text (≤ 500 chars); one review per order; vendor rating = average of published reviews. | DEFERRED |

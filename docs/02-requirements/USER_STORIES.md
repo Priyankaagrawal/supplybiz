@@ -238,7 +238,7 @@
 - AC1: Results only include serviceable vendors (RULE-13); empty state suggests changing location.
 
 **US-210** As a customer, I want to browse milk vendors nearby. — FR-210, FR-214 · P0
-- AC1: Sorting by Nearby/Popular works; Rating sort, ratings and review counts are absent (SR-05); favorites appear first; outside-area vendors never appear.
+- AC1: Favorites appear first among RULE-13-eligible vendors. Nearby orders each group by distance ascending; Popular orders each group by completed (DELIVERED) orders in the preceding 30 days descending, then distance ascending, with vendor ID breaking remaining ties (ADR-031). Use completion time and count zero when there are no qualifying orders. Rating sort, ratings and review counts are absent (SR-05); outside-area/unverified/suspended/inactive-plan vendors never appear.
 
 **US-211** As a customer, I want vendor and product details. — FR-211, FR-212 · P0
 - AC1: Tabs Products/Subscription/About load; Reviews is absent (SR-05); qty stepper respects MOQ; Add to Cart updates cart badge.

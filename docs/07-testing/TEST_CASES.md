@@ -172,7 +172,7 @@
 | TC-201 | Home content | Categories and today’s persisted deliveries; no marketing banner/CTA | FR-201 | A, W |
 | TC-202 | Search serviceable only | Results exclude out-of-area/unverified/suspended | FR-202, RULE-13 | A |
 | TC-203 | Search empty | Empty state suggests changing location | FR-202 | W |
-| TC-204 | Sort Nearby | Ordered by distance asc | FR-210 | A |
+| TC-204 | Sort Nearby/Popular | Favorites first among eligible vendors; Nearby distance asc; Popular DELIVERED completions in preceding 30 days desc, distance asc, vendor-ID tie-breaker. Exclude old/non-delivered orders and non-order activity; zero history counts zero; preserve eligibility and deterministic pagination (ADR-031). | FR-210 | A |
 | TC-205 | POST-DELIVERY (SR-05): Sort Rating | Ordered by rating desc, ties by count | FR-210 | DEFERRED (SR-05); not executed/not PASS |
 | TC-206 | Suspended vendor | Disappears immediately; open page → order fails `VENDOR_UNAVAILABLE` | FR-403 | A |
 | TC-207 | Vendor details tabs | Products/Subscription/About load; Reviews/ratings absent; charge and holidays correct | FR-211 | W |
