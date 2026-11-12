@@ -111,6 +111,15 @@ Class | Method | HTTP request | Description
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAdd**](doc/DiscoveryApi.md#discoverycontrolleradd) | **PUT** /api/v1/customer/favorites/{id} |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerFavorites**](doc/DiscoveryApi.md#discoverycontrollerfavorites) | **GET** /api/v1/customer/favorites |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerImage**](doc/DiscoveryApi.md#discoverycontrollerimage) | **GET** /api/v1/customer/vendors/{id}/media/{mediaId}/content |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerList**](doc/DiscoveryApi.md#discoverycontrollerlist) | **GET** /api/v1/customer/vendors |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerProduct**](doc/DiscoveryApi.md#discoverycontrollerproduct) | **GET** /api/v1/customer/vendors/{id}/products/{productId} |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerProducts**](doc/DiscoveryApi.md#discoverycontrollerproducts) | **GET** /api/v1/customer/vendors/{id}/products |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerRemove**](doc/DiscoveryApi.md#discoverycontrollerremove) | **DELETE** /api/v1/customer/favorites/{id} |
+[*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerSearch**](doc/DiscoveryApi.md#discoverycontrollersearch) | **GET** /api/v1/customer/search |
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetLive**](doc/HealthApi.md#healthcontrollergetlive) | **GET** /api/v1/health/live | Liveness probe
 [*HealthApi*](doc/HealthApi.md) | [**healthControllerGetReady**](doc/HealthApi.md#healthcontrollergetready) | **GET** /api/v1/health/ready | Readiness probe
 [*KycApi*](doc/KycApi.md) | [**adminKycControllerDecide**](doc/KycApi.md#adminkyccontrollerdecide) | **POST** /api/v1/admin/kyc/{id}/decision |
@@ -178,7 +187,10 @@ Class | Method | HTTP request | Description
  - [DeviceDto](doc/DeviceDto.md)
  - [DevicePushInput](doc/DevicePushInput.md)
  - [DevicePushResponse](doc/DevicePushResponse.md)
+ - [DiscoveredVendor](doc/DiscoveredVendor.md)
+ - [DiscoveryPage](doc/DiscoveryPage.md)
  - [ExtendPlanInput](doc/ExtendPlanInput.md)
+ - [FavoriteResult](doc/FavoriteResult.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
  - [InboxItem](doc/InboxItem.md)
  - [InboxResponse](doc/InboxResponse.md)
@@ -224,6 +236,8 @@ Class | Method | HTTP request | Description
  - [StockAdjustment](doc/StockAdjustment.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
+ - [VendorAbout](doc/VendorAbout.md)
+ - [VendorAboutHolidaysInner](doc/VendorAboutHolidaysInner.md)
  - [VendorAssignmentResponse](doc/VendorAssignmentResponse.md)
  - [VendorBusinessDto](doc/VendorBusinessDto.md)
  - [VendorCategoryDto](doc/VendorCategoryDto.md)

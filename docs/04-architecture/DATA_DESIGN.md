@@ -140,6 +140,17 @@ STOCK_ALERTS entitlements and deduplicates by event ID; until that consumer exis
 dispatcher attempts fail explicitly as WORKER_HANDLER_MISSING, never as delivery.
 
 ### 3.4 Customers & addresses
+
+T-041 adds the documented `favorites` and `vendor_holidays` tables and the `orders`
+storage foundation for discovery reads. Orders add nullable `completed_at`
+(TIMESTAMPTZ) indexed with vendor ID: DELIVERED requires completion time and other
+states require null. Popular counts completions in the rolling interval
+`[database asOf - 30 days, asOf]`; creation time never determines popularity.
+The SQL migration retains zero-discount/integer-paise constraints and the partial
+subscription/date unique index. T-045/T-049 must implement actual order/delivery
+writes and their financial effects against this foundation; T-074 owns holiday
+writes. T-041 adds no order/holiday mutation endpoint and supplies no evidence of
+those downstream flows. No synthetic production completion source is introduced.
 | Table | Key columns | Notes |
 |---|---|---|
 | `vendor_customers` | id, vendor_id, user_id NULL, name, mobile (+91 normalized), email, address_text, preferred_payment, status (ACTIVE/INACTIVE), deleted_at, created_at, updated_at | UNIQUE(vendor_id, mobile) WHERE deleted_at IS NULL; UNIQUE(vendor_id,user_id) for live linked records; index(user_id), index(mobile). T-040 adds address references when available. |

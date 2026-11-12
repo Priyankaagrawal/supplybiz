@@ -28,7 +28,10 @@ import 'package:supplybiz_api_client/src/model/customer_response.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_push_input.dart';
 import 'package:supplybiz_api_client/src/model/device_push_response.dart';
+import 'package:supplybiz_api_client/src/model/discovered_vendor.dart';
+import 'package:supplybiz_api_client/src/model/discovery_page.dart';
 import 'package:supplybiz_api_client/src/model/extend_plan_input.dart';
+import 'package:supplybiz_api_client/src/model/favorite_result.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
 import 'package:supplybiz_api_client/src/model/inbox_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_response.dart';
@@ -74,6 +77,8 @@ import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_about.dart';
+import 'package:supplybiz_api_client/src/model/vendor_about_holidays_inner.dart';
 import 'package:supplybiz_api_client/src/model/vendor_assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
@@ -181,8 +186,17 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'DevicePushResponse':
       return DevicePushResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'DiscoveredVendor':
+      return DiscoveredVendor.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DiscoveryPage':
+      return DiscoveryPage.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ExtendPlanInput':
       return ExtendPlanInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'FavoriteResult':
+      return FavoriteResult.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
@@ -306,6 +320,11 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'TotpDto':
       return TotpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'VendorAbout':
+      return VendorAbout.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'VendorAboutHolidaysInner':
+      return VendorAboutHolidaysInner.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'VendorAssignmentResponse':
       return VendorAssignmentResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;

@@ -246,6 +246,27 @@ completion timestamps, not order creation; no qualifying orders means zero.
 Vendor ID breaks remaining ties for deterministic pagination. Ratings, reviews,
 POS sales and plan assignments do not contribute to popularity.
 
+T-041 implements authenticated active-CUSTOMER reads above plus
+`GET /customer/favorites`, `GET /customer/vendors/{id}/products/{productId}`
+(returns `{items:[product],total:1}`) and
+`GET /customer/vendors/{id}/media/{mediaId}/content`. All accept required numeric
+`lat`, `lng` and six-digit `pincode`; list/search additionally accept category UUID,
+q (literal substring, max 120), NEARBY/POPULAR, limit 1–50 (default 20) and cursor.
+Search matches vendor names or active product names; the vendor products endpoint
+supports q filtering and exposes current paise prices, MOQ, attributes and owned
+image IDs. List responses are `{items,nextCursor}` with no ratings or review counts.
+The signed keyset cursor binds customer/location/search/category/sort/favorites,
+fixes the database-time popularity window, and expires after 15 minutes. Refresh
+without a cursor to see new completions/favorite ordering. Eligibility is rechecked
+on every page/detail/product/image read; unavailable vendors return 404
+VENDOR_UNAVAILABLE. About includes address, charges and persisted holidays;
+openingHours is explicitly null until business-hours settings are configured.
+Media reads permit only attached READY shop/product media of eligible vendors,
+using existing private storage checks; KYC and unrelated uploads remain denied.
+Favorites PUT/DELETE require Idempotency-Key (max 120), with transactional user-scoped
+24-hour replay/mismatch rejection. PUT requires current vendor eligibility; DELETE
+can remove an unavailable vendor without exposing its data. Responses are no-store.
+
 T-040 / FR-291: authenticated active CUSTOMER role only. Collection GET returns
 `{ items: AddressResponse[] }` (default first, then creation time/ID); detail GET
 returns one owned live address. POST requires `label`, `line1` (house/flat), `line2`

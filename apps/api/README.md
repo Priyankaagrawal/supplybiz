@@ -1,5 +1,86 @@
 # Supply Biz API
 
+## T-041 discovery handoff (2026-11-12): READY_FOR_VERIFY
+
+FR-202/210–212/214 / ADR-031. Active CUSTOMER sessions can list/search eligible
+vendors, read details/products and attached images, and manage favorites. Routes
+and parameters are in API_SPECIFICATION §4.10; `/api/v1` is the route prefix.
+All requests require lat/lng/pincode. RULE-13 filters verified, non-suspended,
+active-user/category/assigned-plan vendors serving radius OR pincode. No ratings.
+Favorites lead both sorts. Popular counts DELIVERED `orders.completed_at` within
+the rolling 30-day DB-time window; Nearby uses distance; UUID breaks ties.
+List pages are bounded (default 20, max 50) with signed customer/query/location-bound
+15-minute cursors. New completions require a fresh list; current eligibility is
+always rechecked. Literal search matches active product or vendor names.
+Product reads preserve integer paise/MOQ/attributes; no internal cost/KYC data.
+Attached READY product/shop files use existing secure private-file streams.
+Favorite PUT/DELETE require stable Idempotency-Key (max 120) and have 24-hour atomic
+per-user replay. Unfavorite may remove an unavailable vendor; favoriting may not.
+
+Additive migration adds documented favorites/holidays and order storage with
+completion-time, integer-money, status and subscription/date constraints. These
+are read foundations: T-045/T-049 own real order/delivery/stock/ledger writes;
+T-074 owns holiday writes. About returns actual holiday rows and null openingHours
+until business-hours settings exist. No fake production counters, delivered orders,
+provider evidence or downstream gate pass is supplied by this task.
+
+Executed from apps/api:
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/discovery/discovery.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+Executed from root: `.\apps\api\node_modules\.bin\prisma.cmd generate --schema apps/api/src/prisma/schema.prisma`,
+`& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext packages/ts-client/src/generated/openapi.ts`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter analyze --no-pub lib`.
+All final commands PASS: five native cases, two runtime smokes, five runner guards,
+API lint/typecheck/build/schema and generated TS/Dart client compilation/analysis.
+Native checks required Windows ACL inspection; codegen/cache access was approved.
+Logs redirected to host TEMP supplybiz-t041-focused.log, supplybiz-t041-runtime.log
+and supplybiz-t041-codegen.log. Tests use synthetic persisted orders, not actual
+delivery transitions. Synthetic audited fixtures remain only in the isolated DB;
+their category is hidden on cleanup. Test apps closed; existing services preserved.
+
+The first migration failed at its first statement because the SQL file contained
+a UTF-8 BOM; no DDL applied in that failed run. Removed the BOM, executed
+`prisma.cmd migrate resolve --rolled-back 202611120002_discovery --schema src/prisma/schema.prisma`
+against the same isolated DB and redeployed successfully. Two fixture failures
+(customer mobile length and missing milk type) were corrected. No dev/staging/
+production migration was applied. Rollback retains additive data; revert consumers
+first, and do not drop order/favorite history as an automatic down migration.
+
+Manual verification (suggested, NOT executed):
+1. Apply the migration to the intended local dev DB, start the API using existing
+   setup and sign in as CUSTOMER. Query vendors with valid coordinates/pincode;
+   verify empty/error states and radius OR listed-pincode coverage.
+2. With real authorized admin KYC/plan operations, verify unverified, suspended,
+   expired/unassigned vendors disappear from lists and return 404 on direct reads.
+3. In an isolated test DB, prepare synthetic DELIVERED orders completed recently/
+   over 30 days ago and non-delivered records. Check Popular counts only recent
+   completions, Nearby sorts by distance, favorites lead, and 45 vendors page
+   without duplicates. This is a ranking fixture check, not delivery-flow PASS.
+4. Favorite/unfavorite, repeat original-key retries and restart the API. Verify
+   persistence, mismatch 422 and another customer's independent favorites.
+5. Read vendor products and current paise prices/MOQ, stream an attached image,
+   then deactivate it. Verify unavailable/private KYC/unrelated media return 404.
+
+NOT_RUN: T-044 UI and manual accessibility/PASS, actual T-045/T-049 completion
+production path and financial effects, T-074 holiday changes, live OTP and G0/G1/G2.
+No mobile build required for this API task; iOS validation remains deferred.
+
 ## T-040 addresses handoff (2026-11-12): READY_FOR_VERIFY
 
 FR-291 / US-290 / TC-290: customer-owned list/detail/create/partial edit/soft-delete

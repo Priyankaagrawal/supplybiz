@@ -4,6 +4,134 @@
  */
 
 export interface paths {
+    "/api/v1/customer/vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/favorites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_favorites"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/vendors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_about"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/vendors/{id}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/vendors/{id}/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_product"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/vendors/{id}/media/{mediaId}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DiscoveryController_image"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/favorites/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["DiscoveryController_add"];
+        post?: never;
+        delete: operations["DiscoveryController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/addresses": {
         parameters: {
             query?: never;
@@ -1053,6 +1181,79 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DiscoveredVendor: {
+            /** Format: uuid */
+            id: string;
+            businessName: string;
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: uuid */
+            shopPhotoMediaId: string | null;
+            badges: string[];
+            distanceMeters: number;
+            completedOrders30Days: number;
+            favorite: boolean;
+        };
+        DiscoveryPage: {
+            items: components["schemas"]["DiscoveredVendor"][];
+            nextCursor: string | null;
+        };
+        VendorAbout: {
+            /** Format: uuid */
+            id: string;
+            businessName: string;
+            /** Format: uuid */
+            categoryId: string;
+            /** Format: uuid */
+            shopPhotoMediaId: string | null;
+            badges: string[];
+            distanceMeters: number;
+            completedOrders30Days: number;
+            favorite: boolean;
+            address: string | null;
+            city: string | null;
+            state: string | null;
+            pincode: string | null;
+            deliveryChargePaise: number;
+            minOrderPaise: number;
+            /** @description Unconfigured until business-hours settings exist. */
+            openingHours: {
+                [key: string]: unknown;
+            } | null;
+            holidays: {
+                /** Format: date */
+                date?: string;
+                reason?: string;
+            }[];
+        };
+        ProductResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            productType: string;
+            milkType: string | null;
+            unitValue: number;
+            /** @enum {string} */
+            unitType: "ML" | "L" | "G" | "KG" | "PCS";
+            sellingPricePaise: number;
+            subscriptionPricePaise: number | null;
+            stockQty: number;
+            moq: number;
+            description: string;
+            /** Format: uuid */
+            imageMediaId: string | null;
+            isActive: boolean;
+            version: number;
+        };
+        ProductList: {
+            items: components["schemas"]["ProductResponse"][];
+            total: number;
+        };
+        FavoriteResult: {
+            /** Format: uuid */
+            vendorId: string;
+            favorite: boolean;
+        };
         AddressResponse: {
             label: string;
             /** @description House or flat. */
@@ -1423,29 +1624,6 @@ export interface components {
             deviceId: string;
             pushEnabled: boolean;
         };
-        ProductResponse: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            productType: string;
-            milkType: string | null;
-            unitValue: number;
-            /** @enum {string} */
-            unitType: "ML" | "L" | "G" | "KG" | "PCS";
-            sellingPricePaise: number;
-            subscriptionPricePaise: number | null;
-            stockQty: number;
-            moq: number;
-            description: string;
-            /** Format: uuid */
-            imageMediaId: string | null;
-            isActive: boolean;
-            version: number;
-        };
-        ProductList: {
-            items: components["schemas"]["ProductResponse"][];
-            total: number;
-        };
         ProductOptions: {
             /** @description Admin-managed product type codes for the signed-in vendor category. */
             productTypes: string[];
@@ -1791,6 +1969,466 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    DiscoveryController_list: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryPage"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_search: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Matches eligible vendor names or active product names. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryPage"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_favorites: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiscoveryPage"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_about: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorAbout"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_products: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductList"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_product: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductList"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_image: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+                mediaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_add: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteResult"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DiscoveryController_remove: {
+        parameters: {
+            query: {
+                lat: number;
+                lng: number;
+                pincode: string;
+                category?: string;
+                sort?: "NEARBY" | "POPULAR";
+                q?: string;
+                limit?: number;
+                cursor?: string;
+            };
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FavoriteResult"];
+                };
+            };
+            /** @description Invalid coordinates/pincode/cursor or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_UNAVAILABLE or PRODUCT_NOT_FOUND. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AddressesController_list: {
         parameters: {
             query?: never;

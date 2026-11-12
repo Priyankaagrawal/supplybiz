@@ -113,6 +113,7 @@ model users {
   customer_link_decisions customer_link_decisions[]
   ledger_entries ledger_entries[]
   addresses addresses[]
+  favorites favorites[]
 }
 
 // FR-291 / T-040. Partial unique default index and generated geography live in SQL.
@@ -436,6 +437,9 @@ model media_access_events {
 
 // T-021: nullable business fields represent a category-only onboarding draft.
 model vendors {
+  favorites favorites[]
+  orders orders[]
+  holidays vendor_holidays[]
   badges String[] @default([])
   id String @id @default(uuid()) @db.Uuid
   user_id String @unique @db.Uuid
@@ -471,6 +475,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  orders orders[]
   id String @id @default(uuid()) @db.Uuid
   vendor_id String @db.Uuid
   user_id String? @db.Uuid
@@ -721,4 +726,50 @@ model notification_pushes {
   device devices @relation(fields: [device_id], references: [id], onDelete: Restrict)
   event outbox_events @relation(fields: [event_id], references: [id], onDelete: Restrict)
   @@unique([notification_id, device_id])
+}
+
+// T-041 read foundations; T-045/T-049 own order mutations, T-074 holiday writes.
+model favorites {
+  user_id String @db.Uuid
+  vendor_id String @db.Uuid
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  @@id([user_id,vendor_id])
+}
+model vendor_holidays {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_id String @db.Uuid
+  date DateTime @db.Date
+  reason String @db.VarChar(200)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  @@unique([vendor_id,date])
+}
+model orders {
+  id String @id @default(uuid()) @db.Uuid
+  order_no String @unique @db.VarChar(40)
+  vendor_id String @db.Uuid
+  vendor_customer_id String @db.Uuid
+  source String @db.VarChar(16)
+  subscription_id String? @db.Uuid
+  status String @db.VarChar(24)
+  delivery_date DateTime @db.Date
+  time_slot String @db.VarChar(80)
+  address_snapshot Json
+  subtotal_paise BigInt
+  delivery_charge_paise BigInt
+  discount_paise BigInt @default(0)
+  total_paise BigInt
+  payment_mode String @db.VarChar(16)
+  payment_status String @db.VarChar(8)
+  reject_reason String? @db.VarChar(500)
+  cancel_reason String? @db.VarChar(500)
+  fail_reason String? @db.VarChar(500)
+  version Int @default(1)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  completed_at DateTime? @db.Timestamptz(6)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  customer vendor_customers @relation(fields:[vendor_customer_id],references:[id],onDelete:Restrict)
+  @@index([vendor_id,delivery_date,status])
+  @@index([vendor_customer_id,created_at])
+  @@index([vendor_id,completed_at])
 }
