@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-042': ['src/modules/home/home.postgres.spec.ts'],
   'T-041': ['src/modules/discovery/discovery.postgres.spec.ts'],
   'T-040': ['src/modules/addresses/addresses.postgres.spec.ts'],
   'T-155': ['src/modules/management/management.postgres.spec.ts', 'src/modules/auth/sessions.postgres.spec.ts'],

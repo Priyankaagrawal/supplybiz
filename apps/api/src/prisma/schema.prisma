@@ -565,6 +565,7 @@ model customer_subscription_links {
 
 // T-026: catalog foundation. Money and quantities are integral.
 model products {
+  order_items order_items[]
   id String @id @default(uuid()) @db.Uuid
   vendor_id String @db.Uuid
   name String @db.VarChar(120)
@@ -745,6 +746,7 @@ model vendor_holidays {
   @@unique([vendor_id,date])
 }
 model orders {
+  items order_items[]
   id String @id @default(uuid()) @db.Uuid
   order_no String @unique @db.VarChar(40)
   vendor_id String @db.Uuid
@@ -772,4 +774,19 @@ model orders {
   @@index([vendor_id,delivery_date,status])
   @@index([vendor_customer_id,created_at])
   @@index([vendor_id,completed_at])
+}
+
+// T-042 home reads snapshots; T-045 owns transactional item creation.
+model order_items {
+  id String @id @default(uuid()) @db.Uuid
+  order_id String @db.Uuid
+  product_id String @db.Uuid
+  product_name_snapshot String @db.VarChar(120)
+  unit_snapshot Json
+  unit_price_paise BigInt
+  qty Int
+  line_total_paise BigInt
+  order orders @relation(fields: [order_id], references: [id], onDelete: Restrict)
+  product products @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  @@index([order_id, id])
 }

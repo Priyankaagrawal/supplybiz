@@ -21,6 +21,7 @@ import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
+import 'package:supplybiz_api_client/src/model/customer_home.dart';
 import 'package:supplybiz_api_client/src/model/customer_input.dart';
 import 'package:supplybiz_api_client/src/model/customer_list.dart';
 import 'package:supplybiz_api_client/src/model/customer_patch.dart';
@@ -33,6 +34,9 @@ import 'package:supplybiz_api_client/src/model/discovery_page.dart';
 import 'package:supplybiz_api_client/src/model/extend_plan_input.dart';
 import 'package:supplybiz_api_client/src/model/favorite_result.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
+import 'package:supplybiz_api_client/src/model/home_category.dart';
+import 'package:supplybiz_api_client/src/model/home_delivery.dart';
+import 'package:supplybiz_api_client/src/model/home_delivery_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_response.dart';
 import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
@@ -167,6 +171,8 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'CurrentPlanResponse':
       return CurrentPlanResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'CustomerHome':
+      return CustomerHome.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CustomerInput':
       return CustomerInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -201,6 +207,13 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
           value as Map<String, dynamic>) as ReturnType;
+    case 'HomeCategory':
+      return HomeCategory.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'HomeDelivery':
+      return HomeDelivery.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'HomeDeliveryItem':
+      return HomeDeliveryItem.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'InboxItem':
       return InboxItem.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'InboxResponse':

@@ -1,5 +1,61 @@
 openapi: 3.0.0
 paths:
+  /api/v1/customer/home:
+    get:
+      operationId: HomeController_get
+      parameters:
+        - name: lat
+          required: false
+          in: query
+          description: Optional location pair; does not filter owned deliveries.
+          schema:
+            minimum: -90
+            maximum: 90
+            type: number
+        - name: lng
+          required: false
+          in: query
+          schema:
+            minimum: -180
+            maximum: 180
+            type: number
+        - name: pincode
+          required: false
+          in: query
+          schema:
+            pattern: ^[1-9][0-9]{5}$
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: number
+        - name: cursor
+          required: false
+          in: query
+          description: Last order ID from this customer and current IST day.
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerHome'
+        '400':
+          description: Invalid query or cursor not owned by this customer/current IST day.
+        '401':
+          description: Missing, revoked or expired session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED.
+      tags:
+        - customer-home
+      security:
+        - bearer: []
   /api/v1/customer/vendors:
     get:
       operationId: DiscoveryController_list
@@ -3008,6 +3064,131 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    HomeCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - ENABLED
+            - COMING_SOON
+        available:
+          type: boolean
+        productTypes:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - code
+        - name
+        - icon
+        - status
+        - available
+        - productTypes
+    HomeDeliveryItem:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Persisted order-time name, including inactive/deleted products.
+        qty:
+          type: integer
+      required:
+        - productId
+        - name
+        - qty
+    HomeDelivery:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderNo:
+          type: string
+        vendorId:
+          type: string
+          format: uuid
+        vendorName:
+          type: string
+          nullable: true
+        source:
+          type: string
+          enum:
+            - APP
+            - SUBSCRIPTION
+            - VENDOR
+        status:
+          type: string
+          enum:
+            - NEW
+            - ACCEPTED
+            - REJECTED
+            - PREPARING
+            - OUT_FOR_DELIVERY
+            - DELIVERED
+            - FAILED
+            - CANCELLED
+        deliveryDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeDeliveryItem'
+      required:
+        - id
+        - orderNo
+        - vendorId
+        - vendorName
+        - source
+        - status
+        - deliveryDate
+        - timeSlot
+        - items
+    CustomerHome:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+        businessDate:
+          type: string
+          format: date
+          description: Database-derived Asia/Kolkata date.
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeCategory'
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/HomeDelivery'
+        nextCursor:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - serverTime
+        - businessDate
+        - categories
+        - deliveries
+        - nextCursor
     DiscoveredVendor:
       type: object
       properties:

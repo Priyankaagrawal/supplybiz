@@ -16,6 +16,7 @@ import 'package:supplybiz_api_client/src/api/catalog_api.dart';
 import 'package:supplybiz_api_client/src/api/categories_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_addresses_api.dart';
+import 'package:supplybiz_api_client/src/api/customer_home_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_links_api.dart';
 import 'package:supplybiz_api_client/src/api/discovery_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
@@ -196,6 +197,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   CustomerAddressesApi getCustomerAddressesApi() {
     return CustomerAddressesApi(dio);
+  }
+
+  /// Get CustomerHomeApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CustomerHomeApi getCustomerHomeApi() {
+    return CustomerHomeApi(dio);
   }
 
   /// Get CustomerLinksApi instance, base route and serializer can be overridden by a given but be careful,

@@ -1,5 +1,82 @@
 # Supply Biz API
 
+## T-042 customer home handoff (2026-11-12): READY_FOR_VERIFY
+
+FR-201 / US-201 / S-C-01 / TC-201: `GET /api/v1/customer/home` returns
+database serverTime, IST businessDate, English supply categories and today's owned
+persisted deliveries. Categories include ENABLED/COMING_SOON with `available`
+reflecting enabled state, not coverage. Hidden and BILL categories are excluded;
+no banners, coupons or provider actions are returned. T-033 owns the existing bell.
+Status and product snapshot names/quantities come from orders/order_items, not
+current catalog names/prices. Mobile matching never substitutes for accepted
+account linkage. Vendor suspension/plan expiry, inactive customers and deleted
+products do not erase existing owned order history. Responses omit customer,
+address and financial details and use no-store.
+
+Optional coordinates must be a valid lat/lng pair; optional pincode is validated.
+They do not filter these owned orders. Limit defaults to 20 (max 50); nextCursor
+is an order UUID scoped to the same owner/current IST day. Newest creation time
+then ID determine order. Foreign/stale-day anchors return INVALID_CURSOR; refresh
+without a cursor after midnight. Client-supplied date/user/vendor fields are rejected.
+Additive order_items schema stores snapshots, exact BIGINT line totals and positive
+quantities with restrictive FKs. T-045 owns item creation/total validation; T-049
+owns actual delivery/financial effects. No order mutation or fake delivery is added.
+
+Executed from apps/api:
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/home/home.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+Executed from root: `.\apps\api\node_modules\.bin\prisma.cmd generate --schema apps/api/src/prisma/schema.prisma`,
+`& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext packages/ts-client/src/generated/openapi.ts`,
+`node --test tools/checks.spec.mjs`, `git diff --check`.
+From packages/api_client: `flutter analyze --no-pub lib`.
+All PASS: six focused native DB/HTTP cases, two runtime smokes, five runner guards,
+API lint/typecheck/build/schema and regenerated TypeScript/Dart client checks.
+The six cases cover category visibility/English/absence of marketing, linked-owner
+isolation with mobile-match denial, snapshots/history, IST midnight boundaries,
+45-order pagination, refresh/restart/empty states and role/query abuse.
+Native startup required approved Windows private-storage ACL inspection; codegen/
+client analysis required existing package/SDK cache access. Logs redirected to host
+TEMP supplybiz-t042-focused.log, supplybiz-t042-runtime.log and supplybiz-t042-codegen.log.
+Only the isolated _test DB received migration 202611120003_home_items. Synthetic
+order fixtures remain in that DB with their categories hidden on cleanup. Test
+applications closed and pre-existing services/devices preserved. No dev/staging/
+production migration was applied. Rollback retains additive item/history storage;
+revert consumers first, with no automatic destructive down migration.
+
+Manual verification (suggested, NOT executed):
+1. Apply the additive migration to the intended local dev DB, start the API and
+   sign in as CUSTOMER. Read home; confirm IST businessDate, English enabled/
+   coming-soon categories, no hidden/BILL categories and no marketing actions.
+2. In an isolated test DB, prepare owned and foreign/unlinked orders due yesterday,
+   today and tomorrow with item snapshots. Confirm only owned orders for today
+   appear, with saved names even when catalog products are renamed/deactivated.
+3. Change a persisted order status, refresh and restart the API. Confirm the current
+   status loads. Check empty accounts and existing history after plan expiry or
+   vendor suspension. This is a seeded-read check, not actual delivery-flow PASS.
+4. Page through more than 20 today orders and verify unique IDs. Try another
+   customer's cursor, a stale-day cursor, forged user/date/vendor, invalid location
+   pairs and a vendor/blocked session; confirm validation and authorization denial.
+
+NOT_RUN: real T-045/T-049 order/item creation/delivery/financial integration, T-043
+mobile UI/accessibility and manual PASS, live OTP and G0/G1/G2. These need their
+owning implementations and manual environment. No mobile build is required for
+this API-only task; iOS checks remain deferred under ADR-025.
+
 ## T-041 discovery handoff (2026-11-12): READY_FOR_VERIFY
 
 FR-202/210–212/214 / ADR-031. Active CUSTOMER sessions can list/search eligible

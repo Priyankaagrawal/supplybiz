@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/customer/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["HomeController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/vendors": {
         parameters: {
             query?: never;
@@ -1181,6 +1197,53 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        HomeCategory: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            icon: string | null;
+            /** @enum {string} */
+            status: "ENABLED" | "COMING_SOON";
+            available: boolean;
+            productTypes: string[];
+        };
+        HomeDeliveryItem: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Persisted order-time name, including inactive/deleted products. */
+            name: string;
+            qty: number;
+        };
+        HomeDelivery: {
+            /** Format: uuid */
+            id: string;
+            orderNo: string;
+            /** Format: uuid */
+            vendorId: string;
+            vendorName: string | null;
+            /** @enum {string} */
+            source: "APP" | "SUBSCRIPTION" | "VENDOR";
+            /** @enum {string} */
+            status: "NEW" | "ACCEPTED" | "REJECTED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "FAILED" | "CANCELLED";
+            /** Format: date */
+            deliveryDate: string;
+            timeSlot: string;
+            items: components["schemas"]["HomeDeliveryItem"][];
+        };
+        CustomerHome: {
+            /** Format: date-time */
+            serverTime: string;
+            /**
+             * Format: date
+             * @description Database-derived Asia/Kolkata date.
+             */
+            businessDate: string;
+            categories: components["schemas"]["HomeCategory"][];
+            deliveries: components["schemas"]["HomeDelivery"][];
+            /** Format: uuid */
+            nextCursor: string | null;
+        };
         DiscoveredVendor: {
             /** Format: uuid */
             id: string;
@@ -1969,6 +2032,54 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    HomeController_get: {
+        parameters: {
+            query?: {
+                /** @description Optional location pair; does not filter owned deliveries. */
+                lat?: number;
+                lng?: number;
+                pincode?: string;
+                limit?: number;
+                /** @description Last order ID from this customer and current IST day. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerHome"];
+                };
+            };
+            /** @description Invalid query or cursor not owned by this customer/current IST day. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing, revoked or expired session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     DiscoveryController_list: {
         parameters: {
             query: {

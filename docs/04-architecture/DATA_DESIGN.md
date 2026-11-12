@@ -177,7 +177,7 @@ customer or consume another slot. Deactivation preserves all future history.
 | Table | Key columns | Notes |
 |---|---|---|
 | `orders` | id, order_no, vendor_id, vendor_customer_id, source (APP/SUBSCRIPTION/VENDOR), subscription_id NULL, status, delivery_date DATE, time_slot, address_snapshot JSONB, subtotal_paise, delivery_charge_paise, discount_paise, total_paise, payment_mode (POD_CASH/POD_UPI/KHATA), payment_status (UNPAID/PAID), reject_reason, cancel_reason, fail_reason, version, created_at | UNIQUE(order_no); **UNIQUE(subscription_id, delivery_date) WHERE subscription_id IS NOT NULL**; index(vendor_id, delivery_date, status); index(vendor_customer_id, created_at) |
-| `order_items` | id, order_id, product_id, product_name_snapshot, unit_snapshot, unit_price_paise, qty, line_total_paise | |
+| `order_items` | id, order_id, product_id, product_name_snapshot, unit_snapshot JSONB, unit_price_paise BIGINT, qty INTEGER, line_total_paise BIGINT | T-042 read foundation: restrictive order/product FKs, positive quantity, nonnegative price and exact price × quantity check; index(order_id,id). Home uses snapshot names/quantities, including inactive/deleted products. T-045 owns transactional item creation and order-total validation; no order writes added by T-042. |
 | `order_status_history` | id, order_id, from_status, to_status, actor_type, actor_id, reason, at | append-only |
 | `subscriptions` | id, vendor_id, vendor_customer_id, product_id, qty, weekdays SMALLINT (bitmask Mon=1…Sun=64), start_date, end_date NULL, time_slot, address_snapshot JSONB, payment_method, status, created_by (VENDOR/CUSTOMER), version | index(vendor_id, status) |
 | `subscription_pauses` | id, subscription_id, from_date, to_date NULL | |

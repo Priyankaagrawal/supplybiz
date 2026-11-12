@@ -108,6 +108,7 @@ Class | Method | HTTP request | Description
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerList**](doc/CustomerAddressesApi.md#addressescontrollerlist) | **GET** /api/v1/customer/addresses |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerPatch**](doc/CustomerAddressesApi.md#addressescontrollerpatch) | **PATCH** /api/v1/customer/addresses/{id} |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerRemove**](doc/CustomerAddressesApi.md#addressescontrollerremove) | **DELETE** /api/v1/customer/addresses/{id} |
+[*CustomerHomeApi*](doc/CustomerHomeApi.md) | [**homeControllerGet**](doc/CustomerHomeApi.md#homecontrollerget) | **GET** /api/v1/customer/home |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
@@ -180,6 +181,7 @@ Class | Method | HTTP request | Description
  - [CategoryRow](doc/CategoryRow.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
+ - [CustomerHome](doc/CustomerHome.md)
  - [CustomerInput](doc/CustomerInput.md)
  - [CustomerList](doc/CustomerList.md)
  - [CustomerPatch](doc/CustomerPatch.md)
@@ -192,6 +194,9 @@ Class | Method | HTTP request | Description
  - [ExtendPlanInput](doc/ExtendPlanInput.md)
  - [FavoriteResult](doc/FavoriteResult.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [HomeCategory](doc/HomeCategory.md)
+ - [HomeDelivery](doc/HomeDelivery.md)
+ - [HomeDeliveryItem](doc/HomeDeliveryItem.md)
  - [InboxItem](doc/InboxItem.md)
  - [InboxResponse](doc/InboxResponse.md)
  - [KycDecisionDto](doc/KycDecisionDto.md)

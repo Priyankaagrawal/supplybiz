@@ -238,6 +238,28 @@ with their owning modules; T-028 does not return fabricated totals or history.
 | PUT/DELETE | `/customer/favorites/{vendorId}` |
 | GET/POST/PATCH/DELETE | `/customer/addresses[/{id}]` |
 
+T-042 implements `GET /customer/home` for active CUSTOMER sessions, returning
+`{serverTime,businessDate,categories,deliveries,nextCursor}` with `Cache-Control:
+no-store`. Database time determines businessDate in Asia/Kolkata; clients cannot
+override date, owner or vendor. Categories are SUPPLY with ENABLED/COMING_SOON
+status, sorted by admin sort order then ID; names use name_en. `available` means
+category ENABLED, not vendor coverage. Hidden and BILL categories are omitted;
+productTypes come from admin-managed values. Marketing/billing/provider fields
+are absent. Deliveries are persisted orders due on that IST date whose accepted
+vendor-customer linkage belongs to the session user. Matching mobile alone grants
+no access. All statuses are preserved, including cancelled/rejected history;
+expired plans, vendor suspension, inactive linked customers or deleted products
+do not hide existing owned orders. Cards expose order/vendor IDs, order number,
+vendor name, source, status, slot, date and snapshot product names/quantities;
+addresses, customer records and financial fields are not exposed.
+`limit` defaults to 20 (1–50); the last returned order UUID is the next cursor,
+validated against the same owner/current IST day. Order is created_at then ID,
+descending. Foreign, stale-day or invalid cursors return 400 INVALID_CURSOR.
+Optional lat/lng must be provided as a valid numeric pair; optional pincode is
+validated. These do not filter existing orders; discovery enforces coverage.
+Refresh without a cursor when the IST day changes. Status changes load on refresh;
+T-033 supplies the existing notification bell/inbox rather than duplicating it here.
+
 Discovery sorting follows ADR-031 / FR-210: apply RULE-13 eligibility first and
 place the current customer's favorites first. Within each favorite/non-favorite
 group, NEARBY sorts by distance ascending; POPULAR sorts by completed (DELIVERED)
