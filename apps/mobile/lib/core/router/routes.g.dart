@@ -7,6 +7,8 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $customerDiscoveryRoute,
+      $customerFavoritesRoute,
       $customerLocationRoute,
       $customerSearchRoute,
       $customerAddressesRoute,
@@ -21,6 +23,69 @@ List<RouteBase> get $appRoutes => [
       $customerShell,
       $linkRoute,
     ];
+
+RouteBase get $customerDiscoveryRoute => GoRouteData.$route(
+      path: '/customer/vendors',
+      factory: _$CustomerDiscoveryRoute._fromState,
+    );
+
+mixin _$CustomerDiscoveryRoute on GoRouteData {
+  static CustomerDiscoveryRoute _fromState(GoRouterState state) =>
+      CustomerDiscoveryRoute(
+        category: state.uri.queryParameters['category'],
+      );
+
+  CustomerDiscoveryRoute get _self => this as CustomerDiscoveryRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/vendors',
+        queryParams: {
+          if (_self.category != null) 'category': _self.category,
+        },
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $customerFavoritesRoute => GoRouteData.$route(
+      path: '/customer/favorites',
+      factory: _$CustomerFavoritesRoute._fromState,
+    );
+
+mixin _$CustomerFavoritesRoute on GoRouteData {
+  static CustomerFavoritesRoute _fromState(GoRouterState state) =>
+      const CustomerFavoritesRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/favorites',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $customerLocationRoute => GoRouteData.$route(
       path: '/customer/location',
@@ -724,6 +789,12 @@ RouteBase get $customerShell => StatefulShellRouteData.$route(
                 GoRouteData.$route(
                   path: 'vendors/:id',
                   factory: _$CustomerVendorRoute._fromState,
+                  routes: [
+                    GoRouteData.$route(
+                      path: 'products/:productId',
+                      factory: _$CustomerProductRoute._fromState,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -818,6 +889,34 @@ mixin _$CustomerVendorRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/customer/home/vendors/${Uri.encodeComponent(_self.id)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$CustomerProductRoute on GoRouteData {
+  static CustomerProductRoute _fromState(GoRouterState state) =>
+      CustomerProductRoute(
+        state.pathParameters['id']!,
+        state.pathParameters['productId']!,
+      );
+
+  CustomerProductRoute get _self => this as CustomerProductRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/home/vendors/${Uri.encodeComponent(_self.id)}/products/${Uri.encodeComponent(_self.productId)}',
       );
 
   @override

@@ -17,7 +17,36 @@ import '../../features/home/location_page.dart';
 import '../../features/home/search_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/discovery/discovery_page.dart';
+import '../../features/discovery/vendor_page.dart';
+import '../../features/discovery/product_page.dart';
+
 part 'routes.g.dart';
+
+@TypedGoRoute<CustomerDiscoveryRoute>(path: '/customer/vendors')
+class CustomerDiscoveryRoute extends GoRouteData with _$CustomerDiscoveryRoute {
+  const CustomerDiscoveryRoute({this.category});
+  final String? category;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      DiscoveryPage(category: category);
+}
+
+@TypedGoRoute<CustomerFavoritesRoute>(path: '/customer/favorites')
+class CustomerFavoritesRoute extends GoRouteData with _$CustomerFavoritesRoute {
+  const CustomerFavoritesRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const DiscoveryPage(favorites: true);
+}
+
+class CustomerProductRoute extends GoRouteData with _$CustomerProductRoute {
+  const CustomerProductRoute(this.id, this.productId);
+  final String id, productId;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      CustomerProductPage(id: id, productId: productId);
+}
 
 @TypedGoRoute<CustomerLocationRoute>(path: '/customer/location')
 class CustomerLocationRoute extends GoRouteData with _$CustomerLocationRoute {
@@ -269,9 +298,11 @@ class ServiceAreaRoute extends GoRouteData with _$ServiceAreaRoute {
 
 @TypedStatefulShellRoute<CustomerShell>(branches: [
   TypedStatefulShellBranch<CustomerHomeBranch>(routes: [
-    TypedGoRoute<CustomerHomeRoute>(
-        path: '/customer/home',
-        routes: [TypedGoRoute<CustomerVendorRoute>(path: 'vendors/:id')])
+    TypedGoRoute<CustomerHomeRoute>(path: '/customer/home', routes: [
+      TypedGoRoute<CustomerVendorRoute>(path: 'vendors/:id', routes: [
+        TypedGoRoute<CustomerProductRoute>(path: 'products/:productId')
+      ])
+    ])
   ]),
   TypedStatefulShellBranch<CustomerOrdersBranch>(routes: [
     TypedGoRoute<CustomerOrdersRoute>(path: '/customer/orders', routes: [
@@ -315,8 +346,10 @@ class CustomerVendorRoute extends GoRouteData with _$CustomerVendorRoute {
   const CustomerVendorRoute(this.id);
   final String id;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.vendor);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? CustomerVendorPage(id: id)
+          : const RoutePlaceholder(title: RouteTitle.vendor));
 }
 
 class CustomerOrdersBranch extends StatefulShellBranchData {

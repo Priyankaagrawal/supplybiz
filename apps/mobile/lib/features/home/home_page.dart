@@ -106,6 +106,10 @@ class _CustomerHomePageState extends ConsumerState<CustomerHomePage> {
                           variant: SbButtonVariant.secondary,
                           onPressed: () =>
                               const CustomerSearchRoute().push<void>(context)),
+                      SbButton(
+                          label: l.discoveryVendors,
+                          onPressed: () => const CustomerDiscoveryRoute()
+                              .push<void>(context)),
                       if (model.busy) const SbSkeleton(lines: 2),
                       if (model.failure != null)
                         Semantics(

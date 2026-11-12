@@ -2055,6 +2055,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear all notifications'**
   String get notificationsClear;
+
+  /// No description provided for @discoveryVendors.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse vendors'**
+  String get discoveryVendors;
+
+  /// No description provided for @discoveryFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get discoveryFavorites;
+
+  /// No description provided for @discoverySort.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort vendors'**
+  String get discoverySort;
+
+  /// No description provided for @discoveryNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby'**
+  String get discoveryNearby;
+
+  /// No description provided for @discoveryPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get discoveryPopular;
+
+  /// No description provided for @discoveryNoFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorite vendors available here.'**
+  String get discoveryNoFavorites;
+
+  /// No description provided for @discoveryOpenVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'View vendor'**
+  String get discoveryOpenVendor;
+
+  /// No description provided for @discoveryFavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get discoveryFavorite;
+
+  /// No description provided for @discoveryUnfavorite.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get discoveryUnfavorite;
+
+  /// No description provided for @discoveryAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get discoveryAbout;
+
+  /// No description provided for @discoveryDeliveryCharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery charge: {amount}'**
+  String discoveryDeliveryCharge(String amount);
+
+  /// No description provided for @discoveryMinimumOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order: {amount}'**
+  String discoveryMinimumOrder(String amount);
+
+  /// No description provided for @discoveryHoursUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening hours are unavailable.'**
+  String get discoveryHoursUnavailable;
+
+  /// No description provided for @discoveryHolidays.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming holidays'**
+  String get discoveryHolidays;
+
+  /// No description provided for @discoveryNoHolidays.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming holidays listed.'**
+  String get discoveryNoHolidays;
+
+  /// No description provided for @discoverySubscriptionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription prices are shown per pack. Subscription setup will be available separately.'**
+  String get discoverySubscriptionInfo;
+
+  /// No description provided for @discoveryNoProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available.'**
+  String get discoveryNoProducts;
+
+  /// No description provided for @discoveryOpenProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'View product'**
+  String get discoveryOpenProduct;
+
+  /// No description provided for @discoveryPack.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} {unit} per pack'**
+  String discoveryPack(String value, String unit);
+
+  /// No description provided for @discoveryMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum quantity: {qty}'**
+  String discoveryMoq(int qty);
+
+  /// No description provided for @discoveryOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of stock'**
+  String get discoveryOutOfStock;
+
+  /// No description provided for @discoveryQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity: {qty}'**
+  String discoveryQuantity(int qty);
+
+  /// No description provided for @discoveryDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease quantity'**
+  String get discoveryDecrease;
+
+  /// No description provided for @discoveryIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase quantity'**
+  String get discoveryIncrease;
+
+  /// No description provided for @discoveryAddCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get discoveryAddCart;
+
+  /// No description provided for @discoveryChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Product details changed. Review the updated price and quantity before adding.'**
+  String get discoveryChanged;
+
+  /// No description provided for @discoveryReplaceCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart contains another vendor. Replace it with this vendor?'**
+  String get discoveryReplaceCart;
+
+  /// No description provided for @discoveryAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to cart.'**
+  String get discoveryAdded;
+
+  /// No description provided for @discoveryCartError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add this quantity. Review stock and try again.'**
+  String get discoveryCartError;
+
+  /// No description provided for @discoveryCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart ({count} items)'**
+  String discoveryCart(int count);
+
+  /// No description provided for @discoveryCartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty.'**
+  String get discoveryCartEmpty;
+
+  /// No description provided for @discoveryCartNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locally. Prices and availability will be checked at checkout.'**
+  String get discoveryCartNotice;
+
+  /// No description provided for @discoveryClearCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear cart'**
+  String get discoveryClearCart;
+
+  /// No description provided for @discoveryClearConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove all items from your cart?'**
+  String get discoveryClearConfirm;
+
+  /// No description provided for @discoveryRetryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'A favorite update is awaiting confirmation. Retry the saved update before changing another favorite.'**
+  String get discoveryRetryPending;
+
+  /// No description provided for @discoveryRetryExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This saved update is older than 24 hours. Refresh favorites before making another change.'**
+  String get discoveryRetryExpired;
+
+  /// No description provided for @discoveryDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh favorites'**
+  String get discoveryDismiss;
+
+  /// No description provided for @discoveryDismissConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh favorites to check the current state and clear this expired update?'**
+  String get discoveryDismissConfirm;
+
+  /// No description provided for @discoveryImageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Image unavailable'**
+  String get discoveryImageUnavailable;
+
+  /// No description provided for @discoveryImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor or product image'**
+  String get discoveryImage;
+
+  /// No description provided for @discoverySubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get discoverySubscription;
+
+  /// No description provided for @discoveryMilkType.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk type: {type}'**
+  String discoveryMilkType(String type);
 }
 
 class _AppLocalizationsDelegate

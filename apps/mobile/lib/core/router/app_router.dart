@@ -17,7 +17,9 @@ GoRouter createAppRouter(RoutingController controller,
       },
       redirect: (context, state) {
         final id = state.pathParameters['id'];
-        final invalidId = id != null && !DeepLinkParser.uuid.hasMatch(id);
+        final productId = state.pathParameters['productId'];
+        final invalidId = (id != null && !DeepLinkParser.uuid.hasMatch(id)) ||
+            (productId != null && !DeepLinkParser.uuid.hasMatch(productId));
         final page = state.pathParameters['page'];
         final step = state.pathParameters['step'];
         final kind = state.pathParameters['kind'];

@@ -384,5 +384,99 @@
   "@notificationsHours": {"placeholders":{"count":{"type":"int"}}},
   "@notificationsDays": {"placeholders":{"count":{"type":"int"}}},
   "@notificationsUnread": {"placeholders":{"count":{"type":"int"}}},
-  "@notificationsSwitchRole": {"placeholders":{"role":{"type":"String"}}}
+  "@notificationsSwitchRole": {"placeholders":{"role":{"type":"String"}}},
+  "discoveryVendors": "Browse vendors",
+  "discoveryFavorites": "Favorites",
+  "discoverySort": "Sort vendors",
+  "discoveryNearby": "Nearby",
+  "discoveryPopular": "Popular",
+  "discoveryNoFavorites": "No favorite vendors available here.",
+  "discoveryOpenVendor": "View vendor",
+  "discoveryFavorite": "Add to favorites",
+  "discoveryUnfavorite": "Remove from favorites",
+  "discoveryAbout": "About",
+  "discoveryDeliveryCharge": "Delivery charge: {amount}",
+  "@discoveryDeliveryCharge": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryMinimumOrder": "Minimum order: {amount}",
+  "@discoveryMinimumOrder": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryHoursUnavailable": "Opening hours are unavailable.",
+  "discoveryHolidays": "Upcoming holidays",
+  "discoveryNoHolidays": "No upcoming holidays listed.",
+  "discoverySubscriptionInfo": "Subscription prices are shown per pack. Subscription setup will be available separately.",
+  "discoveryNoProducts": "No products available.",
+  "discoveryOpenProduct": "View product",
+  "discoveryPack": "{value} {unit} per pack",
+  "@discoveryPack": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "discoveryMoq": "Minimum quantity: {qty}",
+  "@discoveryMoq": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      }
+    }
+  },
+  "discoveryOutOfStock": "Out of stock",
+  "discoveryQuantity": "Quantity: {qty}",
+  "@discoveryQuantity": {
+    "placeholders": {
+      "qty": {
+        "type": "int"
+      }
+    }
+  },
+  "discoveryDecrease": "Decrease quantity",
+  "discoveryIncrease": "Increase quantity",
+  "discoveryAddCart": "Add to cart",
+  "discoveryChanged": "Product details changed. Review the updated price and quantity before adding.",
+  "discoveryReplaceCart": "Your cart contains another vendor. Replace it with this vendor?",
+  "discoveryAdded": "Added to cart.",
+  "discoveryCartError": "Could not add this quantity. Review stock and try again.",
+  "discoveryCart": "Cart ({count} items)",
+  "@discoveryCart": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "discoveryCartEmpty": "Your cart is empty.",
+  "discoveryCartNotice": "Saved locally. Prices and availability will be checked at checkout.",
+  "discoveryClearCart": "Clear cart",
+  "discoveryClearConfirm": "Remove all items from your cart?",
+  "discoveryRetryPending": "A favorite update is awaiting confirmation. Retry the saved update before changing another favorite.",
+  "discoveryRetryExpired": "This saved update is older than 24 hours. Refresh favorites before making another change.",
+  "discoveryDismiss": "Refresh favorites",
+  "discoveryDismissConfirm": "Refresh favorites to check the current state and clear this expired update?",
+  "discoveryImageUnavailable": "Image unavailable",
+  "discoveryImage": "Vendor or product image",
+  "discoverySubscription": "Subscription",
+  "discoveryMilkType": "Milk type: {type}",
+  "@discoveryMilkType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  }
 }

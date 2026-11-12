@@ -1,5 +1,71 @@
 # Supply Biz Mobile
 
+## T-044 customer discovery handoff (2026-11-12): READY_FOR_VERIFY
+
+S-C-05-08/37 / US-210-211 / TC-204-210: Home and category search now open
+`/customer/vendors?category=<uuid>`. Nearby/Popular and cursor paging preserve
+T-041 server ordering; the mobile client does not calculate eligibility or rank.
+Favorites opens `/customer/favorites`; favorite writes use generated PUT/DELETE
+clients and a durable account-scoped idempotency key. Response loss blocks further
+favorite edits until explicit retry using the same key and original location.
+A retry older than 24 hours is refused; confirmed refresh reads current favorites
+before dropping the expired intent. Definitive rejection clears pending intent;
+network/server errors retain it. No background mutation retry is introduced.
+
+Vendor route `/customer/home/vendors/<uuid>` loads Products/Subscription/About;
+`products/<productUuid>` shows authenticated attached images, localized milk type,
+pack size, paise price, description, MOQ and stock-bounded quantity controls.
+Each Add re-fetches product eligibility/details; changed version/price/MOQ/stock
+requires review. Vendor denial removes product details. No ratings/reviews UI.
+The subscription tab reads real subscription prices; subscription creation remains
+T-078. T-041 returns null opening hours until configuration exists, shown explicitly
+as unavailable. Holiday data comes from the API; holiday writes remain T-074.
+
+The shared cart badge counts quantities in an encrypted environment/account-scoped
+single-vendor local cart. Cross-vendor Add requires confirmation before atomic
+replacement. Disk failure preserves the previous cart. The preview can clear the
+cart; this is local intent with per-pack saved prices, no order submission or bill.
+Checkout/T-046 must obtain authoritative current prices/availability before order
+placement. Providers follow account/role/location changes; image bytes stay in
+memory. Existing logout wipes encrypted drafts. No API/schema/dependency changes;
+only typed route and English localization outputs were generated.
+
+Executed from apps/mobile unless indicated:
+
+- `flutter gen-l10n`: PASS; final English source preserved as UTF-8.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' run build_runner build --build-filter=lib/core/router/routes.g.dart`: PASS; targeted route generation.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/discovery test/features/discovery integration_test/discovery_test.dart`: formatter executed on these paths as files were added; Home/router files also formatted on edit.
+- `& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' fix --apply --code=curly_braces_in_flow_control_structures --code=unnecessary_import lib/features/discovery`: focused fixes; same check applied to new test paths.
+- `flutter analyze --no-pub`: PASS, no issues on final source.
+- `flutter test --no-pub test/features/discovery test/features/home test/core/router/guards_test.dart test/core/router/app_router_test.dart`: PASS, 32 checks; server query forwarding/pagination, MOQ/stock/single-vendor cart, encrypted-store failure behavior, response-loss favorite replay, 24-hour expiry, authorization/media denial, disposed requests, 200% screens and affected Home/router regressions.
+- `flutter test integration_test/discovery_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub`: PASS, one final Android smoke. Isolated SQLCipher/secure-storage namespace, cart/favorite restart, exact replay, account isolation, DB/WAL plaintext absence, 200% product Add and logout wipe. HTTP is simulated.
+- `flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub`: PASS, final normal universal dev APK.
+- From root, `C:/Android/platform-tools/adb.exe -s emulator-5554 shell am force-stop in.supplybiz.mobile.dev` and `C:/Android/platform-tools/adb.exe -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk`: PASS; normal dev app restored after the native smoke.
+- From root, `node --test tools/checks.spec.mjs`: PASS, five runner guards; T-044 registered for focused mobile checks.
+- From root, `git diff --check`: PASS.
+
+Initial test import/tab-label and style issues were corrected. The first Android
+attempt encountered a temporary localization-source encoding error during cleanup;
+source repaired and regenerated before final analysis/focused tests and Android retry. The native smoke also caught a missing UI-kit loading-state localization delegate in the test harness; corrected to match the real app before the passing run.
+Host TEMP logs: supplybiz-t044-focused.log, supplybiz-t044-analyze.log,
+supplybiz-t044-android.log and supplybiz-t044-build.log. Test storage wiped; task-created build daemons stopped using recorded PID/start-time checks; pre-existing services/emulator preserved.
+
+Manual verification (suggested, NOT executed):
+1. Sign in as CUSTOMER on the normal dev app, select a real serviceable location,
+   Browse vendors, switch Nearby/Popular and page results; compare with the real API.
+2. Favorite/unfavorite, open Favorites, interrupt a write response and explicitly
+   retry after restart. Confirm a single server change and correct list refresh.
+3. Open a vendor and its Products/Subscription/About tabs; check protected photos,
+   holiday/charge/address details, then a product's price, attributes and MOQ.
+4. Add quantities and inspect badge/cart; restart, then add another vendor's item.
+   Test both Cancel and Confirm replacement; change server price and require review.
+5. Repeat at 200% font with TalkBack; test offline/error/denial and logout/account
+   isolation. Checkout/subscription creation are their owning later tasks.
+
+NOT_RUN: live UI/API/PostGIS/DB integration, real loss-of-response network behavior,
+manual TalkBack/PASS and module gates. iOS checks deferred. Required task checks do
+not certify module acceptance. Stop here for task-specific manual verification.
+
 ## T-043 customer Home/location/search handoff (2026-11-12): READY_FOR_VERIFY
 
 S-C-01/02/03 / US-200–202 / TC-200–203: `/customer/home` now shows the generated

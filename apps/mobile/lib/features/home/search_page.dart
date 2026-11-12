@@ -43,6 +43,10 @@ class _CustomerSearchPageState extends ConsumerState<CustomerSearchPage> {
         body: SafeArea(
             child: ListView(padding: const EdgeInsets.all(16), children: [
           Text(l.homeSearchHint),
+          SbButton(
+              label: l.discoveryVendors,
+              onPressed: () => CustomerDiscoveryRoute(category: widget.category)
+                  .push<void>(context)),
           if (model.location == null) ...[
             Text(l.homeLocationRequired),
             SbButton(
@@ -104,6 +108,10 @@ class _CustomerSearchPageState extends ConsumerState<CustomerSearchPage> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleLarge)),
+                            SbButton(
+                                label: l.discoveryOpenVendor,
+                                onPressed: () => CustomerVendorRoute(row.id)
+                                    .push<void>(context)),
                             Text(l.homeDistance((row.distanceMeters / 1000)
                                 .toStringAsFixed(1))),
                           ]))),

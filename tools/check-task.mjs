@@ -43,16 +43,23 @@ const apiTests = {
   'T-182': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
   'T-184': ['src/storage/local-storage.service.spec.ts', 'src/health/health.service.spec.ts'],
 };
-if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-025', 'T-029', 'T-043', 'T-047', 'T-183'].includes(id))) {
+if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-009', 'T-016', 'T-024', 'T-025', 'T-029', 'T-043', 'T-044', 'T-047', 'T-183'].includes(id))) {
   console.error('Provide a supported T-ID in the PR title or TASK_ID. Add explicit focused checks for new tasks; unsupported tasks cannot silently pass.');
   process.exit(1);
 }
 if (process.env.CHECK_LAYER) {
   tasks = tasks.filter(id => process.env.CHECK_LAYER === 'api'
-    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-029', 'T-043', 'T-047', 'T-183'].includes(id));
+    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-029', 'T-043', 'T-044', 'T-047', 'T-183'].includes(id));
   if (!tasks.length) { console.error('No focused task for the affected layer. Register its task checks first.'); process.exit(1); }
 }
 for (const task of tasks) {
+  if (task === 'T-044') {
+    const mobile = resolve(root, 'apps/mobile');
+    run([flutter, 'analyze', '--no-pub'], mobile);
+    run([flutter, 'test', '--no-pub', 'test/features/discovery', 'test/features/home', 'test/core/router/guards_test.dart', 'test/core/router/app_router_test.dart'], mobile);
+    run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json', '--no-pub'], mobile);
+    continue;
+  }
   if (task === 'T-043') {
     const mobile = resolve(root, 'apps/mobile');
     run([flutter, 'analyze', '--no-pub'], mobile);

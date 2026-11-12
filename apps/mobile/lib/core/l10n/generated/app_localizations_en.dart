@@ -1095,4 +1095,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsClear => 'Clear all notifications';
+
+  @override
+  String get discoveryVendors => 'Browse vendors';
+
+  @override
+  String get discoveryFavorites => 'Favorites';
+
+  @override
+  String get discoverySort => 'Sort vendors';
+
+  @override
+  String get discoveryNearby => 'Nearby';
+
+  @override
+  String get discoveryPopular => 'Popular';
+
+  @override
+  String get discoveryNoFavorites => 'No favorite vendors available here.';
+
+  @override
+  String get discoveryOpenVendor => 'View vendor';
+
+  @override
+  String get discoveryFavorite => 'Add to favorites';
+
+  @override
+  String get discoveryUnfavorite => 'Remove from favorites';
+
+  @override
+  String get discoveryAbout => 'About';
+
+  @override
+  String discoveryDeliveryCharge(String amount) {
+    return 'Delivery charge: $amount';
+  }
+
+  @override
+  String discoveryMinimumOrder(String amount) {
+    return 'Minimum order: $amount';
+  }
+
+  @override
+  String get discoveryHoursUnavailable => 'Opening hours are unavailable.';
+
+  @override
+  String get discoveryHolidays => 'Upcoming holidays';
+
+  @override
+  String get discoveryNoHolidays => 'No upcoming holidays listed.';
+
+  @override
+  String get discoverySubscriptionInfo =>
+      'Subscription prices are shown per pack. Subscription setup will be available separately.';
+
+  @override
+  String get discoveryNoProducts => 'No products available.';
+
+  @override
+  String get discoveryOpenProduct => 'View product';
+
+  @override
+  String discoveryPack(String value, String unit) {
+    return '$value $unit per pack';
+  }
+
+  @override
+  String discoveryMoq(int qty) {
+    return 'Minimum quantity: $qty';
+  }
+
+  @override
+  String get discoveryOutOfStock => 'Out of stock';
+
+  @override
+  String discoveryQuantity(int qty) {
+    return 'Quantity: $qty';
+  }
+
+  @override
+  String get discoveryDecrease => 'Decrease quantity';
+
+  @override
+  String get discoveryIncrease => 'Increase quantity';
+
+  @override
+  String get discoveryAddCart => 'Add to cart';
+
+  @override
+  String get discoveryChanged =>
+      'Product details changed. Review the updated price and quantity before adding.';
+
+  @override
+  String get discoveryReplaceCart =>
+      'Your cart contains another vendor. Replace it with this vendor?';
+
+  @override
+  String get discoveryAdded => 'Added to cart.';
+
+  @override
+  String get discoveryCartError =>
+      'Could not add this quantity. Review stock and try again.';
+
+  @override
+  String discoveryCart(int count) {
+    return 'Cart ($count items)';
+  }
+
+  @override
+  String get discoveryCartEmpty => 'Your cart is empty.';
+
+  @override
+  String get discoveryCartNotice =>
+      'Saved locally. Prices and availability will be checked at checkout.';
+
+  @override
+  String get discoveryClearCart => 'Clear cart';
+
+  @override
+  String get discoveryClearConfirm => 'Remove all items from your cart?';
+
+  @override
+  String get discoveryRetryPending =>
+      'A favorite update is awaiting confirmation. Retry the saved update before changing another favorite.';
+
+  @override
+  String get discoveryRetryExpired =>
+      'This saved update is older than 24 hours. Refresh favorites before making another change.';
+
+  @override
+  String get discoveryDismiss => 'Refresh favorites';
+
+  @override
+  String get discoveryDismissConfirm =>
+      'Refresh favorites to check the current state and clear this expired update?';
+
+  @override
+  String get discoveryImageUnavailable => 'Image unavailable';
+
+  @override
+  String get discoveryImage => 'Vendor or product image';
+
+  @override
+  String get discoverySubscription => 'Subscription';
+
+  @override
+  String discoveryMilkType(String type) {
+    return 'Milk type: $type';
+  }
 }
