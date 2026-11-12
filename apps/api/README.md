@@ -1,5 +1,24 @@
 # Supply Biz API
 
+## T-154 admin dashboard handoff (2026-11-12): READY_FOR_VERIFY
+
+`GET /api/v1/admin/dashboard` requires `dashboard.read` (SUPER_ADMIN under ADR-026)
+and current admin session authorization, returns no-store aggregate metrics from
+one PostgreSQL statement, and exposes no individual account data. All-time retained
+counts distinguish CUSTOMER-role accounts from offline contacts. Delivered-order
+GMV uses exact decimal integer paise; `gmvScope: DELIVERED_ORDERS_ONLY` marks the
+missing quick-sale component (T-079/T-080). Delivery success follows the PRD formula.
+Historical audited grants are counted separately; automated plan revenue remains
+UNAVAILABLE. No migration or dependency added. Actual domain writers remain their
+owning tasks; read fixtures are not integrated order/delivery/quick-sale evidence.
+
+Four focused native cases, including production Next.js to API to DB and outage
+recovery, pass. API/admin lint/typecheck/build, TS consumer, Dart analysis, two
+admin display/precision checks and five runner guards pass. See
+[admin T-154 handoff](../admin/README.md#t-154-dashboard-handoff-2026-11-12-ready_for_verify)
+for exact commands and five manual verification steps. Manual PASS, browser
+accessibility/200%, deployed HTTPS and gates remain pending; iOS deferred.
+
 ## T-042 customer home handoff (2026-11-12): READY_FOR_VERIFY
 
 FR-201 / US-201 / S-C-01 / TC-201: `GET /api/v1/customer/home` returns

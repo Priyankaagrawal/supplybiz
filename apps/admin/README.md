@@ -1,5 +1,66 @@
 # Admin — T-150 handoff
 
+## T-154 dashboard handoff (2026-11-12): READY_FOR_VERIFY
+
+S-A-02 / FR-401: `/dashboard` is linked from the workspace for `dashboard.read`
+(currently SUPER_ADMIN under ADR-026). The server component uses the generated TS
+client and existing httpOnly session/BFF path. API authorization rechecks current
+role, status and session on every read. All responses are no-store. Loading,
+refresh, expired-login redirect, permission denial and unavailable/retry states
+are explicit; API failure never becomes synthetic zero metrics.
+
+One PostgreSQL statement provides a consistent all-time snapshot of retained
+vendor/suspension, pending/verified KYC, CUSTOMER-role account/block, order,
+delivered/failed and historical audited-assignment counts. Dual-role accounts
+count once; offline vendor contacts are excluded. Deleted/blocked accounts remain
+included, as the visible definitions explain. Database update time is shown in IST.
+
+Recorded delivered-order value sums persisted DELIVERED `total_paise`, including
+delivery charges; discounts remain zero under the existing schema. Decimal paise
+strings and BigInt INR formatting preserve precision above Number's safe range.
+PRD section 6 defines full platform GMV as delivered orders PLUS quick sales:
+`gmvScope: DELIVERED_ORDERS_ONLY` and the page explicitly mark the quick-sale/full
+GMV component unavailable until T-079/T-080. This is not payment collection or
+platform revenue. Delivery success follows DELIVERED / (DELIVERED + FAILED), with
+an explicit empty denominator. Audited grants include superseded history and do
+not imply purchases. Automated plan revenue is UNAVAILABLE (SR-03), never zero or
+inferred from assignments. Actual order/delivery writers remain T-045/T-049;
+synthetic test DB records verify read paths, not those future business flows.
+
+Executed commands and evidence (root unless stated):
+
+- `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`: PASS, OpenAPI and matching TS/Dart clients regenerated from DTO/controller source, including the explicit GMV scope.
+- `pnpm.cmd --filter @supplybiz/api lint`, `pnpm.cmd --filter @supplybiz/api typecheck`, `pnpm.cmd --filter @supplybiz/api build`: PASS on final API source.
+- `pnpm.cmd --filter @supplybiz/admin lint`, `pnpm.cmd --filter @supplybiz/admin typecheck`, `pnpm.cmd --filter @supplybiz/admin build`: PASS; final normal production build includes `/dashboard` and final user-facing GMV wording. TS consumer compiled against regenerated types.
+- `pnpm.cmd --filter @supplybiz/admin exec tsx --test test/dashboard.test.ts`: PASS, two focused BigInt/INR/zero-denominator cases.
+- From packages/api_client, `flutter analyze --no-pub`: PASS, no issues after final contract regeneration.
+- From apps/api, `.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/dashboard/dashboard.postgres.spec.ts`: PASS, four native cases. NATIVE_TEST_DATABASE_URL was derived from existing .env DATABASE_URL with only the DB path replaced by `/supplybiz_service_area_test`; NODE_ENV=test, OTP_DELIVERY_MODE=disabled. Four focused native cases cover RBAC/current session denial, DB count deltas/exact large paise, real audited grants independent of GMV/revenue, and production Next.js to API to PostgreSQL rendering/refresh/API outage/restart recovery.
+- `node --test tools/checks.spec.mjs`: PASS, five runner guards; T-154 registered for focused native/admin checks.
+- `git diff --check`: PASS.
+
+Initial test fixtures were corrected to the existing schema: order-number length,
+creation preceding completion, and zero discount. HTTP 201 grant responses and
+Next.js streamed login redirects are handled in assertions. No schema constraint,
+permission or business rule was weakened. All native test services are temporary
+and closed by teardown; synthetic immutable audit/grant records remain only in
+the dedicated test DB. No dependency or migration added. TEMP logs are
+supplybiz-t154-native.log and supplybiz-t154-codegen.log.
+
+Manual verification (suggested, NOT_RUN):
+1. Start the existing API/admin commands against an agreed migrated environment,
+   sign in as SUPER_ADMIN and open Dashboard. Compare counts/value with DB records.
+2. Change persisted KYC/customer/order state through its owning feature and Refresh;
+   confirm fresh values, visible definitions and IST update time.
+3. Check the partial delivered-order GMV label, unavailable quick-sale/full GMV and
+   unavailable automated plan revenue. A manual grant changes only grant count.
+4. Verify OPS/SUPPORT/FINANCE denial and hidden workspace link; test expired login,
+   API offline/restart and Retry without fake zeroes or exposed credentials.
+5. Check keyboard/screen reader and 200% browser zoom, responsive metric wrapping,
+   labels and loading/error announcements.
+
+Manual browser/accessibility/PASS, deployed HTTPS and module gates remain NOT_RUN.
+No mobile UI changed; iOS checks deferred. Stop for task-specific manual verification.
+
 ## T-153 — Categories implementation handoff (2026-11-10)
 
 S-A-08 is `/categories`, linked from the workspace for OPS/SUPER_ADMIN.

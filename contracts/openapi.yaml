@@ -1,5 +1,20 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/dashboard:
+    get:
+      operationId: DashboardController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboard'
+      tags:
+        - admin-dashboard
+      security:
+        - bearer: []
   /api/v1/customer/home:
     get:
       operationId: HomeController_get
@@ -3064,6 +3079,75 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AdminDashboard:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+        vendorsTotal:
+          type: integer
+          minimum: 0
+        vendorsSuspended:
+          type: integer
+          minimum: 0
+        kycPending:
+          type: integer
+          minimum: 0
+        kycVerified:
+          type: integer
+          minimum: 0
+        customersTotal:
+          type: integer
+          minimum: 0
+        customersBlocked:
+          type: integer
+          minimum: 0
+        ordersTotal:
+          type: integer
+          minimum: 0
+        ordersDelivered:
+          type: integer
+          minimum: 0
+        ordersFailed:
+          type: integer
+          minimum: 0
+        recordedGmvPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: >-
+            Delivered-order component of PRD GMV only; quick-sale value unavailable until T-079/T-080. All-time stored
+            DELIVERED order totals, including delivery charges and discounts; not cash receipts. Decimal integer paise
+            string preserves BigInt precision.
+        gmvScope:
+          type: string
+          enum:
+            - DELIVERED_ORDERS_ONLY
+          description: Full platform GMV also requires quick-sale value, unavailable before T-079/T-080.
+        planAssignmentsTotal:
+          type: integer
+          minimum: 0
+          description: All historical audited assignment rows, including superseded grants; never revenue.
+        planRevenueStatus:
+          type: string
+          enum:
+            - UNAVAILABLE
+          description: Automated plan billing is deferred; no inferred revenue.
+      required:
+        - serverTime
+        - vendorsTotal
+        - vendorsSuspended
+        - kycPending
+        - kycVerified
+        - customersTotal
+        - customersBlocked
+        - ordersTotal
+        - ordersDelivered
+        - ordersFailed
+        - recordedGmvPaise
+        - gmvScope
+        - planAssignmentsTotal
+        - planRevenueStatus
     HomeCategory:
       type: object
       properties:

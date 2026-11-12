@@ -4,6 +4,7 @@ import 'package:supplybiz_api_client/src/model/address_list.dart';
 import 'package:supplybiz_api_client/src/model/address_patch.dart';
 import 'package:supplybiz_api_client/src/model/address_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_challenge_response.dart';
+import 'package:supplybiz_api_client/src/model/admin_dashboard.dart';
 import 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_me_response.dart';
 import 'package:supplybiz_api_client/src/model/admin_session_response.dart';
@@ -125,6 +126,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'AdminChallengeResponse':
       return AdminChallengeResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AdminDashboard':
+      return AdminDashboard.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'AdminEnrollmentResponse':
       return AdminEnrollmentResponse.fromJson(value as Map<String, dynamic>)

@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-154': ['src/modules/dashboard/dashboard.postgres.spec.ts'],
   'T-042': ['src/modules/home/home.postgres.spec.ts'],
   'T-041': ['src/modules/discovery/discovery.postgres.spec.ts'],
   'T-040': ['src/modules/addresses/addresses.postgres.spec.ts'],
@@ -89,11 +90,12 @@ for (const task of tasks) {
       }
     }
     run(api('lint')); run(api('typecheck')); run(api('build'));
-    if (task === 'T-150' || task === 'T-152' || task === 'T-151' || task === 'T-153' || task === 'T-156' || task === 'T-155') {
+    if (task === 'T-154' || task === 'T-150' || task === 'T-152' || task === 'T-151' || task === 'T-153' || task === 'T-156' || task === 'T-155') {
       process.env.ADMIN_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;
       run(['pnpm', '--filter', '@supplybiz/admin', 'lint']);
       run(['pnpm', '--filter', '@supplybiz/admin', 'typecheck']);
-      run(['pnpm', '--filter', '@supplybiz/admin', 'test']);
+      if (task === 'T-154') run(['pnpm', '--filter', '@supplybiz/admin', 'exec', 'tsx', '--test', 'test/dashboard.test.ts']);
+      else run(['pnpm', '--filter', '@supplybiz/admin', 'test']);
       run(['pnpm', '--filter', '@supplybiz/admin', 'build']);
     }
     if (task === 'T-181') process.env.WORKER_TEST_DATABASE_URL ||= process.env.NATIVE_TEST_DATABASE_URL;

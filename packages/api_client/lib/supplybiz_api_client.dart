@@ -9,6 +9,7 @@ export 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 export 'package:supplybiz_api_client/src/auth/oauth.dart';
 
 export 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
+export 'package:supplybiz_api_client/src/api/admin_dashboard_api.dart';
 export 'package:supplybiz_api_client/src/api/admin_management_api.dart';
 export 'package:supplybiz_api_client/src/api/admin_plans_api.dart';
 export 'package:supplybiz_api_client/src/api/audit_api.dart';
@@ -36,6 +37,7 @@ export 'package:supplybiz_api_client/src/model/address_list.dart';
 export 'package:supplybiz_api_client/src/model/address_patch.dart';
 export 'package:supplybiz_api_client/src/model/address_response.dart';
 export 'package:supplybiz_api_client/src/model/admin_challenge_response.dart';
+export 'package:supplybiz_api_client/src/model/admin_dashboard.dart';
 export 'package:supplybiz_api_client/src/model/admin_enrollment_response.dart';
 export 'package:supplybiz_api_client/src/model/admin_me_response.dart';
 export 'package:supplybiz_api_client/src/model/admin_session_response.dart';

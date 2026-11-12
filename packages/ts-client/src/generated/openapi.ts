@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/admin/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DashboardController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/home": {
         parameters: {
             query?: never;
@@ -1197,6 +1213,33 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminDashboard: {
+            /** Format: date-time */
+            serverTime: string;
+            vendorsTotal: number;
+            vendorsSuspended: number;
+            kycPending: number;
+            kycVerified: number;
+            customersTotal: number;
+            customersBlocked: number;
+            ordersTotal: number;
+            ordersDelivered: number;
+            ordersFailed: number;
+            /** @description Delivered-order component of PRD GMV only; quick-sale value unavailable until T-079/T-080. All-time stored DELIVERED order totals, including delivery charges and discounts; not cash receipts. Decimal integer paise string preserves BigInt precision. */
+            recordedGmvPaise: string;
+            /**
+             * @description Full platform GMV also requires quick-sale value, unavailable before T-079/T-080.
+             * @enum {string}
+             */
+            gmvScope: "DELIVERED_ORDERS_ONLY";
+            /** @description All historical audited assignment rows, including superseded grants; never revenue. */
+            planAssignmentsTotal: number;
+            /**
+             * @description Automated plan billing is deferred; no inferred revenue.
+             * @enum {string}
+             */
+            planRevenueStatus: "UNAVAILABLE";
+        };
         HomeCategory: {
             /** Format: uuid */
             id: string;
@@ -2032,6 +2075,25 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    DashboardController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminDashboard"];
+                };
+            };
+        };
+    };
     HomeController_get: {
         parameters: {
             query?: {

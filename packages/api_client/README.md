@@ -70,6 +70,7 @@ Class | Method | HTTP request | Description
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
+[*AdminDashboardApi*](doc/AdminDashboardApi.md) | [**dashboardControllerGet**](doc/AdminDashboardApi.md#dashboardcontrollerget) | **GET** /api/v1/admin/dashboard |
 [*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBadges**](doc/AdminManagementApi.md#managementcontrollerbadges) | **PATCH** /api/v1/admin/vendors/{id} |
 [*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBlock**](doc/AdminManagementApi.md#managementcontrollerblock) | **POST** /api/v1/admin/customers/{id}/block |
 [*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerCustomer**](doc/AdminManagementApi.md#managementcontrollercustomer) | **GET** /api/v1/admin/customers/{id} |
@@ -164,6 +165,7 @@ Class | Method | HTTP request | Description
  - [AddressPatch](doc/AddressPatch.md)
  - [AddressResponse](doc/AddressResponse.md)
  - [AdminChallengeResponse](doc/AdminChallengeResponse.md)
+ - [AdminDashboard](doc/AdminDashboard.md)
  - [AdminEnrollmentResponse](doc/AdminEnrollmentResponse.md)
  - [AdminMeResponse](doc/AdminMeResponse.md)
  - [AdminSessionResponse](doc/AdminSessionResponse.md)

@@ -394,6 +394,24 @@ T-150 implements password login → five-minute challenge → mandatory TOTP ver
 
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?beforeId=`, `GET /admin/kyc/{submissionId}`, `POST /admin/kyc/{submissionId}/decision` (T-022); document reads use `GET /admin/media/{mediaId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
+T-154 implements GET `/admin/dashboard`, with `dashboard.read` permission
+(SUPER_ADMIN under ADR-026), live session authorization and `Cache-Control: no-store`.
+One database statement returns `serverTime`, `vendorsTotal`, `vendorsSuspended`,
+`kycPending` (MANUAL_REVIEW), `kycVerified`, `customersTotal`, `customersBlocked`,
+`ordersTotal`, `ordersDelivered`, `ordersFailed`, `recordedGmvPaise`,
+`gmvScope: DELIVERED_ORDERS_ONLY`, `planAssignmentsTotal` and `planRevenueStatus: UNAVAILABLE`. Counts are all-time
+retained rows. Customer accounts require a CUSTOMER role (including dual-role,
+blocked and deleted accounts); vendor-owned offline links are not accounts.
+The available GMV component is the sum of persisted DELIVERED order totals, including stored delivery
+charges/discounts, returned as a decimal integer paise string for exact BigInt
+precision. It is not payment receipts or platform revenue. Full PRD platform GMV also includes quick sales; that component is unavailable before T-079/T-080 and is not fabricated here. Delivery success is
+DELIVERED / (DELIVERED + FAILED), with no percentage when there are no completed
+attempts. Pending/cancelled/rejected orders are excluded from this denominator.
+Plan grants count all audited assignment rows, including superseded history;
+there is no billing revenue calculation or purchase inference. No date filter or
+forecast is implemented. Aggregate metrics expose no individual account/PII data.
+Actual order/delivery writers remain T-045/T-049; seeded fixtures only verify reads.
+
 T-155 implements GET `/admin/vendors` and `/admin/customers` with optional search
 (name/mobile/ID, at most 80 characters) and offset (0–1,000,000), 20 records/page;
 GET `/admin/vendors/{id}` and `/admin/customers/{id}` return retained details.
