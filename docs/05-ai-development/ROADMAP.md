@@ -16,7 +16,7 @@ Each row ends with lightweight integrated smoke. QA prepares module scenarios du
 | 2 | Complete T-014/T-015, durable dispatcher T-181 | T-009–T-013 completion, T-016 auth | T-150 admin auth start; finish T-184; T-017 minimum config/force-update contract | G0 auth/baseline: login, roles, refresh/logout, concurrent abuse protection and isolation |
 | 3 | T-020/T-021/T-022 media/vendor/KYC | T-024 onboarding, upload and resume | T-150/T-152 audit, T-151 review start | Upload → persisted masked document → review; no discoverable unverified vendor |
 | 4 | T-023/T-026/T-028/T-084 plus T-103 manual-plan service completion | T-025/T-027/T-029 catalog/customers | T-151/T-153 KYC/categories; T-156 audited plan assignment; paired restore preparation | G1 vendor/admin core: manual KYC, assigned plan/limits, products/stock/customers, authorized media |
-| 5 | After G1 manual-plan pass: T-040/T-041/T-042 discovery/addresses; T-070 ledger foundation | T-047/T-043/T-044 address/discovery | T-154/T-155 management/dashboard start | Customer discovers only eligible vendor; prices/coverage server enforced |
+| 5 | With prerequisite tasks DONE or READY_FOR_VERIFY: T-040/T-041/T-042 discovery/addresses; T-070 ledger foundation; G1 pass required for integrated acceptance | T-047/T-043/T-044 address/discovery | T-154/T-155 management/dashboard start | Customer discovers only eligible vendor; prices/coverage server enforced |
 | 6 | T-045 orders; T-049/T-071 atomic stock/ledger delivery | T-046 checkout, T-048 vendor orders | T-032 notification API; admin support read views | Place → accept → deliver → order status and balances reloaded from DB |
 | 7 | T-051 cancel/reorder; T-052 events; T-053 linking | T-050 offline delivery; T-051/T-053 customer views; T-033 push/inbox | Finish T-154/T-155; order authorization regression fixes | G2 ordering/delivery: replay, concurrency, stock and ledger integrity; offline replay |
 | 8 | T-072/T-075 subscriptions; T-073 schedule/generation | T-076/T-078 subscription creation/approval | Worker retry/catch-up operational drill | Create subscription → generated dated order visible to both roles |
@@ -29,6 +29,9 @@ Each row ends with lightweight integrated smoke. QA prepares module scenarios du
 | 15 | Fix/retest final blockers, verify migration/rollback notes | Reproducible Android handoff/demo | Final backup/restore evidence, runbook, known gaps and release approval packet | Signed-off integrated application handoff; production T-179 remains approval/external-gated |
 
 ## 3. Module completion gates
+
+Implementation eligibility follows TASKS §1 and ADR-030: DONE or READY_FOR_VERIFY prerequisite tasks permit downstream implementation. Pending manual verification or an unpassed prior module gate alone must not block that work. Gate-only dependencies require their constituent prerequisite tasks to be DONE or READY_FOR_VERIFY for implementation. The gates below remain required for integrated acceptance; they do not replace real task prerequisites, manual PASS, release authorization or external prerequisites.
+
 | Gate | Required integrated journeys and comprehensive checks | Deadline |
 |---|---|---|
 | G0 Baseline/auth | T-001–T-016 plus T-180–T-184; native startup, OTP send/verify/concurrency/expiry, refresh reuse, roles, secure logout/storage; build/client compatibility | Day 2 |

@@ -4,6 +4,7 @@
 - Default to **FAST mode**: implement the smallest working scope, run targeted checks, then STOP for manual verification.
 - Read `AGENTS.md` only if not already loaded; consult `CONTEXT.md` or other documents only for specific missing requirements. Read relevant sections, never entire documentation trees.
 - Read the selected task row, its dependencies and only directly relevant FR/US/RULE/ADR/screen sections. Search for IDs before opening files.
+- Follow ADR-030/TASKS §1: DONE or READY_FOR_VERIFY prerequisite tasks permit downstream implementation. Do not mark a task BLOCKED solely for pending manual verification or a prior module gate; check constituent task readiness for gate-only dependencies. Manual PASS and module acceptance remain separate requirements.
 - Inspect existing implementation before proposing changes. Reuse patterns, utilities, generated clients, and UI kit.
 - No speculative architecture, unrelated refactors, broad repository scans, dependency upgrades, or repeated summaries.
 - Do not regenerate API clients unless the contract changed. Do not run all tests, visual snapshot matrices, builds for every platform, or CI locally unless requested.

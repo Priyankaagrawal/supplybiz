@@ -44,7 +44,7 @@ On conflict: stop, report the conflict with file/section references, propose a f
 ## 4. Implementation Workflow
 ```mermaid
 flowchart LR
-    A[Pick task T-xxx with deps done] --> B[Read refs FR/US/S/ADR]
+    A[Pick task T-xxx with deps DONE or READY_FOR_VERIFY] --> B[Read refs FR/US/S/ADR]
     B --> C{Open Q-xx?}
     C -- yes --> D[Ask / flag & implement unblocked part]
     C -- no --> E[Write/adjust contract + schema first]
@@ -106,6 +106,7 @@ Ask a concise question listing options and your recommendation. Record answers i
 ## 11. 15-day delivery rules (ADR-023)
 - This turn authorizes documentation/planning only; no application implementation. Later implementation requires the normal task request/approved documentation gate.
 - Use ROADMAP daily priority, module gates and critical-path dependencies rather than lowest task number. Prefer complete vertical flows; no UI-only completion with disconnected server behavior.
+- ADR-030: prerequisite tasks in DONE or READY_FOR_VERIFY permit downstream implementation. Pending manual PASS or a prior module gate alone must not cause BLOCKED status; for gate-only dependencies check constituent prerequisite task readiness. Manual verification, comprehensive module gates and release approval remain required for their respective completion claims.
 - English-only UI, PostgreSQL-backed durable jobs/OTP/rate limits, native host processes and local filesystem uploads are the accepted baseline. T-180–T-184 reconcile existing implementation without silently accepting old dependencies.
 - Task completion requires lightweight checks and manual PASS; module completion additionally requires comprehensive integration, regression and E2E evidence. Task DONE is not a claim that the module gate passed. PROMPTS §6 and §13 govern these separate gates; these project rules also govern task skill finalization references.
 - Do not run screenshot baseline generation/refresh or introduce its dependencies. No broad test matrix after each task.

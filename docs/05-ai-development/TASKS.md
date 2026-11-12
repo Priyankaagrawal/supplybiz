@@ -13,7 +13,7 @@
 - **RUN / VERIFY:** follow PROMPTS §4 to start the affected service/app; verify the task's `Done when` behavior manually. Fix defects with PROMPTS §5.
 - **Temporary mobile verification scope (2026-10-29):** run and verify mobile tasks on Android only. iOS builds, runs, runtime/device/simulator testing, signing, TestFlight, VoiceOver and E2E are deferred until after Android production release and do not block current task completion. Preserve iOS implementation/configuration; record iOS checks as deferred, never as passed. Other acceptance criteria and manual verification gates still apply.
 - **FINALIZE:** after manual PASS, follow PROMPTS §6 for task-level checks, docs and DONE status; run PROMPTS §13 comprehensive checks only at module completion.
-- **Dependency policy:** downstream tasks may start only when prerequisite tasks are DONE or READY_FOR_VERIFY, for implementation against stable contracts. Required prior module gates must pass before claiming integrated completion. READY_FOR_VERIFY permits provisional parallel work only; module gates cannot pass until prerequisite tasks have manual PASS/DONE and their module gates pass.
+- **Dependency policy (ADR-030):** prerequisite tasks in DONE or READY_FOR_VERIFY permit downstream implementation against stable contracts. Pending manual verification or a prior module gate alone must not cause BLOCKED status or prevent selecting/implementing an otherwise eligible task. For a gate-only dependency, check its constituent prerequisite tasks are DONE or READY_FOR_VERIFY before implementation. Genuine missing decisions, unavailable contracts, unresolved defects and unmet prerequisites still block. Required prior module gates must pass before claiming integrated completion; module gates cannot pass until prerequisite tasks have manual PASS/DONE and their module gates pass. READY_FOR_VERIFY does not count as manual PASS or DONE.
 - **Agent efficiency:** inspect only the selected row, direct dependencies and linked requirement sections; avoid loading the entire documentation set.
 
 - Pick the highest-priority eligible task in ROADMAP daily order. Task IDs are stable references, not execution order. Update **Status** as work progresses (`TODO → IN_PROGRESS → READY_FOR_VERIFY → DONE`, or `BLOCKED (Q-xx)`).
@@ -69,7 +69,7 @@
 ## 4. M2 — Ordering Loop
 | ID | Task | Layer | Refs | Deps | Done when | Status |
 |---|---|---|---|---|---|---|
-| T-040 | Addresses API: validated address/pincode/coordinates; no geo-provider adapter | API | FR-291 | T-015 | TC-290 | TODO |
+| T-040 | Addresses API: validated address/pincode/coordinates; no geo-provider adapter | API | FR-291 | T-015 | TC-290 | TODO (2026-11-12: ADR-030 clears the pending-G1/manual-plan implementation blocker; T-015 and T-084/T-103/T-156 are READY_FOR_VERIFY. Eligible for implementation; no address implementation or migration retained from the initial attempt. Manual verification and G0/G1 remain pending.) |
 | T-041 | Discovery API: geo coverage, Nearby/Popular, verified vendor details, products, search and favorites; no ratings | API | FR-202, FR-210–FR-212, FR-214 | T-023, T-026, T-022, T-084, T-103 | TC-200–TC-210 active cases only; no rating sort/reviews dependency | TODO |
 | T-042 | Customer home API: categories and today’s deliveries; marketing banners deferred | API | FR-201 | T-041 | TC-201 | TODO |
 | T-043 | Mobile customer shell + Home S-C-01, location S-C-02, search S-C-03 | MOB | US-200–US-202 | T-042, T-016, T-047 | TC-200–TC-203 | TODO |
