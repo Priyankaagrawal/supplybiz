@@ -22,6 +22,7 @@ import '../../features/discovery/vendor_page.dart';
 import '../../features/discovery/product_page.dart';
 import '../../features/checkout/checkout_page.dart';
 import '../../features/checkout/new_order_page.dart';
+import '../../features/orders/orders_pages.dart';
 
 part 'routes.g.dart';
 
@@ -227,16 +228,20 @@ class VendorOrdersBranch extends StatefulShellBranchData {
 class VendorOrdersRoute extends GoRouteData with _$VendorOrdersRoute {
   const VendorOrdersRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.orders);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const VendorOrdersPage()
+          : const RoutePlaceholder(title: RouteTitle.orders));
 }
 
 class VendorOrderRoute extends GoRouteData with _$VendorOrderRoute {
   const VendorOrderRoute(this.id);
   final String id;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.order);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? VendorOrderPage(id: id)
+          : const RoutePlaceholder(title: RouteTitle.order));
 }
 
 class VendorProductsBranch extends StatefulShellBranchData {

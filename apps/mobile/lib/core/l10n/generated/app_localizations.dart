@@ -2302,6 +2302,198 @@ abstract class AppLocalizations {
   /// **'Subscription'**
   String get discoverySubscription;
 
+  /// No description provided for @ordersFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Order status'**
+  String get ordersFilter;
+
+  /// No description provided for @ordersSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search customer name or order number'**
+  String get ordersSearch;
+
+  /// No description provided for @ordersDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date (YYYY-MM-DD, IST)'**
+  String get ordersDate;
+
+  /// No description provided for @ordersInvalidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid date as YYYY-MM-DD.'**
+  String get ordersInvalidDate;
+
+  /// No description provided for @ordersAllDates.
+  ///
+  /// In en, this message translates to:
+  /// **'All delivery dates'**
+  String get ordersAllDates;
+
+  /// No description provided for @ordersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders found.'**
+  String get ordersEmpty;
+
+  /// No description provided for @ordersOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'View order'**
+  String get ordersOpen;
+
+  /// No description provided for @ordersMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more orders'**
+  String get ordersMore;
+
+  /// No description provided for @ordersDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Order details'**
+  String get ordersDetails;
+
+  /// No description provided for @ordersCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved order data. Refresh online before changing an order.'**
+  String get ordersCached;
+
+  /// No description provided for @ordersPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An order update is awaiting confirmation. Retry the saved update before making another change.'**
+  String get ordersPending;
+
+  /// No description provided for @ordersRetrySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved order update'**
+  String get ordersRetrySaved;
+
+  /// No description provided for @ordersNoLongerAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Order no longer available for that action. The latest order has been refreshed.'**
+  String get ordersNoLongerAvailable;
+
+  /// No description provided for @ordersItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Order items'**
+  String get ordersItems;
+
+  /// No description provided for @ordersDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount: {amount}'**
+  String ordersDiscount(String amount);
+
+  /// No description provided for @ordersPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get ordersPaid;
+
+  /// No description provided for @ordersUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Unpaid'**
+  String get ordersUnpaid;
+
+  /// No description provided for @ordersApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App order'**
+  String get ordersApp;
+
+  /// No description provided for @ordersVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor-created order'**
+  String get ordersVendor;
+
+  /// No description provided for @ordersTimeline.
+  ///
+  /// In en, this message translates to:
+  /// **'Status timeline'**
+  String get ordersTimeline;
+
+  /// No description provided for @ordersIst.
+  ///
+  /// In en, this message translates to:
+  /// **'IST'**
+  String get ordersIst;
+
+  /// No description provided for @ordersAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept order'**
+  String get ordersAccept;
+
+  /// No description provided for @ordersReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject order'**
+  String get ordersReject;
+
+  /// No description provided for @ordersPacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark packed'**
+  String get ordersPacked;
+
+  /// No description provided for @ordersStartDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Start delivery'**
+  String get ordersStartDelivery;
+
+  /// No description provided for @ordersReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejection reason'**
+  String get ordersReason;
+
+  /// No description provided for @ordersReasonHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain the reason in 5–200 characters.'**
+  String get ordersReasonHelp;
+
+  /// No description provided for @ordersCustomerUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer not available'**
+  String get ordersCustomerUnavailable;
+
+  /// No description provided for @ordersOutOfStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Product out of stock'**
+  String get ordersOutOfStock;
+
+  /// No description provided for @ordersNotServiceable.
+  ///
+  /// In en, this message translates to:
+  /// **'Area not serviceable'**
+  String get ordersNotServiceable;
+
+  /// No description provided for @ordersCustomerRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer requested to cancel'**
+  String get ordersCustomerRequest;
+
+  /// No description provided for @ordersOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get ordersOther;
+
   /// No description provided for @checkoutTitle.
   ///
   /// In en, this message translates to:

@@ -1240,6 +1240,107 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverySubscription => 'Subscription';
 
   @override
+  String get ordersFilter => 'Order status';
+
+  @override
+  String get ordersSearch => 'Search customer name or order number';
+
+  @override
+  String get ordersDate => 'Delivery date (YYYY-MM-DD, IST)';
+
+  @override
+  String get ordersInvalidDate => 'Enter a valid date as YYYY-MM-DD.';
+
+  @override
+  String get ordersAllDates => 'All delivery dates';
+
+  @override
+  String get ordersEmpty => 'No orders found.';
+
+  @override
+  String get ordersOpen => 'View order';
+
+  @override
+  String get ordersMore => 'Load more orders';
+
+  @override
+  String get ordersDetails => 'Order details';
+
+  @override
+  String get ordersCached =>
+      'Showing saved order data. Refresh online before changing an order.';
+
+  @override
+  String get ordersPending =>
+      'An order update is awaiting confirmation. Retry the saved update before making another change.';
+
+  @override
+  String get ordersRetrySaved => 'Retry saved order update';
+
+  @override
+  String get ordersNoLongerAvailable =>
+      'Order no longer available for that action. The latest order has been refreshed.';
+
+  @override
+  String get ordersItems => 'Order items';
+
+  @override
+  String ordersDiscount(String amount) {
+    return 'Discount: $amount';
+  }
+
+  @override
+  String get ordersPaid => 'Paid';
+
+  @override
+  String get ordersUnpaid => 'Unpaid';
+
+  @override
+  String get ordersApp => 'App order';
+
+  @override
+  String get ordersVendor => 'Vendor-created order';
+
+  @override
+  String get ordersTimeline => 'Status timeline';
+
+  @override
+  String get ordersIst => 'IST';
+
+  @override
+  String get ordersAccept => 'Accept order';
+
+  @override
+  String get ordersReject => 'Reject order';
+
+  @override
+  String get ordersPacked => 'Mark packed';
+
+  @override
+  String get ordersStartDelivery => 'Start delivery';
+
+  @override
+  String get ordersReason => 'Rejection reason';
+
+  @override
+  String get ordersReasonHelp => 'Explain the reason in 5–200 characters.';
+
+  @override
+  String get ordersCustomerUnavailable => 'Customer not available';
+
+  @override
+  String get ordersOutOfStock => 'Product out of stock';
+
+  @override
+  String get ordersNotServiceable => 'Area not serviceable';
+
+  @override
+  String get ordersCustomerRequest => 'Customer requested to cancel';
+
+  @override
+  String get ordersOther => 'Other';
+
+  @override
   String get checkoutTitle => 'Cart and checkout';
 
   @override

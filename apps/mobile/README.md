@@ -1,5 +1,87 @@
 # Supply Biz Mobile
 
+## T-048 vendor orders handoff (2026-11-13): READY_FOR_VERIFY
+
+S-V-08–10 / US-040–042 / TC-045–050: the existing vendor Orders tab and
+`/vendor/orders/:id` now use the generated T-045 list/detail/transition client.
+Status, customer-name/order-number search and optional validated IST delivery date
+combine server-side; newest-first pages are deduplicated while retaining server
+order. Cancelled includes Rejected per the API. Detail shows owned contact/address,
+pack/price snapshots, bill/payment/source, current state and actual status timeline
+(UTC timestamps displayed as IST). Call customer reuses the normalized Android
+ACTION_DIAL helper; it does not place a phone call.
+
+NEW supports accept or rejection with one of the documented reasons; Other needs
+5–200 trimmed characters. Accepted supports Mark packed / Start delivery; Preparing
+supports Start delivery. Delivered/failed/payment-collection controls are not
+exposed until their owning T-049/T-050 integration. VERSION_CONFLICT / invalid
+transition refresh detail and list and show “Order no longer available”. All writes
+send the displayed version and an explicit Idempotency-Key.
+
+Encrypted environment/account-scoped cache retains at most 100 list summaries /
+20 details. Restored/offline data is labeled and cannot authorize a mutation until
+refreshed. Before a transition, its exact body/ID/key is persisted; network/server /
+auth uncertainty freezes further transitions until explicit same-key retry. There
+is no automatic replay/expiry/new-key retry. Accepted writes clear pending state
+before refreshing; a failed refresh blocks actions against stale details. Disk
+failure never sends an untracked update. Permission denial removes private cached
+snapshots and search/date filters while preserving any uncertain request identity;
+logout wipes storage. Late responses cannot publish after controller disposal.
+
+Executed: 19 focused order/router cases PASS, including replay/restart, disk
+failure, conflict refresh, reason validation, account-scoped cache, late-response
+guards and 200% list/detail/rejection UI. Dialer channel invocation uses a simulated
+platform response and synthetic number. Five task-runner guards PASS. Final
+mobile analysis and one targeted permission-denial cache-cleanup recheck PASS.
+One native Android encrypted offline/restart/replay/200%/logout smoke PASS;
+normal dev APK build and restore on emulator-5554 PASS. No API/schema/client
+contract changes, dependencies, migrations, route
+codegen, screenshot baselines or broad test suites were needed; only English l10n
+was regenerated. API authorization/notifications rely on the READY_FOR_VERIFY
+T-045 contract; no new live provider or DB-flow evidence is claimed here.
+
+Executed from `apps/mobile`:
+```powershell
+flutter gen-l10n
+& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/orders lib/core/router/routes.dart
+& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format test/features/orders
+& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/orders integration_test/orders_test.dart
+flutter analyze --no-pub
+flutter test --no-pub test/features/orders test/core/router/guards_test.dart test/core/router/app_router_test.dart
+flutter test --no-pub test/features/orders/orders_test.dart --name 'TC-046 disk failures'
+flutter test integration_test/orders_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Root: `node --check tools/check-task.mjs`, `node --test tools/checks.spec.mjs` and
+`git diff --check` PASS. Check logs: `$env:TEMP/supplybiz-t048-{focused,security,analyze,android,build}.log`.
+Root `& 'C:/Android/platform-tools/adb.exe' -s emulator-5554 install -r
+apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk` restored the normal
+development app. Root `& 'D:/supplybiz/apps/mobile/android/gradlew.bat' --stop`
+stopped the task's Gradle daemon; the task Kotlin compile daemon was stopped by
+its verified process ID. No Java processes existed before the task builds.
+Pre-existing services/emulator are preserved; no task check process remains.
+No separate RUN workflow was started.
+Initial test-only import/braces lint findings were fixed. The full runner, hosted
+CI, live mobile/API/PostgreSQL, FCM delivery, actual OS dialer interaction, manual
+TalkBack/PASS and module gates are NOT_RUN. iOS is DEFERRED under ADR-025.
+
+Manual Android verification (pending; use an owned synthetic vendor/customer/order):
+1. Open Orders; combine status, customer/order-number search and date filters,
+   clear them, paginate, and confirm Cancelled includes Rejected. Check empty,
+   denied and offline cached states; cached rows must not enable stale writes.
+2. Open details and confirm contact/address, item price snapshots, totals, payment,
+   source and IST timeline. Tap Call customer and verify the OS dialer has the
+   expected number without initiating a call; verify no-dialer fallback as applicable.
+3. Accept a NEW order. Reject another with each listed reason; Other must require
+   5–200 trimmed characters. Mark packed / Start delivery on eligible existing
+   orders. Check fresh status/timeline and persisted customer inbox through the API.
+4. Cancel an order from the customer while its NEW vendor detail is open; acting
+   must show the conflict and current state. Lose a transition response, restart
+   and explicitly retry; verify one server transition with the same saved key.
+5. Test role/account/logout isolation, denied access and local save failure;
+   review keyboard, TalkBack, 48dp targets and 200% scrolling/reject sheet. Delivery
+   completion and payment collection remain their later tasks, with no fake effect.
+
 ## T-046 cart/checkout handoff (2026-11-13): READY_FOR_VERIFY
 
 S-C-11/S-C-12 / US-220/221 / ADR-032: the cart icon opens typed
