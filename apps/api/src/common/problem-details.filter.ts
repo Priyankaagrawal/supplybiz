@@ -1,6 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
 import { Request, Response } from "express";
 import { REQUEST_ID_HEADER } from "./request-id.middleware";
+import { BusinessRuleException } from './business-rule.exception';
 
 type ValidationErrorEntry = {
   field: string;
@@ -46,6 +47,7 @@ export class ProblemDetailsFilter implements ExceptionFilter {
         detail,
         requestId,
         ...(validationErrors ? { errors: validationErrors } : {}),
+        ...(exception instanceof BusinessRuleException ? exception.extensions : {}),
       });
       return;
     }

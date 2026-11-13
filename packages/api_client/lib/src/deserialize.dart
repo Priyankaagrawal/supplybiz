@@ -60,6 +60,18 @@ import 'package:supplybiz_api_client/src/model/me_response.dart';
 import 'package:supplybiz_api_client/src/model/media_response.dart';
 import 'package:supplybiz_api_client/src/model/notification_mutation_response.dart';
 import 'package:supplybiz_api_client/src/model/notification_preferences.dart';
+import 'package:supplybiz_api_client/src/model/order_cancel_input.dart';
+import 'package:supplybiz_api_client/src/model/order_detail.dart';
+import 'package:supplybiz_api_client/src/model/order_line_input.dart';
+import 'package:supplybiz_api_client/src/model/order_list.dart';
+import 'package:supplybiz_api_client/src/model/order_place_input.dart';
+import 'package:supplybiz_api_client/src/model/order_priced_line.dart';
+import 'package:supplybiz_api_client/src/model/order_problem.dart';
+import 'package:supplybiz_api_client/src/model/order_quote.dart';
+import 'package:supplybiz_api_client/src/model/order_quote_input.dart';
+import 'package:supplybiz_api_client/src/model/order_result.dart';
+import 'package:supplybiz_api_client/src/model/order_status_event.dart';
+import 'package:supplybiz_api_client/src/model/order_transition_input.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_response.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_row.dart';
 import 'package:supplybiz_api_client/src/model/plan_history_response.dart';
@@ -277,6 +289,37 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           value as Map<String, dynamic>) as ReturnType;
     case 'NotificationPreferences':
       return NotificationPreferences.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderCancelInput':
+      return OrderCancelInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderDetail':
+      return OrderDetail.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'OrderLineInput':
+      return OrderLineInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderList':
+      return OrderList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'OrderPlaceInput':
+      return OrderPlaceInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderPricedLine':
+      return OrderPricedLine.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderProblem':
+      return OrderProblem.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'OrderQuote':
+      return OrderQuote.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'OrderQuoteInput':
+      return OrderQuoteInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderResult':
+      return OrderResult.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'OrderStatusEvent':
+      return OrderStatusEvent.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'OrderTransitionInput':
+      return OrderTransitionInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'PlanCatalogResponse':
       return PlanCatalogResponse.fromJson(value as Map<String, dynamic>)

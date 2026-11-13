@@ -114,6 +114,7 @@ model users {
   ledger_entries ledger_entries[]
   addresses addresses[]
   favorites favorites[]
+  order_requests order_requests[]
 }
 
 // FR-291 / T-040. Partial unique default index and generated geography live in SQL.
@@ -747,6 +748,7 @@ model vendor_holidays {
 }
 model orders {
   items order_items[]
+  timeline order_status_events[]
   id String @id @default(uuid()) @db.Uuid
   order_no String @unique @db.VarChar(40)
   vendor_id String @db.Uuid
@@ -786,7 +788,28 @@ model order_items {
   unit_price_paise BigInt
   qty Int
   line_total_paise BigInt
+  milk_quantity_ml Decimal @default(0) @db.Decimal(30,3)
   order orders @relation(fields: [order_id], references: [id], onDelete: Restrict)
   product products @relation(fields: [product_id], references: [id], onDelete: Restrict)
   @@index([order_id, id])
+}
+
+// T-045: permanent actor-scoped replay identity; no customer/address PII in responses.
+model order_requests {
+  request_key String @id @db.Char(64)
+  user_id String @db.Uuid
+  path String @db.VarChar(160)
+  request_hash String @db.Char(64)
+  response Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+}
+model order_status_events {
+  id String @id @default(uuid()) @db.Uuid
+  order_id String @db.Uuid
+  status String @db.VarChar(24)
+  reason String? @db.VarChar(200)
+  at DateTime @default(now()) @db.Timestamptz(6)
+  order orders @relation(fields:[order_id],references:[id],onDelete:Restrict)
+  @@index([order_id,at])
 }

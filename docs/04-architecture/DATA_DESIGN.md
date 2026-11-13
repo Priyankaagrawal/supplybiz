@@ -110,6 +110,11 @@ their owning tasks. Initial charges/minimum are zero, slots empty, automatic acc
 accepting-today, delivery pause and Khata permission false; version 1; stock threshold 10
 per FR-035's documented default. Radius/cutoff/caps/pause-until remain unconfigured (null),
 so onboarding does not invent delivery capacity, timing, plan or visibility policy.
+ADR-032 resolves Q-13: vendors own charge/minimum/slots/same-day cutoff settings;
+same-day orders require explicit enablement and a configured cutoff. New customer
+checkout accepts only POD_CASH/POD_UPI even if the legacy `allow_khata_orders`
+column is true; do not expose a checkout-credit enablement control in this release.
+Existing KHATA history and separate POS/subscription requirements remain intact.
 T-023 supersedes the unconfigured-radius baseline: its additive migration initializes
 null radii to FR-018's 3 km default and defaults future settings to 3 km. A subsequent
 explicit pincode-only save may set radius null; at least one coverage method is required
@@ -177,6 +182,19 @@ customer or consume another slot. Deactivation preserves all future history.
 | Table | Key columns | Notes |
 |---|---|---|
 | `orders` | id, order_no, vendor_id, vendor_customer_id, source (APP/SUBSCRIPTION/VENDOR), subscription_id NULL, status, delivery_date DATE, time_slot, address_snapshot JSONB, subtotal_paise, delivery_charge_paise, discount_paise, total_paise, payment_mode (POD_CASH/POD_UPI/KHATA), payment_status (UNPAID/PAID), reject_reason, cancel_reason, fail_reason, version, created_at | UNIQUE(order_no); **UNIQUE(subscription_id, delivery_date) WHERE subscription_id IS NOT NULL**; index(vendor_id, delivery_date, status); index(vendor_customer_id, created_at) |
+
+T-045 adds `order_number_sequence` (initializes above existing numeric ORD suffixes),
+`order_requests` (hashed actor/key PK, user FK, path/body hash, non-PII result JSON,
+created_at) and `order_status_events` (order FK, status/reason/at). Both history
+tables reject UPDATE/DELETE/TRUNCATE. New `order_items.milk_quantity_ml` is exact
+DECIMAL(30,3), snapshotted at placement for daily capacity; later catalog edits
+do not change booked volume. Existing read-foundation volume uses stored unit
+snapshots and product type; unknown historical timeline times are not invented.
+Request/order/items/status/inbox/outbox commit together. Vendor locks precede
+ordered product locks; future financial/order writers must preserve that order.
+Checkout creates APP/NEW/UNPAID with POD_CASH/POD_UPI only (ADR-032); legacy KHATA
+history remains readable. Migration applied only to the isolated local test DB;
+manual verification and downstream writer integration remain pending.
 | `order_items` | id, order_id, product_id, product_name_snapshot, unit_snapshot JSONB, unit_price_paise BIGINT, qty INTEGER, line_total_paise BIGINT | T-042 read foundation: restrictive order/product FKs, positive quantity, nonnegative price and exact price × quantity check; index(order_id,id). Home uses snapshot names/quantities, including inactive/deleted products. T-045 owns transactional item creation and order-total validation; no order writes added by T-042. |
 | `order_status_history` | id, order_id, from_status, to_status, actor_type, actor_id, reason, at | append-only |
 | `subscriptions` | id, vendor_id, vendor_customer_id, product_id, qty, weekdays SMALLINT (bitmask Mon=1…Sun=64), start_date, end_date NULL, time_slot, address_snapshot JSONB, payment_method, status, created_by (VENDOR/CUSTOMER), version | index(vendor_id, status) |

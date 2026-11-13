@@ -1,5 +1,449 @@
 openapi: 3.0.0
 paths:
+  /api/v1/customer/orders/quote:
+    post:
+      operationId: CustomerOrdersController_quote
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderQuoteInput'
+      responses:
+        '201':
+          description: Read-only validation and server pricing; no reservation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuote'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
+  /api/v1/customer/orders:
+    post:
+      operationId: CustomerOrdersController_place
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPlaceInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResult'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
+    get:
+      operationId: CustomerOrdersController_list
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - NEW
+              - ACCEPTED
+              - PREPARING
+              - OUT_FOR_DELIVERY
+              - DELIVERED
+              - CANCELLED
+              - FAILED
+            type: string
+        - name: tab
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - ONGOING
+              - DELIVERED
+              - CANCELLED
+            type: string
+        - name: q
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: date
+          required: false
+          in: query
+          schema:
+            format: date
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
+  /api/v1/customer/orders/{id}:
+    get:
+      operationId: CustomerOrdersController_detail
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
+  /api/v1/customer/orders/{id}/cancel:
+    post:
+      operationId: CustomerOrdersController_cancel
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCancelInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResult'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
+  /api/v1/vendor/orders:
+    get:
+      operationId: VendorOrdersController_list
+      parameters:
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - NEW
+              - ACCEPTED
+              - PREPARING
+              - OUT_FOR_DELIVERY
+              - DELIVERED
+              - CANCELLED
+              - FAILED
+            type: string
+        - name: tab
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - ONGOING
+              - DELIVERED
+              - CANCELLED
+            type: string
+        - name: q
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: date
+          required: false
+          in: query
+          schema:
+            format: date
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+        '400':
+          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
+        '409':
+          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - vendor-orders
+      security:
+        - bearer: []
+  /api/v1/vendor/orders/{id}:
+    get:
+      operationId: VendorOrdersController_detail
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetail'
+        '400':
+          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
+        '409':
+          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - vendor-orders
+      security:
+        - bearer: []
+  /api/v1/vendor/orders/{id}/transitions:
+    post:
+      operationId: VendorOrdersController_transition
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderTransitionInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResult'
+        '400':
+          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
+        '409':
+          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - vendor-orders
+      security:
+        - bearer: []
   /api/v1/admin/dashboard:
     get:
       operationId: DashboardController_get
@@ -3079,6 +3523,410 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    OrderPricedLine:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        unitValue:
+          type: string
+        unitType:
+          type: string
+        qty:
+          type: integer
+        unitPricePaise:
+          type: string
+        lineTotalPaise:
+          type: string
+      required:
+        - productId
+        - name
+        - unitValue
+        - unitType
+        - qty
+        - unitPricePaise
+        - lineTotalPaise
+    OrderQuote:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+        sameDayCutoff:
+          type: string
+          nullable: true
+          description: Vendor-configured IST cutoff, HH:mm:ss; null disables today.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderPricedLine'
+        subtotalPaise:
+          type: string
+        deliveryChargePaise:
+          type: string
+        discountPaise:
+          type: string
+        totalPaise:
+          type: string
+      required:
+        - serverTime
+        - businessDate
+        - sameDayCutoff
+        - items
+        - subtotalPaise
+        - deliveryChargePaise
+        - discountPaise
+        - totalPaise
+    OrderProblem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        code:
+          type: string
+        detail:
+          type: string
+        requestId:
+          type: string
+        quote:
+          $ref: '#/components/schemas/OrderQuote'
+        productId:
+          type: string
+          format: uuid
+      required:
+        - type
+        - title
+        - status
+        - code
+        - detail
+        - requestId
+    OrderLineInput:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+      required:
+        - productId
+        - qty
+    OrderQuoteInput:
+      type: object
+      properties:
+        vendorId:
+          type: string
+          format: uuid
+        addressId:
+          type: string
+          format: uuid
+        deliveryDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+        paymentMode:
+          type: string
+          enum:
+            - POD_CASH
+            - POD_UPI
+        items:
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineInput'
+      required:
+        - vendorId
+        - addressId
+        - deliveryDate
+        - timeSlot
+        - paymentMode
+        - items
+    OrderPlaceInput:
+      type: object
+      properties:
+        vendorId:
+          type: string
+          format: uuid
+        addressId:
+          type: string
+          format: uuid
+        deliveryDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+        paymentMode:
+          type: string
+          enum:
+            - POD_CASH
+            - POD_UPI
+        items:
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLineInput'
+        expectedTotalPaise:
+          type: string
+          description: Reviewed quote total, exact integer paise as decimal string.
+      required:
+        - vendorId
+        - addressId
+        - deliveryDate
+        - timeSlot
+        - paymentMode
+        - items
+        - expectedTotalPaise
+    OrderResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderNo:
+          type: string
+        vendorId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        version:
+          type: integer
+        deliveryDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+        totalPaise:
+          type: string
+        paymentMode:
+          type: string
+        paymentStatus:
+          type: string
+        source:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - orderNo
+        - vendorId
+        - status
+        - version
+        - deliveryDate
+        - timeSlot
+        - totalPaise
+        - paymentMode
+        - paymentStatus
+        - source
+        - createdAt
+    OrderList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderResult'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    AddressResponse:
+      type: object
+      properties:
+        label:
+          type: string
+        line1:
+          type: string
+          description: House or flat.
+        line2:
+          type: string
+          description: Street or area.
+        landmark:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9][0-9]{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        isDefault:
+          type: boolean
+          description: First address is always default. Use true to move the default.
+        id:
+          type: string
+          format: uuid
+      required:
+        - label
+        - line1
+        - line2
+        - landmark
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
+        - isDefault
+        - id
+    OrderStatusEvent:
+      type: object
+      properties:
+        status:
+          type: string
+        reason:
+          type: string
+          nullable: true
+        at:
+          type: string
+      required:
+        - status
+        - reason
+        - at
+    OrderDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        orderNo:
+          type: string
+        vendorId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        version:
+          type: integer
+        deliveryDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+        totalPaise:
+          type: string
+        paymentMode:
+          type: string
+        paymentStatus:
+          type: string
+        source:
+          type: string
+        createdAt:
+          type: string
+        vendorName:
+          type: string
+          nullable: true
+        customerName:
+          type: string
+        customerMobile:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressResponse'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderPricedLine'
+        timeline:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderStatusEvent'
+        subtotalPaise:
+          type: string
+        deliveryChargePaise:
+          type: string
+        discountPaise:
+          type: string
+        rejectReason:
+          type: string
+          nullable: true
+        cancelReason:
+          type: string
+          nullable: true
+        failReason:
+          type: string
+          nullable: true
+      required:
+        - id
+        - orderNo
+        - vendorId
+        - status
+        - version
+        - deliveryDate
+        - timeSlot
+        - totalPaise
+        - paymentMode
+        - paymentStatus
+        - source
+        - createdAt
+        - vendorName
+        - customerName
+        - customerMobile
+        - address
+        - items
+        - timeline
+        - subtotalPaise
+        - deliveryChargePaise
+        - discountPaise
+        - rejectReason
+        - cancelReason
+        - failReason
+    OrderCancelInput:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+      required:
+        - version
+    OrderTransitionInput:
+      type: object
+      properties:
+        to:
+          type: string
+          enum:
+            - ACCEPTED
+            - REJECTED
+            - PREPARING
+            - OUT_FOR_DELIVERY
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        reason:
+          type: string
+          enum:
+            - CUSTOMER_UNAVAILABLE
+            - OUT_OF_STOCK
+            - NOT_SERVICEABLE
+            - CUSTOMER_REQUEST
+            - OTHER
+        reasonText:
+          type: string
+          description: Required for OTHER; 5–200 characters.
+      required:
+        - to
+        - version
     AdminDashboard:
       type: object
       properties:
@@ -3473,52 +4321,6 @@ components:
       required:
         - vendorId
         - favorite
-    AddressResponse:
-      type: object
-      properties:
-        label:
-          type: string
-        line1:
-          type: string
-          description: House or flat.
-        line2:
-          type: string
-          description: Street or area.
-        landmark:
-          type: string
-        city:
-          type: string
-        state:
-          type: string
-        pincode:
-          type: string
-          pattern: ^[1-9][0-9]{5}$
-        latitude:
-          type: number
-          minimum: -90
-          maximum: 90
-        longitude:
-          type: number
-          minimum: -180
-          maximum: 180
-        isDefault:
-          type: boolean
-          description: First address is always default. Use true to move the default.
-        id:
-          type: string
-          format: uuid
-      required:
-        - label
-        - line1
-        - line2
-        - landmark
-        - city
-        - state
-        - pincode
-        - latitude
-        - longitude
-        - isDefault
-        - id
     AddressList:
       type: object
       properties:

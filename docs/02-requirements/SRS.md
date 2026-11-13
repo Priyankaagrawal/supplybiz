@@ -170,7 +170,7 @@
 |---|---|---|
 | FR-130 | Settings menu: Profile, Business Information, KYC & Bank Details, Service Area, Delivery Settings, Notification Settings, Subscription Settings, Plan & Entitlements, Privacy Policy, Terms, Help & Support, Switch to Customer, Logout, Delete Account. ("Security / Change Password" removed — OTP-only.) | P1 |
 | FR-131 | Editing verified fields (business name, PAN, bank, Aadhaar) sets KYC to PENDING for re-verification; vendor remains discoverable with prior verified data until decision (proposed). | P1 |
-| FR-132 | Delivery settings: delivery charge (₹, default 0), minimum order value, time slots (default 7–8, 8–9, 9–10 AM), order cut-off for same-day orders (A-16). | P1 |
+| FR-132 | Vendor-controlled delivery settings: delivery charge (₹, initial 0), minimum order value (initial 0), time slots (default choices 7–8, 8–9, 9–10 AM), same-day enablement and cutoff (A-16; ADR-032). Same-day ordering is unavailable until enabled with a configured cutoff; server IST time applies. Unconfigured slots are not invented by checkout. No setting enables Add to Khata at checkout in this release. | P1 |
 | FR-133 | Help Center: FAQs (admin CMS) by topic (Orders, Payments, Delivery, Account/KYC), Call Support (number Q-30), email. Tickets/chat deferred. | P1 |
 | FR-134 | Legal pages (Terms, Privacy) rendered from CMS, versioned. | P0 |
 
@@ -197,7 +197,7 @@
 | FR-220 | Cart holds items from one vendor (A-09); adding from another vendor prompts to replace. Cart persists locally. | P0 |
 | FR-221 | Bill details show item total, vendor delivery charge and server-calculated total. Coupon entry/discount functionality is deferred; any compatibility discount field is zero for this release and cannot be supplied by the client (SR-02). | P0 |
 | FR-222 | **POST-DELIVERY — SR-02**. Future requirement: Apply Coupon: TBD (Q-06); feature-flagged off until defined. | DEFERRED |
-| FR-223 | Checkout: delivery address (saved/new), delivery date (today if before vendor cut-off, else from tomorrow; max +7 days), time slot (vendor slots), payment mode: Pay on Delivery (Cash/UPI) or Add to Khata (if vendor allows credit — proposed default allowed for linked customers). "Proceed" places order (NEW). | P0 |
+| FR-223 | Checkout: delivery address (saved/new), delivery date (today only when vendor enables same-day orders and configures a future cutoff, else from tomorrow; max +7 days), time slot (vendor slots), payment mode: Pay on Delivery (Cash/UPI) only for this release (ADR-032). Add to Khata is absent and rejected server-side for new checkout orders; existing dues and payment records remain accessible. "Place Order" creates NEW. | P0 |
 | FR-224 | Place New Order screen: tabs Milk & Dairy / Water Can; One Time / Subscription toggle; product rows with qty steppers; date; time slot; Add to Cart (one-time) or continue to subscription setup. | P0 |
 | FR-225 | Server validation at placement: vendor active & serving address, product active, qty ≥ MOQ and ≤ stock, date not holiday/paused, capacity (FR-046), price re-computed server-side; client shows specific errors. Idempotency-Key required. | P0 |
 
@@ -214,7 +214,7 @@
 |---|---|---|
 | FR-240 | My Orders tabs All/Ongoing/Delivered/Cancelled; card: order no., product icon, item summary, date, amount, status badge. | P0 |
 | FR-241 | Order tracking: timeline Confirmed (ACCEPTED) → Packed (PREPARING) → Out for Delivery → Delivered; delivery address; vendor name & Call button. No live map (F-D3). Auto-refresh via push + pull-to-refresh. | P0 |
-| FR-242 | Customer may cancel while NEW; after ACCEPTED TBD (Q-16). | P0 |
+| FR-242 | Customer may cancel only while NEW, without a cancellation fee. After ACCEPTED or any other status cancellation is rejected (ADR-032; Q-16 resolved). Vendor rejection and holiday/pause cancellations follow their separate rules. | P0 |
 | FR-243 | Reorder a past order (adds available items to cart at current prices). | P1 |
 
 ### 3.20 Customer Khata (F-19)

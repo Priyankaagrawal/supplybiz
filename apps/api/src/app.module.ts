@@ -23,6 +23,8 @@ import { NotificationsController } from './modules/notifications/notifications.c
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { FcmService } from './modules/notifications/fcm.service';
 import { CatalogService } from './modules/catalog/catalog.service';
+import { OrdersService } from './modules/orders/orders.service';
+import { CustomerOrdersController, VendorOrdersController } from './modules/orders/orders.controller';
 import { CategoriesController } from './modules/categories/categories.controller';
 import { KycController, AdminKycController } from './modules/kyc/kyc.controller';
 import { KycService } from './modules/kyc/kyc.service';
@@ -77,9 +79,10 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [CustomerOrdersController, VendorOrdersController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
+    OrdersService,
     DashboardService,
     HomeService,
     DiscoveryService,

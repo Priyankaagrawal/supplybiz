@@ -4,6 +4,118 @@
  */
 
 export interface paths {
+    "/api/v1/customer/orders/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerOrdersController_quote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerOrdersController_list"];
+        put?: never;
+        post: operations["CustomerOrdersController_place"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerOrdersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerOrdersController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorOrdersController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorOrdersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/orders/{id}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorOrdersController_transition"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/dashboard": {
         parameters: {
             query?: never;
@@ -1213,6 +1325,154 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        OrderPricedLine: {
+            /** Format: uuid */
+            productId: string;
+            name: string;
+            unitValue: string;
+            unitType: string;
+            qty: number;
+            unitPricePaise: string;
+            lineTotalPaise: string;
+        };
+        OrderQuote: {
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            /** @description Vendor-configured IST cutoff, HH:mm:ss; null disables today. */
+            sameDayCutoff: string | null;
+            items: components["schemas"]["OrderPricedLine"][];
+            subtotalPaise: string;
+            deliveryChargePaise: string;
+            discountPaise: string;
+            totalPaise: string;
+        };
+        OrderProblem: {
+            type: string;
+            title: string;
+            status: number;
+            code: string;
+            detail: string;
+            requestId: string;
+            quote?: components["schemas"]["OrderQuote"];
+            /** Format: uuid */
+            productId?: string;
+        };
+        OrderLineInput: {
+            /** Format: uuid */
+            productId: string;
+            qty: number;
+        };
+        OrderQuoteInput: {
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            addressId: string;
+            /** Format: date */
+            deliveryDate: string;
+            timeSlot: string;
+            /** @enum {string} */
+            paymentMode: "POD_CASH" | "POD_UPI";
+            items: components["schemas"]["OrderLineInput"][];
+        };
+        OrderPlaceInput: {
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            addressId: string;
+            /** Format: date */
+            deliveryDate: string;
+            timeSlot: string;
+            /** @enum {string} */
+            paymentMode: "POD_CASH" | "POD_UPI";
+            items: components["schemas"]["OrderLineInput"][];
+            /** @description Reviewed quote total, exact integer paise as decimal string. */
+            expectedTotalPaise: string;
+        };
+        OrderResult: {
+            /** Format: uuid */
+            id: string;
+            orderNo: string;
+            /** Format: uuid */
+            vendorId: string;
+            status: string;
+            version: number;
+            /** Format: date */
+            deliveryDate: string;
+            timeSlot: string;
+            totalPaise: string;
+            paymentMode: string;
+            paymentStatus: string;
+            source: string;
+            createdAt: string;
+        };
+        OrderList: {
+            items: components["schemas"]["OrderResult"][];
+            total: number;
+        };
+        AddressResponse: {
+            label: string;
+            /** @description House or flat. */
+            line1: string;
+            /** @description Street or area. */
+            line2: string;
+            landmark: string;
+            city: string;
+            state: string;
+            pincode: string;
+            latitude: number;
+            longitude: number;
+            /** @description First address is always default. Use true to move the default. */
+            isDefault: boolean;
+            /** Format: uuid */
+            id: string;
+        };
+        OrderStatusEvent: {
+            status: string;
+            reason: string | null;
+            at: string;
+        };
+        OrderDetail: {
+            /** Format: uuid */
+            id: string;
+            orderNo: string;
+            /** Format: uuid */
+            vendorId: string;
+            status: string;
+            version: number;
+            /** Format: date */
+            deliveryDate: string;
+            timeSlot: string;
+            totalPaise: string;
+            paymentMode: string;
+            paymentStatus: string;
+            source: string;
+            createdAt: string;
+            vendorName: string | null;
+            customerName: string;
+            customerMobile: string;
+            address: components["schemas"]["AddressResponse"];
+            items: components["schemas"]["OrderPricedLine"][];
+            timeline: components["schemas"]["OrderStatusEvent"][];
+            subtotalPaise: string;
+            deliveryChargePaise: string;
+            discountPaise: string;
+            rejectReason: string | null;
+            cancelReason: string | null;
+            failReason: string | null;
+        };
+        OrderCancelInput: {
+            version: number;
+        };
+        OrderTransitionInput: {
+            /** @enum {string} */
+            to: "ACCEPTED" | "REJECTED" | "PREPARING" | "OUT_FOR_DELIVERY";
+            version: number;
+            /** @enum {string} */
+            reason?: "CUSTOMER_UNAVAILABLE" | "OUT_OF_STOCK" | "NOT_SERVICEABLE" | "CUSTOMER_REQUEST" | "OTHER";
+            /** @description Required for OTHER; 5–200 characters. */
+            reasonText?: string;
+        };
         AdminDashboard: {
             /** Format: date-time */
             serverTime: string;
@@ -1359,23 +1619,6 @@ export interface components {
             /** Format: uuid */
             vendorId: string;
             favorite: boolean;
-        };
-        AddressResponse: {
-            label: string;
-            /** @description House or flat. */
-            line1: string;
-            /** @description Street or area. */
-            line2: string;
-            landmark: string;
-            city: string;
-            state: string;
-            pincode: string;
-            latitude: number;
-            longitude: number;
-            /** @description First address is always default. Use true to move the default. */
-            isDefault: boolean;
-            /** Format: uuid */
-            id: string;
         };
         AddressList: {
             items: components["schemas"]["AddressResponse"][];
@@ -2075,6 +2318,571 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CustomerOrdersController_quote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderQuoteInput"];
+            };
+        };
+        responses: {
+            /** @description Read-only validation and server pricing; no reservation. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderQuote"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_list: {
+        parameters: {
+            query?: {
+                status?: "ALL" | "NEW" | "ACCEPTED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "FAILED";
+                tab?: "ALL" | "ONGOING" | "DELIVERED" | "CANCELLED";
+                q?: string;
+                date?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderList"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_place: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderPlaceInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResult"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderDetail"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_cancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderCancelInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResult"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    VendorOrdersController_list: {
+        parameters: {
+            query?: {
+                status?: "ALL" | "NEW" | "ACCEPTED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "FAILED";
+                tab?: "ALL" | "ONGOING" | "DELIVERED" | "CANCELLED";
+                q?: string;
+                date?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderList"];
+                };
+            };
+            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND; foreign vendor IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    VendorOrdersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderDetail"];
+                };
+            };
+            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND; foreign vendor IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    VendorOrdersController_transition: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderTransitionInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResult"];
+                };
+            };
+            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND; foreign vendor IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
     DashboardController_get: {
         parameters: {
             query?: never;

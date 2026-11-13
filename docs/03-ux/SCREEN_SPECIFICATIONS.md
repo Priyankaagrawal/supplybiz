@@ -209,7 +209,7 @@ Cover, name, distance, approved badges and Products/Subscription/About tabs. No 
 Radio cards: 1 L Daily (₹/month, ₹/day, "Most Popular"), 500 ml Daily, 2 L Daily, Custom Plan. Feature list (Free delivery*, Pause or skip anytime, Monthly billing, Manage from app). CTA "Continue" → S-C-10. *Shown only if delivery charge = 0.
 
 ### S-C-11 Cart & checkout (WF-7)
-Vendor name in title; item rows with steppers and line totals; Apply Coupon row (hidden while flag off); Bill details (Item total, Delivery charge or "₹0 (Free)", Total); address selector; date & slot; payment mode radio (Pay on delivery – Cash/UPI; Add to Khata). CTA "Place Order" (renamed from "Proceed to Pay" since no online payment — confirm with PO). Errors from FR-225 mapped to messages next to affected items.
+Vendor name in title; item rows with steppers and line totals; Apply Coupon row (hidden while flag off); Bill details (Item total, Delivery charge or "₹0 (Free)", Total); address selector; date & vendor-configured slot; payment mode radio (Pay on delivery – Cash/UPI only; no Add to Khata, ADR-032). Today is available only when the vendor enables same-day orders and server IST time is before its configured cutoff. CTA "Place Order". Errors from FR-225 mapped to messages next to affected items. Customer cancellation is available only while NEW, without a fee (ADR-032).
 
 ### S-C-12 Place new order (WF-8)
 Tabs One Time | Subscription; category tabs Milk & Dairy | Water Can; product rows with steppers + unit; Delivery Date (date field); Delivery Time chips (7–8 AM, 8–9 AM, 9–10 AM from vendor settings); CTA "Add to Cart".

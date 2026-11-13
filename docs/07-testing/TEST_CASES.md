@@ -196,12 +196,12 @@
 | TC-228 | Self order | Vendor user ordering from own shop → `SELF_ORDER_NOT_ALLOWED` | RULE-23 | A |
 | TC-229 | Same-day cutoff | After vendor same-day cutoff, today not selectable | FR-223 | W, A |
 | TC-230 | Place new order screen | Tabs and slots work; Add to Cart adds selected | FR-224 | W |
-| TC-231 | Khata payment mode | Vendor disallows credit → option hidden/rejected | FR-223 | A |
+| TC-231 | Checkout payment modes | Only POD_CASH/POD_UPI accepted; Add to Khata hidden and KHATA rejected even if vendor credit flag is true. Existing dues/payment records unaffected (ADR-032). | FR-223 | A |
 | TC-232 | POST-DELIVERY (SR-02): Coupon hidden | Flag off → Apply Coupon row hidden | FR-222 | DEFERRED (SR-02); not executed/not PASS |
 | TC-240 | My orders tabs | Ongoing = NEW/ACCEPTED/PREPARING/OUT_FOR_DELIVERY | FR-240 | A |
 | TC-241 | Tracking timeline | Status changes reflected after push or refresh | FR-241 | E |
-| TC-242 | Cancel when NEW | Allowed; vendor notified | FR-242, RULE-04 | A |
-| TC-243 | Cancel after ACCEPTED | 409 (pending Q-16) | RULE-04 | A |
+| TC-242 | Cancel when NEW | Allowed without cancellation fee; vendor notified (ADR-032) | FR-242, RULE-04 | A |
+| TC-243 | Cancel after ACCEPTED | 409; only NEW customer cancellation allowed, without fee (ADR-032; Q-16 resolved) | RULE-04 | A |
 | TC-244 | Reorder | Available items added at current price; unavailable listed | FR-243 | A, W |
 | TC-245 | Delivery failed | Customer sees FAILED with reason; no DEBIT | FR-081 | A |
 

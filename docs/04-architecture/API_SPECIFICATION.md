@@ -187,6 +187,29 @@ Order/subscription/ledger histories and computed purchase/payment statistics rem
 with their owning modules; T-028 does not return fabricated totals or history.
 
 ### 4.6 Orders & deliveries (FR-040–FR-046, FR-080–FR-081, FR-220–FR-225, FR-240–FR-243)
+ADR-032: customer checkout accepts only `POD_CASH` / `POD_UPI`; reject `KHATA`
+even when a legacy vendor credit flag is true. Existing ledger/payment access is
+preserved. Vendor settings determine delivery charges, minimum, slots and cutoff;
+today requires explicit enablement and a configured cutoff evaluated in server IST.
+Customer cancellation is permitted only for NEW, without fee; later states return
+409. T-045 implements quote/place, owned lists/details, NEW-only customer cancel
+and vendor transitions through OUT_FOR_DELIVERY. Monetary responses use decimal
+integer-paise strings to preserve BIGINT precision. Placement requires the reviewed
+`expectedTotalPaise`; a mismatch returns 409 PRICE_CHANGED with `quote`. Product
+errors include `productId`. Quote is a read-only POST (201), requiring no mutation
+key; placement/cancel/transitions require Idempotency-Key. Request identity is
+permanent and actor-scoped; mismatched path/body is 422. Reads use limit (20,
+max 50)/offset and return `{items,total}`; vendor status CANCELLED includes REJECTED.
+Optional vendor filters are status/q/date, customer filters include tab. Version
+conflict is 409 VERSION_CONFLICT; capacity is 422 CAPACITY_REACHED. Details include
+owned customer contact, address/item price snapshots and persisted status timeline.
+Rejected-order reasons are available in detail; push content stays PII-minimized.
+Unconfigured vendor slots/cutoff are not guessed. T-049 owns DELIVERED/FAILED and
+financial/stock effects; T-051 owns reorder, T-074 vendor holiday/pause cancellation.
+Vendor-created Add Order remains outside this customer-placement slice; the route
+below is the planned contract and is not exposed by T-045. Check evidence/manual
+handoff is recorded in the API README; this does not claim a module gate pass.
+
 | Method | Path | Notes |
 |---|---|---|
 | GET | `/vendor/orders?status=&q=&date=` | |

@@ -1,5 +1,127 @@
 # Supply Biz API
 
+## T-045 orders handoff (2026-11-13): READY_FOR_VERIFY
+
+FR-040–046 / FR-220–225 / ADR-032: customer quote/place/list/detail/cancel and
+vendor list/detail/transitions now use the real PostgreSQL order foundations.
+Checkout accepts only POD_CASH/POD_UPI, calculates integer-paise totals on the
+server (decimal strings on the wire), validates owned saved addresses through the
+existing radius OR pincode coverage service, and checks active KYC/plan/product,
+MOQ/stock, dates, vendor slots/cutoff, holiday/pause, minimum and daily count/milk
+capacity. A price mismatch returns 409 PRICE_CHANGED with the fresh quote;
+product errors identify the affected product. Quote makes no business writes or
+reservations. Placement creates NEW/UNPAID with address/product/price snapshots;
+stock and ledger are unchanged until the owning delivery task.
+
+Vendor settings stay vendor-owned. Initial empty slots and absent cutoff are not
+invented by checkout: configure slots before an order, and explicitly enable
+same-day ordering with a cutoff before selecting today. T-106 owns settings UI;
+native tests supply labeled synthetic settings in the isolated test DB. For
+manual API testing use an existing configured synthetic vendor, its real audited
+active assignment, an owned address and active stocked products. An existing
+offline customer record must be explicitly linked before placement; first-time
+APP customers are created under the existing atomic plan-capacity guard, without
+attaching another offline person's history. Inactive customers cannot order.
+
+NEW → ACCEPTED/REJECTED, ACCEPTED → PREPARING/OUT_FOR_DELIVERY and PREPARING →
+OUT_FOR_DELIVERY are versioned. Reject requires a listed reason; OTHER needs
+5–200 characters. Customer cancellation is NEW-only and fee-free, including after
+plan expiry. Vendor transitions enforce existing-order plan rules. DELIVERED /
+FAILED are rejected until T-049 supplies atomic stock/ledger effects; vendor
+holiday/pause cancellation remains T-074, reorder T-051, and UI T-046/T-048.
+Transactional owned inbox notices/outbox jobs exist for new/accept/reject/out-for-
+delivery/cancel; FCM delivery was NOT_RUN. T-052 owns remaining event/deep-link
+integration. No customer money passes through the platform.
+
+Migration `202611130001_orders` adds a collision-safe global ORD sequence,
+append-only status events and permanent actor-scoped hashed replay identities,
+plus exact decimal milk-volume snapshots for capacity. Replay returns the
+original non-PII result after rechecking current account/role/order ownership;
+key/path/body mismatch is 422. Vendor locks serialize capacity/accept/cancel and
+deterministic product locks serialize catalog pricing/stock reads. T-049/T-072/
+T-074 writers must use the same vendor lock before order/product writes. Current
+read-foundation item volume is backfilled from stored units and product type;
+unknown legacy historical status times are not fabricated. Migration was applied
+only to local `supplybiz_service_area_test`, not development/staging/production.
+Rollback is expand/contract: revert the application while retaining these additive
+tables/columns/history; never drop order, request, status or financial records.
+
+Executed checks (all final checks PASS): 11 native HTTP/PostgreSQL cases (including
+restart replay, distinct-buyer capacity race, cancel/accept race, isolation,
+large-paise/overflow and producer-failure rollback); one targeted transition
+recheck after version-precedence tightening; two native runtime smokes; five
+runner guards; API lint/typecheck/build/schema; TS compile and Dart analysis.
+OpenAPI/TS/Dart regenerated from source. The shared formatter now emits only
+explicit public business-error extensions; DB errors become redacted 503s.
+The codegen normalizer removes dart-dio's unused imports of error-only models,
+retaining exported OrderProblem for callers to decode DioException data; generated
+files were never hand-edited.
+
+Commands executed from repository root:
+```powershell
+pnpm.cmd --filter @supplybiz/api prisma:generate
+# Migration command used DATABASE_URL redirected to the dedicated local _test DB:
+pnpm.cmd --filter @supplybiz/api prisma:migrate:deploy
+pnpm.cmd --filter @supplybiz/api typecheck
+pnpm.cmd --filter @supplybiz/api lint
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+node tools/normalize-generated-docs.mjs
+node --check tools/normalize-generated-docs.mjs
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --lib 'ES2022,DOM' packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+Executed from `apps/api` (the native-test environment below points only to the
+dedicated local database; no URL/credentials printed):
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t 'TC-046'
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+From `packages/api_client`: `flutter analyze --no-pub` → no issues.
+Focused/runtime/codegen logs are in `$env:TEMP/supplybiz-t045-*.log`. Earlier
+sandbox runs failed on pnpm registry verification/setup timeout; outside-sandbox
+reruns passed. The initial milk fixture lacked required milkType and was fixed.
+Initial generated-client analysis found unused error imports; the generator
+normalizer correction passed analysis. An initial root-level tsc path was absent;
+the corrected API-local compiler command above passed. No started check process
+remains; pre-existing services/devices were preserved.
+
+Manual verification pending (start the existing API using its normal dev script;
+these are suggested manual steps, not an executed RUN workflow):
+1. As a synthetic customer, POST `/customer/orders/quote` with vendorId, owned
+   addressId, YYYY-MM-DD deliveryDate, configured timeSlot, POD_CASH/POD_UPI and
+   items [{productId,qty}]. POST `/customer/orders` with the same data plus the
+   reviewed expectedTotalPaise and an Idempotency-Key. Reload both roles' list /
+   detail and confirm snapshots, totals and NEW timeline.
+2. Repeat placement with the same key, including after restarting the test API;
+   confirm one order/notice. Change the payload using that key → 422. Requote
+   after a price change and require explicit review of the new 409 quote.
+3. Accept/reject with the current version; verify reason validation, stale-version
+   conflict, timeline and owned inbox. Cancel a separate NEW order without a fee;
+   after acceptance cancellation must fail. Delivery completion is T-049.
+4. Try foreign addresses/orders, a second vendor, KHATA (even with legacy flag on),
+   below-MOQ/out-of-stock products, outside coverage, holiday/paused date and
+   unset/passed cutoff. Confirm scoped errors and no new business writes.
+5. Set synthetic daily count/milk capacity and race requests; confirm the cap,
+   then reload filters/search/pagination. Check existing history after expiry;
+   new placement stays locked. Mobile/TalkBack/dialer verification awaits UI tasks.
+
+NOT_RUN: live OTP/push, mobile checkout/vendor-order UI, real delivery/stock/ledger
+integration, deployed-host behavior, manual PASS and comprehensive G0/G1/G2 gates.
+iOS is DEFERRED under ADR-025. READY_FOR_VERIFY is not DONE or module acceptance.
+
 ## T-154 admin dashboard handoff (2026-11-12): READY_FOR_VERIFY
 
 `GET /api/v1/admin/dashboard` requires `dashboard.read` (SUPER_ADMIN under ADR-026)

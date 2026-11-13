@@ -115,10 +115,10 @@ See [README](../../README.md#document-dependencies).
 | Q-10 | Customer bottom navigation (mockup vs document conflict) — accept A-17? | UX | PO + UX |
 | Q-11 | Support loose/fractional quantities (e.g., 1.5 L)? | Data model | PO |
 | Q-12 | Category-specific flows for tiffin, laundry, flowers, newspaper, home services? | Customer services | PO |
-| Q-13 | Who sets delivery charges / minimum order — vendor (A-16) or platform? | FR-132 | PO |
+| Q-13 | RESOLVED (user, 2026-11-13; ADR-032): vendors control delivery charges, minimum order value, slots and same-day cutoff. Initial charge/minimum ₹0; same-day orders require explicit enablement and a configured cutoff. | FR-132 policy resolved | PO |
 | Q-14 | Invite & Earn: reward type, amount, eligibility, fraud rules? | POST-DELIVERY SR-02; rewards deferred | PO |
 | Q-15 | Subscription generation time and customer change cutoff (A-05)? | FR-074, FR-077 | PO |
-| Q-16 | Can customers cancel after vendor ACCEPTED? Any cancellation fee? | FR-242 | PO |
+| Q-16 | RESOLVED (user, 2026-11-13; ADR-032): customers may cancel only while NEW, without a cancellation fee. | FR-242 policy resolved | PO |
 | Q-17 | Can a vendor operate multiple categories (A-15)? | FR-010 | PO |
 | Q-18 | Visibility before KYC verification (A-04)? | FR-017 | PO |
 | Q-19 | Subscription billing prepaid vs postpaid (A-06)? | FR-233 | PO |

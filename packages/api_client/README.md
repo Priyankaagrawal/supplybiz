@@ -113,6 +113,11 @@ Class | Method | HTTP request | Description
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerCancel**](doc/CustomerOrdersApi.md#customerorderscontrollercancel) | **POST** /api/v1/customer/orders/{id}/cancel |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerDetail**](doc/CustomerOrdersApi.md#customerorderscontrollerdetail) | **GET** /api/v1/customer/orders/{id} |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerList**](doc/CustomerOrdersApi.md#customerorderscontrollerlist) | **GET** /api/v1/customer/orders |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerPlace**](doc/CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerQuote**](doc/CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAdd**](doc/DiscoveryApi.md#discoverycontrolleradd) | **PUT** /api/v1/customer/favorites/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerFavorites**](doc/DiscoveryApi.md#discoverycontrollerfavorites) | **GET** /api/v1/customer/favorites |
@@ -152,6 +157,9 @@ Class | Method | HTTP request | Description
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerProfile**](doc/VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerSaveServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollersaveservicearea) | **PUT** /api/v1/vendor/settings/service-area |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollerservicearea) | **GET** /api/v1/vendor/settings/service-area |
+[*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerDetail**](doc/VendorOrdersApi.md#vendororderscontrollerdetail) | **GET** /api/v1/vendor/orders/{id} |
+[*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerList**](doc/VendorOrdersApi.md#vendororderscontrollerlist) | **GET** /api/v1/vendor/orders |
+[*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerTransition**](doc/VendorOrdersApi.md#vendororderscontrollertransition) | **POST** /api/v1/vendor/orders/{id}/transitions |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
@@ -221,6 +229,18 @@ Class | Method | HTTP request | Description
  - [MediaResponse](doc/MediaResponse.md)
  - [NotificationMutationResponse](doc/NotificationMutationResponse.md)
  - [NotificationPreferences](doc/NotificationPreferences.md)
+ - [OrderCancelInput](doc/OrderCancelInput.md)
+ - [OrderDetail](doc/OrderDetail.md)
+ - [OrderLineInput](doc/OrderLineInput.md)
+ - [OrderList](doc/OrderList.md)
+ - [OrderPlaceInput](doc/OrderPlaceInput.md)
+ - [OrderPricedLine](doc/OrderPricedLine.md)
+ - [OrderProblem](doc/OrderProblem.md)
+ - [OrderQuote](doc/OrderQuote.md)
+ - [OrderQuoteInput](doc/OrderQuoteInput.md)
+ - [OrderResult](doc/OrderResult.md)
+ - [OrderStatusEvent](doc/OrderStatusEvent.md)
+ - [OrderTransitionInput](doc/OrderTransitionInput.md)
  - [PlanCatalogResponse](doc/PlanCatalogResponse.md)
  - [PlanCatalogRow](doc/PlanCatalogRow.md)
  - [PlanHistoryResponse](doc/PlanHistoryResponse.md)

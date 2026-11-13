@@ -19,6 +19,7 @@ import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_addresses_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_home_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_links_api.dart';
+import 'package:supplybiz_api_client/src/api/customer_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/discovery_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
 import 'package:supplybiz_api_client/src/api/kyc_api.dart';
@@ -27,6 +28,7 @@ import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/notifications_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_plans_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
 
@@ -218,6 +220,12 @@ class SupplybizApiClient {
     return CustomerLinksApi(dio);
   }
 
+  /// Get CustomerOrdersApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CustomerOrdersApi getCustomerOrdersApi() {
+    return CustomerOrdersApi(dio);
+  }
+
   /// Get DiscoveryApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   DiscoveryApi getDiscoveryApi() {
@@ -264,6 +272,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorOnboardingApi getVendorOnboardingApi() {
     return VendorOnboardingApi(dio);
+  }
+
+  /// Get VendorOrdersApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorOrdersApi getVendorOrdersApi() {
+    return VendorOrdersApi(dio);
   }
 
   /// Get VendorPlansApi instance, base route and serializer can be overridden by a given but be careful,

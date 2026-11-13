@@ -19,7 +19,7 @@
 | RULE-01 | Money is stored as integer paise; displayed as ₹ with Indian digit grouping (₹1,20,000); paise shown only if non-zero. | All |
 | RULE-02 | Order status changes only via transitions in [SRS §4.1](SRS.md#41-order). | FR-044 |
 | RULE-03 | Reject requires a reason; "Other" requires text of 5–200 chars. | FR-043 |
-| RULE-04 | Customer can cancel only while order is NEW (Q-16). | FR-242 |
+| RULE-04 | Customer can cancel only while order is NEW, without a cancellation fee (ADR-032; Q-16 resolved). | FR-242 |
 | RULE-05 | Cart holds items of one vendor only. | FR-220 |
 | RULE-06 | One-time order qty ≥ MOQ and ≤ current stock. Subscription orders are generated regardless of stock; low stock triggers an alert. | FR-225, FR-074 |
 | RULE-07 | No subscription order is generated for a date that is: not a selected delivery day, before start/after end, inside a pause, skipped, a vendor holiday, while vendor delivery is paused, or when vendor is suspended/plan inactive (ADR-029; no expiry grace). | FR-074 |

@@ -21,6 +21,13 @@ The user approved **all SR-01–SR-06** on 2026-10-29. ADR-024 records the decis
 Mixed requirements/stories/screens/tests apply only to the active clauses rewritten in their owning documents. Future descriptions under POST-DELIVERY labels are not instructions to build stubs. Further changes beyond these six approvals still require a new scope decision.
 
 ## 3. Dependency and operational consequences
+ADR-032 (user, 2026-11-13) limits new customer checkout to Cash/UPI pay on delivery:
+no Add to Khata option or setting enabling checkout credit, with server rejection
+of KHATA checkout requests. Existing Khata dues/history and payment records remain
+active; POS/subscription billing retain their separate requirements. Vendors own
+delivery settings; customer cancellation is NEW-only with no fee. Q-13/Q-16 are
+resolved; this is policy approval, not implementation or verification evidence.
+
 No active task or gate depends on T-104/T-108/T-120/T-121/T-123/T-124/T-125/T-127–T-130/T-157/T-159/T-160. Do not add recognition, BBPS, billing, maps or reviews adapters/packages to active work. Preserve existing generated/client/source files until an authorized implementation task reconciles them. T-182/T-183 remove obsolete active configuration/dependencies/navigation as applicable; shared libraries already used by retained components need no speculative replacement.
 
 Native PostgreSQL/PostGIS, local server files, auth, manual KYC, manual plan administration, transactional business flows and module testing stay on the critical path. Manual plan assignment must be functional before active-plan discovery/order checks pass; seed fixtures alone are not an admin workflow. T-103/T-156 are scheduled with vendor/admin core, not after discovery.
