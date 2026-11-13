@@ -191,4 +191,18 @@ native('T-045 native order HTTP/DB critical checks',()=>{
     expect(await db.order_requests.count({where:{user_id:buyer.id}})).toBe(0);
     await place(input,key).expect(201);
   });
+  it('T-046 TC-229 options expose configured server dates/slots and enforce address/role/plan/coverage',async()=>{
+    const path=`customer/orders/options?vendorId=${vendorId}&addressId=${addressId}`;
+    const result=await get(path).expect(200);
+    expect(result.body.availableDates).toHaveLength(7);expect(result.body.timeSlots).toEqual(['07:00-08:00']);
+    expect(result.body.availableDates).not.toContain(result.body.businessDate);
+    await db.vendor_holidays.create({data:{vendor_id:vendorId,date:new Date(input.deliveryDate),reason:'Synthetic'}});
+    expect((await get(path).expect(200)).body.availableDates).not.toContain(input.deliveryDate);
+    await get(path,stranger).expect(404);await get(path,owner).expect(403);
+    await db.addresses.update({where:{id:addressId},data:{longitude:80}});await get(path).expect(422);
+    await db.addresses.update({where:{id:addressId},data:{longitude:77.59}});
+    await settings({delivery_paused:true});expect((await get(path).expect(200)).body.availableDates).toEqual([]);
+    await settings({delivery_paused:false,time_slots:[]});expect((await get(path).expect(200)).body.timeSlots).toEqual([]);
+    await db.vendor_plan_assignments.updateMany({where:{vendor_id:vendorId},data:{starts_at:new Date(Date.now()-60000),ends_at:new Date(Date.now()-1000)}});await get(path).expect(403);
+  });
 });

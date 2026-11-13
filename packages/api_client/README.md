@@ -116,6 +116,7 @@ Class | Method | HTTP request | Description
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerCancel**](doc/CustomerOrdersApi.md#customerorderscontrollercancel) | **POST** /api/v1/customer/orders/{id}/cancel |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerDetail**](doc/CustomerOrdersApi.md#customerorderscontrollerdetail) | **GET** /api/v1/customer/orders/{id} |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerList**](doc/CustomerOrdersApi.md#customerorderscontrollerlist) | **GET** /api/v1/customer/orders |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerOptions**](doc/CustomerOrdersApi.md#customerorderscontrolleroptions) | **GET** /api/v1/customer/orders/options |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerPlace**](doc/CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerQuote**](doc/CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
@@ -189,6 +190,7 @@ Class | Method | HTTP request | Description
  - [CategoryInput](doc/CategoryInput.md)
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
+ - [CheckoutOptions](doc/CheckoutOptions.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
  - [CustomerHome](doc/CustomerHome.md)

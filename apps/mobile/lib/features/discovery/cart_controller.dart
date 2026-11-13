@@ -44,9 +44,14 @@ class CartController extends ChangeNotifier {
   final String owner;
   List<CartLine> lines = [];
   AppFailure? failure;
-  bool busy = false, ready = false, _disposed = false;
+  bool busy = false, ready = false, checkoutLocked = false, _disposed = false;
   int get count => lines.fold(0, (n, l) => n + l.qty);
-  bool get canEdit => ready && !busy && !_disposed;
+  bool get canEdit => ready && !busy && !checkoutLocked && !_disposed;
+  void lockCheckout(bool locked) {
+    checkoutLocked = locked;
+    if (!_disposed) notifyListeners();
+  }
+
   @override
   void dispose() {
     _disposed = true;
@@ -60,7 +65,13 @@ class CartController extends ChangeNotifier {
     notifyListeners();
     try {
       final saved = await store.read(owner);
+      final checkoutOwner = owner.endsWith(':cart')
+          ? '${owner.substring(0, owner.length - 5)}:checkout'
+          : '$owner:checkout';
+      final checkout = await store.read(checkoutOwner);
       if (_disposed) return;
+      checkoutLocked =
+          checkout.containsKey('pending') || checkout.containsKey('result');
       final next = (jsonDecode(saved['lines'] ?? '[]') as List)
           .map((r) => CartLine.fromJson(Map<String, dynamic>.from(r as Map)))
           .toList();
@@ -85,8 +96,10 @@ class CartController extends ChangeNotifier {
     }
   }
 
-  Future<bool> _write(List<CartLine> next) async {
-    if (!canEdit) return false;
+  Future<bool> _write(List<CartLine> next, {bool purchased = false}) async {
+    if (!ready || busy || _disposed || checkoutLocked && !purchased) {
+      return false;
+    }
     busy = true;
     failure = null;
     notifyListeners();
@@ -128,4 +141,18 @@ class CartController extends ChangeNotifier {
   }
 
   Future<void> clear() => _write([]);
+  Future<bool> clearPurchased() => _write([], purchased: true);
+  Future<bool> quantity(String id, int qty) async {
+    final next = List<CartLine>.of(lines),
+        index = lines.indexWhere((l) => l.product.id == id);
+    if (index < 0) return false;
+    final row = next[index];
+    if (qty == 0) {
+      next.removeAt(index);
+    } else {
+      if (qty < row.product.moq || qty > row.product.stockQty) return false;
+      next[index] = CartLine(row.vendorId, row.vendorName, row.product, qty);
+    }
+    return _write(next);
+  }
 }

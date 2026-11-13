@@ -1,5 +1,54 @@
 openapi: 3.0.0
 paths:
+  /api/v1/customer/orders/options:
+    get:
+      operationId: CustomerOrdersController_options
+      parameters:
+        - name: vendorId
+          required: true
+          in: query
+          schema:
+            format: uuid
+            type: string
+        - name: addressId
+          required: true
+          in: query
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: Owned-address eligibility and server IST dates/vendor slots; quote rechecks capacity and prices.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutOptions'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
   /api/v1/customer/orders/quote:
     post:
       operationId: CustomerOrdersController_quote
@@ -3609,6 +3658,30 @@ components:
         - code
         - detail
         - requestId
+    CheckoutOptions:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+        availableDates:
+          type: array
+          items:
+            type: string
+        timeSlots:
+          type: array
+          items:
+            type: string
+        sameDayCutoff:
+          type: string
+          nullable: true
+      required:
+        - serverTime
+        - businessDate
+        - availableDates
+        - timeSlots
+        - sameDayCutoff
     OrderLineInput:
       type: object
       properties:

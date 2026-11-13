@@ -58,6 +58,27 @@ export class OrdersService {
   quote(userId: string,input: OrderQuoteInput) {
     return this.db.$transaction(async tx=> (await this.price(tx,userId,input)).quote,{timeout:15000}).catch(unavailable);
   }
+  options(userId: string,vendorId: string,addressId: string) {
+    return this.db.$transaction(async tx=>{
+      await this.actor(tx,userId,'CUSTOMER');
+      const address=await this.addresses.requireOwned(tx,userId,addressId);
+      await this.plans.requireOperation(tx,vendorId,'NEW_ORDER');
+      const vendor=await tx.vendors.findUniqueOrThrow({where:{id:vendorId},include:{settings:true,user:true,category:true}});
+      if (vendor.user_id===userId) throw new UnprocessableEntityException({code:'SELF_ORDER_NOT_ALLOWED'});
+      if (vendor.kyc_status!=='VERIFIED' || vendor.user.status!=='ACTIVE' || vendor.category.type!=='SUPPLY' || vendor.category.status!=='ENABLED' || !vendor.settings) throw new NotFoundException({code:'VENDOR_UNAVAILABLE'});
+      if (!await this.vendors.covers(vendorId,address.latitude,address.longitude,address.pincode,tx)) throw new UnprocessableEntityException({code:'NOT_SERVICEABLE'});
+      const clock=await homeClock(tx),settings=vendor.settings;
+      const holidays=await tx.vendor_holidays.findMany({where:{vendor_id:vendorId}});
+      const cutoff=settings.same_day_cutoff?.toISOString().slice(11,19) ?? null;
+      const time=new Date(clock.now.getTime()+19800000).toISOString().slice(11,19);
+      const pauseUntil=settings.delivery_paused_until ? new Date(settings.delivery_paused_until.getTime()+19800000).toISOString().slice(0,10) : null;
+      const dates=Array.from({length:8},(_,i)=>new Date(orderDate(clock.day).getTime()+i*86400000).toISOString().slice(0,10));
+      return {serverTime:clock.now.toISOString(),businessDate:clock.day,sameDayCutoff:cutoff,
+        availableDates:dates.filter((d,i)=>(i>0 || settings.accepting_today && cutoff!==null && time<cutoff) &&
+          !holidays.some(h=>h.date.toISOString().slice(0,10)===d) && (!settings.delivery_paused || pauseUntil!==null && d>pauseUntil)),
+        timeSlots:Array.isArray(settings.time_slots)?settings.time_slots.filter((s):s is string=>typeof s==='string' && s.length>0 && s.length<=80):[]};
+    },{timeout:15000}).catch(unavailable);
+  }
   private async price(tx: Tx,userId: string,input: OrderQuoteInput) {
     await this.actor(tx,userId,'CUSTOMER');
     if (!['POD_CASH','POD_UPI'].includes(input.paymentMode)) throw new BadRequestException({code:'PAYMENT_MODE_NOT_ALLOWED'});

@@ -1240,6 +1240,146 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverySubscription => 'Subscription';
 
   @override
+  String get checkoutTitle => 'Cart and checkout';
+
+  @override
+  String get checkoutNew => 'Place new order';
+
+  @override
+  String get checkoutOneTime => 'One-time order';
+
+  @override
+  String get checkoutMilk => 'Milk & Dairy';
+
+  @override
+  String get checkoutWater => 'Water Can';
+
+  @override
+  String get checkoutPending =>
+      'Your order may have been received. Retry this saved order to check its result before starting another.';
+
+  @override
+  String get checkoutRetry => 'Retry saved order';
+
+  @override
+  String get checkoutContinue => 'Continue shopping';
+
+  @override
+  String checkoutPlaced(String number) {
+    return 'Order $number placed';
+  }
+
+  @override
+  String checkoutQuantity(int qty) {
+    return 'Quantity: $qty';
+  }
+
+  @override
+  String get checkoutLess => 'Decrease quantity';
+
+  @override
+  String get checkoutMore => 'Increase quantity';
+
+  @override
+  String get checkoutRemove => 'Remove item';
+
+  @override
+  String get checkoutRefresh => 'Refresh delivery choices';
+
+  @override
+  String get checkoutNoAddress => 'Add a delivery address to continue.';
+
+  @override
+  String get checkoutAddress => 'Delivery address';
+
+  @override
+  String get checkoutNoSlots =>
+      'No delivery dates or time slots are available. Contact the vendor or refresh later.';
+
+  @override
+  String get checkoutDate => 'Delivery date (IST)';
+
+  @override
+  String get checkoutSlot => 'Delivery time slot';
+
+  @override
+  String checkoutCutoff(String time) {
+    return 'Same-day cutoff: $time IST';
+  }
+
+  @override
+  String get checkoutPayment => 'Payment on delivery';
+
+  @override
+  String get checkoutCash => 'Cash on delivery';
+
+  @override
+  String get checkoutUpi => 'UPI on delivery';
+
+  @override
+  String get checkoutQuote => 'Review bill';
+
+  @override
+  String checkoutSubtotal(String amount) {
+    return 'Item total: $amount';
+  }
+
+  @override
+  String checkoutDelivery(String amount) {
+    return 'Delivery charge: $amount';
+  }
+
+  @override
+  String checkoutTotal(String amount) {
+    return 'Total: $amount';
+  }
+
+  @override
+  String get checkoutFree => '₹0 (Free)';
+
+  @override
+  String get checkoutPlace => 'Place Order';
+
+  @override
+  String get checkoutConfirmPrice => 'Confirm new total and place order';
+
+  @override
+  String get checkoutPriceChanged =>
+      'Prices changed. Review the updated bill and confirm the new total.';
+
+  @override
+  String get checkoutMoq =>
+      'Increase the quantity to the product\'s minimum order quantity.';
+
+  @override
+  String get checkoutStock =>
+      'This product or quantity is unavailable. Remove it or choose an available quantity.';
+
+  @override
+  String get checkoutCoverage =>
+      'This vendor does not serve the selected address. Choose another address.';
+
+  @override
+  String get checkoutTiming =>
+      'The delivery date or slot is no longer available. Refresh delivery choices.';
+
+  @override
+  String get checkoutUnavailable =>
+      'The vendor cannot deliver on this date or is fully booked. Choose another date.';
+
+  @override
+  String get checkoutMinimum =>
+      'The item total is below the vendor\'s minimum order value.';
+
+  @override
+  String get checkoutLink =>
+      'Accept this vendor\'s account link before ordering. Your existing records will remain protected.';
+
+  @override
+  String get checkoutInactive =>
+      'Your customer account with this vendor is inactive. Contact the vendor.';
+
+  @override
   String discoveryMilkType(String type) {
     return 'Milk type: $type';
   }

@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/customer/orders/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerOrdersController_options"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/orders/quote": {
         parameters: {
             query?: never;
@@ -1358,6 +1374,13 @@ export interface components {
             /** Format: uuid */
             productId?: string;
         };
+        CheckoutOptions: {
+            serverTime: string;
+            businessDate: string;
+            availableDates: string[];
+            timeSlots: string[];
+            sameDayCutoff: string | null;
+        };
         OrderLineInput: {
             /** Format: uuid */
             productId: string;
@@ -2318,6 +2341,75 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CustomerOrdersController_options: {
+        parameters: {
+            query: {
+                vendorId: string;
+                addressId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Owned-address eligibility and server IST dates/vendor slots; quote rechecks capacity and prices. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckoutOptions"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
     CustomerOrdersController_quote: {
         parameters: {
             query?: never;

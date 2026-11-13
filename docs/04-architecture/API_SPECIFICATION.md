@@ -217,6 +217,7 @@ handoff is recorded in the API README; this does not claim a module gate pass.
 | POST | `/vendor/orders` | vendor-created order for a customer ("Add Order") |
 | POST | `/vendor/orders/{id}/transitions` | `{ to: ACCEPTED|REJECTED|PREPARING|OUT_FOR_DELIVERY|DELIVERED|FAILED|CANCELLED, version, reason?, payment?: { collected, method, amountPaise } }` |
 | GET | `/vendor/deliveries?date=&status=` | counts per tab included |
+| GET | `/customer/orders/options?vendorId=&addressId=` | T-046: owned address and eligible vendor; serverTime/businessDate, configured timeSlots/sameDayCutoff and availableDates today through +7 excluding cutoff/holiday/pause. Quote/place recheck price, stock and capacity. No guessed defaults or business writes. |
 | POST | `/customer/orders/quote` | validates cart and returns priced bill (no side effects) |
 | POST | `/customer/orders` | place order |
 | GET | `/customer/orders?tab=ALL|ONGOING|DELIVERED|CANCELLED` | |

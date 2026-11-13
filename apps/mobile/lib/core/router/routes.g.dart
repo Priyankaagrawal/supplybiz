@@ -7,6 +7,8 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $customerCartRoute,
+      $customerNewOrderRoute,
       $customerDiscoveryRoute,
       $customerFavoritesRoute,
       $customerLocationRoute,
@@ -23,6 +25,66 @@ List<RouteBase> get $appRoutes => [
       $customerShell,
       $linkRoute,
     ];
+
+RouteBase get $customerCartRoute => GoRouteData.$route(
+      path: '/customer/cart',
+      factory: _$CustomerCartRoute._fromState,
+    );
+
+mixin _$CustomerCartRoute on GoRouteData {
+  static CustomerCartRoute _fromState(GoRouterState state) =>
+      const CustomerCartRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/cart',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $customerNewOrderRoute => GoRouteData.$route(
+      path: '/customer/new-order/:id',
+      factory: _$CustomerNewOrderRoute._fromState,
+    );
+
+mixin _$CustomerNewOrderRoute on GoRouteData {
+  static CustomerNewOrderRoute _fromState(GoRouterState state) =>
+      CustomerNewOrderRoute(
+        state.pathParameters['id']!,
+      );
+
+  CustomerNewOrderRoute get _self => this as CustomerNewOrderRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/customer/new-order/${Uri.encodeComponent(_self.id)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $customerDiscoveryRoute => GoRouteData.$route(
       path: '/customer/vendors',

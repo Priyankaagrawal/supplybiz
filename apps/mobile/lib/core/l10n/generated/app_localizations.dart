@@ -2302,6 +2302,240 @@ abstract class AppLocalizations {
   /// **'Subscription'**
   String get discoverySubscription;
 
+  /// No description provided for @checkoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart and checkout'**
+  String get checkoutTitle;
+
+  /// No description provided for @checkoutNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Place new order'**
+  String get checkoutNew;
+
+  /// No description provided for @checkoutOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time order'**
+  String get checkoutOneTime;
+
+  /// No description provided for @checkoutMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk & Dairy'**
+  String get checkoutMilk;
+
+  /// No description provided for @checkoutWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Can'**
+  String get checkoutWater;
+
+  /// No description provided for @checkoutPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order may have been received. Retry this saved order to check its result before starting another.'**
+  String get checkoutPending;
+
+  /// No description provided for @checkoutRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved order'**
+  String get checkoutRetry;
+
+  /// No description provided for @checkoutContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue shopping'**
+  String get checkoutContinue;
+
+  /// No description provided for @checkoutPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {number} placed'**
+  String checkoutPlaced(String number);
+
+  /// No description provided for @checkoutQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity: {qty}'**
+  String checkoutQuantity(int qty);
+
+  /// No description provided for @checkoutLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease quantity'**
+  String get checkoutLess;
+
+  /// No description provided for @checkoutMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase quantity'**
+  String get checkoutMore;
+
+  /// No description provided for @checkoutRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove item'**
+  String get checkoutRemove;
+
+  /// No description provided for @checkoutRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh delivery choices'**
+  String get checkoutRefresh;
+
+  /// No description provided for @checkoutNoAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a delivery address to continue.'**
+  String get checkoutNoAddress;
+
+  /// No description provided for @checkoutAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address'**
+  String get checkoutAddress;
+
+  /// No description provided for @checkoutNoSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery dates or time slots are available. Contact the vendor or refresh later.'**
+  String get checkoutNoSlots;
+
+  /// No description provided for @checkoutDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date (IST)'**
+  String get checkoutDate;
+
+  /// No description provided for @checkoutSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery time slot'**
+  String get checkoutSlot;
+
+  /// No description provided for @checkoutCutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Same-day cutoff: {time} IST'**
+  String checkoutCutoff(String time);
+
+  /// No description provided for @checkoutPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment on delivery'**
+  String get checkoutPayment;
+
+  /// No description provided for @checkoutCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash on delivery'**
+  String get checkoutCash;
+
+  /// No description provided for @checkoutUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI on delivery'**
+  String get checkoutUpi;
+
+  /// No description provided for @checkoutQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Review bill'**
+  String get checkoutQuote;
+
+  /// No description provided for @checkoutSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Item total: {amount}'**
+  String checkoutSubtotal(String amount);
+
+  /// No description provided for @checkoutDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery charge: {amount}'**
+  String checkoutDelivery(String amount);
+
+  /// No description provided for @checkoutTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {amount}'**
+  String checkoutTotal(String amount);
+
+  /// No description provided for @checkoutFree.
+  ///
+  /// In en, this message translates to:
+  /// **'₹0 (Free)'**
+  String get checkoutFree;
+
+  /// No description provided for @checkoutPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Place Order'**
+  String get checkoutPlace;
+
+  /// No description provided for @checkoutConfirmPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new total and place order'**
+  String get checkoutConfirmPrice;
+
+  /// No description provided for @checkoutPriceChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices changed. Review the updated bill and confirm the new total.'**
+  String get checkoutPriceChanged;
+
+  /// No description provided for @checkoutMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase the quantity to the product\'s minimum order quantity.'**
+  String get checkoutMoq;
+
+  /// No description provided for @checkoutStock.
+  ///
+  /// In en, this message translates to:
+  /// **'This product or quantity is unavailable. Remove it or choose an available quantity.'**
+  String get checkoutStock;
+
+  /// No description provided for @checkoutCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'This vendor does not serve the selected address. Choose another address.'**
+  String get checkoutCoverage;
+
+  /// No description provided for @checkoutTiming.
+  ///
+  /// In en, this message translates to:
+  /// **'The delivery date or slot is no longer available. Refresh delivery choices.'**
+  String get checkoutTiming;
+
+  /// No description provided for @checkoutUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The vendor cannot deliver on this date or is fully booked. Choose another date.'**
+  String get checkoutUnavailable;
+
+  /// No description provided for @checkoutMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'The item total is below the vendor\'s minimum order value.'**
+  String get checkoutMinimum;
+
+  /// No description provided for @checkoutLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept this vendor\'s account link before ordering. Your existing records will remain protected.'**
+  String get checkoutLink;
+
+  /// No description provided for @checkoutInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Your customer account with this vendor is inactive. Contact the vendor.'**
+  String get checkoutInactive;
+
   /// No description provided for @discoveryMilkType.
   ///
   /// In en, this message translates to:

@@ -20,6 +20,7 @@ import 'package:supplybiz_api_client/src/model/catalog_price_input.dart';
 import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
+import 'package:supplybiz_api_client/src/model/checkout_options.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
 import 'package:supplybiz_api_client/src/model/customer_home.dart';
@@ -182,6 +183,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return CategoryList.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CategoryRow':
       return CategoryRow.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'CheckoutOptions':
+      return CheckoutOptions.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CurrentPlanResponse':

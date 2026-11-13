@@ -9,6 +9,17 @@ export class OrderLineInput {
   @ApiProperty({ format: 'uuid' }) @IsUUID() productId!: string;
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 2147483647 }) @IsInt() @Min(1) @Max(2147483647) qty!: number;
 }
+export class CheckoutOptionsQuery {
+  @ApiProperty({format:'uuid'}) @IsUUID() vendorId!: string;
+  @ApiProperty({format:'uuid'}) @IsUUID() addressId!: string;
+}
+export class CheckoutOptions {
+  @ApiProperty() serverTime!: string;
+  @ApiProperty() businessDate!: string;
+  @ApiProperty({type:[String]}) availableDates!: string[];
+  @ApiProperty({type:[String]}) timeSlots!: string[];
+  @ApiProperty({type:String,nullable:true}) sameDayCutoff!: string|null;
+}
 export class OrderQuoteInput {
   @ApiProperty({ format: 'uuid' }) @IsUUID() vendorId!: string;
   @ApiProperty({ format: 'uuid' }) @IsUUID() addressId!: string;

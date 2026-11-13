@@ -55,6 +55,7 @@ export 'package:supplybiz_api_client/src/model/catalog_price_input.dart';
 export 'package:supplybiz_api_client/src/model/category_input.dart';
 export 'package:supplybiz_api_client/src/model/category_list.dart';
 export 'package:supplybiz_api_client/src/model/category_row.dart';
+export 'package:supplybiz_api_client/src/model/checkout_options.dart';
 export 'package:supplybiz_api_client/src/model/consent_dto.dart';
 export 'package:supplybiz_api_client/src/model/current_plan_response.dart';
 export 'package:supplybiz_api_client/src/model/customer_home.dart';

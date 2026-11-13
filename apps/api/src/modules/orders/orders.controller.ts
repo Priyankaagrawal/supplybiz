@@ -5,6 +5,7 @@ import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
 import { OrderCancelInput, OrderDetail, OrderList, OrderPlaceInput, OrderProblem, OrderQuery, OrderQuote, OrderQuoteInput, OrderResult, OrderTransitionInput } from './orders.dto';
 import { OrdersService } from './orders.service';
+import { CheckoutOptions, CheckoutOptionsQuery } from './orders.dto';
 type AuthRequest = Request & {session:{userId:string}};
 @ApiTags('customer-orders') @ApiBearerAuth() @UseGuards(SessionGuard)
 @SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('customer/orders')
@@ -16,6 +17,8 @@ type AuthRequest = Request & {session:{userId:string}};
 @ApiResponse({status:422,type:OrderProblem,description:'BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.'})
 export class CustomerOrdersController {
   constructor(private readonly orders: OrdersService) {}
+  @Get('options') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:CheckoutOptions,description:'Owned-address eligibility and server IST dates/vendor slots; quote rechecks capacity and prices.'})
+  options(@Req() r:AuthRequest,@Query() q:CheckoutOptionsQuery) { return this.orders.options(r.session.userId,q.vendorId,q.addressId); }
   @Post('quote') @Header('Cache-Control','no-store') @ApiResponse({status:201,type:OrderQuote,description:'Read-only validation and server pricing; no reservation.'})
   quote(@Req() r:AuthRequest,@Body() input:OrderQuoteInput) { return this.orders.quote(r.session.userId,input); }
   @Post() @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:OrderResult})

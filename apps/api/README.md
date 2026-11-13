@@ -1,5 +1,21 @@
 # Supply Biz API
 
+## T-046 supporting checkout choices (2026-11-13)
+
+`GET /api/v1/customer/orders/options?vendorId=&addressId=` returns no-store
+serverTime/businessDate, vendor-configured timeSlots/sameDayCutoff, and dates
+through IST today +7. Today requires explicit enablement and an unpassed cutoff;
+holidays and paused dates are excluded. Empty slots remain empty. The service
+checks CUSTOMER role, owned saved address, self-order prohibition, vendor KYC /
+status/category, audited active plan and radius OR pincode coverage. Quote/place
+still check current price/stock/minimum/capacity; this read reserves nothing.
+No migration/dependency added. OpenAPI/TS/Dart regenerated from source. One
+focused native HTTP/PostgreSQL case, API lint/typecheck/build, TS compile and
+generated Dart/mobile analysis pass; complete integrated UI/API/DB and manual
+PASS remain pending. See the [mobile handoff](../mobile/README.md) for exact
+commands, Android evidence and five manual verification steps. T-045 status is
+preserved; this change belongs only to T-046.
+
 ## T-045 orders handoff (2026-11-13): READY_FOR_VERIFY
 
 FR-040–046 / FR-220–225 / ADR-032: customer quote/place/list/detail/cancel and

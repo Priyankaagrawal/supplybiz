@@ -1,5 +1,95 @@
 # Supply Biz Mobile
 
+## T-046 cart/checkout handoff (2026-11-13): READY_FOR_VERIFY
+
+S-C-11/S-C-12 / US-220/221 / ADR-032: the cart icon opens typed
+`/customer/cart`. Vendor detail → Place new order opens typed
+`/customer/new-order/:id`, with Milk & Dairy / Water Can one-time products,
+MOQ/stock steppers, fresh product checks and confirmed single-vendor replacement.
+Address add/selection, server IST dates/vendor slots, Cash/UPI on delivery,
+reviewed server bill, changed-price reconfirmation and persisted order confirmation
+are wired through generated clients. No Add to Khata/coupon action is present.
+Subscription creation remains T-078; this slice supplies the one-time flow and
+does not fabricate a subscription setup destination. Order tracking remains T-051.
+
+`GET /customer/orders/options?vendorId=&addressId=` is the small supporting API
+read: owned address, coverage, role/KYC/active plan, server date/cutoff, holidays /
+pause and configured slots; quote/place still revalidate current capacity/price.
+No migration/dependency added. Empty unconfigured slots show unavailable choices;
+T-106 owns vendor settings UI. No guessed cutoff/date/slot is submitted.
+
+An encrypted environment/account-scoped checkout draft is written before sending
+the mutation. Lost responses keep the exact body/key and lock cart edits, including
+after restart before checkout opens. Explicit retry uses the permanent server replay
+identity; there is no automatic expiration/new-key retry. Definitive input/business
+errors release the cart; transport/server/auth/permission uncertainty preserves the
+pending order. A successful result persists before purchased cart removal, and
+failed local cleanup can be retried without placing another order. Role/account
+changes dispose controllers, late responses cannot publish into the next account,
+and logout clears the encrypted store. Every input/cart change invalidates quotes.
+
+Executed checks: 27 focused checkout/discovery/router checks PASS; one dedicated
+native PostgreSQL/HTTP options case PASS; five runner guards PASS; clean mobile
+analysis, API lint/typecheck/build and generated TS compile PASS. API/TS/Dart
+codegen and scoped l10n/router generation PASS. One native Android encrypted
+restart/cart-lock/retry/200% confirmation/logout smoke PASS; normal dev APK build
+PASS and restored on emulator-5554. Mobile HTTP is simulated; the separate native API
+case exercises the real endpoint/DB and is not a claim of a live mobile/API journey.
+
+Executed from `apps/mobile`:
+```powershell
+flutter gen-l10n
+& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' run build_runner build --build-filter=lib/core/router/routes.g.dart
+flutter analyze --no-pub
+flutter test --no-pub test/features/checkout test/features/discovery test/core/router/guards_test.dart test/core/router/app_router_test.dart
+flutter test integration_test/checkout_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+Root: `& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh`,
+`node --test tools/checks.spec.mjs`, `node --check tools/check-task.mjs`,
+`.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --lib 'ES2022,DOM' packages/ts-client/src/generated/openapi.ts`,
+and `git diff --check` PASS. From `apps/api`, local `.\node_modules\.bin\tsc.cmd
+--noEmit`, `tsc.cmd -p tsconfig.build.json` and `eslint.cmd src test scripts
+jest.config.ts --max-warnings=0` PASS. With NATIVE_TEST_DATABASE_URL set only to
+the existing local `supplybiz_service_area_test` (same credential-safe setup as
+the API T-045 handoff), executed:
+`.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t 'T-046'`.
+Only that one metadata case ran; the eleven unrelated cases were intentionally
+excluded. Logs: `$env:TEMP/supplybiz-t046-{api,mobile,analyze,android,codegen}.log`.
+Build log: `$env:TEMP/supplybiz-t046-build.log`. From `packages/api_client`,
+`flutter analyze --no-pub` PASS. Root command
+`& 'C:/Android/platform-tools/adb.exe' -s emulator-5554 install -r apps/mobile/build/app/outputs/flutter-apk/app-dev-debug.apk`
+restored the normal dev app. Root `& 'D:/supplybiz/apps/mobile/android/gradlew.bat'
+--stop` stopped task Gradle daemons; the task Kotlin compile daemon was stopped
+by its verified process ID. No Java processes existed before these builds.
+Pre-existing services and the emulator are preserved; no task check process
+remains running. No separate RUN workflow was started.
+
+Earlier sandboxed Flutter processes stalled and were terminated; localization /
+router generation, analysis and focused tests succeeded outside the sandbox.
+Initial lint/fixture assertion/widget setup issues were corrected; the final
+27 checks pass, including 200% checkout and category tabs. No screenshot baselines
+or broad suite ran. Manual PASS, TalkBack, live UI/API/DB/provider delivery and
+module gates are NOT_RUN; iOS is DEFERRED (ADR-025).
+
+Manual Android verification (pending; use a synthetic customer, an owned address,
+and a verified vendor with an audited active plan, configured slots and stock):
+1. Open vendor detail → Place new order; switch Milk & Dairy / Water Can, change
+   pack quantities and add. Verify MOQ/stock and confirmed replacement for another
+   vendor. Open the cart icon and remove/change items; old quotes must disappear.
+2. Add/select an address; refresh delivery choices. Confirm server dates/slots,
+   unavailable states and same-day cutoff behavior with a deliberately wrong
+   device clock. Select Cash or UPI on delivery; credit/coupons must be absent.
+3. Review bill and place; verify free/nonzero delivery charge and server total.
+   Change a price between review/place; reconfirm the new quote explicitly.
+   Confirm the order and its persisted NEW row through the vendor API.
+4. Disconnect during placement, close/reopen, and retry the saved order. Cart must
+   stay locked and one server order must result. Check account/logout isolation;
+   local disk failure must never send an untracked placement.
+5. Test product/coverage/holiday/capacity/expiry errors, keyboard focus, TalkBack,
+   48dp actions and 200% scrolling. Subscription setup/tracking are later owning
+   tasks; no manual PASS or module-gate acceptance is claimed here.
+
 ## T-044 customer discovery handoff (2026-11-12): READY_FOR_VERIFY
 
 S-C-05-08/37 / US-210-211 / TC-204-210: Home and category search now open

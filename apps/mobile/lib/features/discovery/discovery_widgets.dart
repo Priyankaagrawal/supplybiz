@@ -5,6 +5,7 @@ import '../../core/l10n/l10n.dart';
 import 'cart_controller.dart';
 import 'favorites_controller.dart';
 import 'discovery_controller.dart';
+import '../../core/router/routes.dart';
 
 Future<bool> discoveryConfirm(BuildContext context, String message) async =>
     await showDialog<bool>(
@@ -32,49 +33,9 @@ class CartButton extends ConsumerWidget {
         child: SbIconButton(
             icon: Icons.shopping_cart_outlined,
             semanticLabel: l.discoveryCart(cart.count),
-            onPressed: () => showCart(context)));
+            onPressed: () => const CustomerCartRoute().push<void>(context)));
   }
 }
-
-Future<void> showCart(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    builder: (context) => SafeArea(
-        child: FractionallySizedBox(
-            heightFactor: 0.8,
-            child: Consumer(builder: (context, ref, _) {
-              final cart = ref.watch(cartProvider), l = context.l10n;
-              return ListView(padding: const EdgeInsets.all(20), children: [
-                Text(l.discoveryCart(cart.count),
-                    style: Theme.of(context).textTheme.titleLarge),
-                Text(l.discoveryCartNotice),
-                if (cart.busy) const SbSkeleton(),
-                if (cart.failure != null) Text(cart.failure!.toMessage(l)),
-                if (cart.failure != null && !cart.ready)
-                  SbButton(
-                      label: l.authRetry,
-                      onPressed: cart.busy ? null : cart.load),
-                if (cart.lines.isEmpty) SbEmpty(message: l.discoveryCartEmpty),
-                for (final row in cart.lines)
-                  ListTile(
-                      title: Text(row.product.name),
-                      subtitle: Text(
-                          '${row.vendorName}\n${l.homeProduct(row.product.name, row.qty)}\n${formatInr(row.product.sellingPricePaise)}')),
-                if (cart.lines.isNotEmpty)
-                  SbButton(
-                      label: l.discoveryClearCart,
-                      variant: SbButtonVariant.destructive,
-                      onPressed: cart.canEdit
-                          ? () async {
-                              if (await discoveryConfirm(
-                                      context, l.discoveryClearConfirm) &&
-                                  context.mounted) {
-                                await cart.clear();
-                              }
-                            }
-                          : null),
-              ]);
-            }))));
 
 class FavoriteFeedback extends ConsumerWidget {
   const FavoriteFeedback({super.key});

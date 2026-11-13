@@ -66,6 +66,10 @@ class _CustomerVendorPageState extends ConsumerState<CustomerVendorPage> {
                             (vendor.distanceMeters / 1000).toStringAsFixed(1))),
                         for (final badge in vendor.badges) Text(badge),
                         SbButton(
+                            label: l.checkoutNew,
+                            onPressed: () => CustomerNewOrderRoute(widget.id)
+                                .push<void>(context)),
+                        SbButton(
                             label: vendor.favorite
                                 ? l.discoveryUnfavorite
                                 : l.discoveryFavorite,

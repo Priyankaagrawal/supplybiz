@@ -20,8 +20,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/discovery/discovery_page.dart';
 import '../../features/discovery/vendor_page.dart';
 import '../../features/discovery/product_page.dart';
+import '../../features/checkout/checkout_page.dart';
+import '../../features/checkout/new_order_page.dart';
 
 part 'routes.g.dart';
+
+@TypedGoRoute<CustomerCartRoute>(path: '/customer/cart')
+class CustomerCartRoute extends GoRouteData with _$CustomerCartRoute {
+  const CustomerCartRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const CheckoutPage();
+}
+
+@TypedGoRoute<CustomerNewOrderRoute>(path: '/customer/new-order/:id')
+class CustomerNewOrderRoute extends GoRouteData with _$CustomerNewOrderRoute {
+  const CustomerNewOrderRoute(this.id);
+  final String id;
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      NewOrderPage(id: id);
+}
 
 @TypedGoRoute<CustomerDiscoveryRoute>(path: '/customer/vendors')
 class CustomerDiscoveryRoute extends GoRouteData with _$CustomerDiscoveryRoute {

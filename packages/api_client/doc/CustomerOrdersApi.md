@@ -12,6 +12,7 @@ Method | HTTP request | Description
 [**customerOrdersControllerCancel**](CustomerOrdersApi.md#customerorderscontrollercancel) | **POST** /api/v1/customer/orders/{id}/cancel |
 [**customerOrdersControllerDetail**](CustomerOrdersApi.md#customerorderscontrollerdetail) | **GET** /api/v1/customer/orders/{id} |
 [**customerOrdersControllerList**](CustomerOrdersApi.md#customerorderscontrollerlist) | **GET** /api/v1/customer/orders |
+[**customerOrdersControllerOptions**](CustomerOrdersApi.md#customerorderscontrolleroptions) | **GET** /api/v1/customer/orders/options |
 [**customerOrdersControllerPlace**](CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
 [**customerOrdersControllerQuote**](CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
 
@@ -141,6 +142,49 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**OrderList**](OrderList.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **customerOrdersControllerOptions**
+> CheckoutOptions customerOrdersControllerOptions(vendorId, addressId)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getCustomerOrdersApi();
+final String vendorId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // String |
+final String addressId = 38400000-8cf0-11bd-b23e-10b96e4ef00d; // String |
+
+try {
+    final response = api.customerOrdersControllerOptions(vendorId, addressId);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling CustomerOrdersApi->customerOrdersControllerOptions: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **vendorId** | **String**|  |
+ **addressId** | **String**|  |
+
+### Return type
+
+[**CheckoutOptions**](CheckoutOptions.md)
 
 ### Authorization
 
