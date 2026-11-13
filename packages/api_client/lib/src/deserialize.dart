@@ -28,6 +28,9 @@ import 'package:supplybiz_api_client/src/model/customer_input.dart';
 import 'package:supplybiz_api_client/src/model/customer_list.dart';
 import 'package:supplybiz_api_client/src/model/customer_patch.dart';
 import 'package:supplybiz_api_client/src/model/customer_response.dart';
+import 'package:supplybiz_api_client/src/model/delivery_counts.dart';
+import 'package:supplybiz_api_client/src/model/delivery_list.dart';
+import 'package:supplybiz_api_client/src/model/delivery_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
 import 'package:supplybiz_api_client/src/model/device_push_input.dart';
 import 'package:supplybiz_api_client/src/model/device_push_response.dart';
@@ -203,6 +206,14 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'CustomerResponse':
       return CustomerResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DeliveryCounts':
+      return DeliveryCounts.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DeliveryList':
+      return DeliveryList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'DeliveryPaymentInput':
+      return DeliveryPaymentInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'DeviceDto':
       return DeviceDto.fromJson(value as Map<String, dynamic>) as ReturnType;

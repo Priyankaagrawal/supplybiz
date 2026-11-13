@@ -115,6 +115,7 @@ model users {
   addresses addresses[]
   favorites favorites[]
   order_requests order_requests[]
+  payments payments[]
 }
 
 // FR-291 / T-040. Partial unique default index and generated geography live in SQL.
@@ -438,6 +439,7 @@ model media_access_events {
 
 // T-021: nullable business fields represent a category-only onboarding draft.
 model vendors {
+  payments payments[]
   favorites favorites[]
   orders orders[]
   holidays vendor_holidays[]
@@ -476,6 +478,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  payments payments[]
   orders orders[]
   id String @id @default(uuid()) @db.Uuid
   vendor_id String @db.Uuid
@@ -747,6 +750,7 @@ model vendor_holidays {
   @@unique([vendor_id,date])
 }
 model orders {
+  delivery_payment payments?
   items order_items[]
   timeline order_status_events[]
   id String @id @default(uuid()) @db.Uuid
@@ -812,4 +816,25 @@ model order_status_events {
   at DateTime @default(now()) @db.Timestamptz(6)
   order orders @relation(fields:[order_id],references:[id],onDelete:Restrict)
   @@index([order_id,at])
+}
+
+// T-049: immutable off-platform receipts; order_id identifies delivery collection.
+model payments {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_id String @db.Uuid
+  vendor_customer_id String @db.Uuid
+  order_id String? @unique @db.Uuid
+  amount_paise BigInt
+  method String @db.VarChar(8)
+  received_on DateTime @db.Date
+  note String @db.VarChar(200)
+  client_ref String @db.VarChar(120)
+  created_by String @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  customer vendor_customers @relation(fields:[vendor_customer_id],references:[id],onDelete:Restrict)
+  order orders? @relation(fields:[order_id],references:[id],onDelete:Restrict)
+  creator users @relation(fields:[created_by],references:[id],onDelete:Restrict)
+  @@unique([vendor_id,client_ref])
+  @@index([vendor_customer_id,received_on])
 }

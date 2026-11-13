@@ -11,7 +11,11 @@ import { IdempotencyService } from '../idempotency/idempotency.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { homeClock } from '../home/home.service';
 import { OrderCancelInput, OrderPlaceInput, OrderQuery, OrderQuoteInput, OrderTransitionInput } from './orders.dto';
+import { DeliveryQuery } from './orders.dto';
+import { DeliveryEffectsService } from './delivery-effects.service';
 type Tx = Prisma.TransactionClient;
+const orderRead={items:{orderBy:{id:'asc' as const}},timeline:{orderBy:[{at:'asc' as const},{id:'asc' as const}]},customer:true,vendor:true} satisfies Prisma.ordersInclude;
+type OrderRead=Prisma.ordersGetPayload<{include:typeof orderRead}>;
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const ongoing = ['NEW','ACCEPTED','PREPARING','OUT_FOR_DELIVERY'];
 const cancelled = ['REJECTED','CANCELLED'];
@@ -31,7 +35,7 @@ export class OrdersService {
   constructor(private readonly db: PrismaService, private readonly addresses: AddressesService,
     private readonly customers: CustomersService, private readonly vendors: VendorsService,
     private readonly plans: PlanEntitlementsService, private readonly keys: IdempotencyService,
-    private readonly notifications: NotificationsService) {}
+    private readonly notifications: NotificationsService, private readonly deliveryEffects: DeliveryEffectsService) {}
   private async actor(tx: Tx, userId: string, role: user_role_type) {
     const user = await tx.users.findUnique({where:{id:userId},include:{roles:true}});
     if (!user || user.status !== 'ACTIVE' || user.active_role !== role || !user.roles.some(r=>r.role===role)) throw new ForbiddenException({code:`${role}_ROLE_REQUIRED`});
@@ -168,32 +172,55 @@ export class OrdersService {
   }
   detail(userId: string,role: user_role_type,id: string) {
     return this.db.$transaction(async tx=>{
-      const order = await this.owned(tx,userId,role,id);
-      const full = await tx.orders.findUniqueOrThrow({where:{id},include:{items:{orderBy:{id:'asc'}},timeline:{orderBy:[{at:'asc'},{id:'asc'}]},customer:true,vendor:true}});
-      return {...this.present(order),vendorName:full.vendor.business_name,customerName:full.customer.name,customerMobile:full.customer.mobile,address:order.address_snapshot,
-        subtotalPaise:String(order.subtotal_paise),deliveryChargePaise:String(order.delivery_charge_paise),discountPaise:String(order.discount_paise),
-        rejectReason:order.reject_reason,cancelReason:order.cancel_reason,failReason:order.fail_reason,
-        items:full.items.map(i=>{const unit=i.unit_snapshot as {value?:string|number;type?:string};return {productId:i.product_id,name:i.product_name_snapshot,qty:i.qty,unitValue:String(unit.value ?? ''),unitType:unit.type ?? '',unitPricePaise:String(i.unit_price_paise),lineTotalPaise:String(i.line_total_paise)};}),
-        timeline:full.timeline.map(e=>({status:e.status,reason:e.reason,at:e.at.toISOString()}))};
+      await this.owned(tx,userId,role,id);
+      return this.presentDetail(await tx.orders.findUniqueOrThrow({where:{id},include:orderRead}));
+    },{isolationLevel:'RepeatableRead'}).catch(unavailable);
+  }
+  private presentDetail(full:OrderRead) {
+    return {...this.present(full),vendorName:full.vendor.business_name,customerName:full.customer.name,customerMobile:full.customer.mobile,address:full.address_snapshot,
+      subtotalPaise:String(full.subtotal_paise),deliveryChargePaise:String(full.delivery_charge_paise),discountPaise:String(full.discount_paise),
+      rejectReason:full.reject_reason,cancelReason:full.cancel_reason,failReason:full.fail_reason,
+      items:full.items.map(i=>{const unit=i.unit_snapshot as {value?:string|number;type?:string};return {productId:i.product_id,name:i.product_name_snapshot,qty:i.qty,unitValue:String(unit.value ?? ''),unitType:unit.type ?? '',unitPricePaise:String(i.unit_price_paise),lineTotalPaise:String(i.line_total_paise)};}),
+      timeline:full.timeline.map(e=>({status:e.status,reason:e.reason,at:e.at.toISOString()}))};
+  }
+  deliveries(userId:string,q:DeliveryQuery) {
+    return this.db.$transaction(async tx=>{
+      const vendor=await this.vendor(tx,userId),clock=await homeClock(tx),day=q.date ?? clock.day;
+      const where={vendor_id:vendor.id,delivery_date:orderDate(day),status:{in:['ACCEPTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED']}};
+      const groups=await tx.orders.groupBy({by:['status'],where,_count:{_all:true}});
+      const counts={ALL:0,PENDING:0,PREPARING:0,OUT_FOR_DELIVERY:0,DELIVERED:0,FAILED:0};
+      for(const group of groups){const key=(group.status==='ACCEPTED'?'PENDING':group.status) as keyof typeof counts;counts[key]=group._count._all;counts.ALL+=group._count._all;}
+      const status=q.status && q.status!=='ALL'?q.status==='PENDING'?'ACCEPTED':q.status:null;
+      const rows=await tx.orders.findMany({where:{...where,...(status?{status}:{})},include:orderRead,
+        orderBy:[{time_slot:'asc'},{created_at:'asc'},{id:'asc'}],take:q.limit ?? 20,skip:q.offset ?? 0});
+      return {serverTime:clock.now.toISOString(),businessDate:clock.day,deliveryDate:day,counts,total:counts[(q.status ?? 'ALL') as keyof typeof counts],items:rows.map(o=>this.presentDetail(o))};
     },{isolationLevel:'RepeatableRead'}).catch(unavailable);
   }
   transition(userId: string,key: string,id: string,input: OrderTransitionInput) {
     return this.mutate(userId,'VENDOR',key,`transition/${id}`,input,async tx=>{
       const order = await this.owned(tx,userId,'VENDOR',id);
       await this.plans.requireOperation(tx,order.vendor_id,'COMPLETE_ORDER');
+      await tx.$queryRaw`SELECT id FROM orders WHERE id=${id}::uuid FOR UPDATE`;
       const current = await tx.orders.findUniqueOrThrow({where:{id}});
-      const allowed: Record<string,readonly string[]> = {NEW:['ACCEPTED','REJECTED'],ACCEPTED:['PREPARING','OUT_FOR_DELIVERY'],PREPARING:['OUT_FOR_DELIVERY']};
+      const allowed: Record<string,readonly string[]> = {NEW:['ACCEPTED','REJECTED'],ACCEPTED:['PREPARING','OUT_FOR_DELIVERY'],PREPARING:['OUT_FOR_DELIVERY'],OUT_FOR_DELIVERY:['DELIVERED','FAILED']};
       if (current.version!==input.version) throw new ConflictException({code:'VERSION_CONFLICT'});
       if (!allowed[current.status]?.includes(input.to)) throw new ConflictException({code:'INVALID_STATE_TRANSITION'});
       let reason: string | null = null;
+      if(input.to!=='DELIVERED' && input.payment!==undefined) throw new BadRequestException({code:'UNEXPECTED_PAYMENT'});
       if (input.to==='REJECTED') {
-        if (!input.reason || input.reason==='OTHER' && (!input.reasonText || input.reasonText.length<5 || input.reasonText.length>200)) throw new BadRequestException({code:'REJECT_REASON_REQUIRED'});
+        if (!input.reason || !['CUSTOMER_UNAVAILABLE','OUT_OF_STOCK','NOT_SERVICEABLE','CUSTOMER_REQUEST','OTHER'].includes(input.reason) || input.reason==='OTHER' && (!input.reasonText || input.reasonText.length<5 || input.reasonText.length>200)) throw new BadRequestException({code:'REJECT_REASON_REQUIRED'});
         reason = input.reason==='OTHER'?input.reasonText!:input.reason;
+      } else if(input.to==='FAILED') {
+        if(!input.reason || input.reason.length>200 || input.reasonText!==undefined) throw new BadRequestException({code:'FAIL_REASON_REQUIRED'});
+        reason=input.reason;
       } else if (input.reason!==undefined || input.reasonText!==undefined) throw new BadRequestException({code:'UNEXPECTED_REASON'});
-      const updated = await tx.orders.update({where:{id},data:{status:input.to,version:{increment:1},reject_reason:reason}});
+      const completion=input.to==='DELIVERED'?await this.deliveryEffects.complete(tx,userId,current,input):null;
+      const updated = await tx.orders.update({where:{id},data:{status:input.to,version:{increment:1},
+        ...(input.to==='REJECTED'?{reject_reason:reason}:{}),...(input.to==='FAILED'?{fail_reason:reason}:{}),
+        ...(completion?{completed_at:completion.completedAt,payment_status:completion.paymentStatus}:{})}});
       await tx.order_status_events.create({data:{order_id:id,status:input.to,reason}});
       const customer=await tx.vendor_customers.findUniqueOrThrow({where:{id:order.vendor_customer_id}});
-      const event = input.to==='ACCEPTED'?'ORDER_ACCEPTED':input.to==='REJECTED'?'ORDER_REJECTED':input.to==='OUT_FOR_DELIVERY'?'OUT_FOR_DELIVERY':null;
+      const event = input.to==='ACCEPTED'?'ORDER_ACCEPTED':input.to==='REJECTED'?'ORDER_REJECTED':input.to==='OUT_FOR_DELIVERY'?'OUT_FOR_DELIVERY':input.to==='DELIVERED'?'ORDER_DELIVERED':input.to==='FAILED'?'DELIVERY_FAILED':null;
       if (customer.user_id && event) await this.notifications.enqueue(tx,{recipientId:customer.user_id,role:'CUSTOMER',type:event,sourceKey:`order:${id}:${updated.version}`,entityId:id});
       return this.present(updated);
     });

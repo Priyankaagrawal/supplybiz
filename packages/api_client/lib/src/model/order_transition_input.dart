@@ -3,6 +3,7 @@
 //
 
 // ignore_for_file: unused_element
+import 'package:supplybiz_api_client/src/model/delivery_payment_input.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'order_transition_input.g.dart';
@@ -20,6 +21,7 @@ class OrderTransitionInput {
     required this.version,
     this.reason,
     this.reasonText,
+    this.payment,
   });
 
   @JsonKey(
@@ -38,12 +40,13 @@ class OrderTransitionInput {
   )
   final int version;
 
+  /// REJECTED: CUSTOMER_UNAVAILABLE/OUT_OF_STOCK/NOT_SERVICEABLE/CUSTOMER_REQUEST/OTHER. FAILED: required nonempty free text, up to 200 characters.
   @JsonKey(
     name: r'reason',
     required: false,
     includeIfNull: false,
   )
-  final OrderTransitionInputReasonEnum? reason;
+  final String? reason;
 
   /// Required for OTHER; 5–200 characters.
   @JsonKey(
@@ -53,6 +56,14 @@ class OrderTransitionInput {
   )
   final String? reasonText;
 
+  /// Required for DELIVERED; collected=false forbids method/amount.
+  @JsonKey(
+    name: r'payment',
+    required: false,
+    includeIfNull: false,
+  )
+  final DeliveryPaymentInput? payment;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -60,11 +71,16 @@ class OrderTransitionInput {
           other.to == to &&
           other.version == version &&
           other.reason == reason &&
-          other.reasonText == reasonText;
+          other.reasonText == reasonText &&
+          other.payment == payment;
 
   @override
   int get hashCode =>
-      to.hashCode + version.hashCode + reason.hashCode + reasonText.hashCode;
+      to.hashCode +
+      version.hashCode +
+      reason.hashCode +
+      reasonText.hashCode +
+      payment.hashCode;
 
   factory OrderTransitionInput.fromJson(Map<String, dynamic> json) =>
       _$OrderTransitionInputFromJson(json);
@@ -85,29 +101,13 @@ enum OrderTransitionInputToEnum {
   @JsonValue(r'PREPARING')
   PREPARING(r'PREPARING'),
   @JsonValue(r'OUT_FOR_DELIVERY')
-  OUT_FOR_DELIVERY(r'OUT_FOR_DELIVERY');
+  OUT_FOR_DELIVERY(r'OUT_FOR_DELIVERY'),
+  @JsonValue(r'DELIVERED')
+  DELIVERED(r'DELIVERED'),
+  @JsonValue(r'FAILED')
+  FAILED(r'FAILED');
 
   const OrderTransitionInputToEnum(this.value);
-
-  final String value;
-
-  @override
-  String toString() => value;
-}
-
-enum OrderTransitionInputReasonEnum {
-  @JsonValue(r'CUSTOMER_UNAVAILABLE')
-  CUSTOMER_UNAVAILABLE(r'CUSTOMER_UNAVAILABLE'),
-  @JsonValue(r'OUT_OF_STOCK')
-  OUT_OF_STOCK(r'OUT_OF_STOCK'),
-  @JsonValue(r'NOT_SERVICEABLE')
-  NOT_SERVICEABLE(r'NOT_SERVICEABLE'),
-  @JsonValue(r'CUSTOMER_REQUEST')
-  CUSTOMER_REQUEST(r'CUSTOMER_REQUEST'),
-  @JsonValue(r'OTHER')
-  OTHER(r'OTHER');
-
-  const OrderTransitionInputReasonEnum(this.value);
 
   final String value;
 

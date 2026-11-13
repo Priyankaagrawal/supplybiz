@@ -379,7 +379,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderList'
         '400':
-          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+          description: >-
+            Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit
+            collected=true/false.
         '401':
           description: Missing/revoked session.
         '403':
@@ -387,7 +389,7 @@ paths:
         '404':
           description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
         '409':
-          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          description: INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots.
           content:
             application/json:
               schema:
@@ -419,7 +421,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderDetail'
         '400':
-          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+          description: >-
+            Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit
+            collected=true/false.
         '401':
           description: Missing/revoked session.
         '403':
@@ -427,7 +431,7 @@ paths:
         '404':
           description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
         '409':
-          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          description: INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots.
           content:
             application/json:
               schema:
@@ -470,7 +474,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderResult'
         '400':
-          description: Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.
+          description: >-
+            Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit
+            collected=true/false.
         '401':
           description: Missing/revoked session.
         '403':
@@ -478,7 +484,7 @@ paths:
         '404':
           description: ORDER_NOT_FOUND; foreign vendor IDs hidden.
         '409':
-          description: INVALID_STATE_TRANSITION or VERSION_CONFLICT.
+          description: INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots.
           content:
             application/json:
               schema:
@@ -491,6 +497,58 @@ paths:
                 $ref: '#/components/schemas/OrderProblem'
       tags:
         - vendor-orders
+      security:
+        - bearer: []
+  /api/v1/vendor/deliveries:
+    get:
+      operationId: VendorDeliveriesController_list
+      parameters:
+        - name: date
+          required: false
+          in: query
+          schema:
+            format: date
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - PENDING
+              - PREPARING
+              - OUT_FOR_DELIVERY
+              - DELIVERED
+              - FAILED
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryList'
+        '400':
+          description: Invalid status/date/pagination.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.
+      tags:
+        - vendor-deliveries
       security:
         - bearer: []
   /api/v1/admin/dashboard:
@@ -3972,6 +4030,24 @@ components:
           maximum: 2147483647
       required:
         - version
+    DeliveryPaymentInput:
+      type: object
+      properties:
+        collected:
+          type: boolean
+        method:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+          description: Off-platform record only; no platform wallet or money movement.
+        amountPaise:
+          type: string
+          description: Exact positive integer paise, decimal string. Required when collected=true.
+      required:
+        - collected
     OrderTransitionInput:
       type: object
       properties:
@@ -3982,24 +4058,73 @@ components:
             - REJECTED
             - PREPARING
             - OUT_FOR_DELIVERY
+            - DELIVERED
+            - FAILED
         version:
           type: integer
           minimum: 1
           maximum: 2147483647
         reason:
           type: string
-          enum:
-            - CUSTOMER_UNAVAILABLE
-            - OUT_OF_STOCK
-            - NOT_SERVICEABLE
-            - CUSTOMER_REQUEST
-            - OTHER
+          description: >-
+            REJECTED: CUSTOMER_UNAVAILABLE/OUT_OF_STOCK/NOT_SERVICEABLE/CUSTOMER_REQUEST/OTHER. FAILED: required
+            nonempty free text, up to 200 characters.
         reasonText:
           type: string
           description: Required for OTHER; 5–200 characters.
+        payment:
+          description: Required for DELIVERED; collected=false forbids method/amount.
+          allOf:
+            - $ref: '#/components/schemas/DeliveryPaymentInput'
       required:
         - to
         - version
+    DeliveryCounts:
+      type: object
+      properties:
+        ALL:
+          type: integer
+        PENDING:
+          type: integer
+        PREPARING:
+          type: integer
+        OUT_FOR_DELIVERY:
+          type: integer
+        DELIVERED:
+          type: integer
+        FAILED:
+          type: integer
+      required:
+        - ALL
+        - PENDING
+        - PREPARING
+        - OUT_FOR_DELIVERY
+        - DELIVERED
+        - FAILED
+    DeliveryList:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+        deliveryDate:
+          type: string
+        counts:
+          $ref: '#/components/schemas/DeliveryCounts'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderDetail'
+        total:
+          type: integer
+      required:
+        - serverTime
+        - businessDate
+        - deliveryDate
+        - counts
+        - items
+        - total
     AdminDashboard:
       type: object
       properties:

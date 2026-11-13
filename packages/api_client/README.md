@@ -152,6 +152,7 @@ Class | Method | HTTP request | Description
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerGet**](doc/VendorCustomersApi.md#customerscontrollerget) | **GET** /api/v1/vendor/customers/{id} |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerPatch**](doc/VendorCustomersApi.md#customerscontrollerpatch) | **PATCH** /api/v1/vendor/customers/{id} |
+[*VendorDeliveriesApi*](doc/VendorDeliveriesApi.md) | [**vendorDeliveriesControllerList**](doc/VendorDeliveriesApi.md#vendordeliveriescontrollerlist) | **GET** /api/v1/vendor/deliveries |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
@@ -198,6 +199,9 @@ Class | Method | HTTP request | Description
  - [CustomerList](doc/CustomerList.md)
  - [CustomerPatch](doc/CustomerPatch.md)
  - [CustomerResponse](doc/CustomerResponse.md)
+ - [DeliveryCounts](doc/DeliveryCounts.md)
+ - [DeliveryList](doc/DeliveryList.md)
+ - [DeliveryPaymentInput](doc/DeliveryPaymentInput.md)
  - [DeviceDto](doc/DeviceDto.md)
  - [DevicePushInput](doc/DevicePushInput.md)
  - [DevicePushResponse](doc/DevicePushResponse.md)

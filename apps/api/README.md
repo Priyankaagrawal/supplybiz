@@ -1,5 +1,94 @@
 # Supply Biz API
 
+## T-049 deliveries handoff (2026-11-14): READY_FOR_VERIFY
+
+FR-080/081, RULE-10: `GET /api/v1/vendor/deliveries` returns owned detail cards,
+server IST date and consistent tab counts (PENDING means ACCEPTED); date/status
+filters and limit/offset exclude NEW/REJECTED/CANCELLED. Existing transitions now
+allow OUT_FOR_DELIVERY → DELIVERED/FAILED with version and Idempotency-Key.
+FAILED requires a nonempty reason up to 200 characters and has no financial effect.
+DELIVERED requires explicit `payment:{collected:false}` or
+`payment:{collected:true,method:"CASH",amountPaise:"13000"}`. False forbids
+method/amount; positive exact signed-BIGINT paise and CASH/UPI/BANK/WALLET are
+external vendor-recorded receipts. Partial/full/advance collection is supported;
+full/advance sets PAID, partial stays UNPAID. No provider settlement or platform
+wallet is introduced and ADR-032 POD-only checkout remains unchanged.
+
+The owned vendor/order transaction validates stored item/bill arithmetic, locks
+products deterministically and commits stock movements, snapshot-total ORDER
+debit, optional immutable receipt/PAYMENT credit, status/completed_at, history,
+customer inbox/outbox and permanent replay together. Existing archived products
+can fulfill historical orders; public catalog/adjustment guards remain intact.
+Actual ledger runtime grants are checked before writes. Shortage, invalid stored
+bill, overflow or any downstream producer failure rolls everything back.
+Same-key replay rechecks actor/ownership and returns the original result; changed
+body/path returns 422. Alternate keys serialize and cannot duplicate effects.
+
+Additive migration `202611130002_delivery_payments` creates immutable scoped
+receipts and unique ORDER stock-source enforcement. It was applied only to local
+`supplybiz_service_area_test`; development/staging/production were not migrated.
+There are no ledger grant changes, new dependencies or fabricated historical
+debits/receipts. Application rollback retains these additive financial tables.
+OpenAPI and TS/Dart clients were regenerated from source. T-071 remains TODO for
+remaining payment integration/verification; this delivery slice already calls
+the real T-070 ledger service, never a stub.
+
+Executed checks: nine real HTTP/PostgreSQL delivery tests PASS (including large
+paise, source uniqueness, cross-vendor receipt denial, immutable receipts,
+parallel requests, application recreation/reconnect and permanent replay,
+malformed snapshots, stock/debit/credit/notice rollback and expiry/archival).
+Three targeted order/catalog regressions, two native runtime smokes, five runner
+guards and eight existing mobile order compatibility tests PASS. API typecheck,
+build, lint, Prisma validation, generated TS compile and Dart analysis PASS.
+Mobile compatibility HTTP responses were simulated. These checks do not claim
+live FCM, full mobile delivery UI, actual OS-process restart, manual PASS or G2.
+
+Executed from repository root (Prisma deploy used DATABASE_URL privately redirected
+to the isolated local test database; credentials were not printed):
+```powershell
+pnpm.cmd --filter @supplybiz/api prisma:generate
+pnpm.cmd --filter @supplybiz/api prisma:migrate:deploy
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --lib 'ES2022,DOM' packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+Executed from `apps/api`, with NATIVE_TEST_DATABASE_URL privately derived from
+the local .env URL using database path `/supplybiz_service_area_test`,
+NODE_ENV=test and OTP_DELIVERY_MODE=disabled:
+```powershell
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/deliveries.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/deliveries.postgres.spec.ts src/modules/orders/orders.postgres.spec.ts -t 'unpaid delivery|ADR-029|TC-046'
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\prisma.cmd validate
+```
+Executed from `packages/api_client`: `flutter analyze --no-pub`.
+Executed from `apps/mobile`: `flutter test --no-pub test/features/orders`.
+Codegen retried successfully after one transient OpenAPI-file access error.
+
+Manual verification (NOT_RUN; use synthetic accounts and a verification database
+with migrations and the T-070 runtime ledger grants applied):
+1. With a configured vendor, audited plan and linked customer, place/accept/start
+   an order. Fetch deliveries for its date and each tab; verify owned snapshot
+   cards, contact/address, counts, pagination and absence of NEW/cancelled orders.
+2. Deliver with collected=false and the current version. Inspect one stock
+   movement per SKU, one snapshot ORDER debit, completed time/history/inbox/job.
+   Restart the actual API process and retry the same key/body: no duplicates;
+   changing the body under the same key must return 422.
+3. Deliver other orders with positive string partial/full amounts and an external
+   method. Inspect immutable receipt/PAYMENT credit, exact due and UNPAID/PAID;
+   compare actual money separately, since the server only records the receipt.
+4. Fail an out-for-delivery order with a nonempty reason: history/notice change,
+   stock/ledger/receipts do not. Test foreign owner, stale version and shortage;
+   verify denial and no partial writes.
+5. Verify configured worker/customer delivery and failure notices end to end.
+   T-050 owns the delivery UI/offline queue; live UI/API/DB, manual accessibility,
+   manual PASS and module G2 remain pending. iOS checks are deferred.
+
 ## T-046 supporting checkout choices (2026-11-13)
 
 `GET /api/v1/customer/orders/options?vendorId=&addressId=` returns no-store

@@ -210,8 +210,21 @@ manual verification and downstream writer integration remain pending.
 | `ledger_entries` | id, vendor_id, vendor_customer_id, type (DEBIT/CREDIT), amount_paise BIGINT (>0), ref_type (ORDER/SALE/PAYMENT/CLAIM/OPENING/REVERSAL), ref_id, reverses_entry_id NULL UNIQUE, request_key NULL UNIQUE, request_hash NULL, note, entry_date DATE, created_by, created_at | Append-only; source UNIQUE(ref_type,ref_id,type); opening/reversal keys/hashes persist with entries rather than expiring cache. No UPDATE/DELETE/TRUNCATE runtime grants. |
 | `ledger_balances` | vendor_customer_id, total_debit_paise, total_credit_paise, due_paise, updated_at | updated in same transaction as entry insert |
 | `ledger_reconciliation_findings` | id, business_date, vendor_customer_id, expected JSONB, observed JSONB NULL, created_at | Immutable drift evidence; UNIQUE(business_date,vendor_customer_id); alert without silent repair. |
-| `payments` | id, vendor_id, vendor_customer_id, amount_paise, method (CASH/UPI/BANK/WALLET), received_on, note, client_ref, created_at | |
+| `payments` | id, vendor_id, vendor_customer_id, order_id NULL UNIQUE, amount_paise BIGINT (>0), method (CASH/UPI/BANK/WALLET), received_on DATE, note, client_ref, created_by, created_at | T-049 immutable off-platform receipts; UNIQUE(vendor_id,client_ref); insert trigger checks vendor/customer/order/creator scope; no UPDATE/DELETE/TRUNCATE. |
 | `payment_claims` | id, vendor_customer_id, amount_paise, method (UPI/CASH), upi_txn_ref NULL, status (PENDING/CONFIRMED/REJECTED), decided_by, decided_at, reject_reason | |
+
+T-049 migration `202611130002_delivery_payments` also adds a partial unique stock
+source index `(product_id,ref_id)` for ORDER movements. Delivery uses the owned
+vendor/order locks and deterministic product locks: saved item quantities and
+bill arithmetic are validated, stock is deducted, the saved total is posted as
+ORDER DEBIT and any receipt as PAYMENT CREDIT, then status/history/notice/replay
+commit in the same transaction. Partial/full/advance receipts use exact BIGINT;
+received_on is the database IST date. Archived products can fulfill existing
+orders while public catalog/adjustment guards still exclude them. Existing ledger
+runtime privilege checks fail closed; this migration does not grant ledger writes
+or fabricate financial effects for historical deliveries. Applied only to the
+isolated local test DB during implementation. Retain additive financial/history
+tables on application rollback; do not drop financial records.
 
 ### 3.7 Customer personal finance
 | Table | Key columns |

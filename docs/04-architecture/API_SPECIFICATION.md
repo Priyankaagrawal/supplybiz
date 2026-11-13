@@ -204,8 +204,19 @@ Optional vendor filters are status/q/date, customer filters include tab. Version
 conflict is 409 VERSION_CONFLICT; capacity is 422 CAPACITY_REACHED. Details include
 owned customer contact, address/item price snapshots and persisted status timeline.
 Rejected-order reasons are available in detail; push content stays PII-minimized.
-Unconfigured vendor slots/cutoff are not guessed. T-049 owns DELIVERED/FAILED and
-financial/stock effects; T-051 owns reorder, T-074 vendor holiday/pause cancellation.
+Unconfigured vendor slots/cutoff are not guessed. T-049 implements versioned
+OUT_FOR_DELIVERY → DELIVERED/FAILED under vendor/order locks. DELIVERED requires
+explicit `payment: {collected:false}` or `{collected:true,method,amountPaise}`.
+False forbids method/amount; true requires a positive decimal-string paise amount
+within signed BIGINT and CASH/UPI/BANK/WALLET, recording an external receipt only.
+Partial/full/advance collection is allowed; full or greater sets PAID, partial
+remains UNPAID. Stock per SKU, snapshot-total ORDER debit, optional immutable
+receipt/PAYMENT credit, completion time, timeline, inbox/outbox and replay result
+commit together. Invalid stored bills, insufficient stock or ledger failure leave
+no partial effects. FAILED requires trimmed nonempty `reason` up to 200 characters
+and creates no stock/payment/ledger effects. Rejection still uses the listed enum
+and OTHER requires reasonText of 5–200 characters. T-051 owns reorder,
+T-074 vendor holiday/pause cancellation (vendor CANCELLED is not exposed yet).
 Vendor-created Add Order remains outside this customer-placement slice; the route
 below is the planned contract and is not exposed by T-045. Check evidence/manual
 handoff is recorded in the API README; this does not claim a module gate pass.
@@ -215,8 +226,8 @@ handoff is recorded in the API README; this does not claim a module gate pass.
 | GET | `/vendor/orders?status=&q=&date=` | |
 | GET | `/vendor/orders/{id}` | |
 | POST | `/vendor/orders` | vendor-created order for a customer ("Add Order") |
-| POST | `/vendor/orders/{id}/transitions` | `{ to: ACCEPTED|REJECTED|PREPARING|OUT_FOR_DELIVERY|DELIVERED|FAILED|CANCELLED, version, reason?, payment?: { collected, method, amountPaise } }` |
-| GET | `/vendor/deliveries?date=&status=` | counts per tab included |
+| POST | `/vendor/orders/{id}/transitions` | `{ to: ACCEPTED|REJECTED|PREPARING|OUT_FOR_DELIVERY|DELIVERED|FAILED, version, reason?, reasonText?, payment?: { collected, method, amountPaise } }` |
+| GET | `/vendor/deliveries?date=&status=&limit=&offset=` | No-store owned snapshot: serverTime/businessDate/deliveryDate/counts/items/total. Date defaults to DB IST today; ALL/PENDING (=ACCEPTED)/PREPARING/OUT_FOR_DELIVERY/DELIVERED/FAILED counts before filter, filtered total, detail cards, limit 20/max 50. NEW/REJECTED/CANCELLED excluded. |
 | GET | `/customer/orders/options?vendorId=&addressId=` | T-046: owned address and eligible vendor; serverTime/businessDate, configured timeSlots/sameDayCutoff and availableDates today through +7 excluding cutoff/holiday/pause. Quote/place recheck price, stock and capacity. No guessed defaults or business writes. |
 | POST | `/customer/orders/quote` | validates cart and returns priced bill (no side effects) |
 | POST | `/customer/orders` | place order |
@@ -509,9 +520,12 @@ If server total ≠ `expectedTotalPaise` → `409 PRICE_CHANGED` with the new qu
 ```http
 POST /api/v1/vendor/orders/0192f…o1/transitions
 Idempotency-Key: 6b1c…
-{ "to": "DELIVERED", "version": 3, "payment": { "collected": true, "method": "CASH", "amountPaise": 13000 } }
+{ "to": "DELIVERED", "version": 3, "payment": { "collected": true, "method": "CASH", "amountPaise": "13000" } }
 ```
-Response: updated order (`paymentStatus: PAID`). Side effects: DEBIT 13000 + CREDIT 13000, stock −2/−1, push to customer.
+Response: updated order (`paymentStatus: PAID`, assuming snapshot total 13000).
+Atomic effects: ORDER DEBIT 13000 + immutable receipt/PAYMENT CREDIT 13000,
+stock −2/−1 for the saved quantities, timeline and customer inbox/outbox notice.
+Live push delivery requires the configured worker/provider and separate verification.
 
 ### 5.3 Create subscription (vendor)
 ```json

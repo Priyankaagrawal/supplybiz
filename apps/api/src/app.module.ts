@@ -24,7 +24,8 @@ import { NotificationsService } from './modules/notifications/notifications.serv
 import { FcmService } from './modules/notifications/fcm.service';
 import { CatalogService } from './modules/catalog/catalog.service';
 import { OrdersService } from './modules/orders/orders.service';
-import { CustomerOrdersController, VendorOrdersController } from './modules/orders/orders.controller';
+import { DeliveryEffectsService } from './modules/orders/delivery-effects.service';
+import { CustomerOrdersController, VendorOrdersController, VendorDeliveriesController } from './modules/orders/orders.controller';
 import { CategoriesController } from './modules/categories/categories.controller';
 import { KycController, AdminKycController } from './modules/kyc/kyc.controller';
 import { KycService } from './modules/kyc/kyc.service';
@@ -79,10 +80,11 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [CustomerOrdersController, VendorOrdersController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
     OrdersService,
+    DeliveryEffectsService,
     DashboardService,
     HomeService,
     DiscoveryService,

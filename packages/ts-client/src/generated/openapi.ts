@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/vendor/deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorDeliveriesController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/dashboard": {
         parameters: {
             query?: never;
@@ -1487,14 +1503,42 @@ export interface components {
         OrderCancelInput: {
             version: number;
         };
+        DeliveryPaymentInput: {
+            collected: boolean;
+            /**
+             * @description Off-platform record only; no platform wallet or money movement.
+             * @enum {string}
+             */
+            method?: "CASH" | "UPI" | "BANK" | "WALLET";
+            /** @description Exact positive integer paise, decimal string. Required when collected=true. */
+            amountPaise?: string;
+        };
         OrderTransitionInput: {
             /** @enum {string} */
-            to: "ACCEPTED" | "REJECTED" | "PREPARING" | "OUT_FOR_DELIVERY";
+            to: "ACCEPTED" | "REJECTED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "FAILED";
             version: number;
-            /** @enum {string} */
-            reason?: "CUSTOMER_UNAVAILABLE" | "OUT_OF_STOCK" | "NOT_SERVICEABLE" | "CUSTOMER_REQUEST" | "OTHER";
+            /** @description REJECTED: CUSTOMER_UNAVAILABLE/OUT_OF_STOCK/NOT_SERVICEABLE/CUSTOMER_REQUEST/OTHER. FAILED: required nonempty free text, up to 200 characters. */
+            reason?: string;
             /** @description Required for OTHER; 5–200 characters. */
             reasonText?: string;
+            /** @description Required for DELIVERED; collected=false forbids method/amount. */
+            payment?: components["schemas"]["DeliveryPaymentInput"];
+        };
+        DeliveryCounts: {
+            ALL: number;
+            PENDING: number;
+            PREPARING: number;
+            OUT_FOR_DELIVERY: number;
+            DELIVERED: number;
+            FAILED: number;
+        };
+        DeliveryList: {
+            serverTime: string;
+            businessDate: string;
+            deliveryDate: string;
+            counts: components["schemas"]["DeliveryCounts"];
+            items: components["schemas"]["OrderDetail"][];
+            total: number;
         };
         AdminDashboard: {
             /** Format: date-time */
@@ -2787,7 +2831,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderList"];
                 };
             };
-            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            /** @description Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit collected=true/false. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2815,7 +2859,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            /** @description INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2854,7 +2898,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderDetail"];
                 };
             };
-            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            /** @description Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit collected=true/false. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2882,7 +2926,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            /** @description INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2927,7 +2971,7 @@ export interface operations {
                     "application/json": components["schemas"]["OrderResult"];
                 };
             };
-            /** @description Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected. */
+            /** @description Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit collected=true/false. */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -2955,7 +2999,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description INVALID_STATE_TRANSITION or VERSION_CONFLICT. */
+            /** @description INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2972,6 +3016,51 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["OrderProblem"];
                 };
+            };
+        };
+    };
+    VendorDeliveriesController_list: {
+        parameters: {
+            query?: {
+                date?: string;
+                limit?: number;
+                offset?: number;
+                status?: "ALL" | "PENDING" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "FAILED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryList"];
+                };
+            };
+            /** @description Invalid status/date/pagination. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

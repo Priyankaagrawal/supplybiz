@@ -89,7 +89,7 @@ export class CatalogService {
       await this.owned(tx, change.vendorId, change.productId);
       await this.plans.requireFeature(tx, change.vendorId, 'STOCK_MANAGEMENT');
     }
-    const row = await this.lock(tx, change.vendorId, change.productId);
+    const row = await this.lock(tx, change.vendorId, change.productId, change.reason === 'ORDER');
     const quantity = row.stock_qty + change.delta;
     if (quantity < 0) throw new ConflictException({ code: 'INSUFFICIENT_STOCK' });
     if (quantity > 2147483647) throw new BadRequestException({ code: 'STOCK_OVERFLOW' });
@@ -131,11 +131,11 @@ export class CatalogService {
     if (!row) throw new NotFoundException({ code: 'PRODUCT_NOT_FOUND' });
     return row;
   }
-  private async lock(tx: Tx, vendorId: string, id: string) {
+  private async lock(tx: Tx, vendorId: string, id: string, historicalOrder = false) {
     const rows = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM products
-      WHERE id = ${id}::uuid AND vendor_id = ${vendorId}::uuid AND deleted_at IS NULL FOR UPDATE`;
+      WHERE id = ${id}::uuid AND vendor_id = ${vendorId}::uuid AND (${historicalOrder} OR deleted_at IS NULL) FOR UPDATE`;
     if (!rows.length) throw new NotFoundException({ code: 'PRODUCT_NOT_FOUND' });
-    return this.owned(tx, vendorId, id);
+    return tx.products.findUniqueOrThrow({where:{id}});
   }
   private async validate(tx: Tx, vendor: { category: { product_types: Prisma.JsonValue } }, userId: string, input: ProductInput) {
     const types = vendor.category.product_types;

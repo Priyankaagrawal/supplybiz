@@ -20,11 +20,13 @@ OrderTransitionInput _$OrderTransitionInputFromJson(
           to: $checkedConvert(
               'to', (v) => $enumDecode(_$OrderTransitionInputToEnumEnumMap, v)),
           version: $checkedConvert('version', (v) => (v as num).toInt()),
-          reason: $checkedConvert(
-              'reason',
-              (v) => $enumDecodeNullable(
-                  _$OrderTransitionInputReasonEnumEnumMap, v)),
+          reason: $checkedConvert('reason', (v) => v as String?),
           reasonText: $checkedConvert('reasonText', (v) => v as String?),
+          payment: $checkedConvert(
+              'payment',
+              (v) => v == null
+                  ? null
+                  : DeliveryPaymentInput.fromJson(v as Map<String, dynamic>)),
         );
         return val;
       },
@@ -35,10 +37,9 @@ Map<String, dynamic> _$OrderTransitionInputToJson(
     <String, dynamic>{
       'to': _$OrderTransitionInputToEnumEnumMap[instance.to]!,
       'version': instance.version,
-      if (_$OrderTransitionInputReasonEnumEnumMap[instance.reason]
-          case final value?)
-        'reason': value,
+      if (instance.reason case final value?) 'reason': value,
       if (instance.reasonText case final value?) 'reasonText': value,
+      if (instance.payment?.toJson() case final value?) 'payment': value,
     };
 
 const _$OrderTransitionInputToEnumEnumMap = {
@@ -46,12 +47,6 @@ const _$OrderTransitionInputToEnumEnumMap = {
   OrderTransitionInputToEnum.REJECTED: 'REJECTED',
   OrderTransitionInputToEnum.PREPARING: 'PREPARING',
   OrderTransitionInputToEnum.OUT_FOR_DELIVERY: 'OUT_FOR_DELIVERY',
-};
-
-const _$OrderTransitionInputReasonEnumEnumMap = {
-  OrderTransitionInputReasonEnum.CUSTOMER_UNAVAILABLE: 'CUSTOMER_UNAVAILABLE',
-  OrderTransitionInputReasonEnum.OUT_OF_STOCK: 'OUT_OF_STOCK',
-  OrderTransitionInputReasonEnum.NOT_SERVICEABLE: 'NOT_SERVICEABLE',
-  OrderTransitionInputReasonEnum.CUSTOMER_REQUEST: 'CUSTOMER_REQUEST',
-  OrderTransitionInputReasonEnum.OTHER: 'OTHER',
+  OrderTransitionInputToEnum.DELIVERED: 'DELIVERED',
+  OrderTransitionInputToEnum.FAILED: 'FAILED',
 };

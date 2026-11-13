@@ -1,7 +1,7 @@
 // T-045 / FR-040–046, FR-220–225 / ADR-032.
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
 import { AddressResponse } from '../addresses/addresses.dto';
 const defined = (_: unknown, value: unknown) => value !== undefined;
 const trim = ({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() : value;
@@ -33,14 +33,23 @@ export class OrderPlaceInput extends OrderQuoteInput {
   @ApiProperty({ description: 'Reviewed quote total, exact integer paise as decimal string.' })
   @IsString() @Matches(/^(0|[1-9]\d{0,18})$/) expectedTotalPaise!: string;
 }
+export class DeliveryPaymentInput {
+  @ApiProperty() @IsBoolean() collected!: boolean;
+  @ApiPropertyOptional({enum:['CASH','UPI','BANK','WALLET'],description:'Off-platform record only; no platform wallet or money movement.'})
+  @ValidateIf(defined) @IsIn(['CASH','UPI','BANK','WALLET']) method?: string;
+  @ApiPropertyOptional({description:'Exact positive integer paise, decimal string. Required when collected=true.'})
+  @ValidateIf(defined) @IsString() @Matches(/^[1-9]\d{0,18}$/) amountPaise?: string;
+}
 export class OrderTransitionInput {
-  @ApiProperty({ enum: ['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY'] })
-  @IsIn(['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY']) to!: string;
+  @ApiProperty({ enum: ['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED'] })
+  @IsIn(['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED']) to!: string;
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 2147483647 }) @IsInt() @Min(1) @Max(2147483647) version!: number;
-  @ApiPropertyOptional({ enum: ['CUSTOMER_UNAVAILABLE','OUT_OF_STOCK','NOT_SERVICEABLE','CUSTOMER_REQUEST','OTHER'] })
-  @ValidateIf(defined) @IsIn(['CUSTOMER_UNAVAILABLE','OUT_OF_STOCK','NOT_SERVICEABLE','CUSTOMER_REQUEST','OTHER']) reason?: string;
+  @ApiPropertyOptional({description:'REJECTED: CUSTOMER_UNAVAILABLE/OUT_OF_STOCK/NOT_SERVICEABLE/CUSTOMER_REQUEST/OTHER. FAILED: required nonempty free text, up to 200 characters.'})
+  @ValidateIf(defined) @Transform(trim) @IsString() @Length(1,200) reason?: string;
   @ApiPropertyOptional({ description: 'Required for OTHER; 5–200 characters.' })
   @ValidateIf(defined) @Transform(trim) @IsString() @Length(5,200) reasonText?: string;
+  @ApiPropertyOptional({type:DeliveryPaymentInput,description:'Required for DELIVERED; collected=false forbids method/amount.'})
+  @ValidateIf(defined) @ValidateNested() @Type(()=>DeliveryPaymentInput) payment?: DeliveryPaymentInput;
 }
 export class OrderCancelInput {
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 2147483647 }) @IsInt() @Min(1) @Max(2147483647) version!: number;
@@ -119,4 +128,24 @@ export class OrderProblem {
   @ApiProperty() requestId!: string;
   @ApiPropertyOptional({ type:OrderQuote }) quote?: OrderQuote;
   @ApiPropertyOptional({ format:'uuid' }) productId?: string;
+}
+export class DeliveryQuery extends PickType(OrderQuery,['date','limit','offset'] as const) {
+  @ApiPropertyOptional({enum:['ALL','PENDING','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED']})
+  @ValidateIf(defined) @IsIn(['ALL','PENDING','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED']) status?: string;
+}
+export class DeliveryCounts {
+  @ApiProperty({type:'integer'}) ALL!: number;
+  @ApiProperty({type:'integer'}) PENDING!: number;
+  @ApiProperty({type:'integer'}) PREPARING!: number;
+  @ApiProperty({type:'integer'}) OUT_FOR_DELIVERY!: number;
+  @ApiProperty({type:'integer'}) DELIVERED!: number;
+  @ApiProperty({type:'integer'}) FAILED!: number;
+}
+export class DeliveryList {
+  @ApiProperty() serverTime!: string;
+  @ApiProperty() businessDate!: string;
+  @ApiProperty() deliveryDate!: string;
+  @ApiProperty({type:DeliveryCounts}) counts!: DeliveryCounts;
+  @ApiProperty({type:[OrderDetail]}) items!: OrderDetail[];
+  @ApiProperty({type:'integer'}) total!: number;
 }

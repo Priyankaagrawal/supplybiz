@@ -6,6 +6,7 @@ import { SessionGuard } from '../auth/sessions.controller';
 import { OrderCancelInput, OrderDetail, OrderList, OrderPlaceInput, OrderProblem, OrderQuery, OrderQuote, OrderQuoteInput, OrderResult, OrderTransitionInput } from './orders.dto';
 import { OrdersService } from './orders.service';
 import { CheckoutOptions, CheckoutOptionsQuery } from './orders.dto';
+import { DeliveryList, DeliveryQuery } from './orders.dto';
 type AuthRequest = Request & {session:{userId:string}};
 @ApiTags('customer-orders') @ApiBearerAuth() @UseGuards(SessionGuard)
 @SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('customer/orders')
@@ -32,11 +33,11 @@ export class CustomerOrdersController {
 }
 @ApiTags('vendor-orders') @ApiBearerAuth() @UseGuards(SessionGuard)
 @SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('vendor/orders')
-@ApiResponse({status:400,description:'Invalid input, missing key or REJECT_REASON_REQUIRED; DELIVERED/FAILED belong to T-049 and are rejected.'})
+@ApiResponse({status:400,description:'Invalid input/key/rejection/failure reason or delivery payment. DELIVERED requires explicit collected=true/false.'})
 @ApiResponse({status:401,description:'Missing/revoked session.'})
 @ApiResponse({status:403,description:'VENDOR_ROLE_REQUIRED, VENDOR_SUSPENDED or PLAN_FEATURE_LOCKED.'})
 @ApiResponse({status:404,description:'ORDER_NOT_FOUND; foreign vendor IDs hidden.'})
-@ApiResponse({status:409,type:OrderProblem,description:'INVALID_STATE_TRANSITION or VERSION_CONFLICT.'})
+@ApiResponse({status:409,type:OrderProblem,description:'INVALID_STATE_TRANSITION, VERSION_CONFLICT, INSUFFICIENT_STOCK or invalid/missing order source snapshots.'})
 @ApiResponse({status:422,type:OrderProblem,description:'IDEMPOTENCY_MISMATCH.'})
 export class VendorOrdersController {
   constructor(private readonly orders: OrdersService) {}
@@ -46,4 +47,14 @@ export class VendorOrdersController {
   detail(@Req() r:AuthRequest,@Param('id',ParseUUIDPipe) id:string) { return this.orders.detail(r.session.userId,'VENDOR',id); }
   @Post(':id/transitions') @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:OrderResult})
   transition(@Req() r:AuthRequest,@Param('id',ParseUUIDPipe) id:string,@Headers('Idempotency-Key') key:string,@Body() input:OrderTransitionInput) { return this.orders.transition(r.session.userId,key,id,input); }
+}
+@ApiTags('vendor-deliveries') @ApiBearerAuth() @UseGuards(SessionGuard)
+@SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('vendor/deliveries')
+@ApiResponse({status:400,description:'Invalid status/date/pagination.'})
+@ApiResponse({status:401,description:'Missing/revoked session.'})
+@ApiResponse({status:403,description:'VENDOR_ROLE_REQUIRED or VENDOR_SUSPENDED.'})
+export class VendorDeliveriesController {
+  constructor(private readonly orders:OrdersService) {}
+  @Get() @Header('Cache-Control','no-store') @ApiResponse({status:200,type:DeliveryList})
+  list(@Req() r:AuthRequest,@Query() q:DeliveryQuery) { return this.orders.deliveries(r.session.userId,q); }
 }
