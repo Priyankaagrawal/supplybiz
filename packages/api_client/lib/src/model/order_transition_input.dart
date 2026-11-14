@@ -17,12 +17,21 @@ part 'order_transition_input.g.dart';
 class OrderTransitionInput {
   /// Returns a new [OrderTransitionInput] instance.
   OrderTransitionInput({
+    this.clientCreatedAt,
     required this.to,
     required this.version,
     this.reason,
     this.reasonText,
     this.payment,
   });
+
+  /// Untrusted device creation time for offline-action audit only. Server event/completion time remains authoritative.
+  @JsonKey(
+    name: r'clientCreatedAt',
+    required: false,
+    includeIfNull: false,
+  )
+  final DateTime? clientCreatedAt;
 
   @JsonKey(
     name: r'to',
@@ -68,6 +77,7 @@ class OrderTransitionInput {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OrderTransitionInput &&
+          other.clientCreatedAt == clientCreatedAt &&
           other.to == to &&
           other.version == version &&
           other.reason == reason &&
@@ -76,6 +86,7 @@ class OrderTransitionInput {
 
   @override
   int get hashCode =>
+      clientCreatedAt.hashCode +
       to.hashCode +
       version.hashCode +
       reason.hashCode +

@@ -1,0 +1,16 @@
+name: device_coordination
+description: Supply Biz Android engine coordination for sessions and durable sync.
+publish_to: "none"
+version: 0.1.0
+resolution: workspace
+environment:
+  sdk: ">=3.9.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: in.supplybiz.device_coordination
+        pluginClass: DeviceCoordinationPlugin

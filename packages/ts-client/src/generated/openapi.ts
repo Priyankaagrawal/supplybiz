@@ -1647,6 +1647,11 @@ export interface components {
             amountPaise?: string;
         };
         OrderTransitionInput: {
+            /**
+             * Format: date-time
+             * @description Untrusted device creation time for offline-action audit only. Server event/completion time remains authoritative.
+             */
+            clientCreatedAt?: string;
             /** @enum {string} */
             to: "ACCEPTED" | "REJECTED" | "PREPARING" | "OUT_FOR_DELIVERY" | "DELIVERED" | "FAILED";
             version: number;

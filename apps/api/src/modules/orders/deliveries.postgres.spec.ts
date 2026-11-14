@@ -53,6 +53,24 @@ native('T-049 native delivery/stock/receipt/ledger atomicity',()=>{
     const clock=await db.$transaction(tx=>homeClock(tx));day=new Date(new Date(clock.day).getTime()+86400000).toISOString().slice(0,10);
   });
   afterAll(async()=>{if(categoryId)await db.categories.update({where:{id:categoryId},data:{status:'HIDDEN'}});await app?.close();await db.$disconnect();for(const k of Object.keys(process.env))if(!(k in env))delete process.env[k];Object.assign(process.env,env);});
+  it('T-050 TC-087/504 validates offline audit time, keeps server time authoritative and permanently replays the original timestamp',async()=>{
+    const id=await prepared(),path=`vendor/orders/${id}/transitions`,key=randomUUID();
+    const body={to:'DELIVERED',version:3,payment:{collected:true,method:'UPI',amountPaise:'25190'},clientCreatedAt:'2099-01-01T01:02:03.456Z'};
+    for(const clientCreatedAt of [null,1,'2026-02-30T01:02:03Z','2026-11-14','2026-11-14T01:02:03',{}]) {
+      await post(path,{...body,clientCreatedAt}).expect(400);
+    }
+    expect((await effects(id)).events).toBe(0);
+    await post(path,body,foreign).expect(404);
+    const result=(await post(path,body,owner,key).expect(201)).body;
+    expect((await post(path,body,owner,key).expect(201)).body).toEqual(result);
+    await post(path,{...body,clientCreatedAt:'2098-01-01T01:02:03.456Z'},owner,key).expect(422);
+    const audit=await db.order_status_events.findMany({where:{order_id:id,status:'DELIVERED'}});
+    expect(audit).toHaveLength(1);
+    expect(audit[0]!.client_created_at?.toISOString()).toBe(body.clientCreatedAt);
+    expect(Math.abs(Date.now()-audit[0]!.at.getTime())).toBeLessThan(10000);
+    const e=await effects(id);expect(e.movements).toBe(1);expect(e.entries).toHaveLength(2);expect(e.receipts).toHaveLength(1);
+    expect(Math.abs(Date.now()-e.o.completed_at!.getTime())).toBeLessThan(10000);
+  });
   it('TC-087 unpaid delivery uses price snapshots and atomically posts one debit/stock movement/history/notice',async()=>{
     const id=await prepared();await db.products.update({where:{id:productId},data:{selling_price_paise:20000,is_active:false}});
     const result=await delivered(id).expect(201);expect(result.body).toMatchObject({status:'DELIVERED',version:4,totalPaise:'25190',paymentStatus:'UNPAID'});

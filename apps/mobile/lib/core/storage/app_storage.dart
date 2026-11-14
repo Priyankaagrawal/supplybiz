@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:device_coordination/device_coordination.dart';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -7,7 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import 'app_database.dart';
 import 'secure_store.dart';
 
-/// One owner per app process. T-015 calls [wipeOnLogout] after invalidating its
+/// One owner per Flutter engine. T-050 coordinates the background engine with
+/// session rotation/logout and delivery writes using DeviceCoordination.
+/// T-015 calls [wipeOnLogout] after invalidating its
 /// in-memory session and draining/cancelling requests and feature DB consumers.
 class AppStorage {
   AppStorage({
@@ -24,6 +27,7 @@ class AppStorage {
   final AppDatabase Function(String, String) _databaseFactory;
   Future<void> _tail = Future.value();
   AppDatabase? _database;
+  String? _openedKey;
   bool _blocked = false;
 
   AppDatabase get database {
@@ -49,27 +53,48 @@ class AppStorage {
     return p.join(directory.path, 'supplybiz.sqlite');
   }
 
-  Future<void> initialize() => _serial(() async {
-        if (await _secrets.wipePending) await _wipe();
-        if (_blocked) throw StateError('Local storage cleanup is required.');
-        if (_database != null) return;
-        final path = await _path();
-        var key = await _secrets.readDatabaseKey();
-        // A lost key must never silently discard an existing user's data.
-        if (key == null && await File(path).exists()) {
-          throw StateError('Local database key is unavailable.');
-        }
-        key ??= await _secrets.createDatabaseKey();
-        if (!RegExp(r'^[0-9a-f]{64}$').hasMatch(key)) {
-          throw StateError('Invalid local database key.');
-        }
-        final database = _databaseFactory(path, key);
-        try {
-          await database.open();
-          _database = database;
-        } catch (_) {
-          await database.close();
-          rethrow;
+  Future<void> initialize() =>
+      DeviceCoordination.exclusive(() => _serial(() async {
+            if (await _secrets.wipePending) await _wipe();
+            if (_blocked) {
+              throw StateError('Local storage cleanup is required.');
+            }
+            if (_database != null) {
+              if (await _secrets.readDatabaseKey() == _openedKey) return;
+              await _database!.close();
+              _database = null;
+              _openedKey = null;
+            }
+            final path = await _path();
+            var key = await _secrets.readDatabaseKey();
+            // A lost key must never silently discard an existing user's data.
+            if (key == null && await File(path).exists()) {
+              throw StateError('Local database key is unavailable.');
+            }
+            key ??= await _secrets.createDatabaseKey();
+            if (!RegExp(r'^[0-9a-f]{64}$').hasMatch(key)) {
+              throw StateError('Invalid local database key.');
+            }
+            final database = _databaseFactory(path, key);
+            try {
+              await database.open();
+              _database = database;
+              _openedKey = key;
+            } catch (_) {
+              await database.close();
+              rethrow;
+            }
+          }));
+
+  /// Fence a stale engine after another engine wipes or rotates the DB key.
+  Future<void> validateCurrent() => _serial(() async {
+        database;
+        if (await _secrets.wipePending ||
+            await _secrets.readDatabaseKey() != _openedKey) {
+          await _database?.close();
+          _database = null;
+          _openedKey = null;
+          throw StateError('Local storage session changed.');
         }
       });
 
@@ -90,13 +115,14 @@ class AppStorage {
 
   Future<void> wipeOnLogout() {
     _blocked = true;
-    return _serial(_wipe);
+    return DeviceCoordination.exclusive(() => _serial(_wipe));
   }
 
   Future<void> close() => _serial(() async {
         final database = _database;
         await database?.close();
         _database = null;
+        _openedKey = null;
       });
 
   Future<void> _wipe() async {
@@ -105,6 +131,7 @@ class AppStorage {
     final database = _database;
     await database?.close();
     _database = null;
+    _openedKey = null;
     final path = await _path();
     for (final suffix in ['', '-wal', '-shm', '-journal']) {
       final file = File('$path$suffix');

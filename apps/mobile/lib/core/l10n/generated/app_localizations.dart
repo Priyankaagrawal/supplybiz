@@ -94,6 +94,144 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @deliveryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get deliveryTitle;
+
+  /// No description provided for @deliveryQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync queue'**
+  String get deliveryQueue;
+
+  /// No description provided for @deliveryCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached deliveries. Updates stay pending until the server confirms them.'**
+  String get deliveryCached;
+
+  /// No description provided for @deliveryPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get deliveryPending;
+
+  /// No description provided for @deliveryPendingSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending sync'**
+  String get deliveryPendingSync;
+
+  /// No description provided for @deliveryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries for this date'**
+  String get deliveryEmpty;
+
+  /// No description provided for @deliveryQueueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No queued delivery updates'**
+  String get deliveryQueueEmpty;
+
+  /// No description provided for @deliveryQueueHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates sync automatically when connected, including Android background sync when allowed by your device. Open the app to check progress. Uncertain updates must be retried with their saved key.'**
+  String get deliveryQueueHelp;
+
+  /// No description provided for @deliveryRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved delivery updates'**
+  String get deliveryRetry;
+
+  /// No description provided for @deliveryRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Update rejected'**
+  String get deliveryRejected;
+
+  /// No description provided for @deliveryRetryNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic retries stopped. Retry when the connection or access is restored.'**
+  String get deliveryRetryNeeded;
+
+  /// No description provided for @deliveryRollback.
+  ///
+  /// In en, this message translates to:
+  /// **'The pending change was rolled back. Refresh deliveries, discard this rejected update, then check the current status before trying again.'**
+  String get deliveryRollback;
+
+  /// No description provided for @deliveryDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard update'**
+  String get deliveryDiscard;
+
+  /// No description provided for @deliveryDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this update and its unsent dependent updates?'**
+  String get deliveryDiscardConfirm;
+
+  /// No description provided for @deliveryCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get deliveryCancel;
+
+  /// No description provided for @deliveryDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark delivered'**
+  String get deliveryDelivered;
+
+  /// No description provided for @deliveryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark failed'**
+  String get deliveryFailed;
+
+  /// No description provided for @deliveryReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Failure reason'**
+  String get deliveryReason;
+
+  /// No description provided for @deliveryReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a failure reason.'**
+  String get deliveryReasonRequired;
+
+  /// No description provided for @deliveryCollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment collected?'**
+  String get deliveryCollected;
+
+  /// No description provided for @deliveryMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment method'**
+  String get deliveryMethod;
+
+  /// No description provided for @deliveryAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount collected (₹)'**
+  String get deliveryAmount;
+
+  /// No description provided for @deliveryAmountInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount greater than zero with at most two decimal places.'**
+  String get deliveryAmountInvalid;
+
   /// No description provided for @customerOrdersOngoing.
   ///
   /// In en, this message translates to:

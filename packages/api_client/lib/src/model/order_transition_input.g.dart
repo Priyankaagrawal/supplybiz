@@ -17,6 +17,8 @@ OrderTransitionInput _$OrderTransitionInputFromJson(
           requiredKeys: const ['to', 'version'],
         );
         final val = OrderTransitionInput(
+          clientCreatedAt: $checkedConvert('clientCreatedAt',
+              (v) => v == null ? null : DateTime.parse(v as String)),
           to: $checkedConvert(
               'to', (v) => $enumDecode(_$OrderTransitionInputToEnumEnumMap, v)),
           version: $checkedConvert('version', (v) => (v as num).toInt()),
@@ -35,6 +37,8 @@ OrderTransitionInput _$OrderTransitionInputFromJson(
 Map<String, dynamic> _$OrderTransitionInputToJson(
         OrderTransitionInput instance) =>
     <String, dynamic>{
+      if (instance.clientCreatedAt?.toIso8601String() case final value?)
+        'clientCreatedAt': value,
       'to': _$OrderTransitionInputToEnumEnumMap[instance.to]!,
       'version': instance.version,
       if (instance.reason case final value?) 'reason': value,

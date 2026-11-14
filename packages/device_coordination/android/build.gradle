@@ -1,0 +1,17 @@
+group 'in.supplybiz.device_coordination'
+version '1.0'
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies { classpath 'com.android.tools.build:gradle:8.9.1' }
+}
+apply plugin: 'com.android.library'
+android {
+    namespace 'in.supplybiz.device_coordination'
+    compileSdk 35
+    defaultConfig { minSdk 24 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+repositories { google(); mavenCentral() }

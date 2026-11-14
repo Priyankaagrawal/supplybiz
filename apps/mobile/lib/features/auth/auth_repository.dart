@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 import 'package:uuid/uuid.dart';
+import 'package:device_coordination/device_coordination.dart';
 
 import '../../core/network/app_failure.dart';
 import '../../core/network/network_client.dart';
@@ -14,9 +15,16 @@ abstract interface class AuthStorage {
   Future<void> wipeOnLogout();
 }
 
-class DeviceAuthStorage implements AuthStorage {
+abstract interface class CoordinatedAuthStorage {
+  Future<T> exclusiveSession<T>(Future<T> Function() action);
+}
+
+class DeviceAuthStorage implements AuthStorage, CoordinatedAuthStorage {
   DeviceAuthStorage(this.storage);
   final AppStorage storage;
+  @override
+  Future<T> exclusiveSession<T>(Future<T> Function() action) =>
+      DeviceCoordination.exclusive(action);
   @override
   Future<void> initialize() => storage.initialize();
   @override

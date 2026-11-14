@@ -17,6 +17,7 @@ import 'features/auth/auth_pages.dart';
 import 'features/auth/session_controller.dart';
 import 'features/onboarding/onboarding_controller.dart';
 import 'features/notifications/notification_host.dart';
+import 'features/deliveries/deliveries_pages.dart';
 
 class SupplyBizApp extends StatefulWidget {
   const SupplyBizApp(
@@ -70,11 +71,12 @@ class _SupplyBizAppState extends State<SupplyBizApp> {
                   builder: (context, child) => Theme(
                     data: sbLightTheme(Localizations.localeOf(context)),
                     child: widget.enableAuth
-                        ? NotificationHost(
-                            router: _router,
-                            child: widget.enableConfig
-                                ? ConfigGate(child: child!)
-                                : child!)
+                        ? DeliverySyncHost(
+                            child: NotificationHost(
+                                router: _router,
+                                child: widget.enableConfig
+                                    ? ConfigGate(child: child!)
+                                    : child!))
                         : widget.enableConfig
                             ? ConfigGate(child: child!)
                             : child!,

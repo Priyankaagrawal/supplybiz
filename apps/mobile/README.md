@@ -1,5 +1,132 @@
 # Supply Biz Mobile
 
+## T-050 deliveries handoff (2026-11-14): READY_FOR_VERIFY
+
+S-V-16 (/vendor/deliveries) is available from Vendor Orders → Deliveries; S-V-34
+(/vendor/sync-queue) shows pending/retryable/rejected updates. Server-owned IST
+date/cards/status counts, customer/address/items/amount/Call, preparing/start,
+delivered with optional Cash/UPI receipt, and failure reasons are wired. Exact
+positive integer paise follows the existing API receipt policy, including advances;
+no local money or stock is posted. English strings and 200% forms/cards are covered.
+
+One environment/account-scoped SQLCipher snapshot atomically saves cache + FIFO
+actions before send. Each action freezes its body, version, UUID retry key and
+clientCreatedAt. Pending projections never claim server confirmation. Transport
+retries back off, stop after six action attempts, and use the same key on explicit
+retry. Rejections roll back dependent projections and refresh authoritative state.
+Discard confirms and cannot forget an uncertain sent payment. A failed local
+acknowledgement commit stops new actions until restart for exact disk replay.
+
+Android WorkManager registers network-constrained one-off work before new durable
+actions are written. APPEND_OR_REPLACE (ExistingWorkPolicy.update) avoids losing
+a wakeup as a prior job finishes. Foreground/resume retries remain available.
+The headless worker restores only the current persisted session, derives its
+own account cache key, preserves Android version headers, and drains the same
+queue. No job input includes credentials, customer details or action payloads.
+Android controls background timing; force-stop prevents jobs until the app opens.
+
+First-party packages/device_coordination supplies a native FIFO lease shared by
+all foreground/headless Flutter engines in the app process. Cache operations,
+queue reload/write, key initialization/wipe and refresh-token rotation coordinate
+under that lease. Reentrance expires when the owner finishes; engine destruction
+releases abandoned native ownership. Late callbacks reacquire. Refresh requests
+waiting outside a delivery lease cannot deadlock its 401 refresh. Stale SQLCipher
+handles fail closed after another engine changes/wipes the key, preventing cached
+data resurrection. A stale open card reloads its base version before enqueue.
+
+The API accepts optional validated, zoned ISO clientCreatedAt audit metadata.
+It is included in immutable request identity and stored as nullable
+order_status_events.client_created_at. Server event/completion/payment time stays
+authoritative. Existing queued bodies remain unchanged on retry; historical rows
+stay null. OpenAPI, TS and Dart clients were regenerated. Additive migration
+20261114160000_delivery_client_audit was applied only to the isolated test DB.
+Apply it to the intended dev/staging environment before manual use. Rollback may
+retain the nullable column; do not delete recorded audit history.
+
+Dependency rationale: WorkManager is already specified by MOBILE_STRATEGY §2/§6.
+workmanager 0.9.0+3 is MIT (https://pub.dev/packages/workmanager/versions/0.9.0+3),
+maintained by Flutter Community. Its platform interface is pinned to 0.9.1+1 so
+the published Android/Apple plugin family remains compatible with Flutter 3.35.
+The local coordination plugin adds no third-party runtime dependency. The final
+normal debug APK size comparison is recorded below; it measures the whole task,
+not the isolated library. iOS source/configuration is preserved; iOS checks remain
+DEFERRED under ADR-025.
+
+Normal three-ABI debug APK: 230,587,903 bytes, versus the pre-background-work
+snapshot of 206,473,797 bytes (+24,114,106 bytes, about 11.7%). This is observed
+whole-task debug artifact growth, not a release-size or isolated-library measure.
+Release size/performance acceptance remains the separate T-170 workflow.
+
+Executed from apps/mobile:
+
+```powershell
+flutter pub get
+flutter gen-l10n
+flutter analyze --no-pub lib/features/deliveries lib/features/auth lib/features/onboarding/onboarding_controller.dart lib/core/storage/app_storage.dart integration_test/delivery_background_probe.dart integration_test/delivery_coordination_test.dart test/features/deliveries ../../packages/device_coordination/lib ../../packages/api_client/lib/src/model/order_transition_input.dart
+flutter analyze --no-pub lib/features/deliveries/deliveries_controller.dart test/features/deliveries/deliveries_test.dart
+flutter test --no-pub test/features/deliveries/deliveries_test.dart test/features/auth/session_controller_test.dart test/features/orders/orders_test.dart test/core/router/guards_test.dart test/core/storage
+flutter test integration_test/delivery_coordination_test.dart integration_test/deliveries_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter test integration_test/delivery_coordination_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t integration_test/delivery_background_probe.dart --dart-define-from-file=config/dev.json --no-pub
+adb install -r build/app/outputs/flutter-apk/app-dev-debug.apk
+# Repository root, while the isolated probe APK is installed:
+node tools/delivery-background-smoke.mjs
+# apps/mobile, restore the normal application:
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+adb install -r build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+
+PASS: 44 focused mobile checks (13 delivery, 11 session, 8 order, 5 guard, 7
+storage), focused analysis including the generated timestamp model, two native
+Android scenarios (delivery SENDING/FIFO/conflict/200%/wipe; native lease/stale
+snapshot/escaped callback/refresh wait-cycle/logout/key fencing). The coordination
+test deliberately opens distinct DB executors: Drift emits its debug multiple-
+database warning; the warning was not suppressed.
+
+The final normal main_dev APK build passed; its installation replaces the probe
+APK on the existing emulator. No newly started fixture server/test runner remains.
+
+Actual process-kill smoke PASS: a localhost synthetic HTTP fixture commits a start
+then drops its response; the saved start + payment chain survives app-process
+termination. Two real headless Android engines serialize one refresh, replay the
+original start key/body, complete one synthetic payment, preserve min-version
+headers and leave an empty encrypted queue. The probe uses separate secure-store
+namespace/directory and cancels its own test jobs/wipes its fixture storage before
+the normal APK is restored. HTTP/financial results here are simulated; real
+transactional API/DB evidence is the separate ten-case native delivery suite.
+
+API/client checks PASS: ten native delivery/audit/replay cases, two native runtime
+smokes, five task-runner guards, affected API ESLint, API typecheck/build/schema
+and generated TS compile. Exact API commands are in apps/api/README.md T-050.
+Codegen: tools/codegen.sh; English generation: flutter gen-l10n; formatting: dart
+format on the changed Dart files. git diff --check passes. The first SDK package
+resolution exposed an incompatible transitive WorkManager interface; the
+compatible family pin resolved it without disabling any compiler/check.
+
+Known baseline issue: the earlier separate app_router_test.dart compatibility
+run passed 22 checks and failed three existing customer placeholder/deep-link
+tests against already-live T-051 pages/unset API_BASE_URL. HEAD routes.dart
+confirmed that baseline. It remains outside T-050; no unrelated status changed.
+Live UI→API→DB/FCM, manual TalkBack/PASS and G2 remain NOT_RUN. No provider
+delivery, full module acceptance or iOS pass is inferred from these checks.
+
+Manual verification:
+
+1. Apply the additive migration to the intended local runtime, sign in as a vendor
+   with accepted orders, and open Orders → Deliveries. Check dates/tabs/counts,
+   slot/address ordering, empty/error/refresh, Call and the sync queue.
+2. Load orders, disconnect network, queue start then delivered with a precise
+   Cash/UPI amount. Reconnect and background the app (do not force-stop). Verify
+   exactly one stock change/debit/receipt-credit and the original audit timestamp.
+3. Interrupt an uncertain response and reopen; check same-key replay. Change the
+   version in another session before sync and check rollback/rejected-chain
+   discard. Review the explicit retry state after repeated failures.
+4. Switch account/role and log out with pending work. Check cache isolation,
+   absence of revived data/credentials, and that another account never sends it.
+5. Check TalkBack labels, 48dp targets and 200% scrolling/payment sheet. Record
+   manual PASS separately; READY_FOR_VERIFY does not mark the task DONE.
+
+
 ## T-051 customer orders handoff (2026-11-14): READY_FOR_VERIFY
 
 S-C-13/14 / US-240/241: customer Orders now uses generated owned list/detail APIs,

@@ -1,7 +1,7 @@
 // T-045 / FR-040–046, FR-220–225 / ADR-032.
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsDateString, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
 import { AddressResponse } from '../addresses/addresses.dto';
 import { ProductResponse } from '../catalog/catalog.dto';
 const defined = (_: unknown, value: unknown) => value !== undefined;
@@ -42,6 +42,8 @@ export class DeliveryPaymentInput {
   @ValidateIf(defined) @IsString() @Matches(/^[1-9]\d{0,18}$/) amountPaise?: string;
 }
 export class OrderTransitionInput {
+  @ApiPropertyOptional({format:'date-time',description:'Untrusted device creation time for offline-action audit only. Server event/completion time remains authoritative.'})
+  @ValidateIf(defined) @IsString() @Length(20,35) @Matches(/T.*(?:Z|[+-]\d{2}:\d{2})$/) @IsDateString({strict:true}) clientCreatedAt?: string;
   @ApiProperty({ enum: ['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED'] })
   @IsIn(['ACCEPTED','REJECTED','PREPARING','OUT_FOR_DELIVERY','DELIVERED','FAILED']) to!: string;
   @ApiProperty({ type: 'integer', minimum: 1, maximum: 2147483647 }) @IsInt() @Min(1) @Max(2147483647) version!: number;

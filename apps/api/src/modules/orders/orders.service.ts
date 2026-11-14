@@ -248,7 +248,8 @@ export class OrdersService {
       const updated = await tx.orders.update({where:{id},data:{status:input.to,version:{increment:1},
         ...(input.to==='REJECTED'?{reject_reason:reason}:{}),...(input.to==='FAILED'?{fail_reason:reason}:{}),
         ...(completion?{completed_at:completion.completedAt,payment_status:completion.paymentStatus}:{})}});
-      await tx.order_status_events.create({data:{order_id:id,status:input.to,reason}});
+      await tx.order_status_events.create({data:{order_id:id,status:input.to,reason,
+        client_created_at:input.clientCreatedAt===undefined?null:new Date(input.clientCreatedAt)}});
       const customer=await tx.vendor_customers.findUniqueOrThrow({where:{id:order.vendor_customer_id}});
       const event = input.to==='ACCEPTED'?'ORDER_ACCEPTED':input.to==='REJECTED'?'ORDER_REJECTED':input.to==='OUT_FOR_DELIVERY'?'OUT_FOR_DELIVERY':input.to==='DELIVERED'?'ORDER_DELIVERED':input.to==='FAILED'?'DELIVERY_FAILED':null;
       if (customer.user_id && event) await this.notifications.enqueue(tx,{recipientId:customer.user_id,role:'CUSTOMER',type:event,sourceKey:`order:${id}:${updated.version}`,entityId:id});

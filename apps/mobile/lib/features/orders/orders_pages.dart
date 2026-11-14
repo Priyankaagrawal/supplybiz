@@ -1,5 +1,6 @@
 // S-V-08–10 / T-048. Completion/payment collection belongs to T-049/T-050.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -81,6 +82,9 @@ class _VendorOrdersPageState extends ConsumerState<VendorOrdersPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       OrderFeedback(m),
+                      SbButton(
+                          label: l.deliveryTitle,
+                          onPressed: () => context.push('/vendor/deliveries')),
                       SbButton(
                           label: l.authRetry,
                           variant: SbButtonVariant.secondary,

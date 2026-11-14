@@ -4414,6 +4414,12 @@ components:
     OrderTransitionInput:
       type: object
       properties:
+        clientCreatedAt:
+          type: string
+          format: date-time
+          description: >-
+            Untrusted device creation time for offline-action audit only. Server event/completion time remains
+            authoritative.
         to:
           type: string
           enum:

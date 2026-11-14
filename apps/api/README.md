@@ -1,5 +1,60 @@
 # Supply Biz API
 
+## T-050 offline delivery audit support (2026-11-14)
+
+Vendor order transitions accept optional ISO clientCreatedAt with an explicit
+timezone. DTO validation rejects null/malformed/date-only values. The field is
+untrusted metadata on order_status_events.client_created_at, included in permanent
+request identity; server event/completion/receipt dates and financial effects
+remain authoritative. Existing bodies without the field keep their replay
+identity. A changed timestamp under the same key is rejected. No audit backfill,
+ledger grant change or financial-history mutation was added.
+
+The nullable additive migration 20261114160000_delivery_client_audit was deployed
+only to the isolated local supplybiz_service_area_test DB. Other environments
+must apply it before running this API version. An application rollback can retain
+the extra nullable column; do not drop recorded audit data. OpenAPI and TS/Dart
+clients were regenerated from DTO source with tools/codegen.sh.
+
+Executed in apps/api (PowerShell, local installed binaries):
+
+```powershell
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/deliveries.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\eslint.cmd src/modules/orders/orders.dto.ts src/modules/orders/orders.service.ts src/modules/orders/deliveries.postgres.spec.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+
+Executed from repository root:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --target ES2022 --module NodeNext --moduleResolution NodeNext packages/ts-client/src/generated/openapi.ts
+node --test tools/checks.spec.mjs
+git diff --check
+```
+
+PASS: ten native PostgreSQL/HTTP delivery cases (including malformed time,
+foreign-owner denial, immutable audit replay and future device time unable to
+replace server posting time), two native readiness smokes, five runner guards,
+API lint/typecheck/build/schema and generated TS compile. pnpm exec tsc initially
+failed its sandboxed registry signature fetch; the required elevated retry found
+no root tsc executable. The already-installed API TypeScript binary above passed;
+signature enforcement was not disabled. Mobile/headless command evidence and
+five manual verification steps are in the mobile README T-050 handoff. Actual
+FCM, live mobile→API→DB, manual PASS and G2 remain pending; iOS is deferred.
+
 ## T-051 customer tracking/reorder support (2026-11-14)
 
 Owned order lists now include optional saved item summaries; detail includes

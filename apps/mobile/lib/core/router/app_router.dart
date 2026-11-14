@@ -3,11 +3,20 @@ import 'package:go_router/go_router.dart';
 import 'deep_links.dart';
 import 'routes.dart';
 import 'routing_controller.dart';
+import '../../features/deliveries/deliveries_pages.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
-      routes: $appRoutes,
+      routes: [
+        GoRoute(
+            path: '/vendor/deliveries',
+            builder: (_, __) => const DeliveriesPage()),
+        GoRoute(
+            path: '/vendor/sync-queue',
+            builder: (_, __) => const DeliveriesPage(queueOnly: true)),
+        ...$appRoutes,
+      ],
       initialLocation: initialLocation ?? const SplashRoute().location,
       refreshListenable: controller,
       debugLogDiagnostics: false,

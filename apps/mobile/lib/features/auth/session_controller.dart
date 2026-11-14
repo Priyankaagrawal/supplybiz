@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:device_coordination/device_coordination.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 
@@ -113,13 +114,19 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
   }
 
   bool _current(int generation) => !_disposed && generation == _generation;
+  Future<T> _storageLock<T>(Future<T> Function() action) =>
+      _storage is CoordinatedAuthStorage
+          ? (_storage as CoordinatedAuthStorage).exclusiveSession(action)
+          : action();
   Future<void> restore() async {
     if (state.busy) return;
     state = state.copy(busy: true);
     final generation = _generation;
     try {
-      await _storage.initialize();
-      if (await _storage.readRefreshToken() != null) await refresh();
+      await _storageLock(() async {
+        await _storage.initialize();
+        if (await _storage.readRefreshToken() != null) await refresh();
+      });
       if (_current(generation)) state = state.copy(ready: true, busy: false);
     } catch (error) {
       if (_current(generation)) {
@@ -191,19 +198,27 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
     if (!state.busy) state = AuthState(ready: true, mobile: state.mobile);
   }
 
-  Future<void> _accept(TokensResponse tokens, int generation) async {
-    if (!_current(generation)) return;
-    await _storage.initialize();
-    if (!_current(generation)) return;
-    // AppStorage serializes persistence with a concurrent logout wipe.
-    await _storage.writeRefreshToken(tokens.refreshToken);
-    if (!_current(generation)) return;
-    _access = tokens.accessToken;
-    state = state.copy(user: tokens.user, challenge: false, ready: true);
-  }
+  Future<void> _accept(TokensResponse tokens, int generation) =>
+      _storageLock(() async {
+        if (!_current(generation)) return;
+        await _storage.initialize();
+        if (!_current(generation)) return;
+        // AppStorage serializes persistence with a concurrent logout wipe.
+        await _storage.writeRefreshToken(tokens.refreshToken);
+        if (!_current(generation)) return;
+        _access = tokens.accessToken;
+        state = state.copy(user: tokens.user, challenge: false, ready: true);
+      });
 
   @override
   Future<void> refresh() async {
+    // A foreground refresh may already be waiting for the lease held by a
+    // delivery request. That request must not join the waiting flight on 401:
+    // rotate under its current lease, then the waiter reads the latest token.
+    if (_storage is CoordinatedAuthStorage && DeviceCoordination.isHeld) {
+      await _rotate();
+      return;
+    }
     final flight = _refreshing ??= _rotate();
     try {
       await flight;
@@ -215,10 +230,13 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
   Future<void> _rotate() async {
     final generation = _generation;
     try {
-      final token = await _storage.readRefreshToken();
-      if (token == null) throw const UnauthorizedFailure();
-      final tokens = await repository.refresh(token);
-      await _accept(tokens, generation);
+      await _storageLock(() async {
+        if (!_current(generation)) return;
+        final token = await _storage.readRefreshToken();
+        if (token == null) throw const UnauthorizedFailure();
+        final tokens = await repository.refresh(token);
+        await _accept(tokens, generation);
+      });
     } on UnauthorizedFailure catch (failure) {
       if (_current(generation)) await clear(reason: failure);
       rethrow;
@@ -251,7 +269,7 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
     _access = null;
     state = AuthState(ready: true, failure: reason);
     try {
-      await _storage.wipeOnLogout();
+      await _storageLock(() => _storage.wipeOnLogout());
     } catch (_) {
       state = state.copy(
           failure: const UnknownFailure(code: 'STORAGE_CLEANUP_REQUIRED'));

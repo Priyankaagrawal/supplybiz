@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 import 'package:uuid/uuid.dart';
+import 'package:device_coordination/device_coordination.dart';
 
 import '../../core/network/app_failure.dart';
 import '../../core/config/app_config.dart';
@@ -24,21 +25,26 @@ class EncryptedOnboardingDrafts implements OnboardingDrafts {
       : storage = storage ?? AppStorage.instance;
   final AppStorage storage;
   @override
-  Future<Map<String, String>> read(String owner) async {
-    final row = await storage.database.customSelect(
-        'SELECT payload FROM onboarding_drafts WHERE owner = ?',
-        variables: [Variable(owner)]).getSingleOrNull();
-    return row == null
-        ? {}
-        : Map<String, String>.from(
-            jsonDecode(row.read<String>('payload')) as Map);
-  }
+  Future<Map<String, String>> read(String owner) =>
+      DeviceCoordination.exclusive(() async {
+        await storage.validateCurrent();
+        final row = await storage.database.customSelect(
+            'SELECT payload FROM onboarding_drafts WHERE owner = ?',
+            variables: [Variable(owner)]).getSingleOrNull();
+        return row == null
+            ? {}
+            : Map<String, String>.from(
+                jsonDecode(row.read<String>('payload')) as Map);
+      });
 
   @override
   Future<void> write(String owner, Map<String, String> values) =>
-      storage.database.customStatement(
-          'INSERT INTO onboarding_drafts(owner, payload) VALUES (?, ?) ON CONFLICT(owner) DO UPDATE SET payload=excluded.payload',
-          [owner, jsonEncode(values)]);
+      DeviceCoordination.exclusive(() async {
+        await storage.validateCurrent();
+        await storage.database.customStatement(
+            'INSERT INTO onboarding_drafts(owner, payload) VALUES (?, ?) ON CONFLICT(owner) DO UPDATE SET payload=excluded.payload',
+            [owner, jsonEncode(values)]);
+      });
 }
 
 final onboardingDraftsProvider =

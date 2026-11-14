@@ -9,6 +9,81 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get deliveryTitle => 'Deliveries';
+
+  @override
+  String get deliveryQueue => 'Sync queue';
+
+  @override
+  String get deliveryCached =>
+      'Cached deliveries. Updates stay pending until the server confirms them.';
+
+  @override
+  String get deliveryPending => 'Pending';
+
+  @override
+  String get deliveryPendingSync => 'Pending sync';
+
+  @override
+  String get deliveryEmpty => 'No deliveries for this date';
+
+  @override
+  String get deliveryQueueEmpty => 'No queued delivery updates';
+
+  @override
+  String get deliveryQueueHelp =>
+      'Updates sync automatically when connected, including Android background sync when allowed by your device. Open the app to check progress. Uncertain updates must be retried with their saved key.';
+
+  @override
+  String get deliveryRetry => 'Retry saved delivery updates';
+
+  @override
+  String get deliveryRejected => 'Update rejected';
+
+  @override
+  String get deliveryRetryNeeded =>
+      'Automatic retries stopped. Retry when the connection or access is restored.';
+
+  @override
+  String get deliveryRollback =>
+      'The pending change was rolled back. Refresh deliveries, discard this rejected update, then check the current status before trying again.';
+
+  @override
+  String get deliveryDiscard => 'Discard update';
+
+  @override
+  String get deliveryDiscardConfirm =>
+      'Discard this update and its unsent dependent updates?';
+
+  @override
+  String get deliveryCancel => 'Cancel';
+
+  @override
+  String get deliveryDelivered => 'Mark delivered';
+
+  @override
+  String get deliveryFailed => 'Mark failed';
+
+  @override
+  String get deliveryReason => 'Failure reason';
+
+  @override
+  String get deliveryReasonRequired => 'Enter a failure reason.';
+
+  @override
+  String get deliveryCollected => 'Payment collected?';
+
+  @override
+  String get deliveryMethod => 'Payment method';
+
+  @override
+  String get deliveryAmount => 'Amount collected (₹)';
+
+  @override
+  String get deliveryAmountInvalid =>
+      'Enter a valid amount greater than zero with at most two decimal places.';
+
+  @override
   String get customerOrdersOngoing => 'Ongoing';
 
   @override

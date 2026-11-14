@@ -15,6 +15,11 @@ dependencies:
   intl: ^0.20.2
   dio: ^5.9.0
   flutter_riverpod: 2.6.1
+  workmanager: 0.9.0+3
+  # Keep the published plugin family compatible on the approved Flutter SDK.
+  workmanager_platform_interface: 0.9.1+1
+  device_coordination:
+    path: ../../packages/device_coordination
   supplybiz_api_client:
     path: ../../packages/api_client
   uuid: ^4.5.1

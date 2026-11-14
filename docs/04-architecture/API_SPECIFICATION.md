@@ -238,7 +238,7 @@ handoff is recorded in the API README; this does not claim a module gate pass.
 | GET | `/vendor/orders?status=&q=&date=` | |
 | GET | `/vendor/orders/{id}` | |
 | POST | `/vendor/orders` | vendor-created order for a customer ("Add Order") |
-| POST | `/vendor/orders/{id}/transitions` | `{ to: ACCEPTED|REJECTED|PREPARING|OUT_FOR_DELIVERY|DELIVERED|FAILED, version, reason?, reasonText?, payment?: { collected, method, amountPaise } }` |
+| POST | `/vendor/orders/{id}/transitions` | `{ to: ACCEPTED|REJECTED|PREPARING|OUT_FOR_DELIVERY|DELIVERED|FAILED, version, clientCreatedAt?, reason?, reasonText?, payment?: { collected, method, amountPaise } }` |
 | GET | `/vendor/deliveries?date=&status=&limit=&offset=` | No-store owned snapshot: serverTime/businessDate/deliveryDate/counts/items/total. Date defaults to DB IST today; ALL/PENDING (=ACCEPTED)/PREPARING/OUT_FOR_DELIVERY/DELIVERED/FAILED counts before filter, filtered total, detail cards, limit 20/max 50. NEW/REJECTED/CANCELLED excluded. |
 | GET | `/customer/orders/options?vendorId=&addressId=` | T-046: owned address and eligible vendor; serverTime/businessDate, configured timeSlots/sameDayCutoff and availableDates today through +7 excluding cutoff/holiday/pause. Quote/place recheck price, stock and capacity. No guessed defaults or business writes. |
 | POST | `/customer/orders/quote` | validates cart and returns priced bill (no side effects) |
@@ -247,6 +247,11 @@ handoff is recorded in the API README; this does not claim a module gate pass.
 | GET | `/customer/orders/{id}` | |
 | POST | `/customer/orders/{id}/cancel` | |
 | POST | `/customer/orders/{id}/reorder` | returns cart lines + unavailable items |
+
+T-050: optional `clientCreatedAt` must be an ISO timestamp with an explicit zone.
+It is untrusted audit metadata stored on the status event and included in the
+immutable request identity. It never controls event/completion time, payment date,
+cutoffs, authorization, prices or financial posting. Legacy retries omit it unchanged.
 
 ### 4.7 Quick sale (FR-050–FR-054)
 `POST /vendor/sales`, `GET /vendor/sales?date=`.

@@ -185,7 +185,9 @@ customer or consume another slot. Deactivation preserves all future history.
 
 T-045 adds `order_number_sequence` (initializes above existing numeric ORD suffixes),
 `order_requests` (hashed actor/key PK, user FK, path/body hash, non-PII result JSON,
-created_at) and `order_status_events` (order FK, status/reason/at). Both history
+created_at) and `order_status_events` (order FK, status/reason/at, nullable
+`client_created_at` for untrusted T-050 offline creation-time audit). Server `at`
+and order completion/payment dates remain authoritative. Both history
 tables reject UPDATE/DELETE/TRUNCATE. New `order_items.milk_quantity_ml` is exact
 DECIMAL(30,3), snapshotted at placement for daily capacity; later catalog edits
 do not change booked volume. Existing read-foundation volume uses stored unit
