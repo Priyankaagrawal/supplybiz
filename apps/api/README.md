@@ -1,5 +1,38 @@
 # Supply Biz API
 
+## T-052 order notification fan-out evidence (2026-11-14)
+
+Existing transactional producers cover ORDER_NEW/ORDER_CANCELLED for the vendor
+and ORDER_ACCEPTED/ORDER_REJECTED/OUT_FOR_DELIVERY/ORDER_DELIVERED/DELIVERY_FAILED
+for the customer. Three focused native HTTP/PostgreSQL cases PASS: four real
+order journeys yield 12 owned inbox rows and 17 push jobs across two vendor
+devices and one customer device; application restart plus concurrent outbox
+dispatch preserves single normal dispatch per job. Ownership, canonical paths,
+sanitized notification text, concurrent/repeated request replay, transaction
+rollback after enqueue and disabled orders-push preferences are checked. FCM
+transport is mocked; live provider/OS delivery is NOT_RUN, not proven by dispatch.
+
+Executed in apps/api against the isolated supplybiz_service_area_test database:
+
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t T-052
+.\node_modules\.bin\eslint.cmd src/modules/orders/orders.postgres.spec.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+```
+
+All commands PASS; Jest selects three cases and deliberately leaves 14 unrelated
+cases unselected. No production API/schema/contract/dependency change or codegen
+was needed. Mobile README contains Android evidence and five manual steps.
+Manual UI/API/provider verification and G2 remain pending; non-order FR-101
+events retain their owning-task scope.
+
 ## T-050 offline delivery audit support (2026-11-14)
 
 Vendor order transitions accept optional ISO clientCreatedAt with an explicit

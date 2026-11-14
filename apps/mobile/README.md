@@ -1,5 +1,52 @@
 # Supply Biz Mobile
 
+## T-052 order notifications handoff (2026-11-14): READY_FOR_VERIFY
+
+All seven FR-101 order event types now refresh already-open customer Home/order
+and vendor order models from authoritative reads. Only an owned inbox item can
+trigger refresh or navigation; raw push status/path/type is ignored. Account/role
+changes reset the signal, duplicates are ignored, and unopened order providers
+are not created by foreground delivery. Cold/warm taps retain role confirmation.
+The auth-disabled customer router previews also restore three existing fixtures.
+No API contract, migration, dependency or generated-code changes were needed.
+
+Executed from apps/mobile (all final commands PASS):
+
+```powershell
+flutter analyze --no-pub lib/features/notifications lib/features/orders lib/features/home/home_controller.dart lib/core/router/routes.dart test/features/notifications/order_notifications_test.dart
+flutter test --no-pub test/features/notifications test/core/router/guards_test.dart test/core/router/app_router_test.dart
+flutter test --no-pub test/features/orders/orders_test.dart test/features/orders/customer_orders_test.dart
+flutter test integration_test/order_notifications_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+adb install -r build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+
+PASS: 39 focused mobile/router checks and one native Android scenario exercising
+actual order pages, cold/warm role confirmation, trusted foreground refresh,
+SQLCipher cache/write/wipe and 200% text. Native asynchronous navigation needs
+bounded waits; the initial immediate assertion failed, and the final bounded
+version passes. HTTP/FCM are simulated in mobile tests; real HTTP/PostgreSQL
+transaction/outbox evidence is recorded separately in the API README. The normal
+app APK is restored after the test. Analysis also covers the integration fixture.
+Root `node --test tools/checks.spec.mjs`: five runner guards PASS, not a G2 gate.
+
+Live FCM/OS delivery is NOT_RUN: dev FIREBASE_ENABLED=false and dev
+google-services.json is absent. Manual TalkBack/PASS and G2 remain pending;
+iOS checks are deferred. Seven order events are covered, not unrelated FR-101
+subscription/payment/stock event implementations owned by other tasks.
+
+Manual verification:
+1. On a configured Android environment, place/cancel orders; confirm the vendor
+   receives the matching owned inbox notices and warm taps open the right order.
+2. Accept/reject/start/deliver/fail separate orders; confirm all five customer
+   notices, correct statuses and no duplicated financial/order effects on retry.
+3. Keep customer Home/detail and vendor Orders/detail open while events arrive;
+   confirm authoritative refresh, including OUT_FOR_DELIVERY and cancellation.
+4. Tap a cold notice while using the opposite role; cancel once, then confirm
+   the switch. Check the owned order opens and a stale/unknown notice grants no access.
+5. Check inbox and order navigation with TalkBack and 200% text, then logout/login
+   with another account and confirm no previous-account notice/cache appears.
+
 ## T-050 deliveries handoff (2026-11-14): READY_FOR_VERIFY
 
 S-V-16 (/vendor/deliveries) is available from Vendor Orders → Deliveries; S-V-34

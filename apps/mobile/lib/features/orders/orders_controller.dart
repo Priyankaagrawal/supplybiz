@@ -10,6 +10,7 @@ import '../../core/network/app_failure.dart';
 import '../auth/session_controller.dart';
 import '../home/home_controller.dart';
 import '../onboarding/onboarding_controller.dart';
+import '../notifications/order_notices.dart';
 
 final vendorOrdersProvider =
     ChangeNotifierProvider<VendorOrdersController>((ref) {
@@ -21,6 +22,7 @@ final vendorOrdersProvider =
       ref.read(onboardingDraftsProvider),
       '${ref.read(authConfigProvider).baseUrl}:${identity.$1}:vendor-orders');
   ref.onDispose(client.close);
+  listenForOrderNotices(ref, identity.$1, 'VENDOR', model.refreshFromNotice);
   return model;
 });
 
@@ -33,6 +35,7 @@ class VendorOrdersController extends ChangeNotifier {
   final details = <String, OrderDetail>{}, fresh = <String>{};
   String status = 'ALL', search = '';
   DateTime? date;
+  String? activeId;
   int total = 0, offset = 0;
   Map<String, dynamic>? pending;
   AppFailure? failure;
@@ -185,7 +188,14 @@ class VendorOrdersController extends ChangeNotifier {
         date = nextDate;
         await _fetchList();
       });
-  Future<void> open(String id) => _run(() => _fetchDetail(id));
+  Future<void> open(String id) => _run(() async {
+        activeId = id;
+        await _fetchDetail(id);
+      });
+  Future<void> refreshFromNotice() => _run(() async {
+        if (activeId != null) await _fetchDetail(activeId!);
+        if (!_disposed) await _fetchList();
+      });
   Future<void> _fetchDetail(String id) async {
     fresh.remove(id);
     try {

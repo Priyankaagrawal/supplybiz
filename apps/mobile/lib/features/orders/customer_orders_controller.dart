@@ -10,6 +10,7 @@ import '../../core/network/app_failure.dart';
 import '../auth/session_controller.dart';
 import '../home/home_controller.dart';
 import '../onboarding/onboarding_controller.dart';
+import '../notifications/order_notices.dart';
 
 final customerOrdersProvider =
     ChangeNotifierProvider<CustomerOrdersController>((ref) {
@@ -17,10 +18,12 @@ final customerOrdersProvider =
       sessionProvider.select((s) => (s.user?.id, s.user?.activeRole?.value)));
   final client = homeClient(ref);
   ref.onDispose(client.close);
-  return CustomerOrdersController(
+  final model = CustomerOrdersController(
       CustomerOrdersApi(client.dio),
       ref.read(onboardingDraftsProvider),
       '${ref.read(authConfigProvider).baseUrl}:${identity.$1}:customer-orders');
+  listenForOrderNotices(ref, identity.$1, 'CUSTOMER', model.refreshFromNotice);
+  return model;
 });
 
 class CustomerOrdersController extends ChangeNotifier {

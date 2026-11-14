@@ -384,16 +384,20 @@ class CustomerOrdersBranch extends StatefulShellBranchData {
 class CustomerOrdersRoute extends GoRouteData with _$CustomerOrdersRoute {
   const CustomerOrdersRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const CustomerOrdersPage();
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const CustomerOrdersPage()
+          : const RoutePlaceholder(title: RouteTitle.orders));
 }
 
 class CustomerOrderRoute extends GoRouteData with _$CustomerOrderRoute {
   const CustomerOrderRoute(this.id);
   final String id;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      CustomerOrderPage(id:id);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? CustomerOrderPage(id: id)
+          : const RoutePlaceholder(title: RouteTitle.order));
 }
 
 class CustomerSubscriptionRoute extends GoRouteData

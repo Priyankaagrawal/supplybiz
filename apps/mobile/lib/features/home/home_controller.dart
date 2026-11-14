@@ -9,6 +9,7 @@ import '../../core/network/app_failure.dart';
 import '../../core/network/network_client.dart';
 import '../auth/session_controller.dart';
 import '../onboarding/onboarding_controller.dart';
+import '../notifications/order_notices.dart';
 
 class HomeLocation {
   const HomeLocation(
@@ -67,6 +68,7 @@ final homeProvider = ChangeNotifierProvider.autoDispose<HomeController>((ref) {
   if (identity.$1 != null && identity.$2 == 'CUSTOMER') {
     Future.microtask(model.load);
   }
+  listenForOrderNotices(ref, identity.$1, 'CUSTOMER', model.load);
   return model;
 });
 

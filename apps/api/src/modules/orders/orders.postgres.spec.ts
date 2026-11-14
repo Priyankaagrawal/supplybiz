@@ -9,6 +9,8 @@ import { SessionTokensService } from '../auth/session-tokens.service';
 import { assignPlanFixture } from '../../../test/fixtures/plans';
 import { homeClock } from '../home/home.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { FcmService } from '../notifications/fcm.service';
+import { OutboxDispatcherService } from '../../outbox/outbox-dispatcher.service';
 import { OrderPlaceInput } from './orders.dto';
 const url = process.env.NATIVE_TEST_DATABASE_URL;
 const native = url ? describe : describe.skip;
@@ -18,9 +20,11 @@ native('T-045 native order HTTP/DB critical checks',()=>{
   let app:INestApplication, categoryId:string, buyer:Actor, owner:Actor, stranger:Actor, otherVendor:Actor;
   let vendorId:string,productId:string,addressId:string,input:OrderPlaceInput;
   let serial=0;
+  const push=jest.fn<Promise<'SENT'>,[string,unknown]>().mockResolvedValue('SENT');
   async function boot() {
     const {AppModule}=await import('../../app.module');
-    const module=await Test.createTestingModule({imports:[AppModule]}).overrideProvider(PinoLogger).useValue({log:jest.fn(),warn:jest.fn(),error:jest.fn()}).compile();
+    const module=await Test.createTestingModule({imports:[AppModule]}).overrideProvider(PinoLogger).useValue({log:jest.fn(),warn:jest.fn(),error:jest.fn()})
+      .overrideProvider(FcmService).useValue({send:push}).compile();
     const instance=module.createNestApplication();configureHttpApp(instance);await instance.init();return instance;
   }
   async function actor(role:'CUSTOMER'|'VENDOR'='CUSTOMER'):Promise<Actor> {
@@ -56,6 +60,79 @@ native('T-045 native order HTTP/DB critical checks',()=>{
   afterAll(async()=>{
     if(categoryId)await db.categories.update({where:{id:categoryId},data:{status:'HIDDEN'}});
     await app?.close();await db.$disconnect();for(const k of Object.keys(process.env))if(!(k in env))delete process.env[k];Object.assign(process.env,env);
+  });
+  async function pushDevice(actor:Actor) {
+    const device=await db.devices.create({data:{user_id:actor.id,platform:'ANDROID',push_enabled:true,push_token:`synthetic-${randomUUID()}`}});
+    await db.sessions.updateMany({where:{user_id:actor.id,status:'ACTIVE'},data:{device_id:device.id}});
+  }
+  it('T-052 TC-103 seven order events atomically persist owned inbox/push jobs and dispatch exactly once after application recreation',async()=>{
+    push.mockClear();await pushDevice(owner);await pushDevice(buyer);
+    const extraDevice=await db.devices.create({data:{user_id:owner.id,platform:'ANDROID',push_enabled:true,push_token:`synthetic-${randomUUID()}`}});
+    await db.sessions.create({data:{user_id:owner.id,device_id:extraDevice.id,family_id:randomUUID(),refresh_token_hash:'synthetic-unused',expires_at:new Date(Date.now()+86400000)}});
+    const key=randomUUID(),placed=await Promise.all([place(input,key).expect(201),place(input,key).expect(201)]);
+    const id=placed[0]!.body.id as string;expect(placed[1]!.body.id).toBe(id);
+    await transition(id,{to:'ACCEPTED',version:1}).expect(201);
+    await transition(id,{to:'PREPARING',version:2}).expect(201);
+    await transition(id,{to:'OUT_FOR_DELIVERY',version:3}).expect(201);
+    const delivered={to:'DELIVERED',version:4,payment:{collected:false}},doneKey=randomUUID();
+    await transition(id,delivered,owner,doneKey).expect(201);await transition(id,delivered,owner,doneKey).expect(201);
+    const rejected=(await place().expect(201)).body.id as string;
+    await transition(rejected,{to:'REJECTED',version:1,reason:'OTHER',reasonText:'Synthetic private rejection'}).expect(201);
+    const cancelled=(await place().expect(201)).body.id as string,cancelKey=randomUUID();
+    await post(`customer/orders/${cancelled}/cancel`,{version:1},buyer,cancelKey).expect(201);
+    await post(`customer/orders/${cancelled}/cancel`,{version:1},buyer,cancelKey).expect(201);
+    const failed=(await place().expect(201)).body.id as string;
+    await transition(failed,{to:'ACCEPTED',version:1}).expect(201);
+    await transition(failed,{to:'OUT_FOR_DELIVERY',version:2}).expect(201);
+    await transition(failed,{to:'FAILED',version:3,reason:'Synthetic private failure'}).expect(201);
+    const rows=await db.notifications.findMany({where:{user_id:{in:[owner.id,buyer.id]}}});
+    expect(rows).toHaveLength(12);
+    expect([...new Set(rows.map(n=>n.type))].sort()).toEqual(['ORDER_NEW','ORDER_CANCELLED','ORDER_ACCEPTED','ORDER_REJECTED','OUT_FOR_DELIVERY','ORDER_DELIVERED','DELIVERY_FAILED'].sort());
+    const ids=new Set([id,rejected,cancelled,failed]);
+    for(const n of rows) {
+      const path=(n.data as {path:string}).path;
+      expect(n.user_id).toBe(n.role==='VENDOR'?owner.id:buyer.id);expect(n.category).toBe('ORDERS');
+      expect(path.startsWith(`/${n.role.toLowerCase()}/orders/`)).toBe(true);expect(ids.has(path.split('/').at(-1)!)).toBe(true);
+      expect(JSON.stringify([n.title,n.body])).not.toMatch(/Synthetic|25190|12345|919/);
+      expect(await db.notification_pushes.count({where:{notification_id:n.id}})).toBe(n.role==='VENDOR'?2:1);
+    }
+    const jobs=await db.notification_pushes.findMany({where:{notification_id:{in:rows.map(n=>n.id)}}});
+    await app.close();app=await boot();
+    for(const job of jobs) {
+      const worker=app.get(OutboxDispatcherService);
+      const counts=await Promise.all([worker.dispatchPendingBatch(1,job.event_id),worker.dispatchPendingBatch(1,job.event_id)]);
+      expect(counts.reduce((a,b)=>a+b,0)).toBe(1);
+    }
+    expect(push).toHaveBeenCalledTimes(17);
+    for(const n of rows)expect(push.mock.calls.filter(c=>(c[1] as {id:string}).id===n.id)).toHaveLength(n.role==='VENDOR'?2:1);
+    expect((await get('notifications?role=VENDOR',owner).expect(200)).body.items).toHaveLength(5);
+    expect((await get('notifications?role=CUSTOMER',buyer).expect(200)).body.items).toHaveLength(7);
+    expect((await get('notifications?role=CUSTOMER',stranger).expect(200)).body.items).toHaveLength(0);
+  });
+  it('T-052 TC-103 failure after inbox/job creation rolls back the originating order transaction',async()=>{
+    await pushDevice(owner);
+    const producer=app.get(NotificationsService),enqueue=producer.enqueue.bind(producer);
+    let noticeId:string|null=null;
+    const spy=jest.spyOn(producer,'enqueue').mockImplementationOnce(async(tx,event)=>{
+      noticeId=await enqueue(tx,event);throw new Error('Synthetic fan-out failure');
+    });
+    try {await place().expect(503);} finally {spy.mockRestore();}
+    expect(noticeId).not.toBeNull();
+    expect(await db.notifications.findUnique({where:{id:noticeId!}})).toBeNull();
+    expect(await db.notification_pushes.count({where:{notification_id:noticeId!}})).toBe(0);
+    expect(await db.outbox_events.count({where:{aggregate_type:'NOTIFICATION',aggregate_id:noticeId!}})).toBe(0);
+    expect(await db.orders.count({where:{vendor_id:vendorId}})).toBe(0);
+    expect(await db.order_requests.count({where:{user_id:buyer.id}})).toBe(0);
+  });
+  it('T-052 TC-103 orders preference suppresses customer order pushes while inbox remains durable',async()=>{
+    push.mockClear();await pushDevice(buyer);
+    await db.user_preferences.create({data:{user_id:buyer.id,notification_prefs:{orders:false,payments:true,delivery:true,system:true}}});
+    const id=(await place().expect(201)).body.id as string;await transition(id,{to:'ACCEPTED',version:1}).expect(201);
+    const notice=await db.notifications.findFirstOrThrow({where:{user_id:buyer.id,type:'ORDER_ACCEPTED'}});
+    const job=await db.notification_pushes.findFirstOrThrow({where:{notification_id:notice.id}});
+    await app.get(OutboxDispatcherService).dispatchPendingBatch(1,job.event_id);
+    expect((await db.notification_pushes.findUniqueOrThrow({where:{id:job.id}})).status).toBe('SKIPPED');expect(push).not.toHaveBeenCalled();
+    expect((await get('notifications?role=CUSTOMER&category=ORDERS').expect(200)).body.items).toHaveLength(1);
   });
   it('T-051 TC-240/241 owned history has snapshot summaries, vendor contact and persisted status times after expiry',async()=>{
     const id=(await place().expect(201)).body.id as string;
