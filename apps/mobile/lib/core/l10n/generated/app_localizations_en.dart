@@ -9,6 +9,50 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get customerOrdersOngoing => 'Ongoing';
+
+  @override
+  String get customerOrdersCallVendor => 'Call vendor';
+
+  @override
+  String get customerOrdersCancel => 'Cancel order';
+
+  @override
+  String get customerOrdersCancelConfirm =>
+      'Cancel this new order? There is no cancellation fee.';
+
+  @override
+  String get customerOrdersReorder => 'Reorder';
+
+  @override
+  String get customerOrdersReview => 'Review current prices and availability';
+
+  @override
+  String get customerOrdersAdd => 'Add available items to cart';
+
+  @override
+  String get customerOrdersUnavailable => 'Unavailable items';
+
+  @override
+  String get customerOrdersNoStock => 'Not enough stock for the saved quantity';
+
+  @override
+  String get customerOrdersMoq =>
+      'The saved quantity is below the current minimum';
+
+  @override
+  String get customerOrdersRemoved => 'Product is no longer available';
+
+  @override
+  String get customerOrdersConfirmed => 'Confirmed';
+
+  @override
+  String get customerOrdersPacked => 'Packed';
+
+  @override
+  String get customerOrdersNotYet => 'Not reached';
+
+  @override
   String get homeChooseLocation => 'Choose location';
 
   @override

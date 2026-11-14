@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/l10n/l10n.dart';
 import '../auth/session_controller.dart';
 import '../onboarding/onboarding_controller.dart';
+import '../orders/customer_orders_controller.dart';
 import 'notification_navigation.dart';
 import 'notifications_controller.dart';
 import 'push_gateway.dart';
@@ -127,6 +128,12 @@ class _NotificationHostState extends ConsumerState<NotificationHost>
           return;
         }
         if (_seen.length > 100) _seen.remove(_seen.first);
+        if (role == 'CUSTOMER' &&
+            ref.read(sessionProvider).user?.activeRole?.value == 'CUSTOMER' &&
+            (item.type.startsWith('ORDER_') ||
+                item.type == 'DELIVERY_FAILED')) {
+          unawaited(ref.read(customerOrdersProvider).refreshFromNotice());
+        }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(context.l10n.notificationsNew),
             action: SnackBarAction(

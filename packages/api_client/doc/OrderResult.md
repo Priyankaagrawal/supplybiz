@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**itemSummary** | **List&lt;String&gt;** |  | [optional]
 **id** | **String** |  |
 **orderNo** | **String** |  |
 **vendorId** | **String** |  |

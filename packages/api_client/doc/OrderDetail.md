@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**itemSummary** | **List&lt;String&gt;** |  | [optional]
 **id** | **String** |  |
 **orderNo** | **String** |  |
 **vendorId** | **String** |  |
@@ -20,6 +21,7 @@ Name | Type | Description | Notes
 **paymentStatus** | **String** |  |
 **source_** | **String** |  |
 **createdAt** | **String** |  |
+**vendorMobile** | **String** | Owned order vendor contact for dialer handoff. | [optional]
 **vendorName** | **String** |  |
 **customerName** | **String** |  |
 **customerMobile** | **String** |  |

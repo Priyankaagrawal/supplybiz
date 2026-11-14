@@ -94,6 +94,90 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @customerOrdersOngoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Ongoing'**
+  String get customerOrdersOngoing;
+
+  /// No description provided for @customerOrdersCallVendor.
+  ///
+  /// In en, this message translates to:
+  /// **'Call vendor'**
+  String get customerOrdersCallVendor;
+
+  /// No description provided for @customerOrdersCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get customerOrdersCancel;
+
+  /// No description provided for @customerOrdersCancelConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this new order? There is no cancellation fee.'**
+  String get customerOrdersCancelConfirm;
+
+  /// No description provided for @customerOrdersReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder'**
+  String get customerOrdersReorder;
+
+  /// No description provided for @customerOrdersReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review current prices and availability'**
+  String get customerOrdersReview;
+
+  /// No description provided for @customerOrdersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add available items to cart'**
+  String get customerOrdersAdd;
+
+  /// No description provided for @customerOrdersUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable items'**
+  String get customerOrdersUnavailable;
+
+  /// No description provided for @customerOrdersNoStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough stock for the saved quantity'**
+  String get customerOrdersNoStock;
+
+  /// No description provided for @customerOrdersMoq.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved quantity is below the current minimum'**
+  String get customerOrdersMoq;
+
+  /// No description provided for @customerOrdersRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Product is no longer available'**
+  String get customerOrdersRemoved;
+
+  /// No description provided for @customerOrdersConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get customerOrdersConfirmed;
+
+  /// No description provided for @customerOrdersPacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Packed'**
+  String get customerOrdersPacked;
+
+  /// No description provided for @customerOrdersNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reached'**
+  String get customerOrdersNotYet;
+
   /// No description provided for @homeChooseLocation.
   ///
   /// In en, this message translates to:

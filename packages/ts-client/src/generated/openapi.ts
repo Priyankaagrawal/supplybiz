@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/customer/orders/{id}/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerOrdersController_reorder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/orders/{id}": {
         parameters: {
             query?: never;
@@ -1505,6 +1521,7 @@ export interface components {
             expectedTotalPaise: string;
         };
         OrderResult: {
+            itemSummary?: string[];
             /** Format: uuid */
             id: string;
             orderNo: string;
@@ -1520,6 +1537,43 @@ export interface components {
             paymentStatus: string;
             source: string;
             createdAt: string;
+        };
+        ProductResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            productType: string;
+            milkType: string | null;
+            unitValue: number;
+            /** @enum {string} */
+            unitType: "ML" | "L" | "G" | "KG" | "PCS";
+            sellingPricePaise: number;
+            subscriptionPricePaise: number | null;
+            stockQty: number;
+            moq: number;
+            description: string;
+            /** Format: uuid */
+            imageMediaId: string | null;
+            isActive: boolean;
+            version: number;
+        };
+        ReorderLine: {
+            product: components["schemas"]["ProductResponse"];
+            qty: number;
+        };
+        ReorderUnavailable: {
+            /** Format: uuid */
+            productId: string;
+            name: string;
+            /** @enum {string} */
+            reason: "PRODUCT_UNAVAILABLE" | "BELOW_MOQ" | "INSUFFICIENT_STOCK";
+        };
+        OrderReorder: {
+            /** Format: uuid */
+            vendorId: string;
+            vendorName: string;
+            items: components["schemas"]["ReorderLine"][];
+            unavailable: components["schemas"]["ReorderUnavailable"][];
         };
         OrderList: {
             items: components["schemas"]["OrderResult"][];
@@ -1548,6 +1602,7 @@ export interface components {
             at: string;
         };
         OrderDetail: {
+            itemSummary?: string[];
             /** Format: uuid */
             id: string;
             orderNo: string;
@@ -1563,6 +1618,8 @@ export interface components {
             paymentStatus: string;
             source: string;
             createdAt: string;
+            /** @description Owned order vendor contact for dialer handoff. */
+            vendorMobile?: string | null;
             vendorName: string | null;
             customerName: string;
             customerMobile: string;
@@ -1734,25 +1791,6 @@ export interface components {
                 date?: string;
                 reason?: string;
             }[];
-        };
-        ProductResponse: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            productType: string;
-            milkType: string | null;
-            unitValue: number;
-            /** @enum {string} */
-            unitType: "ML" | "L" | "G" | "KG" | "PCS";
-            sellingPricePaise: number;
-            subscriptionPricePaise: number | null;
-            stockQty: number;
-            moq: number;
-            description: string;
-            /** Format: uuid */
-            imageMediaId: string | null;
-            isActive: boolean;
-            version: number;
         };
         ProductList: {
             items: components["schemas"]["ProductResponse"][];
@@ -2886,6 +2924,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OrderResult"];
+                };
+            };
+            /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing/revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+            /** @description BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT, MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderProblem"];
+                };
+            };
+        };
+    };
+    CustomerOrdersController_reorder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Read-only owned past-order cart preview at current product prices; no reservation or new order. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderReorder"];
                 };
             };
             /** @description Invalid input, forbidden checkout payment mode or missing mutation key. */

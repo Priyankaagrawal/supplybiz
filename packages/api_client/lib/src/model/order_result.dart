@@ -16,6 +16,7 @@ part 'order_result.g.dart';
 class OrderResult {
   /// Returns a new [OrderResult] instance.
   OrderResult({
+    this.itemSummary,
     required this.id,
     required this.orderNo,
     required this.vendorId,
@@ -29,6 +30,13 @@ class OrderResult {
     required this.source_,
     required this.createdAt,
   });
+
+  @JsonKey(
+    name: r'itemSummary',
+    required: false,
+    includeIfNull: false,
+  )
+  final List<String>? itemSummary;
 
   @JsonKey(
     name: r'id',
@@ -118,6 +126,7 @@ class OrderResult {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OrderResult &&
+          other.itemSummary == itemSummary &&
           other.id == id &&
           other.orderNo == orderNo &&
           other.vendorId == vendorId &&
@@ -133,6 +142,7 @@ class OrderResult {
 
   @override
   int get hashCode =>
+      itemSummary.hashCode +
       id.hashCode +
       orderNo.hashCode +
       vendorId.hashCode +

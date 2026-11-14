@@ -14,6 +14,7 @@ function run(args, cwd = root) {
   if (result.error || result.status !== 0) process.exit(result.status || 1);
 }
 const apiTests = {
+  'T-051': ['src/modules/orders/orders.postgres.spec.ts', 'src/modules/orders/deliveries.postgres.spec.ts'],
   'T-071': ['src/modules/ledger/payments.postgres.spec.ts', 'src/modules/orders/deliveries.postgres.spec.ts'],
   'T-049': ['src/modules/orders/deliveries.postgres.spec.ts'],
   'T-046': ['src/modules/orders/orders.postgres.spec.ts'],
@@ -54,7 +55,7 @@ if (!tasks.length || tasks.some(id => ![...Object.keys(apiTests), 'T-002', 'T-00
 }
 if (process.env.CHECK_LAYER) {
   tasks = tasks.filter(id => process.env.CHECK_LAYER === 'api'
-    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-029', 'T-043', 'T-044', 'T-046', 'T-047', 'T-048', 'T-183'].includes(id));
+    ? id in apiTests || id === 'T-002' : ['T-009', 'T-016', 'T-017', 'T-024', 'T-025', 'T-027', 'T-029', 'T-043', 'T-044', 'T-046', 'T-047', 'T-048', 'T-051', 'T-183'].includes(id));
   if (!tasks.length) { console.error('No focused task for the affected layer. Register its task checks first.'); process.exit(1); }
 }
 function checkoutMobile() {
@@ -63,7 +64,17 @@ function checkoutMobile() {
     run([flutter, 'test', '--no-pub', 'test/features/checkout', 'test/features/discovery', 'test/core/router/guards_test.dart', 'test/core/router/app_router_test.dart'], mobile);
     run([flutter, 'build', 'apk', '--debug', '--flavor', 'dev', '-t', 'lib/main_dev.dart', '--dart-define-from-file=config/dev.json', '--no-pub'], mobile);
 }
+function customerOrdersMobile() {
+  const mobile=resolve(root,'apps/mobile');
+  run([flutter,'analyze','--no-pub'],mobile);
+  run([flutter,'test','--no-pub','test/features/orders','test/features/discovery','test/core/router/guards_test.dart','test/core/router/app_router_test.dart'],mobile);
+  run([flutter,'build','apk','--debug','--flavor','dev','-t','lib/main_dev.dart','--dart-define-from-file=config/dev.json','--no-pub'],mobile);
+}
 for (const task of tasks) {
+  if(task==='T-051' && process.env.CHECK_LAYER==='mobile') {
+    customerOrdersMobile();
+    continue;
+  }
   if (task === 'T-048') {
     const mobile = resolve(root, 'apps/mobile');
     run([flutter, 'analyze', '--no-pub'], mobile);
@@ -142,6 +153,7 @@ for (const task of tasks) {
     run(api('exec', 'jest', '--runInBand', ...(['T-103', 'T-156', 'T-155'].includes(task) ? ['--testTimeout=60000'] : []), '--runTestsByPath', ...apiTests[task]));
     run(api('exec', 'jest', '--config', 'test/jest-e2e.json', '--runInBand', '--runTestsByPath', 'test/native-runtime.e2e-spec.ts'));
     if (task === 'T-046' && !process.env.CHECK_LAYER) checkoutMobile();
+    if (task === 'T-051' && !process.env.CHECK_LAYER) customerOrdersMobile();
     if (!['T-017', 'T-027'].includes(task) || process.env.CHECK_LAYER === 'api') continue;
   }
   if (task === 'T-029') {

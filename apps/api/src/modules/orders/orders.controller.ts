@@ -7,6 +7,7 @@ import { OrderCancelInput, OrderDetail, OrderList, OrderPlaceInput, OrderProblem
 import { OrdersService } from './orders.service';
 import { CheckoutOptions, CheckoutOptionsQuery } from './orders.dto';
 import { DeliveryList, DeliveryQuery } from './orders.dto';
+import { OrderReorder } from './orders.dto';
 type AuthRequest = Request & {session:{userId:string}};
 @ApiTags('customer-orders') @ApiBearerAuth() @UseGuards(SessionGuard)
 @SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('customer/orders')
@@ -24,6 +25,8 @@ export class CustomerOrdersController {
   quote(@Req() r:AuthRequest,@Body() input:OrderQuoteInput) { return this.orders.quote(r.session.userId,input); }
   @Post() @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:OrderResult})
   place(@Req() r:AuthRequest,@Headers('Idempotency-Key') key:string,@Body() input:OrderPlaceInput) { return this.orders.place(r.session.userId,key,input); }
+  @Post(':id/reorder') @Header('Cache-Control','no-store') @ApiResponse({status:201,type:OrderReorder,description:'Read-only owned past-order cart preview at current product prices; no reservation or new order.'})
+  reorder(@Req() r:AuthRequest,@Param('id',ParseUUIDPipe) id:string) { return this.orders.reorder(r.session.userId,id); }
   @Get() @Header('Cache-Control','no-store') @ApiResponse({status:200,type:OrderList})
   list(@Req() r:AuthRequest,@Query() q:OrderQuery) { return this.orders.list(r.session.userId,'CUSTOMER',q); }
   @Get(':id') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:OrderDetail})

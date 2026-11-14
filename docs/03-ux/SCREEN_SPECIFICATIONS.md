@@ -217,6 +217,17 @@ Tabs One Time | Subscription; category tabs Milk & Dairy | Water Can; product ro
 ### S-C-14 Order tracking (WF-10)
 Order no., product, date, status chip; 4-step timeline Confirmed → Packed → Out for Delivery → Delivered (timestamps); vendor card with Call (replaces "Delivery partner" in WF-10); delivery address. Map omitted (F-D3). Cancel button when NEW; Rate button when DELIVERED.
 
+T-051 active implementation: S-C-13 uses All/Ongoing/Delivered/Cancelled server
+tabs, snapshot item summaries, paise/date/status cards and pagination. S-C-14
+renders only persisted step timestamps (unreached steps have no invented times),
+bill/address/vendor contact and rejection/cancellation/failure reasons. Rate is
+absent under SR-05. NEW cancellation is confirmed as fee-free (ADR-032), with a
+durable same-key retry after uncertain delivery. Pull refresh and trusted owned
+foreground order notices refresh current detail/list; cached offline data is
+labeled and cannot authorize actions. Past-order reorder reviews current prices
+and unavailable items, confirms replacing another vendor's cart, respects the
+checkout lock and writes the reviewed batch atomically to the local cart.
+
 ### S-C-18 Vendor ledger (WF-11)
 Month selector; summary tiles Total Payable (red tint) / Total Paid (green tint); entries grouped by date (product, qty, amount, Pending/Paid). CTA "Settle Payment" → S-C-20 (amount default = payable, editable per RULE-18).
 

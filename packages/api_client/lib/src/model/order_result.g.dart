@@ -28,6 +28,8 @@ OrderResult _$OrderResultFromJson(Map<String, dynamic> json) => $checkedCreate(
           ],
         );
         final val = OrderResult(
+          itemSummary: $checkedConvert('itemSummary',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           id: $checkedConvert('id', (v) => v as String),
           orderNo: $checkedConvert('orderNo', (v) => v as String),
           vendorId: $checkedConvert('vendorId', (v) => v as String),
@@ -49,6 +51,7 @@ OrderResult _$OrderResultFromJson(Map<String, dynamic> json) => $checkedCreate(
 
 Map<String, dynamic> _$OrderResultToJson(OrderResult instance) =>
     <String, dynamic>{
+      if (instance.itemSummary case final value?) 'itemSummary': value,
       'id': instance.id,
       'orderNo': instance.orderNo,
       'vendorId': instance.vendorId,

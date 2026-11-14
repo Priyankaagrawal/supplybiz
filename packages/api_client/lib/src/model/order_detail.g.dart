@@ -40,6 +40,8 @@ OrderDetail _$OrderDetailFromJson(Map<String, dynamic> json) => $checkedCreate(
           ],
         );
         final val = OrderDetail(
+          itemSummary: $checkedConvert('itemSummary',
+              (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           id: $checkedConvert('id', (v) => v as String),
           orderNo: $checkedConvert('orderNo', (v) => v as String),
           vendorId: $checkedConvert('vendorId', (v) => v as String),
@@ -53,6 +55,7 @@ OrderDetail _$OrderDetailFromJson(Map<String, dynamic> json) => $checkedCreate(
           paymentStatus: $checkedConvert('paymentStatus', (v) => v as String),
           source_: $checkedConvert('source', (v) => v as String),
           createdAt: $checkedConvert('createdAt', (v) => v as String),
+          vendorMobile: $checkedConvert('vendorMobile', (v) => v as String?),
           vendorName: $checkedConvert('vendorName', (v) => v as String?),
           customerName: $checkedConvert('customerName', (v) => v as String),
           customerMobile: $checkedConvert('customerMobile', (v) => v as String),
@@ -85,6 +88,7 @@ OrderDetail _$OrderDetailFromJson(Map<String, dynamic> json) => $checkedCreate(
 
 Map<String, dynamic> _$OrderDetailToJson(OrderDetail instance) =>
     <String, dynamic>{
+      if (instance.itemSummary case final value?) 'itemSummary': value,
       'id': instance.id,
       'orderNo': instance.orderNo,
       'vendorId': instance.vendorId,
@@ -97,6 +101,7 @@ Map<String, dynamic> _$OrderDetailToJson(OrderDetail instance) =>
       'paymentStatus': instance.paymentStatus,
       'source': instance.source_,
       'createdAt': instance.createdAt,
+      if (instance.vendorMobile case final value?) 'vendorMobile': value,
       'vendorName': instance.vendorName,
       'customerName': instance.customerName,
       'customerMobile': instance.customerMobile,

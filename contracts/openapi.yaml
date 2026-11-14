@@ -334,6 +334,48 @@ paths:
         - customer-orders
       security:
         - bearer: []
+  /api/v1/customer/orders/{id}/reorder:
+    post:
+      operationId: CustomerOrdersController_reorder
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Read-only owned past-order cart preview at current product prices; no reservation or new order.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderReorder'
+        '400':
+          description: Invalid input, forbidden checkout payment mode or missing mutation key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: CUSTOMER_ROLE_REQUIRED, CUSTOMER_INACTIVE or PLAN_FEATURE_LOCKED.
+        '404':
+          description: ORDER_NOT_FOUND, ADDRESS_NOT_FOUND or VENDOR_UNAVAILABLE; foreign IDs hidden.
+        '409':
+          description: PRICE_CHANGED (includes fresh quote), CUSTOMER_LINK_REQUIRED, VERSION_CONFLICT or INVALID_STATE_TRANSITION.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+        '422':
+          description: >-
+            BELOW_MOQ, OUT_OF_STOCK, NOT_SERVICEABLE, PAST_CUTOFF, VENDOR_HOLIDAY, DELIVERY_PAUSED, INVALID_TIME_SLOT,
+            MIN_ORDER_NOT_MET, CAPACITY_REACHED, PLAN_CUSTOMER_LIMIT or IDEMPOTENCY_MISMATCH.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderProblem'
+      tags:
+        - customer-orders
+      security:
+        - bearer: []
   /api/v1/customer/orders/{id}:
     get:
       operationId: CustomerOrdersController_detail
@@ -4025,6 +4067,10 @@ components:
     OrderResult:
       type: object
       properties:
+        itemSummary:
+          type: array
+          items:
+            type: string
         id:
           type: string
           format: uuid
@@ -4065,6 +4111,112 @@ components:
         - paymentStatus
         - source
         - createdAt
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        productType:
+          type: string
+        milkType:
+          type: string
+          nullable: true
+        unitValue:
+          type: number
+        unitType:
+          type: string
+          enum:
+            - ML
+            - L
+            - G
+            - KG
+            - PCS
+        sellingPricePaise:
+          type: integer
+        subscriptionPricePaise:
+          type: integer
+          nullable: true
+        stockQty:
+          type: integer
+        moq:
+          type: integer
+        description:
+          type: string
+        imageMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        isActive:
+          type: boolean
+        version:
+          type: integer
+      required:
+        - id
+        - name
+        - productType
+        - milkType
+        - unitValue
+        - unitType
+        - sellingPricePaise
+        - subscriptionPricePaise
+        - stockQty
+        - moq
+        - description
+        - imageMediaId
+        - isActive
+        - version
+    ReorderLine:
+      type: object
+      properties:
+        product:
+          $ref: '#/components/schemas/ProductResponse'
+        qty:
+          type: integer
+      required:
+        - product
+        - qty
+    ReorderUnavailable:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        reason:
+          type: string
+          enum:
+            - PRODUCT_UNAVAILABLE
+            - BELOW_MOQ
+            - INSUFFICIENT_STOCK
+      required:
+        - productId
+        - name
+        - reason
+    OrderReorder:
+      type: object
+      properties:
+        vendorId:
+          type: string
+          format: uuid
+        vendorName:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReorderLine'
+        unavailable:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReorderUnavailable'
+      required:
+        - vendorId
+        - vendorName
+        - items
+        - unavailable
     OrderList:
       type: object
       properties:
@@ -4140,6 +4292,10 @@ components:
     OrderDetail:
       type: object
       properties:
+        itemSummary:
+          type: array
+          items:
+            type: string
         id:
           type: string
           format: uuid
@@ -4167,6 +4323,10 @@ components:
           type: string
         createdAt:
           type: string
+        vendorMobile:
+          type: string
+          nullable: true
+          description: Owned order vendor contact for dialer handoff.
         vendorName:
           type: string
           nullable: true
@@ -4642,63 +4802,6 @@ components:
         - minOrderPaise
         - openingHours
         - holidays
-    ProductResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        productType:
-          type: string
-        milkType:
-          type: string
-          nullable: true
-        unitValue:
-          type: number
-        unitType:
-          type: string
-          enum:
-            - ML
-            - L
-            - G
-            - KG
-            - PCS
-        sellingPricePaise:
-          type: integer
-        subscriptionPricePaise:
-          type: integer
-          nullable: true
-        stockQty:
-          type: integer
-        moq:
-          type: integer
-        description:
-          type: string
-        imageMediaId:
-          type: string
-          format: uuid
-          nullable: true
-        isActive:
-          type: boolean
-        version:
-          type: integer
-      required:
-        - id
-        - name
-        - productType
-        - milkType
-        - unitValue
-        - unitType
-        - sellingPricePaise
-        - subscriptionPricePaise
-        - stockQty
-        - moq
-        - description
-        - imageMediaId
-        - isActive
-        - version
     ProductList:
       type: object
       properties:

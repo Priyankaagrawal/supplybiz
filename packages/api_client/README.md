@@ -119,6 +119,7 @@ Class | Method | HTTP request | Description
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerOptions**](doc/CustomerOrdersApi.md#customerorderscontrolleroptions) | **GET** /api/v1/customer/orders/options |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerPlace**](doc/CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerQuote**](doc/CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
+[*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerReorder**](doc/CustomerOrdersApi.md#customerorderscontrollerreorder) | **POST** /api/v1/customer/orders/{id}/reorder |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAdd**](doc/DiscoveryApi.md#discoverycontrolleradd) | **PUT** /api/v1/customer/favorites/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerFavorites**](doc/DiscoveryApi.md#discoverycontrollerfavorites) | **GET** /api/v1/customer/favorites |
@@ -247,6 +248,7 @@ Class | Method | HTTP request | Description
  - [OrderProblem](doc/OrderProblem.md)
  - [OrderQuote](doc/OrderQuote.md)
  - [OrderQuoteInput](doc/OrderQuoteInput.md)
+ - [OrderReorder](doc/OrderReorder.md)
  - [OrderResult](doc/OrderResult.md)
  - [OrderStatusEvent](doc/OrderStatusEvent.md)
  - [OrderTransitionInput](doc/OrderTransitionInput.md)
@@ -269,6 +271,8 @@ Class | Method | HTTP request | Description
  - [ReadNotifications](doc/ReadNotifications.md)
  - [RecordPaymentInput](doc/RecordPaymentInput.md)
  - [RefreshDto](doc/RefreshDto.md)
+ - [ReorderLine](doc/ReorderLine.md)
+ - [ReorderUnavailable](doc/ReorderUnavailable.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)

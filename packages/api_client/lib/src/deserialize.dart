@@ -73,6 +73,7 @@ import 'package:supplybiz_api_client/src/model/order_priced_line.dart';
 import 'package:supplybiz_api_client/src/model/order_problem.dart';
 import 'package:supplybiz_api_client/src/model/order_quote.dart';
 import 'package:supplybiz_api_client/src/model/order_quote_input.dart';
+import 'package:supplybiz_api_client/src/model/order_reorder.dart';
 import 'package:supplybiz_api_client/src/model/order_result.dart';
 import 'package:supplybiz_api_client/src/model/order_status_event.dart';
 import 'package:supplybiz_api_client/src/model/order_transition_input.dart';
@@ -95,6 +96,8 @@ import 'package:supplybiz_api_client/src/model/product_response.dart';
 import 'package:supplybiz_api_client/src/model/read_notifications.dart';
 import 'package:supplybiz_api_client/src/model/record_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
+import 'package:supplybiz_api_client/src/model/reorder_line.dart';
+import 'package:supplybiz_api_client/src/model/reorder_unavailable.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
@@ -332,6 +335,8 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'OrderQuoteInput':
       return OrderQuoteInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'OrderReorder':
+      return OrderReorder.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'OrderResult':
       return OrderResult.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'OrderStatusEvent':
@@ -392,6 +397,11 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'RefreshDto':
       return RefreshDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ReorderLine':
+      return ReorderLine.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ReorderUnavailable':
+      return ReorderUnavailable.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'RoleDto':
       return RoleDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'SendOtpDto':

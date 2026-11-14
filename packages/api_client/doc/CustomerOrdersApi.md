@@ -15,6 +15,7 @@ Method | HTTP request | Description
 [**customerOrdersControllerOptions**](CustomerOrdersApi.md#customerorderscontrolleroptions) | **GET** /api/v1/customer/orders/options |
 [**customerOrdersControllerPlace**](CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
 [**customerOrdersControllerQuote**](CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
+[**customerOrdersControllerReorder**](CustomerOrdersApi.md#customerorderscontrollerreorder) | **POST** /api/v1/customer/orders/{id}/reorder |
 
 
 # **customerOrdersControllerCancel**
@@ -277,6 +278,47 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **customerOrdersControllerReorder**
+> OrderReorder customerOrdersControllerReorder(id)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getCustomerOrdersApi();
+final String id = id_example; // String |
+
+try {
+    final response = api.customerOrdersControllerReorder(id);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling CustomerOrdersApi->customerOrdersControllerReorder: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+
+### Return type
+
+[**OrderReorder**](OrderReorder.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

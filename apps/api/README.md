@@ -1,5 +1,20 @@
 # Supply Biz API
 
+## T-051 customer tracking/reorder support (2026-11-14)
+
+Owned order lists now include optional saved item summaries; detail includes
+vendorMobile for the customer's dialer. Read-only POST
+`/api/v1/customer/orders/{id}/reorder` accepts only an owned terminal/past order,
+checks active customer/current vendor eligibility and NEW_ORDER entitlement,
+and returns current ProductResponse/quantity rows plus explicit unavailable
+product names/reasons. No order, ledger, stock, replay or notification writes are
+made. Checkout still revalidates the complete business rules. History stays
+readable after plan expiry; fresh reorder remains new business and is gated.
+No schema/migration/dependency change. OpenAPI/TS/Dart regenerated from source;
+four targeted native cases and API/client checks pass. See the
+[mobile T-051 handoff](../mobile/README.md) for exact commands, evidence limits
+and five manual steps. Manual PASS, live UI/API/DB/providers and G2 are pending.
+
 ## T-071 payment wiring handoff (2026-11-14): READY_FOR_VERIFY
 
 RULE-10 / FR-112/114 / US-111: vendor-owned POST `/api/v1/vendor/payments`

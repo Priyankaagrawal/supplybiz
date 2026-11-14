@@ -141,6 +141,32 @@ class CartController extends ChangeNotifier {
   }
 
   Future<void> clear() => _write([]);
+
+  /// T-051: one encrypted write for the whole reviewed reorder, never partial adds.
+  Future<CartChange> addReorder(OrderReorder preview,
+      {bool replace = false}) async {
+    if (!canEdit || preview.items.isEmpty) return CartChange.unavailable;
+    final mixed = lines.isNotEmpty && lines.first.vendorId != preview.vendorId;
+    if (mixed && !replace) return CartChange.replaceVendor;
+    final next = mixed ? <CartLine>[] : List<CartLine>.of(lines);
+    for (final item in preview.items) {
+      final p = item.product,
+          index = next.indexWhere((l) => l.product.id == p.id);
+      final qty = item.qty + (index < 0 ? 0 : next[index].qty);
+      if (!p.isActive || item.qty <= 0 || qty < p.moq || qty > p.stockQty) {
+        return CartChange.invalid;
+      }
+      final row = CartLine(preview.vendorId, preview.vendorName, p, qty);
+      if (index < 0) {
+        next.add(row);
+      } else {
+        next[index] = row;
+      }
+    }
+    if (next.length > 100) return CartChange.invalid;
+    return await _write(next) ? CartChange.saved : CartChange.unavailable;
+  }
+
   Future<bool> clearPurchased() => _write([], purchased: true);
   Future<bool> quantity(String id, int qty) async {
     final next = List<CartLine>.of(lines),

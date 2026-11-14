@@ -57,6 +57,39 @@ native('T-045 native order HTTP/DB critical checks',()=>{
     if(categoryId)await db.categories.update({where:{id:categoryId},data:{status:'HIDDEN'}});
     await app?.close();await db.$disconnect();for(const k of Object.keys(process.env))if(!(k in env))delete process.env[k];Object.assign(process.env,env);
   });
+  it('T-051 TC-240/241 owned history has snapshot summaries, vendor contact and persisted status times after expiry',async()=>{
+    const id=(await place().expect(201)).body.id as string;
+    await transition(id,{to:'ACCEPTED',version:1}).expect(201);
+    const detail=(await get(`customer/orders/${id}`).expect(200)).body;
+    expect(detail.vendorMobile).toBe(owner.mobile);expect(detail.items[0].name).toBe('Synthetic milk snapshot');
+    expect(detail.timeline.map((e:{status:string})=>e.status)).toEqual(['NEW','ACCEPTED']);
+    await db.products.update({where:{id:productId},data:{name:'Synthetic changed name'}});
+    await db.vendor_plan_assignments.updateMany({where:{vendor_id:vendorId},data:{starts_at:new Date(Date.now()-60000),ends_at:new Date(Date.now()-1000)}});
+    const list=(await get('customer/orders?tab=ONGOING').expect(200)).body;
+    expect(list).toMatchObject({total:1,items:[{id,itemSummary:['Synthetic milk snapshot × 2']}]});
+    expect((await get('customer/orders?tab=DELIVERED').expect(200)).body.total).toBe(0);
+    await get(`customer/orders/${id}`,stranger).expect(404);await post(`customer/orders/${id}/reorder`,{},stranger).expect(404);
+    await post(`customer/orders/${id}/cancel`,{version:2}).expect(409);
+  });
+  it('T-051 TC-244 reorder previews current prices, lists unavailable products and never creates financial/order effects',async()=>{
+    const other=await db.products.create({data:{vendor_id:vendorId,name:'Synthetic extra',product_type:'OTHER',unit_type:'PCS',unit_value:1,selling_price_paise:100,stock_qty:5}});
+    const body={...input,items:[...input.items,{productId:other.id,qty:1}],expectedTotalPaise:'25290'};
+    const id=(await place(body).expect(201)).body.id as string;
+    await post(`customer/orders/${id}/reorder`,{}).expect(409);
+    await post(`customer/orders/${id}/cancel`,{version:1}).expect(201);
+    await db.products.update({where:{id:productId},data:{selling_price_paise:20000}});
+    await db.products.update({where:{id:other.id},data:{deleted_at:new Date(),is_active:false}});
+    const preview=(await post(`customer/orders/${id}/reorder`,{}).expect(201)).body;
+    expect(preview).toMatchObject({vendorId,items:[{qty:2,product:{id:productId,sellingPricePaise:20000}}],unavailable:[{productId:other.id,reason:'PRODUCT_UNAVAILABLE'}]});
+    expect(await db.orders.count({where:{vendor_id:vendorId}})).toBe(1);
+    expect(await db.ledger_entries.count({where:{vendor_id:vendorId}})).toBe(0);
+    expect(await db.stock_movements.count({where:{product_id:productId}})).toBe(0);
+    await db.products.update({where:{id:productId},data:{moq:3}});
+    expect((await post(`customer/orders/${id}/reorder`,{}).expect(201)).body.unavailable).toEqual(expect.arrayContaining([expect.objectContaining({productId,reason:'BELOW_MOQ'})]));
+    await db.products.update({where:{id:productId},data:{moq:1,stock_qty:1}});
+    expect((await post(`customer/orders/${id}/reorder`,{}).expect(201)).body.unavailable).toEqual(expect.arrayContaining([expect.objectContaining({productId,reason:'INSUFFICIENT_STOCK'})]));
+    await db.vendors.update({where:{id:vendorId},data:{is_suspended:true}});await post(`customer/orders/${id}/reorder`,{}).expect(403);
+  });
   it('TC-220/226/227 quotes without writes; snapshots, exact totals, atomic notices and permanent restart replay',async()=>{
     const {expectedTotalPaise:_,...quote}=input;
     const result=await post('customer/orders/quote',quote).expect(201);

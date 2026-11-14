@@ -19,6 +19,7 @@ part 'order_detail.g.dart';
 class OrderDetail {
   /// Returns a new [OrderDetail] instance.
   OrderDetail({
+    this.itemSummary,
     required this.id,
     required this.orderNo,
     required this.vendorId,
@@ -31,6 +32,7 @@ class OrderDetail {
     required this.paymentStatus,
     required this.source_,
     required this.createdAt,
+    this.vendorMobile,
     required this.vendorName,
     required this.customerName,
     required this.customerMobile,
@@ -44,6 +46,13 @@ class OrderDetail {
     required this.cancelReason,
     required this.failReason,
   });
+
+  @JsonKey(
+    name: r'itemSummary',
+    required: false,
+    includeIfNull: false,
+  )
+  final List<String>? itemSummary;
 
   @JsonKey(
     name: r'id',
@@ -128,6 +137,14 @@ class OrderDetail {
     includeIfNull: false,
   )
   final String createdAt;
+
+  /// Owned order vendor contact for dialer handoff.
+  @JsonKey(
+    name: r'vendorMobile',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? vendorMobile;
 
   @JsonKey(
     name: r'vendorName',
@@ -217,6 +234,7 @@ class OrderDetail {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is OrderDetail &&
+          other.itemSummary == itemSummary &&
           other.id == id &&
           other.orderNo == orderNo &&
           other.vendorId == vendorId &&
@@ -229,6 +247,7 @@ class OrderDetail {
           other.paymentStatus == paymentStatus &&
           other.source_ == source_ &&
           other.createdAt == createdAt &&
+          other.vendorMobile == vendorMobile &&
           other.vendorName == vendorName &&
           other.customerName == customerName &&
           other.customerMobile == customerMobile &&
@@ -244,6 +263,7 @@ class OrderDetail {
 
   @override
   int get hashCode =>
+      itemSummary.hashCode +
       id.hashCode +
       orderNo.hashCode +
       vendorId.hashCode +
@@ -256,6 +276,7 @@ class OrderDetail {
       paymentStatus.hashCode +
       source_.hashCode +
       createdAt.hashCode +
+      (vendorMobile == null ? 0 : vendorMobile.hashCode) +
       (vendorName == null ? 0 : vendorName.hashCode) +
       customerName.hashCode +
       customerMobile.hashCode +

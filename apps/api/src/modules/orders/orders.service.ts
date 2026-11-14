@@ -13,8 +13,9 @@ import { homeClock } from '../home/home.service';
 import { OrderCancelInput, OrderPlaceInput, OrderQuery, OrderQuoteInput, OrderTransitionInput } from './orders.dto';
 import { DeliveryQuery } from './orders.dto';
 import { DeliveryEffectsService } from './delivery-effects.service';
+import { OrderReorder } from './orders.dto';
 type Tx = Prisma.TransactionClient;
-const orderRead={items:{orderBy:{id:'asc' as const}},timeline:{orderBy:[{at:'asc' as const},{id:'asc' as const}]},customer:true,vendor:true} satisfies Prisma.ordersInclude;
+const orderRead={items:{orderBy:{id:'asc' as const}},timeline:{orderBy:[{at:'asc' as const},{id:'asc' as const}]},customer:true,vendor:{include:{user:true}}} satisfies Prisma.ordersInclude;
 type OrderRead=Prisma.ordersGetPayload<{include:typeof orderRead}>;
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const ongoing = ['NEW','ACCEPTED','PREPARING','OUT_FOR_DELIVERY'];
@@ -166,9 +167,38 @@ export class OrdersService {
       const term = q.q?.replace(/[\\%_]/g,'\\$&');
       const where: Prisma.ordersWhereInput = {...scope,status,delivery_date:q.date?orderDate(q.date):undefined,
         ...(term?{OR:[{order_no:{contains:term,mode:'insensitive'}},{customer:{name:{contains:term,mode:'insensitive'}}}]}:{})};
-      const [rows,total] = await Promise.all([tx.orders.findMany({where,orderBy:[{created_at:'desc'},{id:'desc'}],take:q.limit ?? 20,skip:q.offset ?? 0}),tx.orders.count({where})]);
-      return {items:rows.map(o=>this.present(o)),total};
+      const [rows,total] = await Promise.all([tx.orders.findMany({where,include:{items:{orderBy:{id:'asc'}}},orderBy:[{created_at:'desc'},{id:'desc'}],take:q.limit ?? 20,skip:q.offset ?? 0}),tx.orders.count({where})]);
+      return {items:rows.map(o=>({...this.present(o),itemSummary:o.items.map(i=>`${i.product_name_snapshot} × ${i.qty}`)})),total};
     },{isolationLevel:'RepeatableRead'}).catch(unavailable);
+  }
+  reorder(userId:string,id:string) {
+    return this.db.$transaction(async tx=>{
+      const order=await this.owned(tx,userId,'CUSTOMER',id);
+      if(!['DELIVERED','FAILED','CANCELLED','REJECTED'].includes(order.status)) throw new ConflictException({code:'INVALID_STATE_TRANSITION'});
+      await this.plans.requireOperation(tx,order.vendor_id,'NEW_ORDER');
+      const vendor=await tx.vendors.findUniqueOrThrow({where:{id:order.vendor_id},include:{user:true,category:true}});
+      if(vendor.kyc_status!=='VERIFIED' || vendor.user.status!=='ACTIVE' || vendor.category.status!=='ENABLED' || vendor.category.type!=='SUPPLY') throw new NotFoundException({code:'VENDOR_UNAVAILABLE'});
+      const customer=await tx.vendor_customers.findUniqueOrThrow({where:{id:order.vendor_customer_id}});
+      if(customer.deleted_at || customer.status!=='ACTIVE') throw new UnprocessableEntityException({code:'CUSTOMER_INACTIVE'});
+      const saved=await tx.order_items.findMany({where:{order_id:id},orderBy:{id:'asc'}});
+      const quantities=new Map<string,{name:string;qty:bigint}>();
+      for(const i of saved) {
+        const previous=quantities.get(i.product_id);
+        quantities.set(i.product_id,{name:i.product_name_snapshot,qty:(previous?.qty??0n)+BigInt(i.qty)});
+      }
+      const products=await tx.products.findMany({where:{vendor_id:vendor.id,id:{in:[...quantities.keys()]},deleted_at:null,is_active:true}});
+      const result:OrderReorder={vendorId:vendor.id,vendorName:vendor.business_name??'',items:[],unavailable:[]};
+      for(const [productId,line] of quantities) {
+        const p=products.find(p=>p.id===productId);
+        const reason=!p?'PRODUCT_UNAVAILABLE':line.qty<=0n || line.qty<BigInt(p.moq)?'BELOW_MOQ':line.qty>BigInt(p.stock_qty)?'INSUFFICIENT_STOCK':null;
+        if(reason || !p) {result.unavailable.push({productId,name:line.name,reason:reason!});continue;}
+        result.items.push({qty:Number(line.qty),product:{id:p.id,name:p.name,productType:p.product_type,milkType:p.milk_type,unitValue:p.unit_value.toNumber(),unitType:p.unit_type,
+          sellingPricePaise:p.selling_price_paise,subscriptionPricePaise:p.subscription_price_paise,stockQty:p.stock_qty,moq:p.moq,description:p.description,
+          imageMediaId:p.image_media_id,isActive:p.is_active,version:p.version}});
+      }
+      // Cart preview only: no order, stock, ledger, notice or replay writes.
+      return result;
+    },{isolationLevel:'RepeatableRead',timeout:15000}).catch(unavailable);
   }
   detail(userId: string,role: user_role_type,id: string) {
     return this.db.$transaction(async tx=>{
@@ -177,7 +207,7 @@ export class OrdersService {
     },{isolationLevel:'RepeatableRead'}).catch(unavailable);
   }
   private presentDetail(full:OrderRead) {
-    return {...this.present(full),vendorName:full.vendor.business_name,customerName:full.customer.name,customerMobile:full.customer.mobile,address:full.address_snapshot,
+    return {...this.present(full),vendorMobile:full.vendor.user.mobile,vendorName:full.vendor.business_name,customerName:full.customer.name,customerMobile:full.customer.mobile,address:full.address_snapshot,
       subtotalPaise:String(full.subtotal_paise),deliveryChargePaise:String(full.delivery_charge_paise),discountPaise:String(full.discount_paise),
       rejectReason:full.reject_reason,cancelReason:full.cancel_reason,failReason:full.fail_reason,
       items:full.items.map(i=>{const unit=i.unit_snapshot as {value?:string|number;type?:string};return {productId:i.product_id,name:i.product_name_snapshot,qty:i.qty,unitValue:String(unit.value ?? ''),unitType:unit.type ?? '',unitPricePaise:String(i.unit_price_paise),lineTotalPaise:String(i.line_total_paise)};}),

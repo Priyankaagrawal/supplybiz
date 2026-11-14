@@ -1,5 +1,103 @@
 # Supply Biz Mobile
 
+## T-051 customer orders handoff (2026-11-14): READY_FOR_VERIFY
+
+S-C-13/14 / US-240/241: customer Orders now uses generated owned list/detail APIs,
+All/Ongoing/Delivered/Cancelled tabs, snapshot item/paise/date/status cards and
+pagination. Tracking shows address, vendor/contact dialer, saved bill, four
+persisted step timestamps and rejection/cancellation/failure reasons. Unreached
+steps have no invented timestamps; no map/rating is added (SR-05). Pull refresh
+and a trusted owned foreground order notice refresh detail/list. Opening a
+notification uses the existing owned route. Unknown/unowned push payloads cannot
+directly change order state. Domain event fan-out/live FCM remain T-052/provider
+verification, not evidence supplied by simulated mobile responses.
+
+NEW-only, fee-free cancellation requires confirmation and a fresh detail; the
+exact version/key is saved encrypted before sending. An uncertain result survives
+restart for explicit same-key retry, with no background duplicate request.
+Conflicts refresh server state, permission denial clears private snapshots, and
+account/environment-scoped cache, disposal guards and existing logout wipe prevent
+cross-account reuse. Cached offline data is labeled and cannot authorize actions.
+
+Past-order reorder calls a read-only owned preview at current prices. Review lists
+available products and unavailable saved quantities (removed, changed MOQ or stock).
+Adding uses one encrypted cart write, confirms another vendor's replacement,
+rechecks a replacement preview, and honors checkout's pending-order lock. It
+preserves saved quantities rather than silently changing them; checkout still
+revalidates server price/coverage/date/capacity. No reorder creates a server order,
+financial entry or stock movement. Generated OpenAPI/TS/Dart clients include
+reorder, optional saved item summaries and owned vendorMobile. No migration or
+dependency was added; route definitions were unchanged, so no router codegen
+was needed. Only English l10n was regenerated.
+
+Executed checks: seven focused customer-order mobile tests and four targeted
+native API/PostgreSQL cases PASS, plus five runner guards, API lint/typecheck/build,
+mobile analysis, generated TS compile and generated Dart analysis PASS. Mobile
+transport/dialer-channel responses were simulated; API checks used the real local
+isolated test DB. The initial Windows jest.cmd regex command failed because cmd
+interpreted pipe characters; invoking Node directly passed. The native Android
+test APK built, but its first install failed when emulator-5554 disappeared;
+the device returned and the retried native Android encrypted restart/cancellation
+replay/200%/logout smoke PASS (one case). The final seven mobile cases were rerun
+after the vendor-scope guard and Call vendor fixes and all PASS. Native smoke
+recreates encrypted storage/controller state, not a literal OS process restart.
+
+Executed from `apps/mobile`:
+```powershell
+flutter gen-l10n
+& 'C:/flutter/bin/cache/dart-sdk/bin/dart.exe' format lib/features/orders/customer_orders_controller.dart lib/features/orders/customer_orders_pages.dart lib/features/notifications/notification_host.dart test/features/orders/customer_orders_test.dart integration_test/customer_orders_test.dart
+flutter analyze --no-pub
+flutter test --no-pub test/features/orders/customer_orders_test.dart
+flutter devices --machine
+flutter test integration_test/customer_orders_test.dart -d emulator-5554 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+flutter install -d emulator-5554 --debug --flavor dev --use-application-binary=build/app/outputs/flutter-apk/app-dev-debug.apk
+```
+Executed from `apps/api` with NATIVE_TEST_DATABASE_URL privately redirected to
+local `supplybiz_service_area_test`, NODE_ENV=test, OTP_DELIVERY_MODE=disabled:
+```powershell
+node node_modules/jest/bin/jest.js --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t 'T-051|TC-242|TC-220/226'
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+```
+Executed from root:
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --lib 'ES2022,DOM' packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+Executed from `packages/api_client`: `flutter analyze --no-pub`.
+NOT_RUN: the combined order/discovery/notification/router compatibility command
+was declined by the user; it was not retried or counted as passing.
+The normal dev APK build passed and was restored after the native test. Only the
+two Java build daemons created by T-051 were stopped after checking their PIDs,
+creation timestamps and Gradle/Kotlin command lines; existing services and the
+Android emulator were preserved.
+
+Manual verification (NOT_RUN; use synthetic configured vendor/customer accounts
+and a migrated verification DB with the existing operator ledger grants):
+1. Open customer Orders, switch all four tabs and paginate. Open tracking and
+   compare saved items/bill/address/vendor/contact/status timestamps with DB.
+   Try 200% text and TalkBack; open the real OS dialer from Call vendor.
+2. Cancel a NEW order after confirming no fee. Lose the response/restart the
+   actual app, retry the saved request and confirm one cancellation. Race vendor
+   acceptance: refresh to ACCEPTED and confirm cancellation becomes unavailable.
+3. Disconnect and reopen cached history/tracking: offline label appears and
+   actions are disabled. Switch account/role and logout; prior private data and
+   pending requests must not appear in another account.
+4. Reorder a past order after changing product prices/MOQ/stock/availability.
+   Review the available/unavailable list, decline then approve vendor replacement,
+   and confirm one cart batch at current prices; pending checkout must block edits.
+5. With configured live FCM/worker, change order state and confirm tracking reloads
+   within 5 seconds of an owned foreground push or on pull refresh. FAILED must
+   show its reason and no delivery debit. Complete the live UI/API/DB journey.
+
+Live UI/API/DB/FCM, manual accessibility/PASS and G2 remain pending. iOS checks are
+deferred. This handoff does not finalize any earlier READY_FOR_VERIFY task.
+
 ## T-048 vendor orders handoff (2026-11-13): READY_FOR_VERIFY
 
 S-V-08–10 / US-040–042 / TC-045–050: the existing vendor Orders tab and

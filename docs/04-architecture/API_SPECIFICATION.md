@@ -203,6 +203,18 @@ max 50)/offset and return `{items,total}`; vendor status CANCELLED includes REJE
 Optional vendor filters are status/q/date, customer filters include tab. Version
 conflict is 409 VERSION_CONFLICT; capacity is 422 CAPACITY_REACHED. Details include
 owned customer contact, address/item price snapshots and persisted status timeline.
+T-051 list results also include optional itemSummary strings from saved item
+names/quantities. Owned detail includes vendorMobile for customer dialer handoff.
+POST `/customer/orders/{id}/reorder` is a read-only past-order preview (201),
+not a new order or reservation: only DELIVERED/FAILED/REJECTED/CANCELLED sources
+are accepted. Current eligible vendor/NEW_ORDER entitlement and active owned
+customer checks precede product reads. It returns `{vendorId,vendorName,items:
+[{product,qty}],unavailable:[{productId,name,reason}]}`. Products use the existing
+ProductResponse at current prices; archived/inactive products, changed MOQ and
+insufficient stock are listed as PRODUCT_UNAVAILABLE/BELOW_MOQ/INSUFFICIENT_STOCK.
+Saved quantities are preserved and grouped per SKU; no client prices, vendor ID,
+new order, stock, ledger or notices are written. No mutation key is needed for
+this preview. Checkout quote/place revalidate current prices, coverage and timing.
 Rejected-order reasons are available in detail; push content stays PII-minimized.
 Unconfigured vendor slots/cutoff are not guessed. T-049 implements versioned
 OUT_FOR_DELIVERY → DELIVERED/FAILED under vendor/order locks. DELIVERED requires

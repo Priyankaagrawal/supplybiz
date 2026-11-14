@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsBoolean, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
 import { AddressResponse } from '../addresses/addresses.dto';
+import { ProductResponse } from '../catalog/catalog.dto';
 const defined = (_: unknown, value: unknown) => value !== undefined;
 const trim = ({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() : value;
 export class OrderLineInput {
@@ -83,6 +84,7 @@ export class OrderQuote {
   @ApiProperty() totalPaise!: string;
 }
 export class OrderResult {
+  @ApiPropertyOptional({type:[String]}) itemSummary?: string[];
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() orderNo!: string;
   @ApiProperty({ format: 'uuid' }) vendorId!: string;
@@ -102,6 +104,7 @@ export class OrderStatusEvent {
   @ApiProperty() at!: string;
 }
 export class OrderDetail extends OrderResult {
+  @ApiPropertyOptional({type:String,nullable:true,description:'Owned order vendor contact for dialer handoff.'}) vendorMobile?: string|null;
   @ApiProperty({ type: String, nullable: true }) vendorName!: string | null;
   @ApiProperty() customerName!: string;
   @ApiProperty() customerMobile!: string;
@@ -118,6 +121,21 @@ export class OrderDetail extends OrderResult {
 export class OrderList {
   @ApiProperty({ type: [OrderResult] }) items!: OrderResult[];
   @ApiProperty({ type: 'integer' }) total!: number;
+}
+export class ReorderLine {
+  @ApiProperty({type:ProductResponse}) product!:ProductResponse;
+  @ApiProperty({type:'integer'}) qty!:number;
+}
+export class ReorderUnavailable {
+  @ApiProperty({format:'uuid'}) productId!:string;
+  @ApiProperty() name!:string;
+  @ApiProperty({enum:['PRODUCT_UNAVAILABLE','BELOW_MOQ','INSUFFICIENT_STOCK']}) reason!:string;
+}
+export class OrderReorder {
+  @ApiProperty({format:'uuid'}) vendorId!:string;
+  @ApiProperty() vendorName!:string;
+  @ApiProperty({type:[ReorderLine]}) items!:ReorderLine[];
+  @ApiProperty({type:[ReorderUnavailable]}) unavailable!:ReorderUnavailable[];
 }
 export class OrderProblem {
   @ApiProperty() type!: string;
