@@ -15,6 +15,8 @@ import { PlansService } from './modules/plans/plans.service';
 import { PlanRemindersService } from './modules/plans/plan-reminders.service';
 import { AdminPlansController, VendorPlansController } from './modules/plans/plans.controller';
 import { LedgerService } from './modules/ledger/ledger.service';
+import { PaymentsController } from './modules/ledger/payments.controller';
+import { PaymentsService } from './modules/ledger/payments.service';
 import { LedgerReconciliationService } from './modules/ledger/ledger-reconciliation.service';
 import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
 import { CustomersController, CustomerLinksController } from './modules/customers/customers.controller';
@@ -80,7 +82,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     PrismaService,
     OrdersService,
@@ -95,6 +97,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     PlansService,
     PlanRemindersService,
     LedgerService,
+    PaymentsService,
     LedgerReconciliationService,
     LedgerJobsService,
     CustomersService,

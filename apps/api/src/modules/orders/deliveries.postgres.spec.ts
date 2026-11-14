@@ -59,6 +59,7 @@ native('T-049 native delivery/stock/receipt/ledger atomicity',()=>{
     const e=await effects(id);expect(e.movements).toBe(1);expect(e.entries).toHaveLength(1);expect(e.entries[0]).toMatchObject({type:'DEBIT',amount_paise:25190n,ref_type:'ORDER',ref_id:id});expect(e.receipts).toEqual([]);expect(e.events).toBe(1);expect(e.o.completed_at).not.toBeNull();
     expect((await db.products.findUniqueOrThrow({where:{id:productId}})).stock_qty).toBe(10);
     expect((await app.get(LedgerService).balance(owner.id,e.o.vendor_customer_id)).duePaise).toBe('25190');
+    expect((await get('vendor/payments/summary').expect(200)).body).toMatchObject({totalReceivablePaise:'25190',thisMonthReceivedPaise:'0'});
     await expect(db.payments.create({data:{vendor_id:foreignVendorId,vendor_customer_id:e.o.vendor_customer_id,order_id:id,created_by:foreign.id,
       amount_paise:1n,method:'CASH',received_on:new Date(day),note:'Synthetic foreign scope',client_ref:randomUUID()}})).rejects.toThrow(/Payment scope mismatch/);
     expect(await db.notifications.count({where:{source_key:`order:${id}:4`,type:'ORDER_DELIVERED',user_id:buyer.id}})).toBe(1);
@@ -70,8 +71,10 @@ native('T-049 native delivery/stock/receipt/ledger atomicity',()=>{
       const e=await effects(id),receipt=e.receipts[0]!;expect(receipt.amount_paise).toBe(BigInt(amount));expect(receipt.method).toBe(method);expect(e.o.payment_status).toBe(paid);
       const credits=e.entries.filter(x=>x.ref_id===receipt.id);expect(credits).toHaveLength(1);expect(credits[0]!.amount_paise).toBe(BigInt(amount));
       const orderDebit=e.entries.find(x=>x.ref_id===id)!;expect(String(orderDebit.amount_paise-receipt.amount_paise)).toBe(due);
+      expect((await get(`vendor/payments?vendorCustomerId=${e.o.vendor_customer_id}`).expect(200)).body.items).toEqual(expect.arrayContaining([expect.objectContaining({id:receipt.id,orderId:id,amountPaise:amount})]));
       await expect(db.payments.update({where:{id:receipt.id},data:{amount_paise:1n}})).rejects.toThrow();await expect(db.payments.delete({where:{id:receipt.id}})).rejects.toThrow();
     }
+    expect((await get('vendor/payments/summary').expect(200)).body).toMatchObject({totalReceivablePaise:'10380',thisMonthReceivedPaise:'65190'});
     const max=2147483647;await db.products.update({where:{id:productId},data:{selling_price_paise:max,stock_qty:max}});
     const total=String(BigInt(max)*BigInt(max)+500n),id=await prepared('OUT_FOR_DELIVERY',[{productId,qty:max}],total);
     await delivered(id,{collected:true,method:'WALLET',amountPaise:total}).expect(201);

@@ -76,6 +76,9 @@ import 'package:supplybiz_api_client/src/model/order_quote_input.dart';
 import 'package:supplybiz_api_client/src/model/order_result.dart';
 import 'package:supplybiz_api_client/src/model/order_status_event.dart';
 import 'package:supplybiz_api_client/src/model/order_transition_input.dart';
+import 'package:supplybiz_api_client/src/model/payment_list.dart';
+import 'package:supplybiz_api_client/src/model/payment_record.dart';
+import 'package:supplybiz_api_client/src/model/payment_summary.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_response.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_row.dart';
 import 'package:supplybiz_api_client/src/model/plan_history_response.dart';
@@ -90,6 +93,7 @@ import 'package:supplybiz_api_client/src/model/product_options.dart';
 import 'package:supplybiz_api_client/src/model/product_patch.dart';
 import 'package:supplybiz_api_client/src/model/product_response.dart';
 import 'package:supplybiz_api_client/src/model/read_notifications.dart';
+import 'package:supplybiz_api_client/src/model/record_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
@@ -336,6 +340,14 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'OrderTransitionInput':
       return OrderTransitionInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'PaymentList':
+      return PaymentList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'PaymentRecord':
+      return PaymentRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PaymentSummary':
+      return PaymentSummary.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'PlanCatalogResponse':
       return PlanCatalogResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -374,6 +386,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'ReadNotifications':
       return ReadNotifications.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'RecordPaymentInput':
+      return RecordPaymentInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'RefreshDto':
       return RefreshDto.fromJson(value as Map<String, dynamic>) as ReturnType;

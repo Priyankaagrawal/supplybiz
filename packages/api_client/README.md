@@ -162,6 +162,9 @@ Class | Method | HTTP request | Description
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerDetail**](doc/VendorOrdersApi.md#vendororderscontrollerdetail) | **GET** /api/v1/vendor/orders/{id} |
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerList**](doc/VendorOrdersApi.md#vendororderscontrollerlist) | **GET** /api/v1/vendor/orders |
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerTransition**](doc/VendorOrdersApi.md#vendororderscontrollertransition) | **POST** /api/v1/vendor/orders/{id}/transitions |
+[*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerList**](doc/VendorPaymentsApi.md#paymentscontrollerlist) | **GET** /api/v1/vendor/payments |
+[*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerRecord**](doc/VendorPaymentsApi.md#paymentscontrollerrecord) | **POST** /api/v1/vendor/payments |
+[*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
@@ -247,6 +250,9 @@ Class | Method | HTTP request | Description
  - [OrderResult](doc/OrderResult.md)
  - [OrderStatusEvent](doc/OrderStatusEvent.md)
  - [OrderTransitionInput](doc/OrderTransitionInput.md)
+ - [PaymentList](doc/PaymentList.md)
+ - [PaymentRecord](doc/PaymentRecord.md)
+ - [PaymentSummary](doc/PaymentSummary.md)
  - [PlanCatalogResponse](doc/PlanCatalogResponse.md)
  - [PlanCatalogRow](doc/PlanCatalogRow.md)
  - [PlanHistoryResponse](doc/PlanHistoryResponse.md)
@@ -261,6 +267,7 @@ Class | Method | HTTP request | Description
  - [ProductPatch](doc/ProductPatch.md)
  - [ProductResponse](doc/ProductResponse.md)
  - [ReadNotifications](doc/ReadNotifications.md)
+ - [RecordPaymentInput](doc/RecordPaymentInput.md)
  - [RefreshDto](doc/RefreshDto.md)
  - [RoleDto](doc/RoleDto.md)
  - [SendOtpDto](doc/SendOtpDto.md)

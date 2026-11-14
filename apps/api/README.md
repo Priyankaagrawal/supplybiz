@@ -1,5 +1,106 @@
 # Supply Biz API
 
+## T-071 payment wiring handoff (2026-11-14): READY_FOR_VERIFY
+
+RULE-10 / FR-112/114 / US-111: vendor-owned POST `/api/v1/vendor/payments`
+records `{vendorCustomerId,amountPaise,method,receivedOn,note?}` with a required
+Idempotency-Key. Amount is a positive decimal string within signed BIGINT;
+methods CASH/UPI/BANK/WALLET are external receipt labels. The date must be a valid
+YYYY-MM-DD; note is trimmed, optional, max 200 characters. Ownership and plan
+permissions are server-derived; inactive owned customers can settle dues.
+ADR-029 expiry settlement/history remains accessible, while a first scheduled
+plan grants no early access. Suspension and role/account authorization still apply.
+Standalone payments credit the customer account without allocating individual
+orders or changing their payment status. Checkout stays POD Cash/UPI only.
+
+The immutable receipt and real T-070 PAYMENT CREDIT/balance/audit commit in one
+transaction. The actor advisory/vendor/customer lock order matches T-049 and the
+ledger service. A permanent actor-key hash in client_ref and normalized-body hash
+on the receipt prevent concurrent/restart duplicates independently of expiring
+HTTP cache. Replay rechecks current ownership/authorization; body mismatch is
+422. Credit/overflow/grant failure leaves no receipt or credit; safe retry remains
+possible. Unknown DB diagnostics are redacted as PAYMENTS_UNAVAILABLE (503).
+No platform money movement, settlement, Q-05 wallet, provider verification or new
+dependency is introduced.
+
+GET `/vendor/payments` returns owned standalone and delivery receipts with optional
+vendorCustomerId, limit (20/max 50), offset; sorting is receivedOn/createdAt/id
+descending and response is `{items,total}`. GET `/vendor/payments/summary` returns
+serverTime/businessDate (DB IST), totalReceivablePaise (sum of positive customer
+dues, without offsetting another customer's advance) and thisMonthReceivedPaise
+(receipts dated within that IST month). Reads use a repeatable-read snapshot and
+no-store. Existing T-049 delivery debit/stock/receipt-credit posting is reused.
+Other Khata, claims, POS and mobile payment UI remain their owning tasks.
+
+Additive migration `202611140001_payment_replay` adds nullable request_hash; no
+immutable historic receipt is modified or financial effect backfilled. Applied
+only to local `supplybiz_service_area_test`; development/staging/production were
+not migrated. Ledger ownership/runtime grants are unchanged. Retain financial
+tables/columns on application rollback. OpenAPI/TS/Dart regenerated from source.
+
+Executed checks PASS: seven new native HTTP/PostgreSQL payment cases plus nine
+delivery cases (16 total), two targeted delivery-to-payment list/summary rechecks,
+two native runtime smokes, five runner guards, API typecheck/build/lint/Prisma
+validation, generated TS compile and generated Dart analysis. Coverage includes
+real cash receipt/credit/due/month reads, permanent replay across concurrent calls
+and application recreation/reconnect, mismatch/role/tenant denial, immutable
+receipt protection, exact max-paise/overflow rollback, month/date/pagination,
+inactive-customer settlement and expiry/scheduled-plan rules. A synthetic injected
+CREDIT failure and privilege-check failure supplement real DB/runtime-grant
+checks; injection is not evidence of an actual operator grant change.
+
+Executed from root:
+```powershell
+pnpm.cmd --filter @supplybiz/api prisma:generate
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+node --check tools/check-task.mjs
+node --test tools/checks.spec.mjs
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck --lib 'ES2022,DOM' packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+Executed from `apps/api` (URL redirected privately; credentials never printed):
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+pnpm.cmd prisma:migrate:deploy
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/ledger/payments.postgres.spec.ts src/modules/orders/deliveries.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/deliveries.postgres.spec.ts -t 'unpaid delivery|records full/partial'
+.\node_modules\.bin\jest.cmd --config test/jest-e2e.json --runInBand --testTimeout=60000 --runTestsByPath test/native-runtime.e2e-spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+.\node_modules\.bin\eslint.cmd src/modules/orders/deliveries.postgres.spec.ts src/modules/ledger/payments.postgres.spec.ts --max-warnings=0
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+```
+Executed from `packages/api_client`: `flutter analyze --no-pub`.
+An initial unqualified `prisma validate` failed to locate the nondefault schema;
+the explicit-schema command above passed. No source workaround was required.
+
+Manual verification (NOT_RUN; synthetic accounts, verification DB migrations and
+T-070 operator ledger grants required):
+1. Deliver an unpaid order; inspect its stock movement and ORDER debit, then GET
+   payment summary and reload the saved due. This is the real T-049 writer.
+2. POST a cash receipt with amountPaise `"50000"`, the owned vendorCustomerId,
+   receivedOn and a unique key. Verify one receipt/PAYMENT CREDIT, due reduced by
+   50000, and refreshed list/current-month total. Repeat with a partial/advance.
+3. Restart the actual API process and retry the exact body/key: same receipt,
+   one credit. Change amount under that key: 422; verify no financial change.
+4. Test foreign customer, wrong role, suspension, invalid amount/date and actual
+   test-DB ledger permission failure; verify denial without partial receipts.
+   Confirm settlement/history still work after audited plan expiry.
+5. Deliver with collection and reload payment list/summary: the delivery receipt
+   appears once alongside standalone receipts. Compare actual cash/UPI outside
+   the app; provider settlement is not performed or verified here.
+
+Manual PASS, literal OS-process restart, full mobile UI/API/DB journey, live
+OTP/FCM and module G2 remain NOT_RUN/pending. No mobile UI changed; Android device
+checks were not needed for this API-only task, and iOS checks remain deferred.
+
 ## T-049 deliveries handoff (2026-11-14): READY_FOR_VERIFY
 
 FR-080/081, RULE-10: `GET /api/v1/vendor/deliveries` returns owned detail cards,

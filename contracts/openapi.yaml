@@ -1,5 +1,115 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/payments:
+    post:
+      operationId: PaymentsController_record
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordPaymentInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecord'
+        '400':
+          description: Invalid exact positive amount, received date, pagination or idempotency key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: Vendor role/suspension or plan permission denial.
+        '404':
+          description: Owned customer not found.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+        '503':
+          description: Ledger grants unavailable or redacted transactional failure; no partial receipt/credit.
+      tags:
+        - vendor-payments
+      security:
+        - bearer: []
+    get:
+      operationId: PaymentsController_list
+      parameters:
+        - name: vendorCustomerId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentList'
+        '400':
+          description: Invalid exact positive amount, received date, pagination or idempotency key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: Vendor role/suspension or plan permission denial.
+        '404':
+          description: Owned customer not found.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+        '503':
+          description: Ledger grants unavailable or redacted transactional failure; no partial receipt/credit.
+      tags:
+        - vendor-payments
+      security:
+        - bearer: []
+  /api/v1/vendor/payments/summary:
+    get:
+      operationId: PaymentsController_summary
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSummary'
+        '400':
+          description: Invalid exact positive amount, received date, pagination or idempotency key.
+        '401':
+          description: Missing/revoked session.
+        '403':
+          description: Vendor role/suspension or plan permission denial.
+        '404':
+          description: Owned customer not found.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+        '503':
+          description: Ledger grants unavailable or redacted transactional failure; no partial receipt/credit.
+      tags:
+        - vendor-payments
+      security:
+        - bearer: []
   /api/v1/customer/orders/options:
     get:
       operationId: CustomerOrdersController_options
@@ -3630,6 +3740,99 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    RecordPaymentInput:
+      type: object
+      properties:
+        vendorCustomerId:
+          type: string
+          format: uuid
+        amountPaise:
+          type: string
+          description: Positive exact integer paise as decimal string, signed BIGINT maximum.
+        method:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+          description: External payment record only; no platform money movement.
+        receivedOn:
+          type: string
+          format: date
+          description: Received business date, YYYY-MM-DD.
+        note:
+          type: string
+          maxLength: 200
+      required:
+        - vendorCustomerId
+        - amountPaise
+        - method
+        - receivedOn
+    PaymentRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorCustomerId:
+          type: string
+          format: uuid
+        orderId:
+          type: string
+          nullable: true
+          format: uuid
+        amountPaise:
+          type: string
+        method:
+          type: string
+        receivedOn:
+          type: string
+          format: date
+        note:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - vendorCustomerId
+        - orderId
+        - amountPaise
+        - method
+        - receivedOn
+        - note
+        - createdAt
+    PaymentSummary:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+        totalReceivablePaise:
+          type: string
+          description: Sum of positive customer dues; advances do not offset other customers.
+        thisMonthReceivedPaise:
+          type: string
+          description: All owned receipts with receivedOn in the current server IST month.
+      required:
+        - serverTime
+        - businessDate
+        - totalReceivablePaise
+        - thisMonthReceivedPaise
+    PaymentList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentRecord'
+        total:
+          type: integer
+      required:
+        - items
+        - total
     OrderPricedLine:
       type: object
       properties:

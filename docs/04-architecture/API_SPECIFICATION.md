@@ -250,6 +250,31 @@ handoff is recorded in the API README; this does not claim a module gate pass.
 | GET | `/customer/subscriptions/{id}/statement?month=YYYY-MM` |
 
 ### 4.9 Ledger & payments (FR-110–FR-116, FR-250–FR-253)
+T-071 exposes vendor payment recording/list/summary (other routes below remain
+their owning tasks). POST `/vendor/payments` requires Idempotency-Key and
+`{vendorCustomerId,amountPaise,method,receivedOn,note?}`. Amount is a positive
+decimal-string integer within signed BIGINT; method is CASH/UPI/BANK/WALLET and
+receivedOn is a valid YYYY-MM-DD business date. Note defaults to empty and is
+trimmed, max 200 characters. No vendorId/orderId/client_ref input is accepted.
+The server derives vendor ownership, checks an undeleted owned customer and
+RECORD_PAYMENT entitlement (including ADR-029 expiry settlement), and commits
+the immutable receipt and PAYMENT CREDIT atomically. A standalone customer
+payment does not allocate to or mark individual orders PAID. External receipt
+labels do not move money or implement Q-05 wallet/settlement.
+
+Response PaymentRecord contains id/vendorCustomerId/orderId (null for standalone),
+amountPaise/method/receivedOn/note/createdAt. A hashed actor-scoped key and
+normalized-body hash live permanently on the receipt; same-key replay rechecks
+current actor/vendor/customer authorization and returns that record, independent
+of expiring HTTP cache. Changed body is 422; DB/grant/overflow failure rolls back
+and returns redacted 503. GET list accepts optional vendorCustomerId, limit
+(20/max 50), offset; returns `{items,total}`, sorted receivedOn/createdAt/id
+descending, including delivery receipts. GET summary returns serverTime,
+businessDate (DB IST), totalReceivablePaise (sum of positive per-customer dues)
+and thisMonthReceivedPaise (all receipt dates in that IST calendar month).
+Reads require READ_HISTORY and use one repeatable-read snapshot; all responses
+are no-store. Advances do not offset other customers' positive receivables.
+
 | Method | Path |
 |---|---|
 | GET | `/vendor/khata?tab=ALL|RECEIVABLE|PAID&q=` |

@@ -829,6 +829,7 @@ model payments {
   received_on DateTime @db.Date
   note String @db.VarChar(200)
   client_ref String @db.VarChar(120)
+  request_hash String? @db.VarChar(64)
   created_by String @db.Uuid
   created_at DateTime @default(now()) @db.Timestamptz(6)
   vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
