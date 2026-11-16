@@ -266,6 +266,62 @@ cutoffs, authorization, prices or financial posting. Legacy retries omit it unch
 | POST | `/customer/subscriptions/{id}/{pause|resume|cancel|skip}` |
 | GET | `/customer/subscriptions/{id}/statement?month=YYYY-MM` |
 
+T-072 implements the list/create/detail/PATCH and named action routes above,
+plus address-owned subscription plans. Statement delivery remains with the
+customer statement/Khata tasks; generation/scheduling is T-073 and settings T-075.
+All mutations require Idempotency-Key. Changes require the current integer
+`version`; stale versions return 409 VERSION_CONFLICT. Permanent actor-scoped
+request records return the original `{id,version,status,effectiveFrom}` on replay
+without recreating references/notices. Use GET detail after mutation for the
+current view. UUIDs/roles/vendor scope and money are derived or rechecked server-side.
+
+Create fields: `{productId,qty,weekdays:[1..7],startDate,endDate?,timeSlot,paymentMethod}`.
+Weekdays are unique ISO weekdays (Monday=1), qty is positive integer packs,
+startDate is at least server IST tomorrow and endDate is inclusive. Payment
+preference is CASH/UPI/WALLET (external record only); ADR-033 billing is postpaid
+Khata, with no charge, stock movement or ledger entry at setup. Vendor creation
+requires exactly one of `vendorCustomerId` or `newCustomer` (T-028 CustomerInput);
+new customers count against the assigned limit atomically and never auto-link.
+Customer creation requires `vendorId,addressId`, an owned address, serviceable
+coverage, eligible vendor, active STANDARD+ assignment and active selectable
+product/configured slot. Existing matching offline records need accepted consent.
+BUSINESS+ auto-accept may start ACTIVE; otherwise customer creation is
+PENDING_APPROVAL. Vendor creation is ACTIVE. Below BUSINESS, a stale auto-accept
+flag cannot grant that feature. Vendor approve/reject only accept pending requests.
+
+PATCH accepts `version` and one or more of qty/weekdays/timeSlot. Server DB time
+and ADR-033 determine effectiveFrom: before 21:00 IST tomorrow, at/after 21:00 the
+day after tomorrow; edits also follow the last already-generated delivery date.
+Append-only revisions preserve frozen configurations. Returned latest intent
+(including scheduled cancellation) includes its effective date; it does not
+rewrite existing orders. Pause accepts optional fromDate/toDate, inclusive,
+defaulting to the earliest modifiable date and open-ended when toDate is absent.
+Range pauses resume automatically by date; explicit resume closes their future
+effect while preserving historical pause dates. Cancel stops generation from
+its effective date. Existing generated orders remain; skip is the explicit
+cancellation operation. Customer pause/skip of a frozen date returns 422
+PAST_CUTOFF with the earliest date and a 21:00 IST explanation.
+
+Skip `{version,date}` adds a durable date exclusion. The vendor may skip after
+cutoff, atomically cancelling an already-generated NEW/ACCEPTED order, advancing
+its version, and adding timeline/inbox notices. Progressed deliveries are 409;
+no receipt, stock or ledger reversal is invented. All config/reference/notice/
+order-cancellation/request writes commit together or roll back. Customer reads
+use accepted user linkage, never mobile matching. Expiry preserves owned history
+and reducing operations; new/edit/approve/resume business remains plan-gated.
+
+Lists use limit (default 20, max 50)/offset, stable createdAt/UUID order, no-store
+responses and serverTime/businessDate. Owned detail includes address snapshot,
+dated revisions, pause/resume ranges and skips. Daily/monthly paise estimates
+are exact strings, with current product subscription price (selling price
+fallback) and RULE-16's clipped server calendar month, not a prepaid invoice.
+`GET /customer/vendors/{id}/subscription-plans?addressId=` returns CUSTOM and
+exactly representable 500/1000/2000 ml daily pack combinations, configured slots,
+freeDelivery and earliestStartDate. `mostPopular` is null while no real vendor
+selection is configured; no popularity is inferred. T-073 must price actual
+generated orders from current catalog data and apply vendor/plan/capacity/holiday
+eligibility in addition to T-072's `subscriptionForDate` revision/pause/skip policy.
+
 ### 4.9 Ledger & payments (FR-110–FR-116, FR-250–FR-253)
 T-071 exposes vendor payment recording/list/summary (other routes below remain
 their owning tasks). POST `/vendor/payments` requires Idempotency-Key and

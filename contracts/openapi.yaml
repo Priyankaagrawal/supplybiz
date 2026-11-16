@@ -1,5 +1,655 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/subscriptions:
+    post:
+      operationId: VendorSubscriptionsController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorSubscriptionInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+    get:
+      operationId: VendorSubscriptionsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/approve:
+    post:
+      operationId: VendorSubscriptionsController_approve
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/reject:
+    post:
+      operationId: VendorSubscriptionsController_reject
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionReject'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}:
+    get:
+      operationId: VendorSubscriptionsController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionRecord'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+    patch:
+      operationId: VendorSubscriptionsController_edit
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/pause:
+    post:
+      operationId: VendorSubscriptionsController_pause
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPause'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/resume:
+    post:
+      operationId: VendorSubscriptionsController_resume
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/cancel:
+    post:
+      operationId: VendorSubscriptionsController_cancel
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/vendor/subscriptions/{id}/skip:
+    post:
+      operationId: VendorSubscriptionsController_skip
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionSkip'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '403':
+          description: Vendor scope/suspension/plan denial.
+        '409':
+          description: VERSION_CONFLICT or invalid state.
+        '422':
+          description: Date/cutoff/slot or immutable retry mismatch.
+      tags:
+        - vendor-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions:
+    post:
+      operationId: CustomerSubscriptionsController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerSubscriptionInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+    get:
+      operationId: CustomerSubscriptionsController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionList'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions/{id}:
+    get:
+      operationId: CustomerSubscriptionsController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionRecord'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+    patch:
+      operationId: CustomerSubscriptionsController_edit
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions/{id}/pause:
+    post:
+      operationId: CustomerSubscriptionsController_pause
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionPause'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions/{id}/resume:
+    post:
+      operationId: CustomerSubscriptionsController_resume
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions/{id}/cancel:
+    post:
+      operationId: CustomerSubscriptionsController_cancel
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/subscriptions/{id}/skip:
+    post:
+      operationId: CustomerSubscriptionsController_skip
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionSkip'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionMutation'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
+  /api/v1/customer/vendors/{id}/subscription-plans:
+    get:
+      operationId: SubscriptionPlansController_plans
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: addressId
+          required: true
+          in: query
+          schema:
+            format: uuid
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionPlans'
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
   /api/v1/vendor/payments:
     post:
       operationId: PaymentsController_record
@@ -3782,6 +4432,421 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    CustomerInput:
+      type: object
+      properties:
+        name:
+          type: string
+        mobile:
+          type: string
+          description: Indian mobile, ten digits or +91-prefixed. Stored in +91 form.
+        email:
+          type: string
+          nullable: true
+        address:
+          type: string
+          description: Defaults to empty on creation; omission preserves the address on PATCH.
+        preferredPayment:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - BANK
+            - WALLET
+          description: Defaults to CASH on creation; omission preserves the method on PATCH.
+      required:
+        - name
+        - mobile
+    VendorSubscriptionInput:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        weekdays:
+          description: ISO weekdays 1=Monday through 7=Sunday, unique.
+          type: array
+          items:
+            type: number
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+          maxLength: 80
+        paymentMethod:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - WALLET
+          description: External payment preference; postpaid Khata, no funds held or prepaid charge.
+        vendorCustomerId:
+          type: string
+          format: uuid
+        newCustomer:
+          description: Exactly one of vendorCustomerId or newCustomer.
+          allOf:
+            - $ref: '#/components/schemas/CustomerInput'
+      required:
+        - productId
+        - qty
+        - weekdays
+        - startDate
+        - timeSlot
+        - paymentMethod
+    SubscriptionMutation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        status:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+      required:
+        - id
+        - version
+        - status
+        - effectiveFrom
+    SubscriptionVersion:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+      required:
+        - version
+    SubscriptionReject:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        reason:
+          type: string
+          maxLength: 200
+      required:
+        - version
+    SubscriptionRevision:
+      type: object
+      properties:
+        version:
+          type: integer
+        effectiveFrom:
+          type: string
+          format: date
+        qty:
+          type: integer
+        weekdays:
+          type: array
+          items:
+            type: number
+        timeSlot:
+          type: string
+        status:
+          type: string
+        action:
+          type: string
+        reason:
+          type: string
+          nullable: true
+      required:
+        - version
+        - effectiveFrom
+        - qty
+        - weekdays
+        - timeSlot
+        - status
+        - action
+        - reason
+    SubscriptionPauseRecord:
+      type: object
+      properties:
+        fromDate:
+          type: string
+          format: date
+        toDate:
+          type: string
+          nullable: true
+          format: date
+        resumedFrom:
+          type: string
+          nullable: true
+          format: date
+      required:
+        - fromDate
+        - toDate
+        - resumedFrom
+    SubscriptionRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        status:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+        vendorId:
+          type: string
+          format: uuid
+        vendorCustomerId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        qty:
+          type: integer
+        weekdays:
+          type: array
+          items:
+            type: number
+        timeSlot:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          nullable: true
+          format: date
+        addressSnapshot:
+          type: object
+          additionalProperties: true
+        paymentMethod:
+          type: string
+        createdBy:
+          type: string
+        dailyAmountPaise:
+          type: string
+        monthlyEstimatePaise:
+          type: string
+        estimateMonth:
+          type: string
+          description: Server IST month for the estimate; not an invoice.
+        revisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionRevision'
+        pauses:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPauseRecord'
+        skips:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - version
+        - status
+        - effectiveFrom
+        - vendorId
+        - vendorCustomerId
+        - productId
+        - productName
+        - qty
+        - weekdays
+        - timeSlot
+        - startDate
+        - endDate
+        - addressSnapshot
+        - paymentMethod
+        - createdBy
+        - dailyAmountPaise
+        - monthlyEstimatePaise
+        - estimateMonth
+        - revisions
+        - pauses
+        - skips
+    SubscriptionList:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionRecord'
+        total:
+          type: integer
+      required:
+        - serverTime
+        - businessDate
+        - items
+        - total
+    SubscriptionPatch:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        weekdays:
+          type: array
+          items:
+            type: number
+        timeSlot:
+          type: string
+          maxLength: 80
+      required:
+        - version
+    SubscriptionPause:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        fromDate:
+          type: string
+          format: date
+          description: Defaults to earliest modifiable date; inclusive.
+        toDate:
+          type: string
+          format: date
+          description: Inclusive; absent means open-ended.
+      required:
+        - version
+    SubscriptionSkip:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        date:
+          type: string
+          format: date
+      required:
+        - version
+        - date
+    CustomerSubscriptionInput:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        weekdays:
+          description: ISO weekdays 1=Monday through 7=Sunday, unique.
+          type: array
+          items:
+            type: number
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        timeSlot:
+          type: string
+          maxLength: 80
+        paymentMethod:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - WALLET
+          description: External payment preference; postpaid Khata, no funds held or prepaid charge.
+        vendorId:
+          type: string
+          format: uuid
+        addressId:
+          type: string
+          format: uuid
+      required:
+        - productId
+        - qty
+        - weekdays
+        - startDate
+        - timeSlot
+        - paymentMethod
+        - vendorId
+        - addressId
+    SubscriptionPlan:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        productName:
+          type: string
+        kind:
+          type: string
+          description: CUSTOM or an available 500/1000/2000 ml daily size.
+        qty:
+          type: integer
+        dailyAmountPaise:
+          type: string
+        monthlyEstimatePaise:
+          type: string
+        mostPopular:
+          type: boolean
+          nullable: true
+          description: Unavailable until vendor selection is configured; never guessed.
+      required:
+        - productId
+        - productName
+        - kind
+        - qty
+        - dailyAmountPaise
+        - monthlyEstimatePaise
+        - mostPopular
+    SubscriptionPlans:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionPlan'
+        timeSlots:
+          type: array
+          items:
+            type: string
+        freeDelivery:
+          type: boolean
+        earliestStartDate:
+          type: string
+          format: date
+        estimateMonth:
+          type: string
+      required:
+        - items
+        - timeSlots
+        - freeDelivery
+        - earliestStartDate
+        - estimateMonth
     RecordPaymentInput:
       type: object
       properties:
@@ -5498,31 +6563,6 @@ components:
         - total
         - activeCount
         - customerLimit
-    CustomerInput:
-      type: object
-      properties:
-        name:
-          type: string
-        mobile:
-          type: string
-          description: Indian mobile, ten digits or +91-prefixed. Stored in +91 form.
-        email:
-          type: string
-          nullable: true
-        address:
-          type: string
-          description: Defaults to empty on creation; omission preserves the address on PATCH.
-        preferredPayment:
-          type: string
-          enum:
-            - CASH
-            - UPI
-            - BANK
-            - WALLET
-          description: Defaults to CASH on creation; omission preserves the method on PATCH.
-      required:
-        - name
-        - mobile
     CustomerPatch:
       type: object
       properties:

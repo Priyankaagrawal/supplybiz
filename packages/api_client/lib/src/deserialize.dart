@@ -28,6 +28,7 @@ import 'package:supplybiz_api_client/src/model/customer_input.dart';
 import 'package:supplybiz_api_client/src/model/customer_list.dart';
 import 'package:supplybiz_api_client/src/model/customer_patch.dart';
 import 'package:supplybiz_api_client/src/model/customer_response.dart';
+import 'package:supplybiz_api_client/src/model/customer_subscription_input.dart';
 import 'package:supplybiz_api_client/src/model/delivery_counts.dart';
 import 'package:supplybiz_api_client/src/model/delivery_list.dart';
 import 'package:supplybiz_api_client/src/model/delivery_payment_input.dart';
@@ -103,6 +104,18 @@ import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
+import 'package:supplybiz_api_client/src/model/subscription_list.dart';
+import 'package:supplybiz_api_client/src/model/subscription_mutation.dart';
+import 'package:supplybiz_api_client/src/model/subscription_patch.dart';
+import 'package:supplybiz_api_client/src/model/subscription_pause.dart';
+import 'package:supplybiz_api_client/src/model/subscription_pause_record.dart';
+import 'package:supplybiz_api_client/src/model/subscription_plan.dart';
+import 'package:supplybiz_api_client/src/model/subscription_plans.dart';
+import 'package:supplybiz_api_client/src/model/subscription_record.dart';
+import 'package:supplybiz_api_client/src/model/subscription_reject.dart';
+import 'package:supplybiz_api_client/src/model/subscription_revision.dart';
+import 'package:supplybiz_api_client/src/model/subscription_skip.dart';
+import 'package:supplybiz_api_client/src/model/subscription_version.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_about.dart';
@@ -113,6 +126,7 @@ import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_profile_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_settings_response.dart';
+import 'package:supplybiz_api_client/src/model/vendor_subscription_input.dart';
 import 'package:supplybiz_api_client/src/model/verify_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/version_controller_get_version200_response.dart';
 
@@ -213,6 +227,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'CustomerResponse':
       return CustomerResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CustomerSubscriptionInput':
+      return CustomerSubscriptionInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'DeliveryCounts':
       return DeliveryCounts.fromJson(value as Map<String, dynamic>)
@@ -415,6 +432,42 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'StockAdjustment':
       return StockAdjustment.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'SubscriptionList':
+      return SubscriptionList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionMutation':
+      return SubscriptionMutation.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionPatch':
+      return SubscriptionPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionPause':
+      return SubscriptionPause.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionPauseRecord':
+      return SubscriptionPauseRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionPlan':
+      return SubscriptionPlan.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionPlans':
+      return SubscriptionPlans.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionRecord':
+      return SubscriptionRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionReject':
+      return SubscriptionReject.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionRevision':
+      return SubscriptionRevision.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionSkip':
+      return SubscriptionSkip.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionVersion':
+      return SubscriptionVersion.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'TokensResponse':
       return TokensResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -442,6 +495,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'VendorSettingsResponse':
       return VendorSettingsResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorSubscriptionInput':
+      return VendorSubscriptionInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'VerifyOtpDto':
       return VerifyOtpDto.fromJson(value as Map<String, dynamic>) as ReturnType;

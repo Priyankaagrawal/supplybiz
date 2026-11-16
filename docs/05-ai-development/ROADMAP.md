@@ -63,4 +63,9 @@ Q-25 admin permissions were approved by the user on 2026-11-04 (ADR-026). T-150 
 By Day 3 prove retained OTP/push configuration; by Day 4 prove manual KYC/plan administration, or record the affected gate at risk. Hosting/restore/signing/legal decisions must support the Day 10 release packet; Android Play requirements only. Production release T-179 requires separate approval and store/distribution readiness. T-185 begins only after Android production release: iOS toolchain/signing/builds, simulator/device tests, storage/APNs/deep-link/UPI/VoiceOver validation and store package. No iOS secrets, Apple account, build, test or TestFlight requirement blocks the Android handoff/release. Preserve iOS source/configuration now; report all unrun iOS checks as deferred.
 
 ## 6. Deferred task inventory
+
+Q-15/Q-19 were resolved by user confirmation on 2026-11-16 (ADR-033): 22:00 IST
+next-day generation, 21:00 IST customer change cutoff, and postpaid Khata on
+delivery. These decisions unblock Day-8 T-072; scheduled generation, settings
+and mobile flows remain their respective tasks, not policy-approval evidence.
 T-104/T-108/T-120/T-121/T-123–T-125/T-127–T-130/T-157/T-159/T-160 are approved SR backlog. T-174 is removed by ADR-023. T-185 is the after-Android-release iOS phase. These IDs are retained for traceability, excluded from current scheduling and never counted as completed. Further scope changes require a new decision; these approvals do not waive authentication, authorization, money/data integrity, privacy, module tests or backup/restore.

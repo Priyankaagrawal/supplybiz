@@ -199,12 +199,32 @@ history remains readable. Migration applied only to the isolated local test DB;
 manual verification and downstream writer integration remain pending.
 | `order_items` | id, order_id, product_id, product_name_snapshot, unit_snapshot JSONB, unit_price_paise BIGINT, qty INTEGER, line_total_paise BIGINT | T-042 read foundation: restrictive order/product FKs, positive quantity, nonnegative price and exact price × quantity check; index(order_id,id). Home uses snapshot names/quantities, including inactive/deleted products. T-045 owns transactional item creation and order-total validation; no order writes added by T-042. |
 | `order_status_history` | id, order_id, from_status, to_status, actor_type, actor_id, reason, at | append-only |
-| `subscriptions` | id, vendor_id, vendor_customer_id, product_id, qty, weekdays SMALLINT (bitmask Mon=1…Sun=64), start_date, end_date NULL, time_slot, address_snapshot JSONB, payment_method, status, created_by (VENDOR/CUSTOMER), version | index(vendor_id, status) |
-| `subscription_pauses` | id, subscription_id, from_date, to_date NULL | |
+| `subscriptions` | id, vendor_id, vendor_customer_id, product_id, start_date, end_date NULL, address_snapshot JSONB, payment_method, created_by (VENDOR/CUSTOMER), creator_user_id, version, created_at | T-072 restrictive vendor/customer/product/user FKs; vendor/customer created_at indexes; immutable identity by API, optimistic version |
+| `subscription_revisions` | subscription_id, version, effective_from DATE, qty, weekdays SMALLINT (bitmask Mon=1…Sun=64), time_slot, status, action, reason NULL, actor_id, created_at | PK(subscription_id,version); append-only; effective-date/version index; frozen dates retain prior configuration |
+| `subscription_pauses` | id, subscription_id, from_date, to_date NULL, resumed_from NULL | Inclusive ranges; resumed_from limits future effect without erasing history |
 | `subscription_skips` | subscription_id, date | PK(subscription_id, date) |
+| `subscription_requests` | request_key (hashed actor/key), user_id, path, request_hash, response, created_at | Permanent append-only replay identity; response only id/version/status/effectiveFrom, no address snapshot |
 | `sales` | id, sale_no, vendor_id, vendor_customer_id NULL, total_paise, paid_paise, balance_paise, payment_method, client_created_at, created_at | CHECK(vendor_customer_id IS NOT NULL OR balance_paise = 0) (RULE-11) |
 | `sale_items` | id, sale_id, product_id, name_snapshot, qty, rate_paise, amount_paise | |
 | `job_runs` | id, job, run_date, status, counts JSONB, error, started_at, finished_at | UNIQUE(job, run_date) |
+
+T-072 adds the real subscription FK on orders; existing order/date uniqueness
+remains. Scope checks bind customer and product to the same vendor. Reference
+rows in customer_subscription_links/product_subscription_links are maintained
+inside each mutation (PENDING_APPROVAL maps to PENDING). ACTIVE/PAUSED protects
+product deletion and feeds the customer subscription filter. A cancellation after
+cutoff conservatively retains ACTIVE references for frozen dates; T-073 must
+advance those references after processing the frozen horizon, and retire ended
+references. No generated order, receipt, stock movement or ledger debit is written
+at subscription setup. T-073 consumes effective revisions plus pause/resume and
+skip exclusions; only CREATE/EDIT/APPROVE/REJECT/CANCEL revisions alter dated
+configuration. PAUSE/RESUME/SKIP audit versions cannot apply a future edit early.
+COMPLETED and active range PAUSED are derived from the server business date.
+The additive migrations 202611160001_subscriptions and
+202611160002_subscription_index_name were applied only to the isolated test DB.
+The latter normalizes PostgreSQL's truncated index name without rewriting the
+applied first migration. Retain these tables/history on application rollback;
+no historical subscription or financial backfill is supplied.
 
 ### 3.6 Ledger & payments
 | Table | Key columns | Notes |

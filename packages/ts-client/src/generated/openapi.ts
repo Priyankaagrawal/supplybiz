@@ -4,6 +4,246 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorSubscriptionsController_list"];
+        put?: never;
+        post: operations["VendorSubscriptionsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorSubscriptionsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["VendorSubscriptionsController_edit"];
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_resume"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/subscriptions/{id}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorSubscriptionsController_skip"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerSubscriptionsController_list"];
+        put?: never;
+        post: operations["CustomerSubscriptionsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerSubscriptionsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["CustomerSubscriptionsController_edit"];
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions/{id}/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerSubscriptionsController_pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions/{id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerSubscriptionsController_resume"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerSubscriptionsController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/subscriptions/{id}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerSubscriptionsController_skip"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/vendors/{id}/subscription-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SubscriptionPlansController_plans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/payments": {
         parameters: {
             query?: never;
@@ -1405,6 +1645,180 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CustomerInput: {
+            name: string;
+            /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
+            mobile: string;
+            email?: string | null;
+            /** @description Defaults to empty on creation; omission preserves the address on PATCH. */
+            address?: string;
+            /**
+             * @description Defaults to CASH on creation; omission preserves the method on PATCH.
+             * @enum {string}
+             */
+            preferredPayment?: "CASH" | "UPI" | "BANK" | "WALLET";
+        };
+        VendorSubscriptionInput: {
+            /** Format: uuid */
+            productId: string;
+            qty: number;
+            /** @description ISO weekdays 1=Monday through 7=Sunday, unique. */
+            weekdays: number[];
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate?: string;
+            timeSlot: string;
+            /**
+             * @description External payment preference; postpaid Khata, no funds held or prepaid charge.
+             * @enum {string}
+             */
+            paymentMethod: "CASH" | "UPI" | "WALLET";
+            /** Format: uuid */
+            vendorCustomerId?: string;
+            /** @description Exactly one of vendorCustomerId or newCustomer. */
+            newCustomer?: components["schemas"]["CustomerInput"];
+        };
+        SubscriptionMutation: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            status: string;
+            /** Format: date */
+            effectiveFrom: string;
+        };
+        SubscriptionVersion: {
+            version: number;
+        };
+        SubscriptionReject: {
+            version: number;
+            reason?: string;
+        };
+        SubscriptionRevision: {
+            version: number;
+            /** Format: date */
+            effectiveFrom: string;
+            qty: number;
+            weekdays: number[];
+            timeSlot: string;
+            status: string;
+            action: string;
+            reason: string | null;
+        };
+        SubscriptionPauseRecord: {
+            /** Format: date */
+            fromDate: string;
+            /** Format: date */
+            toDate: string | null;
+            /** Format: date */
+            resumedFrom: string | null;
+        };
+        SubscriptionRecord: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            status: string;
+            /** Format: date */
+            effectiveFrom: string;
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            vendorCustomerId: string;
+            /** Format: uuid */
+            productId: string;
+            productName: string;
+            qty: number;
+            weekdays: number[];
+            timeSlot: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string | null;
+            addressSnapshot: {
+                [key: string]: unknown;
+            };
+            paymentMethod: string;
+            createdBy: string;
+            dailyAmountPaise: string;
+            monthlyEstimatePaise: string;
+            /** @description Server IST month for the estimate; not an invoice. */
+            estimateMonth: string;
+            revisions: components["schemas"]["SubscriptionRevision"][];
+            pauses: components["schemas"]["SubscriptionPauseRecord"][];
+            skips: string[];
+        };
+        SubscriptionList: {
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            items: components["schemas"]["SubscriptionRecord"][];
+            total: number;
+        };
+        SubscriptionPatch: {
+            version: number;
+            qty?: number;
+            weekdays?: number[];
+            timeSlot?: string;
+        };
+        SubscriptionPause: {
+            version: number;
+            /**
+             * Format: date
+             * @description Defaults to earliest modifiable date; inclusive.
+             */
+            fromDate?: string;
+            /**
+             * Format: date
+             * @description Inclusive; absent means open-ended.
+             */
+            toDate?: string;
+        };
+        SubscriptionSkip: {
+            version: number;
+            /** Format: date */
+            date: string;
+        };
+        CustomerSubscriptionInput: {
+            /** Format: uuid */
+            productId: string;
+            qty: number;
+            /** @description ISO weekdays 1=Monday through 7=Sunday, unique. */
+            weekdays: number[];
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate?: string;
+            timeSlot: string;
+            /**
+             * @description External payment preference; postpaid Khata, no funds held or prepaid charge.
+             * @enum {string}
+             */
+            paymentMethod: "CASH" | "UPI" | "WALLET";
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            addressId: string;
+        };
+        SubscriptionPlan: {
+            /** Format: uuid */
+            productId: string;
+            productName: string;
+            /** @description CUSTOM or an available 500/1000/2000 ml daily size. */
+            kind: string;
+            qty: number;
+            dailyAmountPaise: string;
+            monthlyEstimatePaise: string;
+            /** @description Unavailable until vendor selection is configured; never guessed. */
+            mostPopular: boolean | null;
+        };
+        SubscriptionPlans: {
+            items: components["schemas"]["SubscriptionPlan"][];
+            timeSlots: string[];
+            freeDelivery: boolean;
+            /** Format: date */
+            earliestStartDate: string;
+            estimateMonth: string;
+        };
         RecordPaymentInput: {
             /** Format: uuid */
             vendorCustomerId: string;
@@ -2061,19 +2475,6 @@ export interface components {
             activeCount: number;
             customerLimit: number;
         };
-        CustomerInput: {
-            name: string;
-            /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
-            mobile: string;
-            email?: string | null;
-            /** @description Defaults to empty on creation; omission preserves the address on PATCH. */
-            address?: string;
-            /**
-             * @description Defaults to CASH on creation; omission preserves the method on PATCH.
-             * @enum {string}
-             */
-            preferredPayment?: "CASH" | "UPI" | "BANK" | "WALLET";
-        };
         CustomerPatch: {
             name?: string;
             /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
@@ -2504,6 +2905,867 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    VendorSubscriptionsController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionList"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorSubscriptionInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_approve: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_reject: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionReject"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRecord"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_edit: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_pause: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionPause"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_resume: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_cancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorSubscriptionsController_skip: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionSkip"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Vendor scope/suspension/plan denial. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionList"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerSubscriptionInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRecord"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_edit: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_pause: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionPause"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_resume: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_cancel: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_skip: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionSkip"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionMutation"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubscriptionPlansController_plans: {
+        parameters: {
+            query: {
+                addressId: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionPlans"];
+                };
+            };
+        };
+    };
     PaymentsController_list: {
         parameters: {
             query?: {

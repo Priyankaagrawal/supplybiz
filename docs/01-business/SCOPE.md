@@ -117,11 +117,11 @@ See [README](../../README.md#document-dependencies).
 | Q-12 | Category-specific flows for tiffin, laundry, flowers, newspaper, home services? | Customer services | PO |
 | Q-13 | RESOLVED (user, 2026-11-13; ADR-032): vendors control delivery charges, minimum order value, slots and same-day cutoff. Initial charge/minimum ₹0; same-day orders require explicit enablement and a configured cutoff. | FR-132 policy resolved | PO |
 | Q-14 | Invite & Earn: reward type, amount, eligibility, fraud rules? | POST-DELIVERY SR-02; rewards deferred | PO |
-| Q-15 | Subscription generation time and customer change cutoff (A-05)? | FR-074, FR-077 | PO |
+| Q-15 | RESOLVED (user, 2026-11-16; ADR-033): generate date D at 22:00 IST on D-1; customer change cutoff is 21:00 IST on D-1. | FR-074, FR-077 | PO |
 | Q-16 | RESOLVED (user, 2026-11-13; ADR-032): customers may cancel only while NEW, without a cancellation fee. | FR-242 policy resolved | PO |
 | Q-17 | Can a vendor operate multiple categories (A-15)? | FR-010 | PO |
 | Q-18 | Visibility before KYC verification (A-04)? | FR-017 | PO |
-| Q-19 | Subscription billing prepaid vs postpaid (A-06)? | FR-233 | PO |
+| Q-19 | RESOLVED (user, 2026-11-16; ADR-033): postpaid through Khata; each delivered subscription order debits the ledger. Monthly totals are estimates. | FR-233 | PO |
 | Q-20 | Data retention periods (KYC docs, ledger, deleted accounts)? | AUTH_SECURITY | Legal |
 | Q-21 | Money tracker: auto-import Supply Biz payments as expenses? | POST-DELIVERY SR-01; auto-import deferred | PO |
 | Q-22 | "Payment Methods" screen meaning under direct payments (saved UPI IDs? preferred method?) | POST-DELIVERY SR-02; saved payment-method management deferred | PO |

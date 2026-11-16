@@ -19,6 +19,12 @@ export const eventTemplates = {
   SUBSCRIPTION_APPROVED: ['CUSTOMER', 'ORDERS', 'Subscription approved', '/customer/subscriptions/'],
   SUBSCRIPTION_RENEWED: ['CUSTOMER', 'ORDERS', 'Subscription renewed', '/customer/subscriptions/'],
   SUBSCRIPTION_PAUSED: ['CUSTOMER', 'ORDERS', 'Subscription paused', '/customer/subscriptions/'],
+  SUBSCRIPTION_REJECTED: ['CUSTOMER', 'ORDERS', 'Subscription rejected', '/customer/subscriptions/'],
+  SUBSCRIPTION_RESUMED: ['CUSTOMER', 'ORDERS', 'Subscription resumed', '/customer/subscriptions/'],
+  SUBSCRIPTION_CANCELLED: ['CUSTOMER', 'ORDERS', 'Subscription cancelled', '/customer/subscriptions/'],
+  SUBSCRIPTION_SKIPPED: ['CUSTOMER', 'ORDERS', 'Subscription delivery skipped', '/customer/subscriptions/'],
+  SUBSCRIPTION_UPDATED: ['CUSTOMER', 'ORDERS', 'Subscription updated', '/customer/subscriptions/'],
+  SUBSCRIPTION_CHANGED_VENDOR: ['VENDOR', 'ORDERS', 'Subscription updated', '/vendor/customers/subscriptions/'],
   VENDOR_HOLIDAY: ['CUSTOMER', 'SYSTEM', 'Vendor holiday', '/customer/subscriptions'],
   DELIVERY_UPDATE: ['VENDOR', 'DELIVERY', 'Delivery update', '/vendor/deliveries'],
 } as const;

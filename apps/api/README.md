@@ -1,5 +1,90 @@
 # Supply Biz API
 
+## T-072 subscriptions handoff (2026-11-16): READY_FOR_VERIFY
+
+User-approved ADR-033 resolves Q-15/Q-19: generate tomorrow at 22:00 IST,
+customer changes close at 21:00 IST, and deliveries bill postpaid through Khata.
+T-072 provides owned vendor/customer list/create/detail/PATCH, approval/rejection,
+pause/resume, skip and cancellation plus customer product-derived plan estimates.
+Every mutation uses permanent actor-scoped replay and optimistic versions.
+Append-only effective revisions preserve frozen dates and the next ungenerated
+configuration. Pause ranges are inclusive and naturally resume after their end;
+explicit resume preserves past pauses. Vendor skip after cutoff cancels only a
+seeded/generated NEW/ACCEPTED order, atomically with timeline and notices.
+Account/role/link/coverage/slot/plan/customer-limit checks protect every operation.
+No prepaid charge, stock write or ledger entry occurs at setup. Statements,
+actual generation/catch-up, settings and mobile screens remain T-073/T-075 and
+T-076/T-078/Khata tasks. `mostPopular` stays null without real vendor configuration.
+
+Applied only to isolated supplybiz_service_area_test:
+202611160001_subscriptions creates owned subscriptions/revisions/pauses/skips/
+requests and the order subscription FK; 202611160002_subscription_index_name
+aligns the truncated PostgreSQL index name. No historical or financial backfill,
+ledger grant change or runtime dependency. Apply both migrations to the intended
+dev/staging environment before manual use. Application rollback may retain the
+additive tables/history; do not drop recorded decisions. OpenAPI, TS and Dart
+clients were regenerated from source; existing paths/schemas compare unchanged.
+
+Executed in apps/api (PowerShell, installed local binaries):
+
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/subscriptions/subscription-policy.spec.ts src/modules/subscriptions/subscriptions.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/subscriptions/subscriptions.postgres.spec.ts -t 'cutoff freezes qty'
+.\node_modules\.bin\eslint.cmd src/modules/subscriptions src/modules/notifications/notification-events.ts src/app.module.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+```
+
+Executed from root and apps/mobile respectively:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+node --test tools/checks.spec.mjs
+# apps/mobile:
+flutter analyze --no-pub ../../packages/api_client/lib
+```
+
+PASS: 16 focused checks (five policy, 11 native HTTP/PostgreSQL), plus one
+targeted cutoff-message recheck, API lint/typecheck/build/schema, client codegen/
+TS compile/Dart analysis and five runner guards. A semantic YAML comparison
+against HEAD reports zero changed existing paths/schemas and 15 new paths.
+Initial native fixtures omitted the catalog's required milk type; corrected
+fixtures pass without weakening validation. Clock tests use an injected DB
+clock query, never a public time override. Generated orders in skip tests are
+explicit synthetic source fixtures; this is not a T-073 scheduler/job pass.
+Actual inbox writes/rollback are tested; live FCM transport is NOT_RUN.
+TC-078 pause-all/settings and TC-080–084 generation belong to subsequent tasks;
+no module gate, mobile journey, live provider, manual PASS or iOS pass is claimed.
+All task-started Nest/HTTP test instances exited; existing services/devices remain.
+
+Manual verification (use valid existing sessions and configured vendor slots):
+1. As a customer of a STANDARD+ eligible vendor, use an owned serviceable address
+   to load plans and create a future subscription. Confirm PENDING_APPROVAL, owned
+   detail/estimate and the vendor inbox request; approve or reject as the vendor.
+2. Enable existing auto-accept only with BUSINESS+, create another request and
+   confirm ACTIVE. Check BASIC denial, foreign customer/vendor IDs and expired
+   sessions; a matching offline mobile must require consent before creation.
+3. Edit qty/days/slot before and after 21:00 IST and inspect effectiveFrom and
+   revisions. Retry the same request/key, then a stale version; verify no duplicate
+   row/notice and VERSION_CONFLICT for a competing change.
+4. Pause a range/open-ended period, resume, skip and cancel. Check inclusive dates,
+   frozen-date PAST_CUTOFF explanation and the vendor's NEW/ACCEPTED skip boundary;
+   progressed orders must remain unchanged. Actual generated-order drill is T-073.
+5. Reload both role lists/details after restart; inspect references, inbox and
+   zero setup stock/ledger/receipt effects. Verify the full mobile/generation/
+   delivered-debit journey with the owning tasks before G3 acceptance.
+
 ## T-053 accepted-link integration evidence (2026-11-16)
 
 The new mobile Home prompt uses existing T-028 CustomerLinks APIs; no production

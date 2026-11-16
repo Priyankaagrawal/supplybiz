@@ -120,6 +120,15 @@ Class | Method | HTTP request | Description
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerPlace**](doc/CustomerOrdersApi.md#customerorderscontrollerplace) | **POST** /api/v1/customer/orders |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerQuote**](doc/CustomerOrdersApi.md#customerorderscontrollerquote) | **POST** /api/v1/customer/orders/quote |
 [*CustomerOrdersApi*](doc/CustomerOrdersApi.md) | [**customerOrdersControllerReorder**](doc/CustomerOrdersApi.md#customerorderscontrollerreorder) | **POST** /api/v1/customer/orders/{id}/reorder |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerCancel**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollercancel) | **POST** /api/v1/customer/subscriptions/{id}/cancel |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerCreate**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollercreate) | **POST** /api/v1/customer/subscriptions |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerEdit**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrolleredit) | **PATCH** /api/v1/customer/subscriptions/{id} |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerGet**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerget) | **GET** /api/v1/customer/subscriptions/{id} |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerList**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerlist) | **GET** /api/v1/customer/subscriptions |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerPause**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerpause) | **POST** /api/v1/customer/subscriptions/{id}/pause |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerResume**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerresume) | **POST** /api/v1/customer/subscriptions/{id}/resume |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerSkip**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerskip) | **POST** /api/v1/customer/subscriptions/{id}/skip |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**subscriptionPlansControllerPlans**](doc/CustomerSubscriptionsApi.md#subscriptionplanscontrollerplans) | **GET** /api/v1/customer/vendors/{id}/subscription-plans |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAdd**](doc/DiscoveryApi.md#discoverycontrolleradd) | **PUT** /api/v1/customer/favorites/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerFavorites**](doc/DiscoveryApi.md#discoverycontrollerfavorites) | **GET** /api/v1/customer/favorites |
@@ -168,6 +177,16 @@ Class | Method | HTTP request | Description
 [*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerApprove**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerapprove) | **POST** /api/v1/vendor/subscriptions/{id}/approve |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerCancel**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollercancel) | **POST** /api/v1/vendor/subscriptions/{id}/cancel |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerCreate**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollercreate) | **POST** /api/v1/vendor/subscriptions |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerEdit**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrolleredit) | **PATCH** /api/v1/vendor/subscriptions/{id} |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerGet**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerget) | **GET** /api/v1/vendor/subscriptions/{id} |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerList**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerlist) | **GET** /api/v1/vendor/subscriptions |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerPause**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerpause) | **POST** /api/v1/vendor/subscriptions/{id}/pause |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerReject**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerreject) | **POST** /api/v1/vendor/subscriptions/{id}/reject |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerResume**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerresume) | **POST** /api/v1/vendor/subscriptions/{id}/resume |
+[*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerSkip**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerskip) | **POST** /api/v1/vendor/subscriptions/{id}/skip |
 [*VersionApi*](doc/VersionApi.md) | [**versionControllerGetVersion**](doc/VersionApi.md#versioncontrollergetversion) | **GET** /api/v1/version | Get build metadata
 
 
@@ -203,6 +222,7 @@ Class | Method | HTTP request | Description
  - [CustomerList](doc/CustomerList.md)
  - [CustomerPatch](doc/CustomerPatch.md)
  - [CustomerResponse](doc/CustomerResponse.md)
+ - [CustomerSubscriptionInput](doc/CustomerSubscriptionInput.md)
  - [DeliveryCounts](doc/DeliveryCounts.md)
  - [DeliveryList](doc/DeliveryList.md)
  - [DeliveryPaymentInput](doc/DeliveryPaymentInput.md)
@@ -278,6 +298,18 @@ Class | Method | HTTP request | Description
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [ServiceAreaDto](doc/ServiceAreaDto.md)
  - [StockAdjustment](doc/StockAdjustment.md)
+ - [SubscriptionList](doc/SubscriptionList.md)
+ - [SubscriptionMutation](doc/SubscriptionMutation.md)
+ - [SubscriptionPatch](doc/SubscriptionPatch.md)
+ - [SubscriptionPause](doc/SubscriptionPause.md)
+ - [SubscriptionPauseRecord](doc/SubscriptionPauseRecord.md)
+ - [SubscriptionPlan](doc/SubscriptionPlan.md)
+ - [SubscriptionPlans](doc/SubscriptionPlans.md)
+ - [SubscriptionRecord](doc/SubscriptionRecord.md)
+ - [SubscriptionReject](doc/SubscriptionReject.md)
+ - [SubscriptionRevision](doc/SubscriptionRevision.md)
+ - [SubscriptionSkip](doc/SubscriptionSkip.md)
+ - [SubscriptionVersion](doc/SubscriptionVersion.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)
  - [VendorAbout](doc/VendorAbout.md)
@@ -288,6 +320,7 @@ Class | Method | HTTP request | Description
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
  - [VendorProfileResponse](doc/VendorProfileResponse.md)
  - [VendorSettingsResponse](doc/VendorSettingsResponse.md)
+ - [VendorSubscriptionInput](doc/VendorSubscriptionInput.md)
  - [VerifyOtpDto](doc/VerifyOtpDto.md)
  - [VersionControllerGetVersion200Response](doc/VersionControllerGetVersion200Response.md)
 

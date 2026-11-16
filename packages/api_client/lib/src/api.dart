@@ -20,6 +20,7 @@ import 'package:supplybiz_api_client/src/api/customer_addresses_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_home_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_links_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_orders_api.dart';
+import 'package:supplybiz_api_client/src/api/customer_subscriptions_api.dart';
 import 'package:supplybiz_api_client/src/api/discovery_api.dart';
 import 'package:supplybiz_api_client/src/api/health_api.dart';
 import 'package:supplybiz_api_client/src/api/kyc_api.dart';
@@ -32,6 +33,7 @@ import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_payments_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_plans_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_subscriptions_api.dart';
 import 'package:supplybiz_api_client/src/api/version_api.dart';
 
 class SupplybizApiClient {
@@ -228,6 +230,12 @@ class SupplybizApiClient {
     return CustomerOrdersApi(dio);
   }
 
+  /// Get CustomerSubscriptionsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CustomerSubscriptionsApi getCustomerSubscriptionsApi() {
+    return CustomerSubscriptionsApi(dio);
+  }
+
   /// Get DiscoveryApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   DiscoveryApi getDiscoveryApi() {
@@ -298,6 +306,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorPlansApi getVendorPlansApi() {
     return VendorPlansApi(dio);
+  }
+
+  /// Get VendorSubscriptionsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorSubscriptionsApi getVendorSubscriptionsApi() {
+    return VendorSubscriptionsApi(dio);
   }
 
   /// Get VersionApi instance, base route and serializer can be overridden by a given but be careful,

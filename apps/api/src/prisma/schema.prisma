@@ -89,6 +89,9 @@ enum outbox_event_status {
 }
 
 model users {
+  subscriptions subscriptions[]
+  subscription_requests subscription_requests[]
+  subscription_revisions subscription_revisions[]
   id          String          @id @default(uuid()) @db.Uuid
   mobile      String          @unique
   name        String?         @db.VarChar(120)
@@ -439,6 +442,7 @@ model media_access_events {
 
 // T-021: nullable business fields represent a category-only onboarding draft.
 model vendors {
+  subscriptions subscriptions[]
   payments payments[]
   favorites favorites[]
   orders orders[]
@@ -478,6 +482,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  subscriptions subscriptions[]
   payments payments[]
   orders orders[]
   id String @id @default(uuid()) @db.Uuid
@@ -569,6 +574,7 @@ model customer_subscription_links {
 
 // T-026: catalog foundation. Money and quantities are integral.
 model products {
+  subscriptions subscriptions[]
   order_items order_items[]
   id String @id @default(uuid()) @db.Uuid
   vendor_id String @db.Uuid
@@ -750,6 +756,7 @@ model vendor_holidays {
   @@unique([vendor_id,date])
 }
 model orders {
+  subscription subscriptions? @relation(fields:[subscription_id],references:[id],onDelete:Restrict)
   delivery_payment payments?
   items order_items[]
   timeline order_status_events[]
@@ -800,6 +807,72 @@ model order_items {
 
 // T-045: permanent actor-scoped replay identity; no customer/address PII in responses.
 model order_requests {
+  request_key String @id @db.Char(64)
+  user_id String @db.Uuid
+  path String @db.VarChar(160)
+  request_hash String @db.Char(64)
+  response Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+}
+// T-072: effective-date revisions preserve frozen delivery dates; T-073 generates.
+model subscriptions {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_id String @db.Uuid
+  vendor_customer_id String @db.Uuid
+  product_id String @db.Uuid
+  start_date DateTime @db.Date
+  end_date DateTime? @db.Date
+  address_snapshot Json
+  payment_method String @db.VarChar(8)
+  created_by String @db.VarChar(8)
+  creator_user_id String @db.Uuid
+  version Int @default(1)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  customer vendor_customers @relation(fields:[vendor_customer_id],references:[id],onDelete:Restrict)
+  product products @relation(fields:[product_id],references:[id],onDelete:Restrict)
+  creator users @relation(fields:[creator_user_id],references:[id],onDelete:Restrict)
+  revisions subscription_revisions[]
+  pauses subscription_pauses[]
+  skips subscription_skips[]
+  orders orders[]
+  @@index([vendor_id,created_at])
+  @@index([vendor_customer_id,created_at])
+}
+model subscription_revisions {
+  subscription_id String @db.Uuid
+  version Int
+  effective_from DateTime @db.Date
+  qty Int
+  weekdays Int @db.SmallInt
+  time_slot String @db.VarChar(80)
+  status String @db.VarChar(24)
+  action String @db.VarChar(16)
+  reason String? @db.VarChar(200)
+  actor_id String @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  subscription subscriptions @relation(fields:[subscription_id],references:[id],onDelete:Restrict)
+  actor users @relation(fields:[actor_id],references:[id],onDelete:Restrict)
+  @@id([subscription_id,version])
+  @@index([subscription_id,effective_from,version],map:"subscription_revisions_effective_idx")
+}
+model subscription_pauses {
+  id String @id @default(uuid()) @db.Uuid
+  subscription_id String @db.Uuid
+  from_date DateTime @db.Date
+  to_date DateTime? @db.Date
+  resumed_from DateTime? @db.Date
+  subscription subscriptions @relation(fields:[subscription_id],references:[id],onDelete:Restrict)
+  @@index([subscription_id,from_date])
+}
+model subscription_skips {
+  subscription_id String @db.Uuid
+  date DateTime @db.Date
+  subscription subscriptions @relation(fields:[subscription_id],references:[id],onDelete:Restrict)
+  @@id([subscription_id,date])
+}
+model subscription_requests {
   request_key String @id @db.Char(64)
   user_id String @db.Uuid
   path String @db.VarChar(160)

@@ -12,6 +12,7 @@
 ## Index
 | ADR | Title | Status |
 |---|---|---|
+| ADR-033 | Subscription generation, cutoff and postpaid billing | Accepted (user, 2026-11-16) |
 | ADR-001 | Flutter for the mobile app | Accepted (stakeholder) |
 | ADR-002 | Single app with role-based shells | Accepted (stakeholder) |
 | ADR-003 | Monorepo (melos + pnpm/Turborepo) | Accepted (stakeholder: one monorepo) / tooling Proposed |
@@ -216,3 +217,9 @@
 - **Preserve:** Existing Khata dues/history, payment recording/claims and existing-order financial handling remain accessible under their normal authorization and plan rules. POS and subscription billing are separate flows; this checkout decision does not resolve Q-05 or Q-19, move customer funds through the platform, or require prepayment. An unpaid delivery still follows RULE-10's financial posting.
 - **Precedence:** Replaces FR-223's proposed checkout credit default and resolves Q-13/Q-16. Earlier accepted ADR text is unchanged; related requirements/tests now follow this decision.
 - **Evidence:** Policy approval/documentation only. No application implementation, task verification or module-gate pass is supplied by this decision.
+
+### ADR-033 Subscription generation, cutoff and postpaid billing — Accepted, 2026-11-16
+- **Authority:** User explicitly selected "Confirm these rules and proceed" for Q-15/Q-19 and Day-8 T-072.
+- **Decision:** Generate tomorrow's subscription orders at 22:00 IST. The customer pause/skip/modify cutoff for date D is 21:00 IST on D-1. Before cutoff, changes affect D; after cutoff, changes affect D+1. An explicit customer skip of a frozen date returns PAST_CUTOFF. Preserve the documented vendor exception for skipping an already-generated NEW/ACCEPTED order after cutoff.
+- **Billing:** Subscriptions are postpaid through Khata. Each delivered subscription order posts its ledger debit through the existing transactional delivery flow. Monthly amounts are estimates under RULE-16, not prepaid charges, invoices or platform-held funds.
+- **Application:** Resolves Q-15 and Q-19, confirming A-05/A-06. T-072 may proceed against READY_FOR_VERIFY T-045 under ADR-030. T-073 owns actual scheduled generation; T-076/T-078 own mobile screens. Manual PASS and module gates remain separate.
