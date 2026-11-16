@@ -1,5 +1,35 @@
 # Supply Biz API
 
+## T-053 accepted-link integration evidence (2026-11-16)
+
+The new mobile Home prompt uses existing T-028 CustomerLinks APIs; no production
+API, contract, migration or dependency changes were necessary. Native PostgreSQL
+and HTTP checks PASS: the customer suite's eight cases include registration-time
+matches without auto-linking, concurrent consent across two instances, single
+decision ownership, decline/replay, conflicting choices, suspension and stale
+mobile matching. One targeted order case proves checkout refuses a matching
+offline customer before consent, uses the accepted record afterward and preserves
+inactive-customer/cap guards. Customer ledger readers/screens remain T-082/T-083;
+this evidence proves the accepted-link guard, not a customer Khata UI journey.
+
+Executed from apps/api against the isolated local test database:
+
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/customers/customers.postgres.spec.ts -t TC-064
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t 'never auto-links offline history'
+```
+
+PASS: eight customer cases (TC-064 also matches the parent describe name), one
+selected order case; 16 unrelated order cases deliberately unselected. API static
+checks/codegen were not repeated because only mobile source changed. No live OTP
+or customer ledger UI pass is claimed. Manual integrated journey and G2 pending.
+
 ## T-052 order notification fan-out evidence (2026-11-14)
 
 Existing transactional producers cover ORDER_NEW/ORDER_CANCELLED for the vendor

@@ -7,6 +7,8 @@ import 'package:ui_kit/ui_kit.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/router/routes.dart';
 import '../notifications/notifications_controller.dart';
+import '../customers/customer_links_controller.dart';
+import '../customers/customer_links_prompt.dart';
 import 'home_controller.dart';
 
 String homeStatus(AppLocalizations l, String status) => switch (status) {
@@ -39,7 +41,8 @@ class _CustomerHomePageState extends ConsumerState<CustomerHomePage> {
   Future<void> refresh() async {
     await Future.wait([
       ref.read(homeProvider).load(),
-      ref.read(notificationsProvider).load('CUSTOMER')
+      ref.read(notificationsProvider).load('CUSTOMER'),
+      ref.read(customerLinksProvider).load()
     ]);
   }
 
@@ -90,6 +93,7 @@ class _CustomerHomePageState extends ConsumerState<CustomerHomePage> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     children: [
+                      const CustomerLinksPrompt(),
                       SbButton(
                           label: location == null
                               ? l.homeChooseLocation

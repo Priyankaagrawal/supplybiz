@@ -1580,6 +1580,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'This vendor does not serve the selected address. Choose another address.';
 
   @override
+  String get linkTitle => 'Link vendor accounts';
+
+  @override
+  String get linkMore => 'Show more account links';
+
+  @override
+  String get linkAccept => 'Link account';
+
+  @override
+  String get linkDecline => 'Decline link';
+
+  @override
+  String linkConsent(String name) {
+    return 'Link your account with $name? This connects the vendor\'s existing customer records to your signed-in account.';
+  }
+
+  @override
+  String linkDeclineConfirm(String name) {
+    return 'Decline the link from $name? This request will be dismissed and its records will stay unlinked.';
+  }
+
+  @override
+  String get linkAccepted => 'Account linked.';
+
+  @override
+  String get linkDeclined => 'Link declined.';
+
+  @override
+  String get linkEmpty => 'No vendor accounts waiting to be linked.';
+
+  @override
+  String get linkRefresh => 'Refresh account links';
+
+  @override
+  String get linkPendingAccept =>
+      'Your link request is awaiting confirmation. Retry the saved acceptance to check its result.';
+
+  @override
+  String get linkPendingDecline =>
+      'Your decline is awaiting confirmation. Retry the saved decision to check its result.';
+
+  @override
   String get checkoutTiming =>
       'The delivery date or slot is no longer available. Refresh delivery choices.';
 

@@ -23,6 +23,10 @@ import 'package:supplybiz_mobile/features/notifications/notifications_controller
 import 'package:ui_kit/ui_kit.dart';
 import '../onboarding/onboarding_test.dart' show MemoryDrafts, TestSession;
 import '../addresses/addresses_test.dart' show reveal;
+import '../auth/auth_fixture.dart' show testAuthConfig;
+import '../notifications/notification_fixture.dart' show NotificationSession;
+import 'package:supplybiz_mobile/features/auth/session_controller.dart';
+import 'package:supplybiz_mobile/features/customers/customer_links_controller.dart';
 import 'home_fixture.dart';
 
 const manualLocation = HomeLocation(
@@ -61,6 +65,11 @@ Widget homeApp(HomeController model, HomeFixture fixture,
   addTearDown(client.close);
   return ProviderScope(
       overrides: [
+        sessionProvider.overrideWith(() => NotificationSession()),
+        customerLinksProvider.overrideWith((ref) => CustomerLinksController(
+            client,
+            MemoryDrafts(),
+            '${testAuthConfig.baseUrl}:synthetic:links')),
         homeProvider.overrideWith((ref) => model),
         notificationsProvider.overrideWith((ref) =>
             NotificationsController(NotificationsApi(client.dio), 'synthetic')),
@@ -116,6 +125,9 @@ void main() {
     await tester.pumpWidget(ProviderScope(
         overrides: [
           authEnabledProvider.overrideWithValue(true),
+          sessionProvider.overrideWith(() => NotificationSession()),
+          customerLinksProvider.overrideWith((ref) => CustomerLinksController(
+              client, MemoryDrafts(), 'synthetic:links')),
           homeProvider.overrideWith((ref) => m),
           homeSearchProvider(homeCategoryId).overrideWith((ref) => search),
           notificationsProvider.overrideWith((ref) => NotificationsController(
@@ -303,6 +315,7 @@ void main() {
     await tester.pumpWidget(homeApp(m, f, scale: 2));
     await tester.pumpAndSettle();
     final coming = find.widgetWithText(SbButton, 'Tiffin — Coming soon');
+    await reveal(tester, coming);
     expect(tester.widget<SbButton>(coming).onPressed, isNull);
     await reveal(tester, find.text('Accepted'));
     expect(find.text('Synthetic milk × 2'), findsOneWidget);

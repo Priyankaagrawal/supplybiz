@@ -2920,6 +2920,78 @@ abstract class AppLocalizations {
   /// **'This vendor does not serve the selected address. Choose another address.'**
   String get checkoutCoverage;
 
+  /// No description provided for @linkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Link vendor accounts'**
+  String get linkTitle;
+
+  /// No description provided for @linkMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more account links'**
+  String get linkMore;
+
+  /// No description provided for @linkAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Link account'**
+  String get linkAccept;
+
+  /// No description provided for @linkDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline link'**
+  String get linkDecline;
+
+  /// No description provided for @linkConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Link your account with {name}? This connects the vendor\'s existing customer records to your signed-in account.'**
+  String linkConsent(String name);
+
+  /// No description provided for @linkDeclineConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline the link from {name}? This request will be dismissed and its records will stay unlinked.'**
+  String linkDeclineConfirm(String name);
+
+  /// No description provided for @linkAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Account linked.'**
+  String get linkAccepted;
+
+  /// No description provided for @linkDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Link declined.'**
+  String get linkDeclined;
+
+  /// No description provided for @linkEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No vendor accounts waiting to be linked.'**
+  String get linkEmpty;
+
+  /// No description provided for @linkRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh account links'**
+  String get linkRefresh;
+
+  /// No description provided for @linkPendingAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Your link request is awaiting confirmation. Retry the saved acceptance to check its result.'**
+  String get linkPendingAccept;
+
+  /// No description provided for @linkPendingDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your decline is awaiting confirmation. Retry the saved decision to check its result.'**
+  String get linkPendingDecline;
+
   /// No description provided for @checkoutTiming.
   ///
   /// In en, this message translates to:

@@ -1,5 +1,88 @@
 # Supply Biz Mobile
 
+## T-053 offline customer linking handoff (2026-11-16): READY_FOR_VERIFY
+
+S-C-38 appears on customer Home after registration/login and refreshes on resume,
+pull-to-refresh or Refresh account links. The generated CustomerLinksApi returns
+only server-owned mobile matches. Each vendor has confirmed Link account/Decline
+link actions, with a fallback for an absent business name, paginated requests,
+loading/empty/error states and English accessibility text. No match auto-links.
+Accept refreshes existing Home reads; decline permanently dismisses the request.
+
+Before sending, the environment/account-scoped SQLCipher store saves only the
+vendor-customer UUID, decision and idempotency key. A lost response or failed
+acknowledgement write leaves an explicit same-choice/key retry and blocks new
+decisions. Recreating the provider restores it even when the server has already
+removed the prompt. The API's permanent consent record makes same-choice replay
+safe beyond its 24-hour response cache. Definitive rejection requires refresh;
+role/account replacement invalidates confirmations and late responses cannot
+restore wiped data. No mobile numbers, ledger content or tokens are stored here.
+
+This task connects consent to the existing T-028 API and accepted-link guard;
+customer Khata readers/screens remain T-082/T-083, as specified in API_SPECIFICATION
+4.5. Their visibility journey is not claimed as passed. No API contract/schema,
+dependency or router change was necessary; English localization was regenerated.
+
+Executed from apps/mobile:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/customers/customer_links_controller.dart lib/features/customers/customer_links_prompt.dart test/features/customers/customer_links_test.dart test/features/customers/customer_links_disposal_test.dart test/features/home/home_test.dart
+flutter analyze --no-pub lib/features/customers/customer_links_controller.dart lib/features/customers/customer_links_prompt.dart lib/features/home/home_page.dart test/features/customers/customer_links_test.dart test/features/customers/customer_links_disposal_test.dart test/features/home/home_test.dart integration_test/customer_links_test.dart
+flutter test --no-pub test/features/customers/customer_links_test.dart test/features/customers/customer_links_disposal_test.dart test/features/home/home_test.dart test/core/router/app_router_test.dart
+```
+
+PASS: clean analysis and 26 focused checks (nine consent/retry/loading/logout checks,
+11 Home checks and six router checks). The Home fixtures now supply the consent
+provider; the 200% test scrolls to its category assertion below the new prompt.
+Root `node --test tools/checks.spec.mjs`: five runner guards PASS, not a module gate.
+API README records nine real PostgreSQL/HTTP checks; mobile HTTP is simulated.
+
+Normal Android APK build PASS (226.4 seconds, including automatic installation
+of missing CMake 3.22.1 in the existing SDK):
+
+```powershell
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+Copy-Item -LiteralPath build/app/outputs/flutter-apk/app-dev-debug.apk -Destination .dart_tool/t053-normal-app-dev-debug.apk
+```
+
+Native Android smoke PASS (one scenario, final build 83.9 seconds):
+
+```powershell
+# Verification process only; the default SDK's newest build-tools lack aapt.
+$env:ANDROID_HOME = 'C:\Android'
+flutter test integration_test/customer_links_test.dart -d emulator-5556 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+flutter analyze --no-pub test/features/customers/customer_links_test.dart
+Copy-Item -LiteralPath .dart_tool/t053-normal-app-dev-debug.apk -Destination build/app/outputs/flutter-apk/app-dev-debug.apk
+& "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -s emulator-5556 emu kill
+```
+
+The test exercises real Android SQLCipher/secure storage, confirmation cancellation,
+lost-response provider recreation with the original decision/key, acknowledgement,
+encrypted bytes, logout wipe and 200% text. HTTP is simulated, not live API/OTP.
+The initial native harness lacked the UI kit localization delegate for loading;
+the corrected delegate plus a loading-state check pass without suppressed errors.
+An initial emulator-5554 attempt could not attach; that pre-existing emulator was
+preserved. A separate read-only Pixel_7 emulator (5556) was used for the passing
+run and shut down afterward. The normal APK is restored in the standard build
+output; no integration APK was installed on the original emulator.
+
+Manual verification:
+1. As a vendor, create an offline customer with a synthetic mobile; sign up/log in
+   with that mobile as Customer. Home must show that vendor's link prompt.
+2. Cancel Link account confirmation, then accept it. Confirm linkage on the vendor
+   record and successful checkout without creating a duplicate customer record.
+3. Decline a separate vendor's prompt; refresh/reopen and verify it stays dismissed.
+   A different customer account must not see or accept either request.
+4. Interrupt connectivity during a decision, reopen Home and retry its saved
+   choice; confirm one permanent decision. Logout/switch roles during confirmation
+   and check that the previous confirmation cannot submit for the new session.
+5. Check long/missing vendor names, multiple matches, empty/error states, TalkBack
+   and 200% scrolling. Customer ledger visibility is verified with T-082/T-083.
+
+Manual UI/API/DB registration journey, TalkBack/PASS and G2 remain pending;
+live OTP/provider delivery is NOT_RUN, iOS checks are deferred.
+
 ## T-052 order notifications handoff (2026-11-14): READY_FOR_VERIFY
 
 All seven FR-101 order event types now refresh already-open customer Home/order
