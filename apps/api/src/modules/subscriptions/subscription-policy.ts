@@ -1,6 +1,6 @@
 // T-072 / ADR-033 / RULE-08,16. Dates are server IST business dates, never device time.
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, vendor_settings } from '@prisma/client';
 import { homeClock } from '../home/home.service';
 export function dateOnly(value:string) {
   const date=new Date(`${value}T00:00:00Z`);
@@ -36,8 +36,11 @@ export function revisionForDate(row:SubscriptionRead,day:string) {
 export function pausedOn(row:SubscriptionRead,day:string) {
   return row.pauses.some(p=>day>=dayString(p.from_date) && (!p.to_date || day<=dayString(p.to_date)) && (!p.resumed_from || day<dayString(p.resumed_from)));
 }
-/** T-073 must additionally enforce vendor/plan/product eligibility and capacity. */
-export function subscriptionForDate(row:SubscriptionRead,day:string) {
+/** T-073 must pass current settings under the vendor lock, then enforce plan,
+ * product, holiday and capacity rules. Omission supports calendar-only checks. */
+export function subscriptionForDate(row:SubscriptionRead,day:string,
+  settings?:Pick<vendor_settings,'pause_all_subscriptions'|'subscription_delivery_available'>) {
+  if(settings && (settings.pause_all_subscriptions || !settings.subscription_delivery_available)) return null;
   const revision=revisionForDate(row,day);
   if(day<dayString(row.start_date) || row.end_date && day>dayString(row.end_date) ||
       revision?.status!=='ACTIVE' || pausedOn(row,day) || row.skips.some(s=>dayString(s.date)===day) ||

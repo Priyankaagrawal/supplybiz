@@ -1,5 +1,27 @@
 # Supply Biz Mobile
 
+## T-075 generated-client compatibility (2026-11-16)
+
+No settings UI is implemented in this task (T-076 owns it). OpenAPI regenerated
+VendorSubscriptionSettingsApi and its settings/summary/customer models. Nullable
+PATCH fields are omitted by the generator, so typed callers use explicit true
+clearDeliveryWindow/clearMaxDailyOrders/clearDailyMilkCapacity flags to clear
+values. The generated transport smoke checks JSON, retry key, route and nullable
+response decoding. Backend HTTP/PostgreSQL checks verify those flags actually
+clear stored fields and reject conflicting replacement values.
+
+Executed from apps/mobile, PASS:
+
+```powershell
+dart format test/core/network/subscription_settings_client_test.dart
+flutter test --no-pub test/core/network/subscription_settings_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/subscription_settings_client_test.dart
+```
+
+HTTP in this one Dart transport check is simulated; real API/DB evidence and
+five manual steps are in apps/api/README.md T-075. Android runtime/a11y UI checks
+remain T-076; iOS is deferred. No device or UI-pass claim is made here.
+
 ## T-053 offline customer linking handoff (2026-11-16): READY_FOR_VERIFY
 
 S-C-38 appears on customer Home after registration/login and refreshes on resume,

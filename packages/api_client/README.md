@@ -177,6 +177,9 @@ Class | Method | HTTP request | Description
 [*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
+[*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerCustomers**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollercustomers) | **GET** /api/v1/vendor/settings/subscription-customers |
+[*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerGet**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollerget) | **GET** /api/v1/vendor/settings |
+[*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerPatch**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollerpatch) | **PATCH** /api/v1/vendor/settings |
 [*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerApprove**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollerapprove) | **POST** /api/v1/vendor/subscriptions/{id}/approve |
 [*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerCancel**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollercancel) | **POST** /api/v1/vendor/subscriptions/{id}/cancel |
 [*VendorSubscriptionsApi*](doc/VendorSubscriptionsApi.md) | [**vendorSubscriptionsControllerCreate**](doc/VendorSubscriptionsApi.md#vendorsubscriptionscontrollercreate) | **POST** /api/v1/vendor/subscriptions |
@@ -298,6 +301,8 @@ Class | Method | HTTP request | Description
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [ServiceAreaDto](doc/ServiceAreaDto.md)
  - [StockAdjustment](doc/StockAdjustment.md)
+ - [SubscriptionCustomer](doc/SubscriptionCustomer.md)
+ - [SubscriptionCustomerList](doc/SubscriptionCustomerList.md)
  - [SubscriptionList](doc/SubscriptionList.md)
  - [SubscriptionMutation](doc/SubscriptionMutation.md)
  - [SubscriptionPatch](doc/SubscriptionPatch.md)
@@ -308,6 +313,9 @@ Class | Method | HTTP request | Description
  - [SubscriptionRecord](doc/SubscriptionRecord.md)
  - [SubscriptionReject](doc/SubscriptionReject.md)
  - [SubscriptionRevision](doc/SubscriptionRevision.md)
+ - [SubscriptionSettingsPatch](doc/SubscriptionSettingsPatch.md)
+ - [SubscriptionSettingsResponse](doc/SubscriptionSettingsResponse.md)
+ - [SubscriptionSettingsSummary](doc/SubscriptionSettingsSummary.md)
  - [SubscriptionSkip](doc/SubscriptionSkip.md)
  - [SubscriptionVersion](doc/SubscriptionVersion.md)
  - [TokensResponse](doc/TokensResponse.md)

@@ -1,5 +1,97 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/settings:
+    get:
+      operationId: SubscriptionSettingsController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionSettingsResponse'
+        '400':
+          description: Invalid exact capacity, delivery window, patch or idempotency key.
+        '403':
+          description: Vendor role/suspension or server plan feature denial; contact support to assign/renew.
+        '409':
+          description: VERSION_CONFLICT on shared vendor settings.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-subscription-settings
+      security:
+        - bearer: []
+    patch:
+      operationId: SubscriptionSettingsController_patch
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionSettingsPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionSettingsResponse'
+        '400':
+          description: Invalid exact capacity, delivery window, patch or idempotency key.
+        '403':
+          description: Vendor role/suspension or server plan feature denial; contact support to assign/renew.
+        '409':
+          description: VERSION_CONFLICT on shared vendor settings.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-subscription-settings
+      security:
+        - bearer: []
+  /api/v1/vendor/settings/subscription-customers:
+    get:
+      operationId: SubscriptionSettingsController_customers
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionCustomerList'
+        '400':
+          description: Invalid exact capacity, delivery window, patch or idempotency key.
+        '403':
+          description: Vendor role/suspension or server plan feature denial; contact support to assign/renew.
+        '409':
+          description: VERSION_CONFLICT on shared vendor settings.
+        '422':
+          description: IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-subscription-settings
+      security:
+        - bearer: []
   /api/v1/vendor/subscriptions:
     post:
       operationId: VendorSubscriptionsController_create
@@ -4432,6 +4524,178 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    SubscriptionSettingsSummary:
+      type: object
+      properties:
+        totalSubscriptions:
+          type: integer
+        active:
+          type: integer
+        paused:
+          type: integer
+        pendingApproval:
+          type: integer
+        cancelled:
+          type: integer
+        rejected:
+          type: integer
+        completed:
+          type: integer
+        subscriptionCustomers:
+          type: integer
+          description: Distinct undeleted vendor customers with ACTIVE/PAUSED subscriptions.
+      required:
+        - totalSubscriptions
+        - active
+        - paused
+        - pendingApproval
+        - cancelled
+        - rejected
+        - completed
+        - subscriptionCustomers
+    SubscriptionSettingsResponse:
+      type: object
+      properties:
+        version:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+        autoAcceptSubscriptions:
+          type: boolean
+        effectiveAutoAcceptSubscriptions:
+          type: boolean
+        canAutoAccept:
+          type: boolean
+        canEditSubscriptions:
+          type: boolean
+        canReduceActivity:
+          type: boolean
+          description: Owned reducing controls remain available with history access after expiry/downgrade.
+        deliveryAvailable:
+          type: boolean
+        deliveryStartTime:
+          type: string
+          nullable: true
+        deliveryEndTime:
+          type: string
+          nullable: true
+        maxDailyOrders:
+          type: integer
+          nullable: true
+        dailyMilkCapacityLitres:
+          type: string
+          nullable: true
+        pauseAllSubscriptions:
+          type: boolean
+        summary:
+          $ref: '#/components/schemas/SubscriptionSettingsSummary'
+      required:
+        - version
+        - serverTime
+        - businessDate
+        - autoAcceptSubscriptions
+        - effectiveAutoAcceptSubscriptions
+        - canAutoAccept
+        - canEditSubscriptions
+        - canReduceActivity
+        - deliveryAvailable
+        - deliveryStartTime
+        - deliveryEndTime
+        - maxDailyOrders
+        - dailyMilkCapacityLitres
+        - pauseAllSubscriptions
+        - summary
+    SubscriptionSettingsPatch:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        autoAcceptSubscriptions:
+          type: boolean
+          description: Enabling requires active BUSINESS+.
+        deliveryAvailable:
+          type: boolean
+        deliveryStartTime:
+          type: string
+          nullable: true
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: IST daily delivery window. Both ends may be cleared with null; overnight windows are allowed.
+        deliveryEndTime:
+          type: string
+          nullable: true
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+        maxDailyOrders:
+          type: integer
+          nullable: true
+          minimum: 1
+          maximum: 2147483647
+          description: Positive order limit; null is unlimited. Typed clients may use clearMaxDailyOrders.
+        dailyMilkCapacityLitres:
+          type: string
+          nullable: true
+          description: >-
+            Positive exact litres, up to three fractional digits (1 ml), max 2147483.647. Null is unlimited. Typed
+            clients may use clearDailyMilkCapacity.
+        pauseAllSubscriptions:
+          type: boolean
+        clearDeliveryWindow:
+          type: boolean
+          description: Set true to clear both delivery times. Cannot accompany non-null times.
+        clearMaxDailyOrders:
+          type: boolean
+          description: Set true to remove the order limit. Cannot accompany a non-null limit.
+        clearDailyMilkCapacity:
+          type: boolean
+          description: Set true to remove the milk limit. Cannot accompany a non-null limit.
+      required:
+        - version
+    SubscriptionCustomer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        mobile:
+          type: string
+        status:
+          type: string
+        activeSubscriptions:
+          type: integer
+        pausedSubscriptions:
+          type: integer
+      required:
+        - id
+        - name
+        - mobile
+        - status
+        - activeSubscriptions
+        - pausedSubscriptions
+    SubscriptionCustomerList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionCustomer'
+        total:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - items
+        - total
+        - serverTime
+        - businessDate
     CustomerInput:
       type: object
       properties:

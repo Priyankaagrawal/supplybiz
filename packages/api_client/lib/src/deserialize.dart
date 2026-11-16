@@ -104,6 +104,8 @@ import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
+import 'package:supplybiz_api_client/src/model/subscription_customer.dart';
+import 'package:supplybiz_api_client/src/model/subscription_customer_list.dart';
 import 'package:supplybiz_api_client/src/model/subscription_list.dart';
 import 'package:supplybiz_api_client/src/model/subscription_mutation.dart';
 import 'package:supplybiz_api_client/src/model/subscription_patch.dart';
@@ -114,6 +116,9 @@ import 'package:supplybiz_api_client/src/model/subscription_plans.dart';
 import 'package:supplybiz_api_client/src/model/subscription_record.dart';
 import 'package:supplybiz_api_client/src/model/subscription_reject.dart';
 import 'package:supplybiz_api_client/src/model/subscription_revision.dart';
+import 'package:supplybiz_api_client/src/model/subscription_settings_patch.dart';
+import 'package:supplybiz_api_client/src/model/subscription_settings_response.dart';
+import 'package:supplybiz_api_client/src/model/subscription_settings_summary.dart';
 import 'package:supplybiz_api_client/src/model/subscription_skip.dart';
 import 'package:supplybiz_api_client/src/model/subscription_version.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
@@ -432,6 +437,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'StockAdjustment':
       return StockAdjustment.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'SubscriptionCustomer':
+      return SubscriptionCustomer.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionCustomerList':
+      return SubscriptionCustomerList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'SubscriptionList':
       return SubscriptionList.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -461,6 +472,15 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'SubscriptionRevision':
       return SubscriptionRevision.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionSettingsPatch':
+      return SubscriptionSettingsPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionSettingsResponse':
+      return SubscriptionSettingsResponse.fromJson(
+          value as Map<String, dynamic>) as ReturnType;
+    case 'SubscriptionSettingsSummary':
+      return SubscriptionSettingsSummary.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'SubscriptionSkip':
       return SubscriptionSkip.fromJson(value as Map<String, dynamic>)

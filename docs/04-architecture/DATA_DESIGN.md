@@ -88,6 +88,19 @@ erDiagram
 | `vendor_settings` | vendor_id, service_radius_km (1–20), delivery_charge_paise, min_order_paise, time_slots JSONB, same_day_cutoff TIME, auto_accept_subscriptions, accepting_today, delivery_paused, delivery_paused_until, max_daily_orders, daily_milk_capacity_ml, low_stock_threshold, allow_khata_orders, version | PK(vendor_id) |
 | `vendor_service_pincodes` | vendor_id, pincode | PK(vendor_id, pincode) |
 
+T-075 adds subscription_delivery_available (default true), paired nullable
+subscription_delivery_start/end TIME(0) and pause_all_subscriptions (default false).
+No legacy delivery hours are filled in. Pair/difference checks reject incomplete
+or zero-length windows; existing positive-only order/milk cap constraints remain
+authoritative. Litres are an API decimal string converted exactly to the existing
+integer ml field. Global controls leave individual revisions/pauses/skips intact.
+The shared vendor_settings version is checked on PATCH; actor/vendor locks,
+before/after USER audit and 24-hour idempotency acknowledgement commit together.
+No new request table, dependency or financial backfill. Migration
+202611160003_subscription_settings was applied only to the isolated test DB;
+retain additive columns on application rollback. T-073 must read current settings
+under the vendor lock and pass them to candidate policy before inserting orders.
+
 T-155 adds `vendors.badges TEXT[] NOT NULL DEFAULT '{}'` (at most 10 display
 labels), retaining existing suspension/KYC/plan states. `management_requests`
 stores permanent admin-scoped request hash/path/result with append-only/no-truncate

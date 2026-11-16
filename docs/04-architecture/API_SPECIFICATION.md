@@ -97,6 +97,56 @@ endpoint, user/session creation and tokens belong to T-015.
 | POST | `/vendor/delivery/pause` `{ until? }` ; POST `/vendor/delivery/resume` |
 | GET | `/vendor/dashboard?date=YYYY-MM-DD` |
 
+T-075 implements `GET/PATCH /vendor/settings` for subscription controls and
+`GET /vendor/settings/subscription-customers?limit=&offset=` for owned customers
+with ACTIVE/PAUSED subscriptions. Other delivery/settings fields remain their
+owning task; unknown PATCH fields are rejected. Reads require vendor history
+access; all routes derive vendor identity from the authenticated active role,
+deny suspension and return no-store responses. Customer lists expose only owned
+id/name/mobile/status and active/paused counts, default 20/max 50 rows, ordered by
+name/UUID. Summary counts use the same dated end/pause/latest-intent projection
+as subscriptions, including completed and pending requests; individual statuses
+remain separate from the global pause/availability switches.
+
+PATCH requires Idempotency-Key and shared vendor_settings `version` and accepts
+`autoAcceptSubscriptions`, `deliveryAvailable`, `deliveryStartTime`,
+`deliveryEndTime`, `maxDailyOrders`, `dailyMilkCapacityLitres`, and
+`pauseAllSubscriptions`. Enabling auto-accept requires BUSINESS+; ordinary writes
+require active STANDARD+. History/expiry/downgrade access still permits reducing
+controls (auto-accept false, pause-all true, deliveryAvailable false). Responses
+include configured/effective auto-accept and server feature flags; a stale
+configured true flag cannot grant a feature after downgrade or expiry.
+
+Maximum orders is a positive integer or null (unlimited). Milk capacity is a
+positive decimal-string number of litres with at most three fractional digits,
+up to 2147483.647 L, stored exactly as integer ml in the existing field consumed
+by T-045 quote/place. Zero/negative/overflow/fractional-ml limits are rejected.
+Clear both limits with null; typed clients that omit nulls may send
+`clearMaxDailyOrders:true` and `clearDailyMilkCapacity:true`. Clear flags must be
+true and cannot accompany non-null replacement values. Saved caps constrain
+actual dated order placement; they do not change existing orders or financial
+history. Shared settings version conflicts with another settings edit return
+409 VERSION_CONFLICT.
+
+Delivery times are optional paired HH:mm IST clock values; no default hours
+are invented. End earlier than start represents an overnight window; equal or
+partially configured ends are invalid. Clear both with null or
+`clearDeliveryWindow:true`. The stored window describes delivery hours; configured
+subscription slot labels are retained separately. These times do not change
+ADR-033's 22:00 generation schedule. Legacy delivery availability stays enabled,
+window times stay null and pause-all defaults false. The generation policy
+`subscriptionForDate(row,date,settings)` rejects every candidate while pause-all
+is true or deliveryAvailable is false, and restores each individual pause/skip
+on re-enable. T-073 must pass locked current settings and enforce the shared caps;
+T-075 does not start a scheduler or cancel already-generated deliveries.
+
+The settings update, redacted USER audit before/after, version and acknowledgement
+cache commit atomically. A same-key/body retry returns its original response for
+24 hours, even after restart; changed intent is 422 IDEMPOTENCY_MISMATCH. After
+cache expiry, the original version conflicts rather than reapplying old intent.
+Refresh/review current settings before submitting a new change. Cached responses
+are acknowledgement snapshots; GET returns current feature flags and summary.
+
 T-021 onboarding requires a held and active VENDOR role. Category creates the profile and
 settings atomically, with next step 2; valid business save advances to step 3 without
 regressing progress. GET restores persisted values. Business fields are required except

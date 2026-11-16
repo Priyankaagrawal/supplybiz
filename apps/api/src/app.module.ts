@@ -2,6 +2,8 @@ import { DashboardController } from './modules/dashboard/dashboard.controller';
 import { VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController } from './modules/subscriptions/subscriptions.controller';
 import { SubscriptionsService } from './modules/subscriptions/subscriptions.service';
 import { SubscriptionClock } from './modules/subscriptions/subscription-policy';
+import { SubscriptionSettingsController } from './modules/subscriptions/subscription-settings.controller';
+import { SubscriptionSettingsService } from './modules/subscriptions/subscription-settings.service';
 import { DashboardService } from './modules/dashboard/dashboard.service';
 import { HomeController } from './modules/home/home.controller';
 import { HomeService } from './modules/home/home.service';
@@ -85,8 +87,9 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
+    SubscriptionSettingsService,
     SubscriptionsService, SubscriptionClock,
     PrismaService,
     OrdersService,

@@ -4,6 +4,38 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SubscriptionSettingsController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SubscriptionSettingsController_patch"];
+        trace?: never;
+    };
+    "/api/v1/vendor/settings/subscription-customers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SubscriptionSettingsController_customers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/subscriptions": {
         parameters: {
             query?: never;
@@ -1645,6 +1677,72 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SubscriptionSettingsSummary: {
+            totalSubscriptions: number;
+            active: number;
+            paused: number;
+            pendingApproval: number;
+            cancelled: number;
+            rejected: number;
+            completed: number;
+            /** @description Distinct undeleted vendor customers with ACTIVE/PAUSED subscriptions. */
+            subscriptionCustomers: number;
+        };
+        SubscriptionSettingsResponse: {
+            version: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            autoAcceptSubscriptions: boolean;
+            effectiveAutoAcceptSubscriptions: boolean;
+            canAutoAccept: boolean;
+            canEditSubscriptions: boolean;
+            /** @description Owned reducing controls remain available with history access after expiry/downgrade. */
+            canReduceActivity: boolean;
+            deliveryAvailable: boolean;
+            deliveryStartTime: string | null;
+            deliveryEndTime: string | null;
+            maxDailyOrders: number | null;
+            dailyMilkCapacityLitres: string | null;
+            pauseAllSubscriptions: boolean;
+            summary: components["schemas"]["SubscriptionSettingsSummary"];
+        };
+        SubscriptionSettingsPatch: {
+            version: number;
+            /** @description Enabling requires active BUSINESS+. */
+            autoAcceptSubscriptions?: boolean;
+            deliveryAvailable?: boolean;
+            /** @description IST daily delivery window. Both ends may be cleared with null; overnight windows are allowed. */
+            deliveryStartTime?: string | null;
+            deliveryEndTime?: string | null;
+            /** @description Positive order limit; null is unlimited. Typed clients may use clearMaxDailyOrders. */
+            maxDailyOrders?: number | null;
+            /** @description Positive exact litres, up to three fractional digits (1 ml), max 2147483.647. Null is unlimited. Typed clients may use clearDailyMilkCapacity. */
+            dailyMilkCapacityLitres?: string | null;
+            pauseAllSubscriptions?: boolean;
+            /** @description Set true to clear both delivery times. Cannot accompany non-null times. */
+            clearDeliveryWindow?: boolean;
+            /** @description Set true to remove the order limit. Cannot accompany a non-null limit. */
+            clearMaxDailyOrders?: boolean;
+            /** @description Set true to remove the milk limit. Cannot accompany a non-null limit. */
+            clearDailyMilkCapacity?: boolean;
+        };
+        SubscriptionCustomer: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            mobile: string;
+            status: string;
+            activeSubscriptions: number;
+            pausedSubscriptions: number;
+        };
+        SubscriptionCustomerList: {
+            items: components["schemas"]["SubscriptionCustomer"][];
+            total: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
         CustomerInput: {
             name: string;
             /** @description Indian mobile, ten digits or +91-prefixed. Stored in +91 form. */
@@ -2905,6 +3003,156 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    SubscriptionSettingsController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionSettingsResponse"];
+                };
+            };
+            /** @description Invalid exact capacity, delivery window, patch or idempotency key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vendor role/suspension or server plan feature denial; contact support to assign/renew. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT on shared vendor settings. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubscriptionSettingsController_patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubscriptionSettingsPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionSettingsResponse"];
+                };
+            };
+            /** @description Invalid exact capacity, delivery window, patch or idempotency key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vendor role/suspension or server plan feature denial; contact support to assign/renew. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT on shared vendor settings. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubscriptionSettingsController_customers: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionCustomerList"];
+                };
+            };
+            /** @description Invalid exact capacity, delivery window, patch or idempotency key. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Vendor role/suspension or server plan feature denial; contact support to assign/renew. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT on shared vendor settings. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     VendorSubscriptionsController_list: {
         parameters: {
             query?: {

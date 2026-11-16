@@ -1,5 +1,94 @@
 # Supply Biz API
 
+## T-075 subscription settings handoff (2026-11-16): READY_FOR_VERIFY
+
+GET/PATCH /vendor/settings now owns versioned subscription controls; GET
+/vendor/settings/subscription-customers adds bounded owned customer pagination.
+STANDARD+ can configure delivery availability/time window, pause-all and shared
+positive order/milk caps; only BUSINESS+ may enable auto-accept. History access
+survives expiry/downgrade, with reducing controls still allowed. Server feature
+flags distinguish configured from effective auto-accept. Summary counts derive
+end dates and per-subscription pauses, with no foreign contact/history access.
+
+Milk litres are exact strings converted to integer ml. Null removes a limit;
+clearMaxDailyOrders/clearDailyMilkCapacity/clearDeliveryWindow=true let generated
+Dart clients express clears without sending omitted null properties. Conflicting
+clear/value pairs fail. Time windows are paired IST HH:mm; overnight windows are
+supported and no default hours are inferred. The global switch/pause gate leaves
+individual revisions and existing orders unchanged. T-073 must pass locked current
+settings to subscriptionForDate and enforce the same caps when generating.
+The daily 22:00 generation schedule remains ADR-033; no job is started here.
+
+Only the isolated supplybiz_service_area_test DB received migration
+202611160003_subscription_settings. Legacy availability remains true, pause-all
+false, times null; unrelated settings and positive-only cap rules are preserved.
+Apply that additive migration to the intended dev/staging environment before
+manual use. An application rollback may retain the columns; no history or ledger
+grants/backfill changed. OpenAPI and TS/Dart clients were regenerated. A semantic
+comparison finds two new paths and zero changed existing paths/schemas.
+
+Executed in apps/api (PowerShell):
+
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/subscriptions/subscription-settings.spec.ts src/modules/subscriptions/subscription-settings.postgres.spec.ts src/modules/subscriptions/subscription-policy.spec.ts src/modules/subscriptions/subscriptions.postgres.spec.ts
+.\node_modules\.bin\eslint.cmd src/modules/subscriptions/subscription-settings*.ts src/modules/subscriptions/subscription-policy.ts src/app.module.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+```
+
+Executed from root, then apps/mobile:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+node --test tools/checks.spec.mjs
+# apps/mobile:
+dart format test/core/network/subscription_settings_client_test.dart
+flutter test --no-pub test/core/network/subscription_settings_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/subscription_settings_client_test.dart
+```
+
+PASS: 25 API/policy checks (nine settings checks and 16 subscription compatibility
+checks), one generated Dart transport smoke, API lint/typecheck/build/schema,
+codegen/TS compile/Dart analysis and five runner guards. Native checks cover actual
+checkout capacity races, scope/role/session/suspension, shared version races,
+same-key restart replay, expired-cache fencing, audit/readback rollback and
+date-aware customer pagination. Audit actor type is USER per the existing schema;
+initial actor/zero-cap mismatches were corrected without weakening constraints.
+The typed transport test uses simulated HTTP; the API checks use real PostgreSQL
+and HTTP. Pause-all/availability prove the candidate gate using persisted settings,
+not actual T-073 scheduled generation. Worker/process-restart generation and full
+TC-078 drill, T-076 UI/accessibility/manual PASS and G3 remain pending. iOS is
+deferred; no Android device run was needed for this API/client-only change. No
+new test server/worker/device remains running; existing services are preserved.
+
+Manual verification:
+1. With an eligible vendor session, GET settings and PATCH its version plus caps
+   and a delivery window. Reload and verify unrelated slots/service-area settings
+   survive; clear via null/true flags, and reject zero/overflow/partial windows.
+2. Enable auto-accept as BUSINESS; verify a customer request becomes ACTIVE. Repeat
+   as STANDARD/BASIC/expired and check server denials/effective flags, while
+   permitted reducing controls still stop future activity.
+3. Keep an individual pause/skip, toggle global pause/availability off and on and
+   verify exclusions survive. Complete actual generation/no-order checks with
+   T-073 before claiming the Day-8 generation milestone or TC-078 E2E pass.
+4. Configure a small order/milk cap and place dated customer orders until full;
+   verify CAPACITY_REACHED, then clear the cap. Check limits/shared version under
+   concurrent writes, replay after restart and expired saved requests.
+5. Verify summary and paginated customer names/counts across active, paused and
+   ended subscriptions. Another vendor/customer/revoked session must not read or
+   edit this data; verify the UI/a11y journey with T-076 before manual PASS.
+
 ## T-072 subscriptions handoff (2026-11-16): READY_FOR_VERIFY
 
 User-approved ADR-033 resolves Q-15/Q-19: generate tomorrow at 22:00 IST,
