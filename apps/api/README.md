@@ -1,5 +1,99 @@
 # Supply Biz API
 
+## T-073 generation handoff (2026-11-16): READY_FOR_VERIFY
+
+The existing native worker now durably schedules next-day subscription generation
+at 22:00 IST (ADR-033). PostgreSQL scan cursors process 100 subscriptions per page,
+then same-vendor batches of at most 25. Persistent date progress, unique job/order
+keys and T-181 leases protect concurrent dispatch, retry and process restart.
+Creation schedules its first delivery date in the same transaction; overdue first
+work still runs after the daily scan has completed and reopens completion counts.
+Startup queues current work first and advances historical scheduling by seven
+dates per poll, preserving progress across restarts. Historical catch-up uses
+current eligibility/prices to create undelivered dated orders; no delivery,
+receipt, stock movement or financial history is fabricated.
+
+Generation locks owner, vendor and products, then checks effective revisions,
+calendar exclusions, persisted pause/availability, configured slots, active
+STANDARD+ entitlement, vendor/customer/product status, holidays and shared daily
+order/milk caps. BUSINESS+ configured auto-accept creates ACCEPTED orders;
+otherwise NEW. Items snapshot current subscription price (selling fallback),
+quantities, units and delivery charge. Orders use postpaid KHATA: actual delivery
+posts the positive debit and stock once. Valid zero-total orders deliver stock
+without an invalid zero debit. Generation only writes orders/timeline/inbox/jobs.
+Ended/cancelled reference links are retired after the frozen horizon.
+
+Incomplete dates at due + 30 minutes produce one persisted SYSTEM audit and a
+redacted SUBSCRIPTION_GENERATION_INCOMPLETE log. The scheduler polls every 60
+seconds: detection may lag by one poll, or until recovery if the worker is down.
+Terminal failed jobs are retained for operator diagnosis/explicit recovery.
+External alert routing and deployed throughput/SLA are not verified here.
+
+Migration 202611160004_subscription_generation adds only operational progress and
+schedule-state tables; applied only to supplybiz_service_area_test. Before manual
+dev/staging use, apply pending migrations to that intended environment. Preserve
+tables/history on application rollback. No grants, dependencies or public
+OpenAPI/client contracts changed; contract codegen and mobile builds are NOT_RUN
+because this task changes only API/worker internals. iOS checks are deferred.
+
+Executed in apps/api (PowerShell; each command completed successfully):
+
+```powershell
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=120000 --runTestsByPath src/modules/subscriptions/subscription-generation.policy.spec.ts src/modules/subscriptions/subscription-generation.postgres.spec.ts src/modules/subscriptions/subscription-settings.spec.ts src/modules/subscriptions/subscription-settings.postgres.spec.ts src/modules/subscriptions/subscription-policy.spec.ts src/modules/subscriptions/subscriptions.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/deliveries.postgres.spec.ts -t 'unpaid delivery uses price snapshots|records full/partial/advance'
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/subscriptions/subscription-generation*.ts test/fixtures/subscription-generation-probe.ts src/modules/subscriptions/subscriptions.service.ts src/modules/orders/delivery-effects.service.ts src/worker.ts src/app.module.ts --max-warnings=0
+git diff --check
+```
+
+Results: 38/38 targeted subscription/settings/generation checks and 2/2 selected
+delivery regressions (8 unrelated delivery cases intentionally excluded), build,
+typecheck, lint and Prisma validation pass. Native tests boot real HTTP +
+PostgreSQL, including generated orders visible through both role readers, caps,
+rollback after inbox insertion, five-attempt exhaustion, tenant forgery rejection,
+UI role switching, current immutable prices, and positive/zero actual delivery.
+The 101-subscription page/batch and deadline tests accelerate injectable service
+clocks and only their synthetic future event availability. A separate real Node
+process is killed after a durable claim while a vendor row lock blocks generation;
+an unexpired lease prevents takeover, then a new process completes exactly once
+after test-driven lease expiry. This proves real process recovery, not a deployed
+load/SLA or live FCM test. Initial checks exposed time/shared-fixture assumptions;
+fresh-date completion/deadline checks pass without resetting retained history.
+Probe processes and app contexts closed; pre-existing services/devices preserved.
+
+Manual verification (suggested, not yet executed; API clients may be used while
+T-076 mobile subscription UI is pending):
+
+1. Migrate the intended dev/staging database and start the existing API and worker
+   with `pnpm.cmd --filter @supplybiz/api dev` and `pnpm.cmd --filter @supplybiz/api dev:worker`.
+   Create an owned active subscription with a valid STANDARD+ assignment for the
+   next eligible delivery date; confirm setup changes neither stock nor Khata.
+2. At its 22:00 IST schedule, check one dated NEW order in both role readers.
+   With BUSINESS+ auto-accept enabled, check ACCEPTED instead; verify price/units
+   and delivery-charge snapshots, then change catalog price and retain old totals.
+3. Check paused/skipped/holiday/unavailable and full-cap candidates produce no new
+   order. Apply customer changes across 21:00 IST and retain the frozen-date rule.
+4. In staging, stop/restart the worker around claimed work; allow the normal lease
+   and retry lifecycle. Confirm one order/inbox effect per subscription/date and
+   progress completion. For intentionally incomplete work, inspect the SYSTEM audit
+   and redacted deadline log; diagnose failures before an explicit operational retry.
+5. Deliver an unpaid generated order and retry the same action: verify one debit,
+   stock movement and optional positive receipt; a zero-total order has no debit.
+
+Manual PASS, G3, live push, and deployed capacity/external alert routing remain
+pending. This handoff stops at T-073; T-076/T-078 remain separate Day 8 tasks.
+
 ## T-075 subscription settings handoff (2026-11-16): READY_FOR_VERIFY
 
 GET/PATCH /vendor/settings now owns versioned subscription controls; GET

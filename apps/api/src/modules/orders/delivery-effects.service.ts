@@ -15,7 +15,7 @@ export class DeliveryEffectsService {
       !payment.collected && (payment.method!==undefined || payment.amountPaise!==undefined)) throw new BadRequestException({code:'DELIVERY_PAYMENT_REQUIRED'});
     const amount=payment.collected?BigInt(payment.amountPaise!):0n;
     if (amount<0n || amount>9223372036854775807n || payment.collected && amount===0n) throw new BadRequestException({code:'INVALID_PAYMENT_AMOUNT'});
-    if (order.total_paise<=0n) throw new ConflictException({code:'ORDER_TOTAL_INVALID'});
+    if (order.total_paise<0n) throw new ConflictException({code:'ORDER_TOTAL_INVALID'});
     await this.ledger.assertPrivileges(tx);
     if (payment.collected) await this.plans.requireOperation(tx,order.vendor_id,'RECORD_PAYMENT');
     const items=await tx.order_items.findMany({where:{order_id:order.id},orderBy:{product_id:'asc'}});
@@ -33,7 +33,7 @@ export class DeliveryEffectsService {
     }
     const clock=await homeClock(tx);
     // Snapshot total, including vendor charges, is authoritative; current prices are irrelevant.
-    await this.ledger.post(tx,{actorId,vendorId:order.vendor_id,customerId:order.vendor_customer_id,type:'DEBIT',amountPaise:order.total_paise,
+    if(order.total_paise>0n) await this.ledger.post(tx,{actorId,vendorId:order.vendor_id,customerId:order.vendor_customer_id,type:'DEBIT',amountPaise:order.total_paise,
       refType:'ORDER',refId:order.id,note:'Delivered order',entryDate:clock.day});
     if(payment.collected) {
       const receipt=await tx.payments.create({data:{vendor_id:order.vendor_id,vendor_customer_id:order.vendor_customer_id,order_id:order.id,created_by:actorId,

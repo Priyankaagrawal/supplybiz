@@ -368,6 +368,26 @@ model job_runs {
   @@unique([job_type, business_date, scope_id])
 }
 
+// T-073: bounded scan/work completion and durable deadline alerts, no domain PII.
+model subscription_generation_runs {
+  delivery_date DateTime @id @db.Date
+  due_at DateTime @db.Timestamptz(6)
+  scan_cursor String? @db.Uuid
+  scan_complete Boolean @default(false)
+  expected_work Int @default(0)
+  completed_work Int @default(0)
+  generated_orders Int @default(0)
+  skipped_subscriptions Int @default(0)
+  finished_at DateTime? @db.Timestamptz(6)
+  alerted_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  @@index([finished_at,due_at],map:"subscription_generation_due_idx")
+}
+model subscription_schedule_state {
+  id String @id @db.VarChar(32)
+  through_date DateTime @db.Date
+}
+
 // T-017: public allowlisted mobile policy; admin editing is owned by T-158.
 model app_config {
   key        String   @id @db.VarChar(100)

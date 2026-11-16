@@ -5,6 +5,7 @@ import { PinoLogger } from "./common/logging/pino.logger";
 import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
+import { SubscriptionGenerationService } from './modules/subscriptions/subscription-generation.service';
 
 async function bootstrapWorker(): Promise<void> {
   const app = await NestFactory.createApplicationContext(AppModule, {
@@ -17,6 +18,8 @@ async function bootstrapWorker(): Promise<void> {
   dispatcher.start();
   const ledgerJobs = app.get(LedgerJobsService);
   ledgerJobs.start();
+  const subscriptionJobs = app.get(SubscriptionGenerationService);
+  subscriptionJobs.start();
   const notifications = app.get(NotificationsService);
   let cleanupRun: Promise<void> | undefined;
   const cleanup = () => cleanupRun ??= (async () => {
@@ -29,6 +32,7 @@ async function bootstrapWorker(): Promise<void> {
   const shutdown = async () => {
     clearInterval(cleanupTimer);
     await ledgerJobs.onModuleDestroy();
+    await subscriptionJobs.onModuleDestroy();
     await cleanupRun;
     dispatcher.stop();
     await dispatcher.onModuleDestroy();

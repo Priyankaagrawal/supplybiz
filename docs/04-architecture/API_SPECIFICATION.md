@@ -372,6 +372,18 @@ selection is configured; no popularity is inferred. T-073 must price actual
 generated orders from current catalog data and apply vendor/plan/capacity/holiday
 eligibility in addition to T-072's `subscriptionForDate` revision/pause/skip policy.
 
+T-073 now implements that worker without a new public endpoint or client schema.
+At 22:00 IST it generates next-day orders using effective dated revisions, current
+catalog prices/settings/plan, holidays and shared daily order/milk caps. Eligible
+orders are NEW, or ACCEPTED with configured BUSINESS+ auto-accept; both roles use
+the existing owned order readers. KHATA debit and stock movement happen only on
+actual delivery, with no debit for a valid zero-total order. Creation atomically
+schedules first-date work; restart recovers missed dated work and retry cannot
+duplicate an order or inbox effect. Catch-up uses current eligibility/prices and
+never fabricates delivery or settlement. Incomplete generation after 22:30 writes
+a durable SYSTEM audit and redacted operational log; runtime/capacity limits and
+manual checks are documented in the API README T-073 handoff.
+
 ### 4.9 Ledger & payments (FR-110–FR-116, FR-250–FR-253)
 T-071 exposes vendor payment recording/list/summary (other routes below remain
 their owning tasks). POST `/vendor/payments` requires Idempotency-Key and

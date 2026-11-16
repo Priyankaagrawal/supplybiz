@@ -14,6 +14,7 @@ import { PLAN_FEATURES } from '../plans/plan-policy';
 import { VendorsService } from '../vendors/vendors.service';
 import { CustomerSubscriptionInput, SubscriptionPatch, SubscriptionPause, SubscriptionQuery, SubscriptionReject, SubscriptionSkip, SubscriptionVersion, VendorSubscriptionInput } from './subscriptions.dto';
 import { addDays, dateOnly, dayString, effectiveDay, monthlyEstimate, pausedOn, SubscriptionClock, subscriptionRead, SubscriptionRead } from './subscription-policy';
+import { SubscriptionGenerationService } from './subscription-generation.service';
 type Tx=Prisma.TransactionClient;
 type Action='EDIT'|'APPROVE'|'REJECT'|'PAUSE'|'RESUME'|'CANCEL'|'SKIP';
 const mask=(days:number[])=>days.reduce((m,d)=>m|(1<<(d-1)),0);
@@ -29,7 +30,7 @@ export class SubscriptionsService {
     private readonly catalog:CatalogService,private readonly customers:CustomersService,
     private readonly addresses:AddressesService,private readonly vendors:VendorsService,
     private readonly plans:PlanEntitlementsService,private readonly notifications:NotificationsService,
-    private readonly clock:SubscriptionClock) {}
+    private readonly clock:SubscriptionClock,private readonly generation:SubscriptionGenerationService) {}
   private async actor(tx:Tx,id:string,role:user_role_type) {
     const user=await tx.users.findUnique({where:{id},include:{roles:true,vendor:true}});
     if(!user || user.status!=='ACTIVE' || user.active_role!==role || !user.roles.some(r=>r.role===role)) throw new ForbiddenException({code:`${role}_ROLE_REQUIRED`});
@@ -120,6 +121,7 @@ export class SubscriptionsService {
       await this.references(tx,row.id,customer.id,input.productId,status);
       if(role==='CUSTOMER') await this.notifications.enqueue(tx,{recipientId:v.user_id,role:'VENDOR',type:status==='PENDING_APPROVAL'?'SUBSCRIPTION_REQUEST':'SUBSCRIPTION_CHANGED_VENDOR',sourceKey:`sub:${row.id}:1:vendor`,entityId:row.id});
       if(status==='ACTIVE' && customer.user_id) await this.notifications.enqueue(tx,{recipientId:customer.user_id,role:'CUSTOMER',type:'SUBSCRIPTION_APPROVED',sourceKey:`sub:${row.id}:1:customer`,entityId:row.id});
+      await this.generation.scheduleCreated(tx,row.id,vendorId,input.startDate);
       return {id:row.id,version:1,status,effectiveFrom:input.startDate};
     });
   }

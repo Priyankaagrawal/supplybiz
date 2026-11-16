@@ -129,6 +129,31 @@ At 22:00 IST the worker checks `job_runs` for the next delivery date, acquires a
 
 Persist attempts, next retry time, completion counts and last error. Claim outbox rows with `FOR UPDATE SKIP LOCKED`, lease expiry and bounded retries; after a crash another poll reclaims expired work. Use unique event/delivery keys for at-least-once dispatch. On startup scan for incomplete due jobs and catch up; alert if generation is incomplete by 22:30 IST. Do not rely on a timer alone for durable scheduling.
 
+T-073 implements this in the existing worker: a 60-second scheduling poll queues
+current work first and advances a persisted historical date cursor by up to seven
+dates per poll. Each delivery-date scan persists a UUID cursor, reads 100 rows,
+and queues same-vendor batches of at most 25 subscriptions. Subscription creation
+atomically schedules its first date, including separate first-date work when the
+scan has already passed; late work reopens completion counters. API startup only
+registers consumers. Worker startup and normal polling recover persisted work.
+
+Batch lock order is owner advisory lock, vendor row, ordered product rows. Under
+these locks the worker resolves the audited active plan, current settings/caps,
+calendar exclusions and current product price; generated orders retain immutable
+snapshots. Order/inbox writes, progress and outbox completion commit together.
+Generation produces NEW orders, or ACCEPTED for configured BUSINESS+ vendors,
+with KHATA payment mode; only actual delivery posts a positive debit and changes
+stock. Missed dates use current eligibility/prices and create dated undelivered
+orders, never fabricated historical deliveries or financial entries. Terminal
+failed jobs remain visible for operator diagnosis and explicit recovery.
+
+Incomplete dates at due time plus 30 minutes write one durable SYSTEM audit and
+a redacted SUBSCRIPTION_GENERATION_INCOMPLETE log. A 60-second poll means alert
+detection can lag the deadline by up to one poll while the worker is healthy;
+after downtime it alerts on recovery. Local checks cover persistence, paging,
+rollback, concurrent claims and actual process termination/restart. Deployed
+capacity/SLA and external alert routing require environment verification.
+
 ## 9. Deployment View
 One India-hosted application server runs native API/admin/worker processes behind HTTPS. PostgreSQL/PostGIS may be local or managed; both choices must meet approved backup targets. Use persistent encrypted file directories, with encrypted backups on a separate disk/host. Keep dev/staging/prod database, directories, keys and credentials separate. Do not add autoscaling, a CDN or orchestration before the integrated flows work. Hosting choice and capacity remain Q-02/Q-27; restore evidence is required for release.
 

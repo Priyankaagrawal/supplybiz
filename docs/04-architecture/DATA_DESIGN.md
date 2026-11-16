@@ -239,6 +239,30 @@ The latter normalizes PostgreSQL's truncated index name without rewriting the
 applied first migration. Retain these tables/history on application rollback;
 no historical subscription or financial backfill is supplied.
 
+T-073 adds operational tables in 202611160004_subscription_generation:
+
+| Table | Key columns | Notes |
+|---|---|---|
+| `subscription_generation_runs` | delivery_date DATE PK, due_at, scan_cursor UUID, scan_complete, expected_work, completed_work, generated_orders, skipped_subscriptions, finished_at, alerted_at | Nonnegative counters; completed_work <= expected_work; due/unfinished index; late enrolment reopens completion |
+| `subscription_schedule_state` | id PK, through_date DATE | Durable historical scheduling cursor; GLOBAL singleton |
+
+SCAN/BATCH `job_runs` and outbox rows retain unique date/scope identity and the
+existing durable lease/retry lifecycle. A scan page and its queued batches commit
+together; each batch commits its snapshots/notices, counts and completion together.
+The existing partial subscription/date order index remains the final duplicate
+guard, including terminal orders. Batches retire ended/cancelled reference links
+after the frozen horizon without changing subscription revisions or old orders.
+Current catalog price (subscription price, selling fallback) and delivery charge
+are exact paise snapshots. Generated KHATA orders post no stock, receipt or debit;
+actual delivery posts stock once and a debit only when total > 0. A valid zero
+price produces PAID zero-total orders without invalid zero ledger rows. Positive
+payment rules remain unchanged. Catch-up creates undelivered dated orders using
+current eligibility/prices; it does not backfill financial history. Deadline
+alerts persist one SYSTEM audit per delivery date and a redacted log.
+Only the isolated test DB received this additive migration. Retain operational
+and financial history on application rollback; apply migrations to the intended
+dev/staging environment before starting that worker. No grants were changed.
+
 ### 3.6 Ledger & payments
 | Table | Key columns | Notes |
 |---|---|---|

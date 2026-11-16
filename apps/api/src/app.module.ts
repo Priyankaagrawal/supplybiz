@@ -4,6 +4,8 @@ import { SubscriptionsService } from './modules/subscriptions/subscriptions.serv
 import { SubscriptionClock } from './modules/subscriptions/subscription-policy';
 import { SubscriptionSettingsController } from './modules/subscriptions/subscription-settings.controller';
 import { SubscriptionSettingsService } from './modules/subscriptions/subscription-settings.service';
+import { SubscriptionGenerationService } from './modules/subscriptions/subscription-generation.service';
+import { GenerationClock } from './modules/subscriptions/subscription-generation.policy';
 import { DashboardService } from './modules/dashboard/dashboard.service';
 import { HomeController } from './modules/home/home.controller';
 import { HomeService } from './modules/home/home.service';
@@ -89,6 +91,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
   // Synthetic mutation fixtures are available only to automated tests.
   controllers: [SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
+    SubscriptionGenerationService, GenerationClock,
     SubscriptionSettingsService,
     SubscriptionsService, SubscriptionClock,
     PrismaService,
