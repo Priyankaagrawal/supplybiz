@@ -155,6 +155,15 @@ Estimates below are overlapping developer-days saved, not additive elapsed-day g
 | SR-05 | Defer reviews/moderation, banner marketing and bulk broadcasts: T-108/T-157/T-159/T-160; keep basic categories, CMS/legal, operational inbox/push, dashboard and audit | Reduce ancillary CRUD and moderation work without breaking order status communication | 2–4 days | APPROVED (user, 2026-10-29) |
 | SR-06 | Stage advanced telemetry, device-attestation/pinning proposals, broad device/load matrices, external pen-test scheduling and multi-zone/IaC automation; T-017/T-018/T-170–T-173 limited to basic config/crash/security/performance checks | Preserve HTTPS, RBAC, OTP abuse controls, privacy, financial/security tests, basic alerts, encrypted DB/files backups and tested restore. Android-only build/run/testing/release applies until Android production release (ADR-025); public-launch authorization remains separate; baseline security and restore are mandatory | 2–4 days | APPROVED (user, 2026-10-29) |
 
+### Optional vendor payment UPI (user confirmation, 2026-11-17)
+
+Retain a separate optional vendor-owned payment UPI setting for later use.
+When the vendor has not set/published it, eligible customers have only the cash
+settlement option. Do not reuse verification-only KYC UPI. New UPI claims must
+also be rejected server-side while the setting is absent; existing pending claims
+remain subject to vendor confirmation/rejection. This does not authorize a new
+payment-settings screen or change deferred payment-method management scope.
+
 ### Delivery policy after approval
 Day 15 completion means all active/simplified scope passes G0–G6. SR-deferred tasks, provider contracts and future-only acceptance cases do not block those gates and must not be implemented as placeholders or marked passed. Deferred routes, tabs, marketing actions and permission prompts are absent from active navigation. Keep provider automation, billing, maps, reviews, extended finance and marketing requirements labeled POST-DELIVERY for traceability.
 

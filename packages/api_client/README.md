@@ -110,6 +110,21 @@ Class | Method | HTTP request | Description
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerPatch**](doc/CustomerAddressesApi.md#addressescontrollerpatch) | **PATCH** /api/v1/customer/addresses/{id} |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerRemove**](doc/CustomerAddressesApi.md#addressescontrollerremove) | **DELETE** /api/v1/customer/addresses/{id} |
 [*CustomerHomeApi*](doc/CustomerHomeApi.md) | [**homeControllerGet**](doc/CustomerHomeApi.md#homecontrollerget) | **GET** /api/v1/customer/home |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerClaim**](doc/CustomerKhataApi.md#customerkhatacontrollerclaim) | **POST** /api/v1/customer/khata/vendors/{id}/claims |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerClaimList**](doc/CustomerKhataApi.md#customerkhatacontrollerclaimlist) | **GET** /api/v1/customer/khata/vendors/{id}/claims |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerContactCreate**](doc/CustomerKhataApi.md#customerkhatacontrollercontactcreate) | **POST** /api/v1/customer/personal-contacts |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerContactDelete**](doc/CustomerKhataApi.md#customerkhatacontrollercontactdelete) | **DELETE** /api/v1/customer/personal-contacts/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerContactGet**](doc/CustomerKhataApi.md#customerkhatacontrollercontactget) | **GET** /api/v1/customer/personal-contacts/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerContactPatch**](doc/CustomerKhataApi.md#customerkhatacontrollercontactpatch) | **PATCH** /api/v1/customer/personal-contacts/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerContacts**](doc/CustomerKhataApi.md#customerkhatacontrollercontacts) | **GET** /api/v1/customer/personal-contacts |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerEntries**](doc/CustomerKhataApi.md#customerkhatacontrollerentries) | **GET** /api/v1/customer/khata/vendors/{id}/entries |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerEntryCreate**](doc/CustomerKhataApi.md#customerkhatacontrollerentrycreate) | **POST** /api/v1/customer/personal-entries |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerEntryDelete**](doc/CustomerKhataApi.md#customerkhatacontrollerentrydelete) | **DELETE** /api/v1/customer/personal-entries/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerEntryGet**](doc/CustomerKhataApi.md#customerkhatacontrollerentryget) | **GET** /api/v1/customer/personal-entries/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerEntryPatch**](doc/CustomerKhataApi.md#customerkhatacontrollerentrypatch) | **PATCH** /api/v1/customer/personal-entries/{id} |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerOptions**](doc/CustomerKhataApi.md#customerkhatacontrolleroptions) | **GET** /api/v1/customer/khata/vendors/{id}/settlement-options |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerPersonalEntries**](doc/CustomerKhataApi.md#customerkhatacontrollerpersonalentries) | **GET** /api/v1/customer/personal-entries |
+[*CustomerKhataApi*](doc/CustomerKhataApi.md) | [**customerKhataControllerSummary**](doc/CustomerKhataApi.md#customerkhatacontrollersummary) | **GET** /api/v1/customer/khata/summary |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerAccept**](doc/CustomerLinksApi.md#customerlinkscontrolleraccept) | **POST** /api/v1/customer/link-requests/{id}/accept |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerDecline**](doc/CustomerLinksApi.md#customerlinkscontrollerdecline) | **POST** /api/v1/customer/link-requests/{id}/decline |
 [*CustomerLinksApi*](doc/CustomerLinksApi.md) | [**customerLinksControllerList**](doc/CustomerLinksApi.md#customerlinkscontrollerlist) | **GET** /api/v1/customer/link-requests |
@@ -170,6 +185,12 @@ Class | Method | HTTP request | Description
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerPatch**](doc/VendorCustomersApi.md#customerscontrollerpatch) | **PATCH** /api/v1/vendor/customers/{id} |
 [*VendorDeliveriesApi*](doc/VendorDeliveriesApi.md) | [**vendorDeliveriesControllerList**](doc/VendorDeliveriesApi.md#vendordeliveriescontrollerlist) | **GET** /api/v1/vendor/deliveries |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerConfirm**](doc/VendorKhataApi.md#vendorkhatacontrollerconfirm) | **POST** /api/v1/vendor/payment-claims/{id}/confirm |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerDetailsGet**](doc/VendorKhataApi.md#vendorkhatacontrollerdetailsget) | **GET** /api/v1/vendor/khata/payment-details |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerDetailsPublish**](doc/VendorKhataApi.md#vendorkhatacontrollerdetailspublish) | **PATCH** /api/v1/vendor/khata/payment-details |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerEntries**](doc/VendorKhataApi.md#vendorkhatacontrollerentries) | **GET** /api/v1/vendor/khata/{id}/entries |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerList**](doc/VendorKhataApi.md#vendorkhatacontrollerlist) | **GET** /api/v1/vendor/payment-claims |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerReject**](doc/VendorKhataApi.md#vendorkhatacontrollerreject) | **POST** /api/v1/vendor/payment-claims/{id}/reject |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
@@ -231,6 +252,8 @@ Class | Method | HTTP request | Description
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
  - [CheckoutOptions](doc/CheckoutOptions.md)
+ - [ClaimMutation](doc/ClaimMutation.md)
+ - [ClaimRejection](doc/ClaimRejection.md)
  - [CompleteSaleInput](doc/CompleteSaleInput.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
@@ -239,6 +262,7 @@ Class | Method | HTTP request | Description
  - [CustomerList](doc/CustomerList.md)
  - [CustomerPatch](doc/CustomerPatch.md)
  - [CustomerResponse](doc/CustomerResponse.md)
+ - [CustomerSettlementOptions](doc/CustomerSettlementOptions.md)
  - [CustomerSubscriptionInput](doc/CustomerSubscriptionInput.md)
  - [DeliveryCounts](doc/DeliveryCounts.md)
  - [DeliveryImpact](doc/DeliveryImpact.md)
@@ -262,6 +286,12 @@ Class | Method | HTTP request | Description
  - [HomeDeliveryItem](doc/HomeDeliveryItem.md)
  - [InboxItem](doc/InboxItem.md)
  - [InboxResponse](doc/InboxResponse.md)
+ - [KhataAccount](doc/KhataAccount.md)
+ - [KhataBillingAccount](doc/KhataBillingAccount.md)
+ - [KhataLedgerEntry](doc/KhataLedgerEntry.md)
+ - [KhataSummary](doc/KhataSummary.md)
+ - [KhataVendorEntries](doc/KhataVendorEntries.md)
+ - [KhataVersion](doc/KhataVersion.md)
  - [KycDecisionDto](doc/KycDecisionDto.md)
  - [KycNotice](doc/KycNotice.md)
  - [KycPage](doc/KycPage.md)
@@ -295,9 +325,23 @@ Class | Method | HTTP request | Description
  - [OrderResult](doc/OrderResult.md)
  - [OrderStatusEvent](doc/OrderStatusEvent.md)
  - [OrderTransitionInput](doc/OrderTransitionInput.md)
+ - [PaymentClaimInput](doc/PaymentClaimInput.md)
+ - [PaymentClaimList](doc/PaymentClaimList.md)
+ - [PaymentClaimRecord](doc/PaymentClaimRecord.md)
  - [PaymentList](doc/PaymentList.md)
+ - [PaymentPublicationAck](doc/PaymentPublicationAck.md)
+ - [PaymentPublicationInput](doc/PaymentPublicationInput.md)
  - [PaymentRecord](doc/PaymentRecord.md)
  - [PaymentSummary](doc/PaymentSummary.md)
+ - [PersonalContactInput](doc/PersonalContactInput.md)
+ - [PersonalContactList](doc/PersonalContactList.md)
+ - [PersonalContactPatch](doc/PersonalContactPatch.md)
+ - [PersonalContactRecord](doc/PersonalContactRecord.md)
+ - [PersonalEntryInput](doc/PersonalEntryInput.md)
+ - [PersonalEntryList](doc/PersonalEntryList.md)
+ - [PersonalEntryPatch](doc/PersonalEntryPatch.md)
+ - [PersonalEntryRecord](doc/PersonalEntryRecord.md)
+ - [PersonalMutation](doc/PersonalMutation.md)
  - [PlanCatalogResponse](doc/PlanCatalogResponse.md)
  - [PlanCatalogRow](doc/PlanCatalogRow.md)
  - [PlanHistoryResponse](doc/PlanHistoryResponse.md)
@@ -350,6 +394,7 @@ Class | Method | HTTP request | Description
  - [VendorBusinessDto](doc/VendorBusinessDto.md)
  - [VendorCategoryDto](doc/VendorCategoryDto.md)
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
+ - [VendorPaymentDetails](doc/VendorPaymentDetails.md)
  - [VendorProfileResponse](doc/VendorProfileResponse.md)
  - [VendorSettingsResponse](doc/VendorSettingsResponse.md)
  - [VendorSubscriptionInput](doc/VendorSubscriptionInput.md)

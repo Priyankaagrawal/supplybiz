@@ -1,5 +1,125 @@
 # Supply Biz API
 
+## T-082 customer Khata handoff (2026-11-17): READY_FOR_VERIFY
+
+User confirmation (2026-11-17): keep the separate optional payment UPI setting
+for later use. An eligible account without a published payment UPI ID offers cash
+only; new UPI claims return 422 `UPI_NOT_AVAILABLE`. Publishing enables UPI;
+unpublishing restores cash only without invalidating existing pending claims.
+The focused native FR-253 case covers both states and direct-request enforcement.
+Clarification checks PASS: `jest --runInBand --testTimeout=90000
+--runTestsByPath src/modules/khata/khata.postgres.spec.ts -t FR-253` (one native
+case, twelve intentionally skipped), `tsc --noEmit`, and ESLint on the claim
+service/spec. The sandbox run could not initialize the existing Windows private
+upload ACL check; the approved native rerun passed against only the isolated test DB.
+
+Customer summary/vendor entries, owned personal contact/entry CRUD and customer/
+vendor claim decisions now expose the FR-250–253 contract. Accepted user linkage
+grants vendor history; phone matching alone never does. Summary combines exact
+vendor payables/advances and signed personal balances, with global totals distinct
+from paginated/search/tab rows. Month views match vendor ledger entries, including
+opening/closing/current due, source product snapshots and payment reversals.
+Persisted source payment states are not invented allocations of general credits.
+
+Personal GAVE/GOT records use positive exact paise and calendar strings; owner/
+version guards, soft deletion, audit and minimal permanent replay support edits/
+deletes without touching vendor ledgers. Typed clearMobile handles nullable contact
+fields. A deleted contact hides its entries; no Money/insights scope was added.
+
+Claims are unverified external CASH/UPI statements. Creation only writes PENDING/
+notice/audit. Vendor confirmation rechecks current due and atomically posts one
+CLAIM CREDIT, decision, notice/audit/replay; rejection never credits and requires a
+reason. Current due is checked again after intervening payments. Terminal source
+fields cannot change, and no duplicate payments-table receipt or bank/platform
+transfer is fabricated. Historical expiry settlement stays allowed by ADR-029.
+
+Payment addresses use a separate nullable vendor setting, unpublished by default;
+KYC's verification-only UPI ID is never copied or disclosed. An explicit owned
+PATCH publish=true request supplies the payment VPA; publish=false removes it.
+Shared settings versions prevent lost updates. Linked settlement-options reads
+return only the explicitly published address/business payee name and current
+eligibility/limits. Cash remains available when eligible and UPI is unconfigured.
+The user confirmed this optional-setting/cash-only default on 2026-11-17.
+Android UPI launch/fallback UI remains T-083; later payment-settings UI is deferred.
+
+Migration 202611170003_customer_khata adds personal tables, guarded claim source,
+minimal immutable replay and optional payment UPI setting. Applied only to
+supplybiz_service_area_test, with no ledger grants/backfill/dependency changes.
+Migrate intended dev/staging before manual use; retain financial/claim/replay
+history on app rollback. OpenAPI/TS/Dart regenerated; semantic comparison found
+13 added paths/24 added schemas and zero changed existing paths/schemas.
+
+Executed from apps/api (PowerShell):
+
+```powershell
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/khata/khata.postgres.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/khata/*.ts src/app.module.ts src/modules/notifications/notification-events.ts test/fixtures/contract-compare-t082.ts --max-warnings=0
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+```
+
+Executed from root, then apps/mobile:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+# apps/mobile:
+dart format test/core/network/khata_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/khata_client_test.dart
+flutter test --no-pub test/core/network/khata_client_test.dart
+```
+
+Results: 13/13 native HTTP/PostgreSQL cases and 2/2 generated-Dart transport smokes
+pass, along with API build/typecheck/lint/schema, TS compile, Dart analysis and
+contract comparison. Native checks cover exact mixed totals, immutable POS/reversal
+month parity, phone-match denial, personal owner/version/deletion/replay, pending
+claim no-money, duplicate/concurrent decisions, intervening payment, app-context
+recreation, rollback after real credit/inbox insertion, expiry settlement and
+explicit linked-only publication. The first fixture attempted a second accepted
+account; the corrected test verifies the existing unique vendor/user guard and
+advance-adjusted claim cap without weakening that constraint. API contexts close
+and no new services/devices were left running; synthetic financial history is kept.
+
+Client HTTP is simulated; native API/DB financial evidence is separate. Android
+device/UPI/QR/OS-kill/live FCM checks are NOT_RUN for this API/client slice; T-081/
+T-083 own those screens and TC-254. No mobile app source changed, so no APK/device
+build was required. iOS is deferred. Manual PASS and G3 remain pending.
+
+Manual verification (suggested, not yet executed):
+
+1. Migrate the intended dev/staging DB and run the API. Use a customer with an
+   accepted vendor link; compare monthly customer/vendor entries, exact totals,
+   source snapshots and reversal handling. A matching phone without linkage must
+   not reveal history. Check page/search/tab and current versus month closing due.
+2. Create/edit/delete an owned personal GAVE/GOT entry and contact. Check signed
+   receivable/payable changes, nullable mobile clear, version conflicts, foreign-ID
+   denial and no changes to the vendor financial ledger.
+3. Submit a positive cash/UPI claim <= current due; verify PENDING changes no money.
+   As the owning vendor, confirm/reject with the current version; check one credit
+   only for confirmation, a required rejection reason and owned inbox notices.
+4. Retry the original key concurrently/after API recreation, and record another
+   payment before confirming a pending claim. Check safe replay and current-due
+   rejection; expired plans retain authorized settlement/history without new business.
+5. Read settlement options with no configured UPI, then explicitly publish a separate
+   vendor payment VPA and verify linked-only visibility; unpublish and check fallback.
+   Test actual Android UPI launch/no-app QR/copy and the full UI/API/DB flow when
+   T-083 is implemented, without treating return-from-UPI as payment verification.
+
+T-082 now supplies the prerequisite contracts for T-078/T-081/T-083; their mobile
+work and manual/module acceptance remain separate tasks.
+
 ## T-079 Quick Sale handoff (2026-11-17): READY_FOR_VERIFY
 
 POST /vendor/sales now atomically records an owned counter sale; GET /vendor/sales

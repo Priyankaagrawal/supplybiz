@@ -1,5 +1,651 @@
 openapi: 3.0.0
 paths:
+  /api/v1/customer/khata/vendors/{id}/settlement-options:
+    get:
+      operationId: CustomerKhataController_options
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerSettlementOptions'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/khata/summary:
+    get:
+      operationId: CustomerKhataController_summary
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: tab
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - CUSTOMERS
+              - VENDORS
+            type: string
+        - name: q
+          required: false
+          in: query
+          schema:
+            maxLength: 120
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KhataSummary'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/khata/vendors/{id}/entries:
+    get:
+      operationId: CustomerKhataController_entries
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: month
+          required: false
+          in: query
+          description: Calendar month YYYY-MM; defaults to server IST current month.
+          schema:
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KhataVendorEntries'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/khata/vendors/{id}/claims:
+    get:
+      operationId: CustomerKhataController_claimList
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - PENDING
+              - CONFIRMED
+              - REJECTED
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentClaimList'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    post:
+      operationId: CustomerKhataController_claim
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentClaimInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/personal-contacts:
+    get:
+      operationId: CustomerKhataController_contacts
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalContactList'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    post:
+      operationId: CustomerKhataController_contactCreate
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalContactInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/personal-contacts/{id}:
+    get:
+      operationId: CustomerKhataController_contactGet
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalContactRecord'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    patch:
+      operationId: CustomerKhataController_contactPatch
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalContactPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    delete:
+      operationId: CustomerKhataController_contactDelete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KhataVersion'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/personal-entries:
+    get:
+      operationId: CustomerKhataController_personalEntries
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: contactId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+        - name: month
+          required: false
+          in: query
+          schema:
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalEntryList'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    post:
+      operationId: CustomerKhataController_entryCreate
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalEntryInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/customer/personal-entries/{id}:
+    get:
+      operationId: CustomerKhataController_entryGet
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalEntryRecord'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    patch:
+      operationId: CustomerKhataController_entryPatch
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalEntryPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+    delete:
+      operationId: CustomerKhataController_entryDelete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KhataVersion'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalMutation'
+      tags:
+        - customer-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/khata/payment-details:
+    get:
+      operationId: VendorKhataController_detailsGet
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorPaymentDetails'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+    patch:
+      operationId: VendorKhataController_detailsPublish
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentPublicationInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPublicationAck'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/khata/{id}/entries:
+    get:
+      operationId: VendorKhataController_entries
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: month
+          required: false
+          in: query
+          description: Calendar month YYYY-MM; defaults to server IST current month.
+          schema:
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KhataVendorEntries'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/payment-claims:
+    get:
+      operationId: VendorKhataController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: status
+          required: false
+          in: query
+          schema:
+            enum:
+              - PENDING
+              - CONFIRMED
+              - REJECTED
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentClaimList'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/payment-claims/{id}/confirm:
+    post:
+      operationId: VendorKhataController_confirm
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KhataVersion'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimMutation'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/payment-claims/{id}/reject:
+    post:
+      operationId: VendorKhataController_reject
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimRejection'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimMutation'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
   /api/v1/vendor/sales:
     post:
       operationId: SalesController_complete
@@ -4829,6 +5475,552 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    KhataBillingAccount:
+      type: object
+      properties:
+        vendorCustomerId:
+          type: string
+          format: uuid
+        duePaise:
+          type: string
+        maxClaimPaise:
+          type: string
+        canClaim:
+          type: boolean
+      required:
+        - vendorCustomerId
+        - duePaise
+        - maxClaimPaise
+        - canClaim
+    CustomerSettlementOptions:
+      type: object
+      properties:
+        vendorId:
+          type: string
+          format: uuid
+        payeeName:
+          type: string
+        upiId:
+          type: string
+          nullable: true
+          description: Only an explicitly published payment setting; never verification-only KYC.
+        upiAvailable:
+          type: boolean
+        cashAvailable:
+          type: boolean
+        duePaise:
+          type: string
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/KhataBillingAccount'
+      required:
+        - vendorId
+        - payeeName
+        - upiId
+        - upiAvailable
+        - cashAvailable
+        - duePaise
+        - accounts
+    KhataAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - VENDOR
+            - PERSONAL
+        name:
+          type: string
+        balancePaise:
+          type: string
+          description: 'Customer perspective: positive receivable, negative payable.'
+        status:
+          type: string
+          enum:
+            - RECEIVABLE
+            - PAYABLE
+            - SETTLED
+      required:
+        - id
+        - kind
+        - name
+        - balancePaise
+        - status
+    KhataSummary:
+      type: object
+      properties:
+        totalReceivablePaise:
+          type: string
+        totalPayablePaise:
+          type: string
+        netBalancePaise:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KhataAccount'
+        total:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - totalReceivablePaise
+        - totalPayablePaise
+        - netBalancePaise
+        - items
+        - total
+        - serverTime
+        - businessDate
+    KhataLedgerEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorCustomerId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - DEBIT
+            - CREDIT
+        amountPaise:
+          type: string
+        entryDate:
+          type: string
+          format: date
+        refType:
+          type: string
+        refId:
+          type: string
+          format: uuid
+        reversesEntryId:
+          type: string
+          nullable: true
+          format: uuid
+        note:
+          type: string
+        productSummary:
+          type: string
+          nullable: true
+        paymentStatus:
+          type: string
+          nullable: true
+          description: Persisted source state only, no invented allocation of standalone payments/claims.
+      required:
+        - id
+        - vendorCustomerId
+        - type
+        - amountPaise
+        - entryDate
+        - refType
+        - refId
+        - reversesEntryId
+        - note
+        - productSummary
+        - paymentStatus
+    KhataVendorEntries:
+      type: object
+      properties:
+        vendorId:
+          type: string
+          format: uuid
+        vendorName:
+          type: string
+        month:
+          type: string
+        duePaise:
+          type: string
+        openingDuePaise:
+          type: string
+        closingDuePaise:
+          type: string
+        monthDebitPaise:
+          type: string
+        monthCreditPaise:
+          type: string
+        monthPaidPaise:
+          type: string
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/KhataBillingAccount'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KhataLedgerEntry'
+        total:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - vendorId
+        - vendorName
+        - month
+        - duePaise
+        - openingDuePaise
+        - closingDuePaise
+        - monthDebitPaise
+        - monthCreditPaise
+        - monthPaidPaise
+        - accounts
+        - items
+        - total
+        - serverTime
+        - businessDate
+    PaymentClaimRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+          format: uuid
+        vendorCustomerId:
+          type: string
+          format: uuid
+        amountPaise:
+          type: string
+        method:
+          type: string
+          enum:
+            - UPI
+            - CASH
+        upiTxnRef:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+            - PENDING
+            - CONFIRMED
+            - REJECTED
+        version:
+          type: integer
+        createdAt:
+          type: string
+        decidedAt:
+          type: string
+          nullable: true
+        rejectReason:
+          type: string
+          nullable: true
+      required:
+        - id
+        - vendorId
+        - vendorCustomerId
+        - amountPaise
+        - method
+        - upiTxnRef
+        - status
+        - version
+        - createdAt
+        - decidedAt
+        - rejectReason
+    PaymentClaimList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentClaimRecord'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    PaymentClaimInput:
+      type: object
+      properties:
+        vendorCustomerId:
+          type: string
+          format: uuid
+          description: >-
+            Select an accepted owned billing account returned by vendor entries; no mobile matching or silent
+            allocation.
+        amountPaise:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+        method:
+          type: string
+          enum:
+            - UPI
+            - CASH
+          description: Customer statement of external payment, not provider verification.
+        upiTxnRef:
+          type: string
+          maxLength: 120
+          description: Unverified customer-supplied transaction reference.
+      required:
+        - vendorCustomerId
+        - amountPaise
+        - method
+    ClaimMutation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        version:
+          type: integer
+      required:
+        - id
+        - status
+        - version
+    PersonalContactRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        name:
+          type: string
+        mobile:
+          type: string
+          nullable: true
+        balancePaise:
+          type: string
+      required:
+        - id
+        - version
+        - name
+        - mobile
+        - balancePaise
+    PersonalContactList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalContactRecord'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    PersonalContactInput:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        mobile:
+          type: string
+          nullable: true
+          maxLength: 20
+      required:
+        - name
+    PersonalMutation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        deleted:
+          type: boolean
+      required:
+        - id
+        - version
+        - deleted
+    PersonalContactPatch:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        name:
+          type: string
+          maxLength: 120
+        mobile:
+          type: string
+          nullable: true
+          maxLength: 20
+        clearMobile:
+          type: boolean
+          description: True clears mobile for typed clients; cannot accompany a non-null value.
+      required:
+        - version
+    KhataVersion:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+      required:
+        - version
+    PersonalEntryRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+        contactId:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum:
+            - GAVE
+            - GOT
+        amountPaise:
+          type: string
+        date:
+          type: string
+          format: date
+        note:
+          type: string
+      required:
+        - id
+        - version
+        - contactId
+        - direction
+        - amountPaise
+        - date
+        - note
+    PersonalEntryList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalEntryRecord'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    PersonalEntryInput:
+      type: object
+      properties:
+        contactId:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum:
+            - GAVE
+            - GOT
+        amountPaise:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+        date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        note:
+          type: string
+          maxLength: 500
+      required:
+        - contactId
+        - direction
+        - amountPaise
+        - date
+    PersonalEntryPatch:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        contactId:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum:
+            - GAVE
+            - GOT
+        amountPaise:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+        date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        note:
+          type: string
+          maxLength: 500
+      required:
+        - version
+    VendorPaymentDetails:
+      type: object
+      properties:
+        version:
+          type: integer
+        published:
+          type: boolean
+        upiId:
+          type: string
+          nullable: true
+        payeeName:
+          type: string
+      required:
+        - version
+        - published
+        - upiId
+        - payeeName
+    PaymentPublicationInput:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        publish:
+          type: boolean
+          description: >-
+            Explicitly publish the supplied payment address only to linked customers, or unpublish. KYC data is never
+            copied.
+        upiId:
+          type: string
+          maxLength: 321
+          pattern: ^[\w.-]{2,256}@[a-zA-Z]{2,64}$
+      required:
+        - version
+        - publish
+    PaymentPublicationAck:
+      type: object
+      properties:
+        version:
+          type: integer
+        published:
+          type: boolean
+      required:
+        - version
+        - published
+    ClaimRejection:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        reason:
+          type: string
+          maxLength: 200
+      required:
+        - version
+        - reason
     SaleLineInput:
       type: object
       properties:

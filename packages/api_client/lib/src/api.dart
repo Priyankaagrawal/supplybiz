@@ -18,6 +18,7 @@ import 'package:supplybiz_api_client/src/api/categories_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_addresses_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_home_api.dart';
+import 'package:supplybiz_api_client/src/api/customer_khata_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_links_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_subscriptions_api.dart';
@@ -30,6 +31,7 @@ import 'package:supplybiz_api_client/src/api/notifications_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_availability_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_deliveries_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_khata_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_payments_api.dart';
@@ -221,6 +223,12 @@ class SupplybizApiClient {
     return CustomerHomeApi(dio);
   }
 
+  /// Get CustomerKhataApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  CustomerKhataApi getCustomerKhataApi() {
+    return CustomerKhataApi(dio);
+  }
+
   /// Get CustomerLinksApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   CustomerLinksApi getCustomerLinksApi() {
@@ -291,6 +299,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorDeliveriesApi getVendorDeliveriesApi() {
     return VendorDeliveriesApi(dio);
+  }
+
+  /// Get VendorKhataApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorKhataApi getVendorKhataApi() {
+    return VendorKhataApi(dio);
   }
 
   /// Get VendorOnboardingApi instance, base route and serializer can be overridden by a given but be careful,

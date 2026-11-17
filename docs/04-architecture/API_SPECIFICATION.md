@@ -504,6 +504,73 @@ are no-store. Advances do not offset other customers' positive receivables.
 | POST | `/customer/khata/vendors/{vendorId}/claims` |
 | GET/POST/PATCH/DELETE | `/customer/personal-contacts[/{id}]`, `/customer/personal-entries[/{id}]` |
 
+T-082 implements customer summary/vendor entries, owned personal contact/entry
+CRUD and customer/vendor claim workflows above, plus GET
+`/customer/khata/vendors/{id}/claims`, GET
+`/customer/khata/vendors/{id}/settlement-options` and GET/PATCH
+`/vendor/khata/payment-details`. Vendor entries are also exposed read-only at
+`/vendor/khata/{id}/entries` for ledger parity. Public opening/reversal controls
+remain their owning vendor task; this does not expose ungated internal writes.
+
+All customer reads bind accepted vendor_customers.user_id to the active customer;
+matching mobile alone grants no history. Owned vendor history survives inactive/
+archived customer state, plan expiry and unavailable discovery. Current due uses
+canonical ledger_balances. The month selector defaults to server IST current
+YYYY-MM; month debit/credit, opening/closing due and recorded paid totals use
+immutable entries, including SALE/CLAIM/PAYMENT sources and payment reversals.
+Product descriptions come from immutable order/sale snapshots. Per-entry payment
+state is only persisted source state; claims/standalone payments do not invent
+allocations or mark unrelated orders/subscriptions PAID. Current lifetime due is
+distinct from the selected month's closing due. Pending/rejected claims add no
+ledger credit. Responses expose billing account IDs and current maxClaimPaise;
+the existing unique vendor/user linkage is preserved.
+
+Summary accepts tab=ALL|CUSTOMERS|VENDORS, literal q and limit/offset (20/max 50).
+Vendor due is reversed to the customer perspective; personal GAVE minus GOT is
+receivable when positive. Global Receivable/Payable sum positive/negative account
+balances independently, and Net=Receivable-Payable. Tabs/search paginate rows
+without changing those global totals. All money values, including aggregate
+amounts beyond JS safe integer range, remain exact decimal strings.
+
+Personal contacts accept `{name,mobile?}` and entries accept `{contactId,direction:
+GAVE|GOT,amountPaise,date:YYYY-MM-DD,note?}`. Only the active customer owns them;
+they never change vendor financial ledgers. Amount is positive signed-BIGINT paise,
+dates are valid calendar strings and note is max 500 characters. PATCH/DELETE
+require the current version and Idempotency-Key; typed clients clear contact mobile
+with clearMobile=true. Soft deletion hides records; deleting a contact also hides
+its entries from reads/totals. Foreign IDs are 404, stale version is 409. All
+mutations are audited, transactional and permanently replayed using minimal
+ID/version acknowledgements, without contact/note/VPA snapshots in replay rows.
+
+POST customer claims requires `{vendorCustomerId,amountPaise,method:UPI|CASH,
+upiTxnRef?}` and Idempotency-Key. The billing account must be the accepted owned
+link for the URL vendor; amount must be positive and <= both current account and
+vendor due (422 AMOUNT_EXCEEDS_DUE). UPI references are customer statements, not
+provider verification. Creation returns PENDING and notifies the vendor without
+money effects. Vendor list defaults to PENDING; confirm/reject require current
+version and a key, with a nonempty rejection reason. Confirmation rechecks current
+due under vendor/customer/claim locks and posts one source-unique CLAIM CREDIT
+before transitioning to CONFIRMED. The immutable confirmed claim is its receipt;
+no duplicate payments-table credit or money movement is added. Concurrent decisions,
+credit/inbox/audit failure and app recreation preserve atomicity/replay; terminal
+claims and original amount/creator/reference cannot be rewritten. Normal expired-
+plan settlement remains allowed under ADR-029; suspension/role/ownership still apply.
+
+Payment UPI publication is separate from verification-only KYC: the new setting
+starts null and no KYC value is copied. Only the owning vendor may PATCH
+`{version,publish:true,upiId}` to explicitly share the supplied address with linked
+customers, or `{version,publish:false}` to unpublish. It uses the shared settings
+version and normal settlement entitlement; audit/replay records omit the address.
+Customer settlement options return only that published address/payee business
+name, eligibility, current due/account limits and upiAvailable/cashAvailable.
+Unpublished or unavailable settlement returns no UPI address and supports cash
+claims when eligible. Per user confirmation (2026-11-17), retain the optional
+separate setting for later use; when unset, offer cash only. New UPI claims are
+rejected with 422 `UPI_NOT_AVAILABLE` until the vendor publishes a payment UPI ID.
+Existing pending UPI claims remain decidable after unpublishing; no payment is
+automatically verified. External/manual UPI claims still require vendor confirmation.
+Native Android UPI launch/no-app QR/copy UI is T-083, never provider verification.
+
 ### 4.10 Discovery, reviews, favorites (FR-200–FR-214)
 | Method | Path |
 |---|---|

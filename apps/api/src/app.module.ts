@@ -1,3 +1,9 @@
+import { CustomerKhataController,VendorKhataController } from './modules/khata/khata.controller';
+import { KhataAccess } from './modules/khata/khata-access.service';
+import { KhataReadService } from './modules/khata/khata-read.service';
+import { PersonalKhataService } from './modules/khata/personal-khata.service';
+import { PaymentClaimsService } from './modules/khata/payment-claims.service';
+import { PaymentDetailsService } from './modules/khata/payment-details.service';
 import { SalesController } from './modules/sales/sales.controller';
 import { SalesService } from './modules/sales/sales.service';
 import { AvailabilityController } from './modules/availability/availability.controller';
@@ -93,8 +99,9 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [SalesController, AvailabilityController, SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [CustomerKhataController, VendorKhataController, SalesController, AvailabilityController, SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
+    KhataAccess,KhataReadService,PersonalKhataService,PaymentClaimsService,PaymentDetailsService,
     SalesService,
     AvailabilityService,
     SubscriptionGenerationService, GenerationClock,

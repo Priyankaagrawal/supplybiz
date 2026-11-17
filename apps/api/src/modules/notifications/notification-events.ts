@@ -17,6 +17,8 @@ export const eventTemplates = {
   ORDER_DELIVERED: ['CUSTOMER', 'ORDERS', 'Order delivered', '/customer/orders/'],
   DELIVERY_FAILED: ['CUSTOMER', 'ORDERS', 'Delivery update', '/customer/orders/'],
   PAYMENT_RECORDED: ['CUSTOMER', 'PAYMENTS', 'Payment recorded', '/customer/khata/'],
+  PAYMENT_CLAIM_CONFIRMED: ['CUSTOMER', 'PAYMENTS', 'Payment claim confirmed', '/customer/khata/'],
+  PAYMENT_CLAIM_REJECTED: ['CUSTOMER', 'PAYMENTS', 'Payment claim rejected', '/customer/khata/'],
   SUBSCRIPTION_APPROVED: ['CUSTOMER', 'ORDERS', 'Subscription approved', '/customer/subscriptions/'],
   SUBSCRIPTION_RENEWED: ['CUSTOMER', 'ORDERS', 'Subscription renewed', '/customer/subscriptions/'],
   SUBSCRIPTION_PAUSED: ['CUSTOMER', 'ORDERS', 'Subscription paused', '/customer/subscriptions/'],

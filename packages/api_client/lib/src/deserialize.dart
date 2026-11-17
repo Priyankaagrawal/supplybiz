@@ -24,6 +24,8 @@ import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/checkout_options.dart';
+import 'package:supplybiz_api_client/src/model/claim_mutation.dart';
+import 'package:supplybiz_api_client/src/model/claim_rejection.dart';
 import 'package:supplybiz_api_client/src/model/complete_sale_input.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
@@ -32,6 +34,7 @@ import 'package:supplybiz_api_client/src/model/customer_input.dart';
 import 'package:supplybiz_api_client/src/model/customer_list.dart';
 import 'package:supplybiz_api_client/src/model/customer_patch.dart';
 import 'package:supplybiz_api_client/src/model/customer_response.dart';
+import 'package:supplybiz_api_client/src/model/customer_settlement_options.dart';
 import 'package:supplybiz_api_client/src/model/customer_subscription_input.dart';
 import 'package:supplybiz_api_client/src/model/delivery_counts.dart';
 import 'package:supplybiz_api_client/src/model/delivery_impact.dart';
@@ -55,6 +58,12 @@ import 'package:supplybiz_api_client/src/model/home_delivery.dart';
 import 'package:supplybiz_api_client/src/model/home_delivery_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_item.dart';
 import 'package:supplybiz_api_client/src/model/inbox_response.dart';
+import 'package:supplybiz_api_client/src/model/khata_account.dart';
+import 'package:supplybiz_api_client/src/model/khata_billing_account.dart';
+import 'package:supplybiz_api_client/src/model/khata_ledger_entry.dart';
+import 'package:supplybiz_api_client/src/model/khata_summary.dart';
+import 'package:supplybiz_api_client/src/model/khata_vendor_entries.dart';
+import 'package:supplybiz_api_client/src/model/khata_version.dart';
 import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
 import 'package:supplybiz_api_client/src/model/kyc_page.dart';
@@ -88,9 +97,23 @@ import 'package:supplybiz_api_client/src/model/order_reorder.dart';
 import 'package:supplybiz_api_client/src/model/order_result.dart';
 import 'package:supplybiz_api_client/src/model/order_status_event.dart';
 import 'package:supplybiz_api_client/src/model/order_transition_input.dart';
+import 'package:supplybiz_api_client/src/model/payment_claim_input.dart';
+import 'package:supplybiz_api_client/src/model/payment_claim_list.dart';
+import 'package:supplybiz_api_client/src/model/payment_claim_record.dart';
 import 'package:supplybiz_api_client/src/model/payment_list.dart';
+import 'package:supplybiz_api_client/src/model/payment_publication_ack.dart';
+import 'package:supplybiz_api_client/src/model/payment_publication_input.dart';
 import 'package:supplybiz_api_client/src/model/payment_record.dart';
 import 'package:supplybiz_api_client/src/model/payment_summary.dart';
+import 'package:supplybiz_api_client/src/model/personal_contact_input.dart';
+import 'package:supplybiz_api_client/src/model/personal_contact_list.dart';
+import 'package:supplybiz_api_client/src/model/personal_contact_patch.dart';
+import 'package:supplybiz_api_client/src/model/personal_contact_record.dart';
+import 'package:supplybiz_api_client/src/model/personal_entry_input.dart';
+import 'package:supplybiz_api_client/src/model/personal_entry_list.dart';
+import 'package:supplybiz_api_client/src/model/personal_entry_patch.dart';
+import 'package:supplybiz_api_client/src/model/personal_entry_record.dart';
+import 'package:supplybiz_api_client/src/model/personal_mutation.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_response.dart';
 import 'package:supplybiz_api_client/src/model/plan_catalog_row.dart';
 import 'package:supplybiz_api_client/src/model/plan_history_response.dart';
@@ -143,6 +166,7 @@ import 'package:supplybiz_api_client/src/model/vendor_assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
+import 'package:supplybiz_api_client/src/model/vendor_payment_details.dart';
 import 'package:supplybiz_api_client/src/model/vendor_profile_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_settings_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_subscription_input.dart';
@@ -238,6 +262,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'CheckoutOptions':
       return CheckoutOptions.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'ClaimMutation':
+      return ClaimMutation.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ClaimRejection':
+      return ClaimRejection.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'CompleteSaleInput':
       return CompleteSaleInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -258,6 +288,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'CustomerResponse':
       return CustomerResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CustomerSettlementOptions':
+      return CustomerSettlementOptions.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'CustomerSubscriptionInput':
       return CustomerSubscriptionInput.fromJson(value as Map<String, dynamic>)
@@ -321,6 +354,21 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'InboxResponse':
       return InboxResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'KhataAccount':
+      return KhataAccount.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KhataBillingAccount':
+      return KhataBillingAccount.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'KhataLedgerEntry':
+      return KhataLedgerEntry.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'KhataSummary':
+      return KhataSummary.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KhataVendorEntries':
+      return KhataVendorEntries.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'KhataVersion':
+      return KhataVersion.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'KycDecisionDto':
       return KycDecisionDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -409,13 +457,55 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'OrderTransitionInput':
       return OrderTransitionInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'PaymentClaimInput':
+      return PaymentClaimInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PaymentClaimList':
+      return PaymentClaimList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PaymentClaimRecord':
+      return PaymentClaimRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'PaymentList':
       return PaymentList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'PaymentPublicationAck':
+      return PaymentPublicationAck.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PaymentPublicationInput':
+      return PaymentPublicationInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'PaymentRecord':
       return PaymentRecord.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'PaymentSummary':
       return PaymentSummary.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalContactInput':
+      return PersonalContactInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalContactList':
+      return PersonalContactList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalContactPatch':
+      return PersonalContactPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalContactRecord':
+      return PersonalContactRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalEntryInput':
+      return PersonalEntryInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalEntryList':
+      return PersonalEntryList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalEntryPatch':
+      return PersonalEntryPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalEntryRecord':
+      return PersonalEntryRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PersonalMutation':
+      return PersonalMutation.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'PlanCatalogResponse':
       return PlanCatalogResponse.fromJson(value as Map<String, dynamic>)
@@ -561,6 +651,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'VendorCategoryResponse':
       return VendorCategoryResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorPaymentDetails':
+      return VendorPaymentDetails.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'VendorProfileResponse':
       return VendorProfileResponse.fromJson(value as Map<String, dynamic>)

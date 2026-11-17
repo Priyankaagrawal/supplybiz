@@ -89,6 +89,11 @@ enum outbox_event_status {
 }
 
 model users {
+  personal_contacts personal_contacts[]
+  personal_entries personal_entries[]
+  khata_requests khata_requests[]
+  claims_created payment_claims[] @relation("ClaimCreator")
+  claims_decided payment_claims[] @relation("ClaimDecider")
   sales sales[]
   subscriptions subscriptions[]
   subscription_requests subscription_requests[]
@@ -504,6 +509,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  payment_claims payment_claims[]
   sales sales[]
   subscriptions subscriptions[]
   payments payments[]
@@ -657,6 +663,7 @@ model vendor_service_pincodes {
 
 // Unconfigured operational values stay null until their owning task saves them.
 model vendor_settings {
+  payment_upi_id String? @db.VarChar(321)
   vendor_id String @id @db.Uuid
   service_radius_km Int? @default(3)
   delivery_charge_paise Int @default(0)
@@ -986,4 +993,60 @@ model sale_items {
   sale sales @relation(fields:[sale_id],references:[id],onDelete:Restrict)
   product products @relation(fields:[product_id],references:[id],onDelete:Restrict)
   @@unique([sale_id,product_id])
+}
+
+model payment_claims {
+  id String @id @default(uuid()) @db.Uuid
+  vendor_customer_id String @db.Uuid
+  user_id String @db.Uuid
+  amount_paise BigInt
+  method String @db.VarChar(4)
+  upi_txn_ref String? @db.VarChar(120)
+  status String @default("PENDING") @db.VarChar(12)
+  version Int @default(1)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  decided_by String? @db.Uuid
+  decided_at DateTime? @db.Timestamptz(6)
+  reject_reason String? @db.VarChar(200)
+  customer vendor_customers @relation(fields:[vendor_customer_id],references:[id],onDelete:Restrict)
+  creator users @relation("ClaimCreator",fields:[user_id],references:[id],onDelete:Restrict)
+  decider users? @relation("ClaimDecider",fields:[decided_by],references:[id],onDelete:Restrict)
+  @@index([vendor_customer_id,status,created_at])
+  @@index([user_id,created_at])
+}
+model personal_contacts {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  name String @db.VarChar(120)
+  mobile String? @db.VarChar(20)
+  version Int @default(1)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+  entries personal_entries[]
+  @@index([user_id,deleted_at,name])
+}
+model personal_entries {
+  id String @id @default(uuid()) @db.Uuid
+  user_id String @db.Uuid
+  contact_id String @db.Uuid
+  direction String @db.VarChar(4)
+  amount_paise BigInt
+  date DateTime @db.Date
+  note String @default("") @db.VarChar(500)
+  version Int @default(1)
+  deleted_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+  contact personal_contacts @relation(fields:[contact_id],references:[id],onDelete:Restrict)
+  @@index([user_id,contact_id,date])
+}
+model khata_requests {
+  request_key String @id @db.VarChar(64)
+  user_id String @db.Uuid
+  path String @db.VarChar(120)
+  request_hash String @db.VarChar(64)
+  response Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
 }

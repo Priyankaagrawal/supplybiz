@@ -4,6 +4,214 @@
  */
 
 export interface paths {
+    "/api/v1/customer/khata/vendors/{id}/settlement-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_options"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/khata/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/khata/vendors/{id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_entries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/khata/vendors/{id}/claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_claimList"];
+        put?: never;
+        post: operations["CustomerKhataController_claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/personal-contacts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_contacts"];
+        put?: never;
+        post: operations["CustomerKhataController_contactCreate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/personal-contacts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_contactGet"];
+        put?: never;
+        post?: never;
+        delete: operations["CustomerKhataController_contactDelete"];
+        options?: never;
+        head?: never;
+        patch: operations["CustomerKhataController_contactPatch"];
+        trace?: never;
+    };
+    "/api/v1/customer/personal-entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_personalEntries"];
+        put?: never;
+        post: operations["CustomerKhataController_entryCreate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customer/personal-entries/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerKhataController_entryGet"];
+        put?: never;
+        post?: never;
+        delete: operations["CustomerKhataController_entryDelete"];
+        options?: never;
+        head?: never;
+        patch: operations["CustomerKhataController_entryPatch"];
+        trace?: never;
+    };
+    "/api/v1/vendor/khata/payment-details": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorKhataController_detailsGet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["VendorKhataController_detailsPublish"];
+        trace?: never;
+    };
+    "/api/v1/vendor/khata/{id}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorKhataController_entries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/payment-claims": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorKhataController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/payment-claims/{id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorKhataController_confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/payment-claims/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorKhataController_reject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/sales": {
         parameters: {
             query?: never;
@@ -1789,6 +1997,214 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        KhataBillingAccount: {
+            /** Format: uuid */
+            vendorCustomerId: string;
+            duePaise: string;
+            maxClaimPaise: string;
+            canClaim: boolean;
+        };
+        CustomerSettlementOptions: {
+            /** Format: uuid */
+            vendorId: string;
+            payeeName: string;
+            /** @description Only an explicitly published payment setting; never verification-only KYC. */
+            upiId: string | null;
+            upiAvailable: boolean;
+            cashAvailable: boolean;
+            duePaise: string;
+            accounts: components["schemas"]["KhataBillingAccount"][];
+        };
+        KhataAccount: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            kind: "VENDOR" | "PERSONAL";
+            name: string;
+            /** @description Customer perspective: positive receivable, negative payable. */
+            balancePaise: string;
+            /** @enum {string} */
+            status: "RECEIVABLE" | "PAYABLE" | "SETTLED";
+        };
+        KhataSummary: {
+            totalReceivablePaise: string;
+            totalPayablePaise: string;
+            netBalancePaise: string;
+            items: components["schemas"]["KhataAccount"][];
+            total: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
+        KhataLedgerEntry: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorCustomerId: string;
+            /** @enum {string} */
+            type: "DEBIT" | "CREDIT";
+            amountPaise: string;
+            /** Format: date */
+            entryDate: string;
+            refType: string;
+            /** Format: uuid */
+            refId: string;
+            /** Format: uuid */
+            reversesEntryId: string | null;
+            note: string;
+            productSummary: string | null;
+            /** @description Persisted source state only, no invented allocation of standalone payments/claims. */
+            paymentStatus: string | null;
+        };
+        KhataVendorEntries: {
+            /** Format: uuid */
+            vendorId: string;
+            vendorName: string;
+            month: string;
+            duePaise: string;
+            openingDuePaise: string;
+            closingDuePaise: string;
+            monthDebitPaise: string;
+            monthCreditPaise: string;
+            monthPaidPaise: string;
+            accounts: components["schemas"]["KhataBillingAccount"][];
+            items: components["schemas"]["KhataLedgerEntry"][];
+            total: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
+        PaymentClaimRecord: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorId: string;
+            /** Format: uuid */
+            vendorCustomerId: string;
+            amountPaise: string;
+            /** @enum {string} */
+            method: "UPI" | "CASH";
+            upiTxnRef: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "CONFIRMED" | "REJECTED";
+            version: number;
+            createdAt: string;
+            decidedAt: string | null;
+            rejectReason: string | null;
+        };
+        PaymentClaimList: {
+            items: components["schemas"]["PaymentClaimRecord"][];
+            total: number;
+        };
+        PaymentClaimInput: {
+            /**
+             * Format: uuid
+             * @description Select an accepted owned billing account returned by vendor entries; no mobile matching or silent allocation.
+             */
+            vendorCustomerId: string;
+            amountPaise: string;
+            /**
+             * @description Customer statement of external payment, not provider verification.
+             * @enum {string}
+             */
+            method: "UPI" | "CASH";
+            /** @description Unverified customer-supplied transaction reference. */
+            upiTxnRef?: string;
+        };
+        ClaimMutation: {
+            /** Format: uuid */
+            id: string;
+            status: string;
+            version: number;
+        };
+        PersonalContactRecord: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            name: string;
+            mobile: string | null;
+            balancePaise: string;
+        };
+        PersonalContactList: {
+            items: components["schemas"]["PersonalContactRecord"][];
+            total: number;
+        };
+        PersonalContactInput: {
+            name: string;
+            mobile?: string | null;
+        };
+        PersonalMutation: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            deleted: boolean;
+        };
+        PersonalContactPatch: {
+            version: number;
+            name?: string;
+            mobile?: string | null;
+            /** @description True clears mobile for typed clients; cannot accompany a non-null value. */
+            clearMobile?: boolean;
+        };
+        KhataVersion: {
+            version: number;
+        };
+        PersonalEntryRecord: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            /** Format: uuid */
+            contactId: string;
+            /** @enum {string} */
+            direction: "GAVE" | "GOT";
+            amountPaise: string;
+            /** Format: date */
+            date: string;
+            note: string;
+        };
+        PersonalEntryList: {
+            items: components["schemas"]["PersonalEntryRecord"][];
+            total: number;
+        };
+        PersonalEntryInput: {
+            /** Format: uuid */
+            contactId: string;
+            /** @enum {string} */
+            direction: "GAVE" | "GOT";
+            amountPaise: string;
+            date: string;
+            note?: string;
+        };
+        PersonalEntryPatch: {
+            version: number;
+            /** Format: uuid */
+            contactId?: string;
+            /** @enum {string} */
+            direction?: "GAVE" | "GOT";
+            amountPaise?: string;
+            date?: string;
+            note?: string;
+        };
+        VendorPaymentDetails: {
+            version: number;
+            published: boolean;
+            upiId: string | null;
+            payeeName: string;
+        };
+        PaymentPublicationInput: {
+            version: number;
+            /** @description Explicitly publish the supplied payment address only to linked customers, or unpublish. KYC data is never copied. */
+            publish: boolean;
+            upiId?: string;
+        };
+        PaymentPublicationAck: {
+            version: number;
+            published: boolean;
+        };
+        ClaimRejection: {
+            version: number;
+            reason: string;
+        };
         SaleLineInput: {
             /** Format: uuid */
             productId: string;
@@ -3238,6 +3654,522 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    CustomerKhataController_options: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerSettlementOptions"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_summary: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                tab?: "ALL" | "CUSTOMERS" | "VENDORS";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KhataSummary"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_entries: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Calendar month YYYY-MM; defaults to server IST current month. */
+                month?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KhataVendorEntries"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_claimList: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                status?: "PENDING" | "CONFIRMED" | "REJECTED";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentClaimList"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_claim: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentClaimInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClaimMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_contacts: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalContactList"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_contactCreate: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalContactInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_contactGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalContactRecord"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_contactDelete: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KhataVersion"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_contactPatch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalContactPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_personalEntries: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                contactId?: string;
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalEntryList"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_entryCreate: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalEntryInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_entryGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalEntryRecord"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_entryDelete: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KhataVersion"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    CustomerKhataController_entryPatch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PersonalEntryPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    VendorKhataController_detailsGet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorPaymentDetails"];
+                };
+            };
+        };
+    };
+    VendorKhataController_detailsPublish: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentPublicationInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentPublicationAck"];
+                };
+            };
+        };
+    };
+    VendorKhataController_entries: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Calendar month YYYY-MM; defaults to server IST current month. */
+                month?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KhataVendorEntries"];
+                };
+            };
+        };
+    };
+    VendorKhataController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                status?: "PENDING" | "CONFIRMED" | "REJECTED";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentClaimList"];
+                };
+            };
+        };
+    };
+    VendorKhataController_confirm: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KhataVersion"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClaimMutation"];
+                };
+            };
+        };
+    };
+    VendorKhataController_reject: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClaimRejection"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClaimMutation"];
+                };
+            };
+        };
+    };
     SalesController_list: {
         parameters: {
             query?: {

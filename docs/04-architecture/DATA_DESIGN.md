@@ -314,6 +314,24 @@ dev/staging environment before starting that worker. No grants were changed.
 | `payments` | id, vendor_id, vendor_customer_id, order_id NULL UNIQUE, amount_paise BIGINT (>0), method (CASH/UPI/BANK/WALLET), received_on DATE, note, client_ref, request_hash NULL, created_by, created_at | T-049/T-071 immutable off-platform receipts; UNIQUE(vendor_id,client_ref); insert trigger checks vendor/customer/order/creator scope; no UPDATE/DELETE/TRUNCATE. |
 | `payment_claims` | id, vendor_customer_id, amount_paise, method (UPI/CASH), upi_txn_ref NULL, status (PENDING/CONFIRMED/REJECTED), decided_by, decided_at, reject_reason | |
 
+T-082 migration 202611170003_customer_khata adds payment_claims with creator user_id,
+optimistic version and immutable creation time. Insert guards require accepted
+customer linkage. Only PENDING may transition once to CONFIRMED/REJECTED, by the
+owning vendor; identity/amount/method/reference stay immutable. Confirmation requires
+the matching source-unique CLAIM CREDIT, rejection requires a reason and no credit,
+and DELETE/TRUNCATE is denied. Pending/rejected records never affect balances.
+The confirmed claim is the external-payment receipt, with no duplicate `payments`
+row/CREDIT. Vendor/customer/claim locks serialize decisions and current-due checks.
+Existing ledger ownership/grants and append-only rules remain unchanged.
+
+The migration also adds khata_requests (hashed role/actor/key PK, user_id FK,
+path/body hash, minimal JSON acknowledgement and created_at) with immutable replay
+identity. It contains no contact names, notes, references or payment addresses.
+New nullable vendor_settings.payment_upi_id is explicitly published/unpublished
+through the owning vendor's versioned payment-details API; default null, no KYC
+backfill/reuse. It is disclosed only to linked customers under settlement guards,
+and is never included by public discovery or unrelated profile/settings DTOs.
+
 T-049 migration `202611130002_delivery_payments` also adds a partial unique stock
 source index `(product_id,ref_id)` for ORDER movements. Delivery uses the owned
 vendor/order locks and deterministic product locks: saved item quantities and
@@ -342,6 +360,21 @@ ownership/grants are unchanged and additive records must survive app rollback.
 |---|---|
 | `personal_contacts` | id, user_id, name, mobile NULL, deleted_at |
 | `personal_entries` | id, contact_id, direction (GAVE/GOT), amount_paise, date, note, deleted_at |
+
+T-082 materializes personal_contacts/personal_entries with owner FKs, optimistic
+versions, creation times and scoped indexes. Entries also carry owner user_id;
+insert/update guards require the same owner as the active parent contact. Ownership
+and creation time cannot be reassigned; version increments and soft deletion are
+enforced. Personal entries are deliberately editable/deletable user records,
+separate from immutable vendor ledgers. GAVE-GOT is the contact balance, and deleted
+entries/contacts are excluded from summary. API mutation audits omit contact/note
+PII. Money transactions remain deferred SR-01, with no related tables/routes added.
+
+Migration applied only to the isolated test database; migrate intended dev/staging
+before use. Retain claim/ledger/replay history on application rollback; no financial
+backfill, grant change or external payment verification is supplied. Source summary
+and month reads use consistent DB snapshots, accepted linkage and exact numeric
+aggregation across payment/sale/claim and personal sources without double counting.
 | `money_transactions` | id, user_id, kind (INCOME/EXPENSE), category, amount_paise, date, note, source (MANUAL/AUTO), deleted_at |
 
 ### 3.8 Plans

@@ -1,5 +1,26 @@
 # Supply Biz Mobile
 
+## T-082 generated Khata client compatibility (2026-11-17)
+
+Generated CustomerKhataApi/VendorKhataApi now expose exact summary/month reads,
+personal records, claim decisions and explicit payment-UPI publication/options.
+Personal date inputs stay YYYY-MM-DD strings; clearMobile=true clears an omitted
+nullable field; typed DELETE carries version/key. No app screens were added here.
+
+Executed from apps/mobile, PASS:
+
+```powershell
+dart format test/core/network/khata_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/khata_client_test.dart
+flutter test --no-pub test/core/network/khata_client_test.dart
+```
+
+Two simulated transport checks cover huge signed paise, deterministic body/key,
+date/clear/delete serialization, claim status/role paths and nullable unpublished
+UPI. Actual API/PostgreSQL evidence and five manual steps are in API README T-082.
+T-078/T-081/T-083 own mobile screens, Android UPI/no-app fallback and runtime checks;
+those are NOT_RUN here. No live provider/manual PASS/G3 claim; iOS deferred.
+
 ## T-079 generated Quick Sale client compatibility (2026-11-17)
 
 Generated VendorSalesApi exposes complete/list/detail with exact string paise,
