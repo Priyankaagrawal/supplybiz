@@ -94,6 +94,415 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @subTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get subTitle;
+
+  /// No description provided for @subSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription settings'**
+  String get subSettings;
+
+  /// No description provided for @subCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create subscription'**
+  String get subCreate;
+
+  /// No description provided for @subActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get subActive;
+
+  /// No description provided for @subPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get subPaused;
+
+  /// No description provided for @subPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending approval'**
+  String get subPending;
+
+  /// No description provided for @subCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get subCancelled;
+
+  /// No description provided for @subRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get subRejected;
+
+  /// No description provided for @subCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get subCompleted;
+
+  /// No description provided for @subApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get subApprove;
+
+  /// No description provided for @subReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get subReject;
+
+  /// No description provided for @subPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get subPause;
+
+  /// No description provided for @subResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get subResume;
+
+  /// No description provided for @subSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip a date'**
+  String get subSkip;
+
+  /// No description provided for @subCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel subscription'**
+  String get subCancel;
+
+  /// No description provided for @subSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get subSave;
+
+  /// No description provided for @subMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get subMon;
+
+  /// No description provided for @subTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get subTue;
+
+  /// No description provided for @subWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get subWed;
+
+  /// No description provided for @subThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get subThu;
+
+  /// No description provided for @subFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get subFri;
+
+  /// No description provided for @subSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get subSat;
+
+  /// No description provided for @subSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get subSun;
+
+  /// No description provided for @subDailyDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get subDailyDays;
+
+  /// No description provided for @subEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions match your selection.'**
+  String get subEmpty;
+
+  /// No description provided for @subOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved data. Refresh online before making changes.'**
+  String get subOffline;
+
+  /// No description provided for @subSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'A saved change needs acknowledgement. Retry the same change before making another.'**
+  String get subSaved;
+
+  /// No description provided for @subRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved change'**
+  String get subRetry;
+
+  /// No description provided for @subReviewExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload and review expired settings change'**
+  String get subReviewExpired;
+
+  /// No description provided for @subPlanLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating, editing and resuming subscriptions requires an active STANDARD or higher plan. Contact support about a plan change. History and reducing controls remain available.'**
+  String get subPlanLocked;
+
+  /// No description provided for @subBusinessGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabling auto-accept requires BUSINESS or higher. Contact support about a plan change.'**
+  String get subBusinessGuidance;
+
+  /// No description provided for @subAutoAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically accept subscription orders'**
+  String get subAutoAccept;
+
+  /// No description provided for @subAutoEffective.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-accept is effective for the current plan.'**
+  String get subAutoEffective;
+
+  /// No description provided for @subAutoInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-accept is not effective for the current configuration and plan.'**
+  String get subAutoInactive;
+
+  /// No description provided for @subAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription delivery available'**
+  String get subAvailable;
+
+  /// No description provided for @subPauseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause all subscriptions'**
+  String get subPauseAll;
+
+  /// No description provided for @subCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get subCustomer;
+
+  /// No description provided for @subProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product and price per pack'**
+  String get subProduct;
+
+  /// No description provided for @subQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole packs per delivery'**
+  String get subQty;
+
+  /// No description provided for @subLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease packs per delivery'**
+  String get subLess;
+
+  /// No description provided for @subMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase packs per delivery'**
+  String get subMore;
+
+  /// No description provided for @subStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date (YYYY-MM-DD)'**
+  String get subStart;
+
+  /// No description provided for @subEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End date, optional (YYYY-MM-DD)'**
+  String get subEnd;
+
+  /// No description provided for @subFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery date (YYYY-MM-DD)'**
+  String get subFrom;
+
+  /// No description provided for @subSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Configured delivery slot'**
+  String get subSlot;
+
+  /// No description provided for @subPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment preference'**
+  String get subPayment;
+
+  /// No description provided for @subReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get subReason;
+
+  /// No description provided for @subNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get subNoEnd;
+
+  /// No description provided for @subInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the required selection, whole-pack quantity, days and date or time format.'**
+  String get subInvalid;
+
+  /// No description provided for @subCutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer changes close at 21:00 IST before delivery. Changes after cutoff apply from the next eligible date shown by the server. Existing generated orders remain; use Skip to cancel an eligible dated order.'**
+  String get subCutoff;
+
+  /// No description provided for @subCancelInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop future subscription deliveries. Existing generated orders are retained.'**
+  String get subCancelInfo;
+
+  /// No description provided for @subPostpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly amounts are estimates for the selected start month. Postpaid Khata is billed only when an order is delivered; no payment is taken during setup.'**
+  String get subPostpaid;
+
+  /// No description provided for @subConfirmSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm subscription setting change'**
+  String get subConfirmSettings;
+
+  /// No description provided for @subSettingsEffect.
+  ///
+  /// In en, this message translates to:
+  /// **'This changes future generation eligibility. Individual subscriptions and existing orders are retained.'**
+  String get subSettingsEffect;
+
+  /// No description provided for @subLimitsInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits are shared with other orders. Leave a limit blank for unlimited; clear both times to remove the delivery window. Times are IST; overnight windows are allowed.'**
+  String get subLimitsInfo;
+
+  /// No description provided for @subOrderCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily order limit, optional'**
+  String get subOrderCap;
+
+  /// No description provided for @subMilkCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily milk capacity in litres, optional (up to 3 decimal places)'**
+  String get subMilkCap;
+
+  /// No description provided for @subWindowStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery window start (HH:mm IST)'**
+  String get subWindowStart;
+
+  /// No description provided for @subWindowEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery window end (HH:mm IST)'**
+  String get subWindowEnd;
+
+  /// No description provided for @subMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'₹{amount}'**
+  String subMoney(String amount);
+
+  /// No description provided for @subDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Per delivery: {amount}'**
+  String subDaily(String amount);
+
+  /// No description provided for @subMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated {month}: {amount}'**
+  String subMonthly(String amount, String month);
+
+  /// No description provided for @subEffective.
+  ///
+  /// In en, this message translates to:
+  /// **'Change recorded, effective from {date}.'**
+  String subEffective(String date);
+
+  /// No description provided for @subQuantityValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{qty} packs · {slot}'**
+  String subQuantityValue(int qty, String slot);
+
+  /// No description provided for @subDates.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} to {end}'**
+  String subDates(String start, String end);
+
+  /// No description provided for @subPausedDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause: {start} to {end}'**
+  String subPausedDates(String start, String end);
+
+  /// No description provided for @subSkippedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped: {date}'**
+  String subSkippedDate(String date);
+
+  /// No description provided for @subSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions: {total} · Active: {active} · Paused: {paused} · Pending approval: {pending} · Customers: {customers}'**
+  String subSummary(
+      int total, int active, int paused, int pending, int customers);
+
   /// No description provided for @deliveryTitle.
   ///
   /// In en, this message translates to:

@@ -1,5 +1,98 @@
 # Supply Biz Mobile
 
+## T-076 vendor subscriptions handoff (2026-11-17): READY_FOR_VERIFY
+
+Open Vendor Customers → Subscriptions (`/vendor/subscriptions`) for owned history,
+customer/product search, status filters, pagination and creation. The existing
+typed subscription deep link now opens the owned detail at
+`/vendor/customers/subscriptions/:id`. Detail supports editing quantity/weekdays/
+configured slot, approval/rejection, dated pause, resume, skip and confirmed
+cancellation. Creation selects an active customer or opens the existing New
+Customer flow, product/pack/price, integer quantity with stepper, weekdays/Daily,
+start/end dates, configured slot and external payment preference. Live estimates
+clip the start calendar month/range with exact BigInt paise and Indian grouping;
+the API acknowledgement supplies the effective date. Setup takes no payment.
+
+Subscriptions → Subscription settings (`/vendor/subscription-settings`) shows
+server summary/customer counts, configured/effective auto-accept, availability,
+pause-all, paired IST window and exact shared order/milk caps. BUSINESS+ enables
+auto-accept; STANDARD+ enables creation/edit/resume. Support-assisted plan guidance
+and reducing controls survive expiry/downgrade according to server flags. Typed
+clear flags remove nullable limits/window. Existing orders and individual pauses
+are retained when global switches change. API authorization remains authoritative.
+
+Snapshots and saved mutation envelopes use the existing SQLCipher-backed
+OnboardingDrafts store, scoped to account/API environment. Cached data is read-only.
+Requests persist payload/version/key before send and retain that identity after
+network or local acknowledgement failure. Explicit retry blocks new mutations;
+definitive conflicts require refresh/review. Settings retry is stopped after 23
+hours, before the API's 24-hour replay TTL; explicit reload/review never creates
+a replacement key automatically. Disposal/permission loss fences late results,
+and logout wipes saved data. Foreground refresh reloads the subscription page.
+
+The generated Dart serializer emits midnight timestamps for calendar date fields.
+A feature-owned interceptor normalizes only create/pause/skip date fields back to
+the existing YYYY-MM-DD contract; tests assert exact wire payloads. No generated
+API files were edited and no public contract, migration or dependency changed.
+Only English ARB localization output was regenerated.
+
+Executed from apps/mobile (PowerShell):
+
+```powershell
+flutter gen-l10n
+dart format lib/features/subscriptions lib/core/router/app_router.dart lib/core/router/routes.dart lib/features/customers/customers_page.dart test/features/subscriptions integration_test/vendor_subscriptions_test.dart
+flutter test --no-pub --timeout=60s test/features/subscriptions test/core/router/guards_test.dart test/core/router/app_router_test.dart
+flutter analyze --no-pub lib/features/subscriptions lib/core/router/app_router.dart lib/core/router/routes.dart lib/features/customers/customers_page.dart test/features/subscriptions integration_test/vendor_subscriptions_test.dart
+# Verification process only: default SDK's newest build-tools lack aapt.
+$env:ANDROID_HOME='C:\Android'
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+Copy-Item -LiteralPath build/app/outputs/flutter-apk/app-dev-debug.apk -Destination .dart_tool/t076-normal-app-dev-debug.apk
+flutter test integration_test/vendor_subscriptions_test.dart -d emulator-5580 --flavor dev --dart-define-from-file=config/dev.json --no-pub
+Copy-Item -LiteralPath .dart_tool/t076-normal-app-dev-debug.apk -Destination build/app/outputs/flutter-apk/app-dev-debug.apk
+git diff --check
+```
+
+Results: 21 focused controller/widget/router checks pass, including exact calendar
+estimates/date-only wire payloads, all generated mutations, all-page search,
+offline/account isolation, lost-response recreation, write/ack disk failures,
+version conflict, expiry fencing, permission/disposal, plan locks, validation and
+200% stepper/settings layout. Final analysis is clean. Normal dev APK build passes
+(124.6s); one actual Android SQLCipher/secure-storage/recreation/replay/logout/200%
+scenario passes (native test build 91.9s). The first runtime attempt stopped at
+SDK discovery before app launch; the documented SDK override passed. HTTP is
+simulated in mobile tests, including the native scenario: no live API/DB/FCM or
+manual accessibility/PASS claim. API/worker evidence remains the earlier T-072/
+T-073/T-075 handoffs; no API checks were rerun for this mobile-only change.
+
+The pre-existing emulator-5554 was offline and preserved. A temporary read-only
+Pixel_7 emulator-5580 was used, then shut down; the initial already-in-use AVD
+attempt exited. Native fixture data was wiped. The normal dev APK was restored
+and its SHA-256 matches the pre-test backup. The temporary SDK selection in
+android/local.properties was restored after checks. iOS checks remain deferred.
+
+Manual verification (suggested, not yet executed):
+
+1. Run the migrated API/worker and Android dev app with a valid vendor session and
+   active STANDARD+ assignment. Open Customers → Subscriptions; select or create
+   a customer, product, days/dates and slot. Check exact estimates and one owned
+   subscription, with no setup stock/Khata/payment effects.
+2. Open a pending request and approve/reject it. Edit quantity/days/slot; pause a
+   date range, resume, skip and cancel after reviewing confirmations. Check the
+   server effective-date acknowledgement and frozen-date/generated-order rules.
+3. Open settings; verify STANDARD cannot enable auto-accept and BUSINESS can.
+   Save/clear exact order/milk limits and a paired/overnight IST window; toggle
+   availability/pause-all and inspect summary and generation behavior.
+4. Lose connectivity/response during a save; recreate the app and explicitly retry
+   the saved change. Check one effect with the original key, read-only offline
+   history, refreshed version conflicts and no cross-account/logout data.
+5. Use 200% text and TalkBack on forms/actions/settings. Check loading, empty,
+   error and plan-lock messages, labels, keyboard access and 48dp targets; inspect
+   the generated dated order in both roles after the real 22:00 IST job.
+
+Manual PASS, live UI/API/DB/FCM journey and G3 remain pending. T-078 customer
+subscription creation/statements remain separate and require T-082. Stop here
+after T-076; do not mark DONE without task-specific manual verification.
+
 ## T-075 generated-client compatibility (2026-11-16)
 
 No settings UI is implemented in this task (T-076 owns it). OpenAPI regenerated

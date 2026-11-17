@@ -24,6 +24,7 @@ import '../../features/checkout/checkout_page.dart';
 import '../../features/checkout/new_order_page.dart';
 import '../../features/orders/orders_pages.dart';
 import '../../features/orders/customer_orders_pages.dart';
+import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 
 part 'routes.g.dart';
 
@@ -298,8 +299,10 @@ class VendorSubscriptionRoute extends GoRouteData
   const VendorSubscriptionRoute(this.id);
   final String id;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.subscription);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? VendorSubscriptionsPage(id: id)
+          : const RoutePlaceholder(title: RouteTitle.subscription));
 }
 
 class VendorMoreBranch extends StatefulShellBranchData {

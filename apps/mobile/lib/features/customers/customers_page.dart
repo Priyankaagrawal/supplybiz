@@ -8,6 +8,7 @@ import '../../core/network/app_failure.dart';
 import '../../core/router/routes.dart';
 import '../../core/storage/customer_device.dart';
 import 'customers_controller.dart';
+import 'package:go_router/go_router.dart';
 
 String customerFailure(AppLocalizations l, AppFailure f) => switch (f.code) {
       'DUPLICATE' => l.customersDuplicate,
@@ -75,6 +76,10 @@ class CustomersPage extends ConsumerWidget {
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: [
                         CustomerFeedback(model: model),
+                        SbButton(
+                            label: l.subTitle,
+                            onPressed: () =>
+                                context.push('/vendor/subscriptions')),
                         SbButton(
                             label: l.authRetry,
                             variant: SbButtonVariant.secondary,

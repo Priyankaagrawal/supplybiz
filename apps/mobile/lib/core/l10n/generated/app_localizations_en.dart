@@ -9,6 +9,241 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get subTitle => 'Subscriptions';
+
+  @override
+  String get subSettings => 'Subscription settings';
+
+  @override
+  String get subCreate => 'Create subscription';
+
+  @override
+  String get subActive => 'Active';
+
+  @override
+  String get subPaused => 'Paused';
+
+  @override
+  String get subPending => 'Pending approval';
+
+  @override
+  String get subCancelled => 'Cancelled';
+
+  @override
+  String get subRejected => 'Rejected';
+
+  @override
+  String get subCompleted => 'Completed';
+
+  @override
+  String get subApprove => 'Approve';
+
+  @override
+  String get subReject => 'Reject';
+
+  @override
+  String get subPause => 'Pause';
+
+  @override
+  String get subResume => 'Resume';
+
+  @override
+  String get subSkip => 'Skip a date';
+
+  @override
+  String get subCancel => 'Cancel subscription';
+
+  @override
+  String get subSave => 'Save';
+
+  @override
+  String get subMon => 'Mon';
+
+  @override
+  String get subTue => 'Tue';
+
+  @override
+  String get subWed => 'Wed';
+
+  @override
+  String get subThu => 'Thu';
+
+  @override
+  String get subFri => 'Fri';
+
+  @override
+  String get subSat => 'Sat';
+
+  @override
+  String get subSun => 'Sun';
+
+  @override
+  String get subDailyDays => 'Daily';
+
+  @override
+  String get subEmpty => 'No subscriptions match your selection.';
+
+  @override
+  String get subOffline => 'Saved data. Refresh online before making changes.';
+
+  @override
+  String get subSaved =>
+      'A saved change needs acknowledgement. Retry the same change before making another.';
+
+  @override
+  String get subRetry => 'Retry saved change';
+
+  @override
+  String get subReviewExpired => 'Reload and review expired settings change';
+
+  @override
+  String get subPlanLocked =>
+      'Creating, editing and resuming subscriptions requires an active STANDARD or higher plan. Contact support about a plan change. History and reducing controls remain available.';
+
+  @override
+  String get subBusinessGuidance =>
+      'Enabling auto-accept requires BUSINESS or higher. Contact support about a plan change.';
+
+  @override
+  String get subAutoAccept => 'Automatically accept subscription orders';
+
+  @override
+  String get subAutoEffective =>
+      'Auto-accept is effective for the current plan.';
+
+  @override
+  String get subAutoInactive =>
+      'Auto-accept is not effective for the current configuration and plan.';
+
+  @override
+  String get subAvailable => 'Subscription delivery available';
+
+  @override
+  String get subPauseAll => 'Pause all subscriptions';
+
+  @override
+  String get subCustomer => 'Customer';
+
+  @override
+  String get subProduct => 'Product and price per pack';
+
+  @override
+  String get subQty => 'Whole packs per delivery';
+
+  @override
+  String get subLess => 'Decrease packs per delivery';
+
+  @override
+  String get subMore => 'Increase packs per delivery';
+
+  @override
+  String get subStart => 'Start date (YYYY-MM-DD)';
+
+  @override
+  String get subEnd => 'End date, optional (YYYY-MM-DD)';
+
+  @override
+  String get subFrom => 'Delivery date (YYYY-MM-DD)';
+
+  @override
+  String get subSlot => 'Configured delivery slot';
+
+  @override
+  String get subPayment => 'Payment preference';
+
+  @override
+  String get subReason => 'Reason';
+
+  @override
+  String get subNoEnd => 'No end date';
+
+  @override
+  String get subInvalid =>
+      'Check the required selection, whole-pack quantity, days and date or time format.';
+
+  @override
+  String get subCutoff =>
+      'Customer changes close at 21:00 IST before delivery. Changes after cutoff apply from the next eligible date shown by the server. Existing generated orders remain; use Skip to cancel an eligible dated order.';
+
+  @override
+  String get subCancelInfo =>
+      'Stop future subscription deliveries. Existing generated orders are retained.';
+
+  @override
+  String get subPostpaid =>
+      'Monthly amounts are estimates for the selected start month. Postpaid Khata is billed only when an order is delivered; no payment is taken during setup.';
+
+  @override
+  String get subConfirmSettings => 'Confirm subscription setting change';
+
+  @override
+  String get subSettingsEffect =>
+      'This changes future generation eligibility. Individual subscriptions and existing orders are retained.';
+
+  @override
+  String get subLimitsInfo =>
+      'Limits are shared with other orders. Leave a limit blank for unlimited; clear both times to remove the delivery window. Times are IST; overnight windows are allowed.';
+
+  @override
+  String get subOrderCap => 'Daily order limit, optional';
+
+  @override
+  String get subMilkCap =>
+      'Daily milk capacity in litres, optional (up to 3 decimal places)';
+
+  @override
+  String get subWindowStart => 'Delivery window start (HH:mm IST)';
+
+  @override
+  String get subWindowEnd => 'Delivery window end (HH:mm IST)';
+
+  @override
+  String subMoney(String amount) {
+    return '₹$amount';
+  }
+
+  @override
+  String subDaily(String amount) {
+    return 'Per delivery: $amount';
+  }
+
+  @override
+  String subMonthly(String amount, String month) {
+    return 'Estimated $month: $amount';
+  }
+
+  @override
+  String subEffective(String date) {
+    return 'Change recorded, effective from $date.';
+  }
+
+  @override
+  String subQuantityValue(int qty, String slot) {
+    return '$qty packs · $slot';
+  }
+
+  @override
+  String subDates(String start, String end) {
+    return '$start to $end';
+  }
+
+  @override
+  String subPausedDates(String start, String end) {
+    return 'Pause: $start to $end';
+  }
+
+  @override
+  String subSkippedDate(String date) {
+    return 'Skipped: $date';
+  }
+
+  @override
+  String subSummary(
+      int total, int active, int paused, int pending, int customers) {
+    return 'Subscriptions: $total · Active: $active · Paused: $paused · Pending approval: $pending · Customers: $customers';
+  }
+
+  @override
   String get deliveryTitle => 'Deliveries';
 
   @override

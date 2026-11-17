@@ -4,11 +4,18 @@ import 'deep_links.dart';
 import 'routes.dart';
 import 'routing_controller.dart';
 import '../../features/deliveries/deliveries_pages.dart';
+import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       routes: [
+        GoRoute(
+            path: '/vendor/subscriptions',
+            builder: (_, __) => const VendorSubscriptionsPage()),
+        GoRoute(
+            path: '/vendor/subscription-settings',
+            builder: (_, __) => const VendorSubscriptionSettingsPage()),
         GoRoute(
             path: '/vendor/deliveries',
             builder: (_, __) => const DeliveriesPage()),
