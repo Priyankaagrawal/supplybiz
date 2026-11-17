@@ -184,6 +184,9 @@ Class | Method | HTTP request | Description
 [*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
+[*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerComplete**](doc/VendorSalesApi.md#salescontrollercomplete) | **POST** /api/v1/vendor/sales |
+[*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerGet**](doc/VendorSalesApi.md#salescontrollerget) | **GET** /api/v1/vendor/sales/{id} |
+[*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerList**](doc/VendorSalesApi.md#salescontrollerlist) | **GET** /api/v1/vendor/sales |
 [*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerCustomers**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollercustomers) | **GET** /api/v1/vendor/settings/subscription-customers |
 [*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerGet**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollerget) | **GET** /api/v1/vendor/settings |
 [*VendorSubscriptionSettingsApi*](doc/VendorSubscriptionSettingsApi.md) | [**subscriptionSettingsControllerPatch**](doc/VendorSubscriptionSettingsApi.md#subscriptionsettingscontrollerpatch) | **PATCH** /api/v1/vendor/settings |
@@ -228,6 +231,7 @@ Class | Method | HTTP request | Description
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
  - [CheckoutOptions](doc/CheckoutOptions.md)
+ - [CompleteSaleInput](doc/CompleteSaleInput.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
  - [CustomerHome](doc/CustomerHome.md)
@@ -313,6 +317,10 @@ Class | Method | HTTP request | Description
  - [ReorderLine](doc/ReorderLine.md)
  - [ReorderUnavailable](doc/ReorderUnavailable.md)
  - [RoleDto](doc/RoleDto.md)
+ - [SaleItemResponse](doc/SaleItemResponse.md)
+ - [SaleLineInput](doc/SaleLineInput.md)
+ - [SaleList](doc/SaleList.md)
+ - [SaleResponse](doc/SaleResponse.md)
  - [SendOtpDto](doc/SendOtpDto.md)
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [ServiceAreaDto](doc/ServiceAreaDto.md)

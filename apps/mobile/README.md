@@ -1,5 +1,26 @@
 # Supply Biz Mobile
 
+## T-079 generated Quick Sale client compatibility (2026-11-17)
+
+Generated VendorSalesApi exposes complete/list/detail with exact string paise,
+optional customer (walk-in omits the property), editable string rate, CASH/UPI/
+OTHER and zoned audit metadata. A transport smoke checks huge paise, identical
+same-key serialization, date query and immutable receipt decoding.
+
+Executed from apps/mobile, PASS:
+
+```powershell
+dart format test/core/network/sales_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/sales_client_test.dart
+flutter test --no-pub test/core/network/sales_client_test.dart
+```
+
+One simulated HTTP transport check and clean analysis pass. Actual HTTP/PostgreSQL
+stock/ledger/replay evidence and five manual steps are in API README T-079.
+T-080 owns the POS UI/outbox and native Android OS-kill/reconnect journey; those
+checks are NOT_RUN for this API slice. No app source changed; no device/APK/live
+payment-provider or manual PASS claim. iOS is deferred; G3 remains pending.
+
 ## T-074 client/notification compatibility (2026-11-17)
 
 Generated VendorAvailabilityApi and new models expose the seven holiday/

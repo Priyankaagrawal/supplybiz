@@ -239,6 +239,28 @@ manual verification and downstream writer integration remain pending.
 | `subscription_requests` | request_key (hashed actor/key), user_id, path, request_hash, response, created_at | Permanent append-only replay identity; response only id/version/status/effectiveFrom, no address snapshot |
 | `sales` | id, sale_no, vendor_id, vendor_customer_id NULL, total_paise, paid_paise, balance_paise, payment_method, client_created_at, created_at | CHECK(vendor_customer_id IS NOT NULL OR balance_paise = 0) (RULE-11) |
 | `sale_items` | id, sale_id, product_id, name_snapshot, qty, rate_paise, amount_paise | |
+
+T-079 materializes these immutable POS sources in 202611170002_quick_sales.
+sales also stores creator, explicit sale_date (server IST date after locks),
+untrusted client_created_at, permanent unique actor/key hash and request_hash.
+sale_items adds unit_value_snapshot/unit_type_snapshot and UNIQUE(sale_id,product_id).
+Rates/totals/paid/balance are nonnegative BIGINT with paid<=total and balance=
+total-paid; walk-ins require balance=0. Numeric line arithmetic and deferred
+bill-sum checks (explicitly forced before stock/ledger posting) reject inconsistent snapshots, and insert guards enforce vendor/
+customer/creator/product scope. Statement triggers prevent source/item UPDATE,
+DELETE and TRUNCATE. Product/customer/user restrictive FKs preserve history, and
+the SALE stock-source partial unique index prevents duplicate movement per SKU.
+
+The sales.paid_paise record is the immutable POS receipt for CASH/UPI/OTHER.
+Customer POS posts a gross SALE DEBIT and positive paid SALE CREDIT, both referring
+to the sale UUID; walk-ins have no customer/ledger entry. Zero amounts skip ledger
+posting. No duplicate `payments` receipt/CREDIT or synthetic walk-in customer is
+created. Reports/customer consumers must include POS receipts as their own source
+without summing the same cash twice. Sale/items, stock/outbox, ledger and audit
+commit atomically; failed transactions retain no partial source/replay state.
+Client audit time never changes financial posting/date. Retain tables/sequence/
+history on application rollback; no historical backfill, dependency or ledger grant
+change is supplied. Migration applied only to the isolated test database.
 | `job_runs` | id, job, run_date, status, counts JSONB, error, started_at, finished_at | UNIQUE(job, run_date) |
 
 T-072 adds the real subscription FK on orders; existing order/date uniqueness

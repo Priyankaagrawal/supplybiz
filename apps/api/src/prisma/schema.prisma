@@ -89,6 +89,7 @@ enum outbox_event_status {
 }
 
 model users {
+  sales sales[]
   subscriptions subscriptions[]
   subscription_requests subscription_requests[]
   subscription_revisions subscription_revisions[]
@@ -462,6 +463,7 @@ model media_access_events {
 
 // T-021: nullable business fields represent a category-only onboarding draft.
 model vendors {
+  sales sales[]
   subscriptions subscriptions[]
   payments payments[]
   favorites favorites[]
@@ -502,6 +504,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  sales sales[]
   subscriptions subscriptions[]
   payments payments[]
   orders orders[]
@@ -594,6 +597,7 @@ model customer_subscription_links {
 
 // T-026: catalog foundation. Money and quantities are integral.
 model products {
+  sale_items sale_items[]
   subscriptions subscriptions[]
   order_items order_items[]
   id String @id @default(uuid()) @db.Uuid
@@ -945,4 +949,41 @@ model payments {
   creator users @relation(fields:[created_by],references:[id],onDelete:Restrict)
   @@unique([vendor_id,client_ref])
   @@index([vendor_customer_id,received_on])
+}
+
+model sales {
+  id String @id @default(uuid()) @db.Uuid
+  sale_no String @unique @db.VarChar(40)
+  vendor_id String @db.Uuid
+  vendor_customer_id String? @db.Uuid
+  created_by String @db.Uuid
+  total_paise BigInt
+  paid_paise BigInt
+  balance_paise BigInt
+  payment_method String @db.VarChar(8)
+  sale_date DateTime @db.Date
+  client_created_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  request_key String @unique @db.VarChar(64)
+  request_hash String @db.VarChar(64)
+  vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
+  customer vendor_customers? @relation(fields:[vendor_customer_id],references:[id],onDelete:Restrict)
+  creator users @relation(fields:[created_by],references:[id],onDelete:Restrict)
+  items sale_items[]
+  @@index([vendor_id,sale_date,created_at])
+  @@index([vendor_customer_id,created_at])
+}
+model sale_items {
+  id String @id @default(uuid()) @db.Uuid
+  sale_id String @db.Uuid
+  product_id String @db.Uuid
+  name_snapshot String @db.VarChar(120)
+  unit_value_snapshot String @db.VarChar(40)
+  unit_type_snapshot String @db.VarChar(8)
+  qty Int
+  rate_paise BigInt
+  amount_paise BigInt
+  sale sales @relation(fields:[sale_id],references:[id],onDelete:Restrict)
+  product products @relation(fields:[product_id],references:[id],onDelete:Restrict)
+  @@unique([sale_id,product_id])
 }

@@ -309,6 +309,46 @@ cutoffs, authorization, prices or financial posting. Legacy retries omit it unch
 ### 4.7 Quick sale (FR-050–FR-054)
 `POST /vendor/sales`, `GET /vendor/sales?date=`.
 
+T-079 implements these plus owned `GET /vendor/sales/{id}`. POST requires
+Idempotency-Key and `{vendorCustomerId?,items:[{productId,qty,ratePaise?}],paidPaise,
+paymentMethod,clientCreatedAt?}`. There are 1–100 unique active owned products;
+qty is integer packs (1–2147483647). POS does not impose customer online-order
+MOQ. The authenticated vendor may override a rate per FR-052; omission uses the
+current selling price. All paise inputs/outputs are exact decimal strings, bounded
+by signed BIGINT; server computes each amount, total, paid bounds and balance.
+Client totals/vendor identity/status are rejected. Payment methods are CASH/UPI/
+OTHER, recorded external preferences only; no wallet/settlement/provider success.
+
+Without vendorCustomerId the sale is anonymous and paid must equal total, otherwise
+422 WALKIN_MUST_BE_PAID. No synthetic customer/Khata is created. A supplied customer
+must be active, undeleted and owned; accepted app linkage is not required for a
+vendor's offline customer. Paid must be 0–total (422 PAID_EXCEEDS_TOTAL for overpay).
+Current audited POS entitlement and active vendor role/suspension are enforced.
+For customer sales, completion posts a gross SALE DEBIT and any paid SALE CREDIT;
+valid zero amounts do not create ledger entries. The immutable sale's paid amount
+is the POS receipt, including OTHER, not a duplicate standalone `payments` row.
+Consumers/reports must aggregate POS paid values alongside their relevant payment
+sources without double counting credits. T-080 owns POS mobile/outbox and T-100
+owns report presentation; this task does not change unrelated receipt routes.
+
+Sale/items, immutable name/unit/rate snapshots, stock movements/low-stock outbox,
+both ledger effects, USER audit and permanent source replay identity commit in
+one transaction. Lock order is actor → vendor → ordered products → customer.
+Source/item UPDATE/DELETE/TRUNCATE, inconsistent bills and cross-tenant lines are
+rejected by DB guards. Same actor/key replays the original receipt even after
+price, stock or plan-expiry changes; changed body is 422 IDEMPOTENCY_MISMATCH.
+Different keys represent separate sales, with serialized stock checks preventing
+oversell. clientCreatedAt is untrusted zoned ISO audit metadata, never business
+date, posting time, historical authorization or a backdated sale. Date/time use
+the DB clock after locks. History reads survive expiry under ADR-029.
+
+Responses contain id/saleNo, nullable vendorCustomerId, total/paid/balance paise,
+derived PAID/UNPAID, method, server businessDate/createdAt, nullable clientCreatedAt
+and item snapshots. List accepts optional exact string date/customer ID, limit
+(default 20, max 50)/offset and returns total/server clock in stable createdAt/UUID
+order. Foreign detail/customer filters are 404; inactive/unavailable products,
+insufficient stock, malformed audit timestamps and overflow fail without effects.
+
 ### 4.8 Subscriptions (FR-070–FR-077, FR-230–FR-233)
 | Method | Path |
 |---|---|

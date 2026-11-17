@@ -24,6 +24,7 @@ import 'package:supplybiz_api_client/src/model/category_input.dart';
 import 'package:supplybiz_api_client/src/model/category_list.dart';
 import 'package:supplybiz_api_client/src/model/category_row.dart';
 import 'package:supplybiz_api_client/src/model/checkout_options.dart';
+import 'package:supplybiz_api_client/src/model/complete_sale_input.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
 import 'package:supplybiz_api_client/src/model/customer_home.dart';
@@ -109,6 +110,10 @@ import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/reorder_line.dart';
 import 'package:supplybiz_api_client/src/model/reorder_unavailable.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
+import 'package:supplybiz_api_client/src/model/sale_item_response.dart';
+import 'package:supplybiz_api_client/src/model/sale_line_input.dart';
+import 'package:supplybiz_api_client/src/model/sale_list.dart';
+import 'package:supplybiz_api_client/src/model/sale_response.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
@@ -232,6 +237,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return CategoryRow.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CheckoutOptions':
       return CheckoutOptions.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'CompleteSaleInput':
+      return CompleteSaleInput.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
@@ -460,6 +468,16 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'RoleDto':
       return RoleDto.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'SaleItemResponse':
+      return SaleItemResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SaleLineInput':
+      return SaleLineInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SaleList':
+      return SaleList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'SaleResponse':
+      return SaleResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'SendOtpDto':
       return SendOtpDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'SendOtpResponse':

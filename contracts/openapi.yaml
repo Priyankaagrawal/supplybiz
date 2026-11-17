@@ -1,5 +1,111 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/sales:
+    post:
+      operationId: SalesController_complete
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompleteSaleInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '403':
+          description: Active vendor role, suspension or server plan/expiry denial.
+        '409':
+          description: INSUFFICIENT_STOCK.
+        '422':
+          description: WALKIN_MUST_BE_PAID, PAID_EXCEEDS_TOTAL or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-sales
+      security:
+        - bearer: []
+    get:
+      operationId: SalesController_list
+      parameters:
+        - name: date
+          required: false
+          in: query
+          description: Server IST sale date YYYY-MM-DD.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+        - name: vendorCustomerId
+          required: false
+          in: query
+          schema:
+            format: uuid
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleList'
+        '403':
+          description: Active vendor role, suspension or server plan/expiry denial.
+        '409':
+          description: INSUFFICIENT_STOCK.
+        '422':
+          description: WALKIN_MUST_BE_PAID, PAID_EXCEEDS_TOTAL or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-sales
+      security:
+        - bearer: []
+  /api/v1/vendor/sales/{id}:
+    get:
+      operationId: SalesController_get
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaleResponse'
+        '403':
+          description: Active vendor role, suspension or server plan/expiry denial.
+        '409':
+          description: INSUFFICIENT_STOCK.
+        '422':
+          description: WALKIN_MUST_BE_PAID, PAID_EXCEEDS_TOTAL or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-sales
+      security:
+        - bearer: []
   /api/v1/vendor/availability:
     get:
       operationId: AvailabilityController_get
@@ -4723,6 +4829,155 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    SaleLineInput:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        qty:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        ratePaise:
+          type: string
+          pattern: ^(0|[1-9][0-9]{0,18})$
+          description: Authorized vendor rate override in paise; omitted uses current selling price. Max signed BIGINT.
+      required:
+        - productId
+        - qty
+    CompleteSaleInput:
+      type: object
+      properties:
+        vendorCustomerId:
+          type: string
+          format: uuid
+          description: Omitted for anonymous walk-in; no synthetic customer is created.
+        items:
+          minItems: 1
+          maxItems: 100
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleLineInput'
+        paidPaise:
+          type: string
+          pattern: ^(0|[1-9][0-9]{0,18})$
+          description: Recorded external payment, 0 through server total. Walk-in must equal total.
+        paymentMethod:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - OTHER
+        clientCreatedAt:
+          type: string
+          format: date-time
+          description: Untrusted offline audit metadata only; never controls business date, authorization or posting.
+      required:
+        - items
+        - paidPaise
+        - paymentMethod
+    SaleItemResponse:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        unitValue:
+          type: string
+        unitType:
+          type: string
+        qty:
+          type: integer
+        ratePaise:
+          type: string
+        amountPaise:
+          type: string
+      required:
+        - productId
+        - name
+        - unitValue
+        - unitType
+        - qty
+        - ratePaise
+        - amountPaise
+    SaleResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        saleNo:
+          type: string
+        vendorCustomerId:
+          type: string
+          format: uuid
+          nullable: true
+        totalPaise:
+          type: string
+        paidPaise:
+          type: string
+        balancePaise:
+          type: string
+        paymentStatus:
+          type: string
+          enum:
+            - PAID
+            - UNPAID
+        paymentMethod:
+          type: string
+          enum:
+            - CASH
+            - UPI
+            - OTHER
+        businessDate:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        clientCreatedAt:
+          type: string
+          format: date-time
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleItemResponse'
+      required:
+        - id
+        - saleNo
+        - vendorCustomerId
+        - totalPaise
+        - paidPaise
+        - balancePaise
+        - paymentStatus
+        - paymentMethod
+        - businessDate
+        - createdAt
+        - clientCreatedAt
+        - items
+    SaleList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaleResponse'
+        total:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - items
+        - total
+        - serverTime
+        - businessDate
     AvailabilityResponse:
       type: object
       properties:

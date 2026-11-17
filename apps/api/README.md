@@ -1,5 +1,109 @@
 # Supply Biz API
 
+## T-079 Quick Sale handoff (2026-11-17): READY_FOR_VERIFY
+
+POST /vendor/sales now atomically records an owned counter sale; GET /vendor/sales
+supports exact IST date/customer filters and bounded pagination, and GET
+/vendor/sales/{id} returns the owned immutable receipt. BASIC+ POS entitlement,
+active vendor role/suspension, owned active products and optional active customer
+are rechecked server-side. Omit vendorCustomerId for anonymous walk-in; it never
+creates a fake customer and paid must equal total. Customer sales allow 0–total
+paid; overpayment fails. Qty is integer packs, without customer online-order MOQ.
+Rates default to current selling price or accept an authorized vendor override
+per FR-052. Totals/rates/paid/balance are exact paise strings bounded by BIGINT.
+
+The immutable sale is the recorded external CASH/UPI/OTHER POS receipt. Customer
+sales post gross SALE DEBIT and positive paid SALE CREDIT; valid zero amounts
+produce no zero ledger entry. No duplicate payments-table receipt/CREDIT is added
+and no platform money movement/provider success is inferred. POS receipt consumers
+and T-100 reports must include sales paid values alongside relevant receipt sources
+without double counting. This task exposes persisted sales; T-080 owns POS UI and
+offline outbox, and T-100 owns report presentation.
+
+Sale/items, name/unit/rate snapshots, stock movements/low-stock outbox, ledger and
+USER audit share one transaction. Lock order is actor → vendor → sorted products
+→ customer. Permanent actor/key source identity handles concurrent/late retries,
+including after price/stock/plan-expiry changes and application recreation; a
+changed payload is 422. clientCreatedAt is untrusted zoned audit metadata only;
+posting/business date use the DB clock after locks. No historical authorization
+or backdated financial entry is inferred. Different keys are separate sales.
+
+Migration 202611170002_quick_sales adds sales/sale_items/number sequence, restrictive
+scope FKs, line arithmetic/bill-sum guards, immutable source/item triggers and a
+unique SALE stock-source index. The service explicitly forces deferred bill checks
+inside the transaction callback before stock/ledger effects, rather than relying
+on the client's handling of COMMIT-time errors. Direct inconsistent/cross-tenant
+sources and update/delete attempts fail. Applied only to the isolated test DB;
+migrate intended dev/staging before manual use. Preserve financial source tables,
+sequence and history on application rollback. No financial backfill, dependency
+or existing ledger grant changed. OpenAPI/TS/Dart clients regenerated.
+
+Executed in apps/api (PowerShell):
+
+```powershell
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/sales/sales.postgres.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/sales/*.ts src/app.module.ts --max-warnings=0
+```
+
+Executed from root, then apps/mobile:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+# apps/mobile:
+dart format test/core/network/sales_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib test/core/network/sales_client_test.dart
+flutter test --no-pub test/core/network/sales_client_test.dart
+```
+
+Results: final 10/10 native HTTP/PostgreSQL cases pass, including walk-in/customer
+payment modes, zero/large paise, immutable/cross-tenant/inconsistent-source guards,
+concurrent same-key replay and separate-sale stock competition, application-context
+recreation, expiry/history, snapshot retention, and rollback after the real credit
+or second stock line. One generated-Dart transport smoke plus clean generated
+client analysis/TS compile and API build/typecheck/lint/schema pass. The earlier
+guard recheck exposed commit-time acknowledgement behavior; the explicit in-callback
+validation fix is included in the passing final full focused run. API contexts
+closed; no new persistent services/devices were started and fixtures retain
+append-only history.
+
+The Dart transport smoke is simulated HTTP, distinct from actual native API/DB
+evidence. Native Android UI/OS-process-kill/offline outbox checks are NOT_RUN here:
+this task adds API/client contracts; T-080 owns that mobile flow and full TC-059.
+No Android app source changed, so an app APK/device run was not required for this
+API slice. iOS remains deferred. Manual PASS and G3 remain pending.
+
+Manual verification (suggested, not yet executed):
+
+1. Migrate the intended dev/staging DB and start the API. As an assigned BASIC+
+   vendor, complete a walk-in with 2 × ₹65, paid ₹130. Inspect the saved sale,
+   snapshots and stock decrement; verify no new customer or customer ledger.
+2. Select an owned active customer, total ₹130, paid ₹100 and Other. Verify gross
+   debit ₹130, credit ₹100, due +₹30, the immutable sale receipt and one stock effect.
+   Check unpaid, full and valid zero-price variants; reject walk-in partial/overpay.
+3. Repeat the exact payload/key concurrently and after restarting the API; change
+   catalog price and verify the original receipt. Change the payload under the old
+   key and expect 422. Inspect no duplicated source/stock/debit/credit.
+4. Check date/customer pagination and owned detail; reject foreign/inactive products
+   or customers, overflow, fractional packs, unknown totals, suspended role and
+   expired new sales. Retain owned history and acknowledged replay after expiry.
+5. With eventual T-080 UI, complete offline, recreate/kill the app, reconnect and
+   sync the original action once. Verify server date versus client audit time,
+   real UI/API/DB values and report reconciliation at the owning module gate.
+
 ## T-074 holidays/availability handoff (2026-11-17): READY_FOR_VERIFY
 
 Owned GET/PATCH /vendor/availability, GET/POST /vendor/holidays and DELETE
