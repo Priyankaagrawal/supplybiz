@@ -1,5 +1,204 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/availability:
+    get:
+      operationId: AvailabilityController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityResponse'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+    patch:
+      operationId: AvailabilityController_patch
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityPatch'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityMutation'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+  /api/v1/vendor/availability/impact:
+    get:
+      operationId: AvailabilityController_pauseImpact
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryImpact'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+  /api/v1/vendor/holidays:
+    get:
+      operationId: AvailabilityController_list
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HolidayList'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+    post:
+      operationId: AvailabilityController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HolidayInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HolidayMutation'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+  /api/v1/vendor/holidays/impact:
+    get:
+      operationId: AvailabilityController_impact
+      parameters:
+        - name: date
+          required: true
+          in: query
+          description: IST calendar date YYYY-MM-DD.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryImpact'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
+  /api/v1/vendor/holidays/{id}:
+    delete:
+      operationId: AvailabilityController_delete
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HolidayDeleted'
+        '403':
+          description: Active vendor role/suspension or plan denial; reducing operations and history survive expiry.
+        '409':
+          description: VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE.
+        '422':
+          description: HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH.
+      tags:
+        - vendor-availability
+      security:
+        - bearer: []
   /api/v1/vendor/settings:
     get:
       operationId: SubscriptionSettingsController_get
@@ -4524,6 +4723,149 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AvailabilityResponse:
+      type: object
+      properties:
+        version:
+          type: integer
+        acceptingToday:
+          type: boolean
+        deliveryPaused:
+          type: boolean
+        deliveryPausedUntil:
+          type: string
+          nullable: true
+          format: date-time
+          description: Legacy finite pause end; PATCH deliveryPaused always clears it to implement open-ended pause/resume.
+        canResume:
+          type: boolean
+        canReduceActivity:
+          type: boolean
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - version
+        - acceptingToday
+        - deliveryPaused
+        - deliveryPausedUntil
+        - canResume
+        - canReduceActivity
+        - serverTime
+        - businessDate
+    DeliveryImpact:
+      type: object
+      properties:
+        affectedOrders:
+          type: integer
+          description: Only NEW/ACCEPTED/PREPARING; preview is rechecked atomically on write.
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - affectedOrders
+        - serverTime
+        - businessDate
+    AvailabilityPatch:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        acceptingToday:
+          type: boolean
+          description: False rejects new one-time orders for today; existing orders remain.
+        deliveryPaused:
+          type: boolean
+          description: >-
+            Open-ended delivery pause. True cancels NEW/ACCEPTED/PREPARING orders today onward; progressed orders
+            remain.
+      required:
+        - version
+    AvailabilityMutation:
+      type: object
+      properties:
+        cancelledOrders:
+          type: integer
+        availability:
+          $ref: '#/components/schemas/AvailabilityResponse'
+      required:
+        - cancelledOrders
+        - availability
+    HolidayRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        reason:
+          type: string
+      required:
+        - id
+        - date
+        - reason
+    HolidayList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/HolidayRecord'
+        total:
+          type: integer
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          format: date
+      required:
+        - items
+        - total
+        - serverTime
+        - businessDate
+    HolidayInput:
+      type: object
+      properties:
+        date:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+          description: IST calendar date YYYY-MM-DD; deliberately string-valued for exact client serialization.
+        reason:
+          type: string
+          maxLength: 100
+          minLength: 1
+      required:
+        - date
+        - reason
+    HolidayMutation:
+      type: object
+      properties:
+        holiday:
+          $ref: '#/components/schemas/HolidayRecord'
+        cancelledOrders:
+          type: integer
+      required:
+        - holiday
+        - cancelledOrders
+    HolidayDeleted:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deleted:
+          type: boolean
+      required:
+        - id
+        - deleted
     SubscriptionSettingsSummary:
       type: object
       properties:

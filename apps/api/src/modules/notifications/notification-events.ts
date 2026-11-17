@@ -11,6 +11,7 @@ export const eventTemplates = {
   PLAN_EXPIRING: ['VENDOR', 'SYSTEM', 'Plan expiring', '/vendor/plans'],
   PLAN_EXPIRED: ['VENDOR', 'SYSTEM', 'Plan expired', '/vendor/plans'],
   ORDER_ACCEPTED: ['CUSTOMER', 'ORDERS', 'Order accepted', '/customer/orders/'],
+  ORDER_CANCELLED_CUSTOMER: ['CUSTOMER', 'ORDERS', 'Order cancelled', '/customer/orders/'],
   ORDER_REJECTED: ['CUSTOMER', 'ORDERS', 'Order rejected', '/customer/orders/'],
   OUT_FOR_DELIVERY: ['CUSTOMER', 'ORDERS', 'Order out for delivery', '/customer/orders/'],
   ORDER_DELIVERED: ['CUSTOMER', 'ORDERS', 'Order delivered', '/customer/orders/'],
@@ -26,6 +27,8 @@ export const eventTemplates = {
   SUBSCRIPTION_UPDATED: ['CUSTOMER', 'ORDERS', 'Subscription updated', '/customer/subscriptions/'],
   SUBSCRIPTION_CHANGED_VENDOR: ['VENDOR', 'ORDERS', 'Subscription updated', '/vendor/customers/subscriptions/'],
   VENDOR_HOLIDAY: ['CUSTOMER', 'SYSTEM', 'Vendor holiday', '/customer/subscriptions'],
+  VENDOR_DELIVERY_PAUSED: ['CUSTOMER', 'SYSTEM', 'Vendor deliveries paused', '/customer/subscriptions'],
+  VENDOR_DELIVERY_RESUMED: ['CUSTOMER', 'SYSTEM', 'Vendor deliveries resumed', '/customer/subscriptions'],
   DELIVERY_UPDATE: ['VENDOR', 'DELIVERY', 'Delivery update', '/vendor/deliveries'],
 } as const;
 export type NotificationEvent = { recipientId: string; role: user_role_type; type: keyof typeof eventTemplates;

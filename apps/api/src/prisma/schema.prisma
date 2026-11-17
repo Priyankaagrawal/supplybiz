@@ -779,6 +779,15 @@ model vendor_holidays {
   vendor vendors @relation(fields:[vendor_id],references:[id],onDelete:Restrict)
   @@unique([vendor_id,date])
 }
+// T-074: permanent mutation acknowledgement; no payload/contact or financial history.
+model vendor_operation_requests {
+  request_key String @id @db.VarChar(64)
+  user_id String @db.Uuid
+  path String @db.VarChar(120)
+  request_hash String @db.VarChar(64)
+  response Json
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+}
 model orders {
   subscription subscriptions? @relation(fields:[subscription_id],references:[id],onDelete:Restrict)
   delivery_payment payments?

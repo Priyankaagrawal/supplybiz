@@ -14,6 +14,9 @@ import 'package:supplybiz_api_client/src/model/assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/audit_page.dart';
 import 'package:supplybiz_api_client/src/model/audit_row.dart';
 import 'package:supplybiz_api_client/src/model/audit_snapshot.dart';
+import 'package:supplybiz_api_client/src/model/availability_mutation.dart';
+import 'package:supplybiz_api_client/src/model/availability_patch.dart';
+import 'package:supplybiz_api_client/src/model/availability_response.dart';
 import 'package:supplybiz_api_client/src/model/badge_input.dart';
 import 'package:supplybiz_api_client/src/model/catalog_plan_input.dart';
 import 'package:supplybiz_api_client/src/model/catalog_price_input.dart';
@@ -30,6 +33,7 @@ import 'package:supplybiz_api_client/src/model/customer_patch.dart';
 import 'package:supplybiz_api_client/src/model/customer_response.dart';
 import 'package:supplybiz_api_client/src/model/customer_subscription_input.dart';
 import 'package:supplybiz_api_client/src/model/delivery_counts.dart';
+import 'package:supplybiz_api_client/src/model/delivery_impact.dart';
 import 'package:supplybiz_api_client/src/model/delivery_list.dart';
 import 'package:supplybiz_api_client/src/model/delivery_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/device_dto.dart';
@@ -40,6 +44,11 @@ import 'package:supplybiz_api_client/src/model/discovery_page.dart';
 import 'package:supplybiz_api_client/src/model/extend_plan_input.dart';
 import 'package:supplybiz_api_client/src/model/favorite_result.dart';
 import 'package:supplybiz_api_client/src/model/health_controller_get_live200_response.dart';
+import 'package:supplybiz_api_client/src/model/holiday_deleted.dart';
+import 'package:supplybiz_api_client/src/model/holiday_input.dart';
+import 'package:supplybiz_api_client/src/model/holiday_list.dart';
+import 'package:supplybiz_api_client/src/model/holiday_mutation.dart';
+import 'package:supplybiz_api_client/src/model/holiday_record.dart';
 import 'package:supplybiz_api_client/src/model/home_category.dart';
 import 'package:supplybiz_api_client/src/model/home_delivery.dart';
 import 'package:supplybiz_api_client/src/model/home_delivery_item.dart';
@@ -197,6 +206,15 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'AuditSnapshot':
       return AuditSnapshot.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'AvailabilityMutation':
+      return AvailabilityMutation.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AvailabilityPatch':
+      return AvailabilityPatch.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'AvailabilityResponse':
+      return AvailabilityResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'BadgeInput':
       return BadgeInput.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CatalogPlanInput':
@@ -239,6 +257,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'DeliveryCounts':
       return DeliveryCounts.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'DeliveryImpact':
+      return DeliveryImpact.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'DeliveryList':
       return DeliveryList.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'DeliveryPaymentInput':
@@ -267,6 +288,19 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'HealthControllerGetLive200Response':
       return HealthControllerGetLive200Response.fromJson(
           value as Map<String, dynamic>) as ReturnType;
+    case 'HolidayDeleted':
+      return HolidayDeleted.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'HolidayInput':
+      return HolidayInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'HolidayList':
+      return HolidayList.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'HolidayMutation':
+      return HolidayMutation.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'HolidayRecord':
+      return HolidayRecord.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'HomeCategory':
       return HomeCategory.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'HomeDelivery':

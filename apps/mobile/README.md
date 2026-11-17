@@ -1,5 +1,31 @@
 # Supply Biz Mobile
 
+## T-074 client/notification compatibility (2026-11-17)
+
+Generated VendorAvailabilityApi and new models expose the seven holiday/
+availability operations. New outbound holiday date/body and impact/query fields
+are exact YYYY-MM-DD strings, verified with the real generated client. Customer
+ORDER_CANCELLED_CUSTOMER notices now enter the existing owned-order refresh path;
+raw/spoofed or wrong-role paths remain rejected. S-V-22 UI remains T-077.
+
+Executed from apps/mobile:
+
+```powershell
+dart format lib/features/notifications/order_notices.dart test/features/notifications/order_notifications_test.dart test/core/network/availability_client_test.dart
+flutter analyze --no-pub ../../packages/api_client/lib lib/features/notifications/order_notices.dart test/features/notifications/order_notifications_test.dart test/core/network/availability_client_test.dart
+flutter test --no-pub test/core/network/availability_client_test.dart test/features/notifications/order_notifications_test.dart
+# Verification process only; default SDK's newest build-tools lack aapt.
+$env:ANDROID_HOME='C:\Android'
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+Six targeted transport/notification checks, clean analysis and the normal Android
+dev APK build (114.7s) pass. The local SDK selection was restored after checks.
+HTTP and push
+transport are simulated; actual API/PostgreSQL/generation evidence and five manual
+steps are in the API README T-074 handoff. No device runtime or live FCM was tested
+for this API task; full T-077 UI/a11y and manual PASS/G3 remain pending, iOS deferred.
+
 ## T-076 vendor subscriptions handoff (2026-11-17): READY_FOR_VERIFY
 
 Open Vendor Customers → Subscriptions (`/vendor/subscriptions`) for owned history,

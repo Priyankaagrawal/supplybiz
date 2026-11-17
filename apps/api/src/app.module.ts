@@ -1,3 +1,5 @@
+import { AvailabilityController } from './modules/availability/availability.controller';
+import { AvailabilityService } from './modules/availability/availability.service';
 import { DashboardController } from './modules/dashboard/dashboard.controller';
 import { VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController } from './modules/subscriptions/subscriptions.controller';
 import { SubscriptionsService } from './modules/subscriptions/subscriptions.service';
@@ -89,8 +91,9 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [AvailabilityController, SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
+    AvailabilityService,
     SubscriptionGenerationService, GenerationClock,
     SubscriptionSettingsService,
     SubscriptionsService, SubscriptionClock,

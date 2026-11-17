@@ -94,6 +94,8 @@ endpoint, user/session creation and tokens belong to T-015.
 | PUT | `/vendor/settings/service-pincodes` |
 | GET/PUT | `/vendor/settings/service-area` (T-023 combined radius/pincode configuration; provisional until task verification) |
 | GET/POST | `/vendor/holidays` ; DELETE `/vendor/holidays/{id}` |
+| GET/PATCH | `/vendor/availability` (T-074 shared settings version) |
+| GET | `/vendor/availability/impact` ; `/vendor/holidays/impact?date=YYYY-MM-DD` |
 | POST | `/vendor/delivery/pause` `{ until? }` ; POST `/vendor/delivery/resume` |
 | GET | `/vendor/dashboard?date=YYYY-MM-DD` |
 
@@ -278,7 +280,8 @@ commit together. Invalid stored bills, insufficient stock or ledger failure leav
 no partial effects. FAILED requires trimmed nonempty `reason` up to 200 characters
 and creates no stock/payment/ledger effects. Rejection still uses the listed enum
 and OTHER requires reasonText of 5–200 characters. T-051 owns reorder,
-T-074 vendor holiday/pause cancellation (vendor CANCELLED is not exposed yet).
+T-074 implements vendor holiday/pause cancellation through dedicated controls;
+general vendor CANCELLED transitions remain unexposed.
 Vendor-created Add Order remains outside this customer-placement slice; the route
 below is the planned contract and is not exposed by T-045. Check evidence/manual
 handoff is recorded in the API README; this does not claim a module gate pass.
@@ -383,6 +386,44 @@ duplicate an order or inbox effect. Catch-up uses current eligibility/prices and
 never fabricates delivery or settlement. Incomplete generation after 22:30 writes
 a durable SYSTEM audit and redacted operational log; runtime/capacity limits and
 manual checks are documented in the API README T-073 handoff.
+
+### 4.8.1 Vendor availability and holidays (T-074 / FR-082–085)
+
+Owned GET `/vendor/availability` returns version, acceptingToday, deliveryPaused,
+nullable deliveryPausedUntil, canResume/canReduceActivity and serverTime/businessDate.
+PATCH requires Idempotency-Key and `{version,acceptingToday?,deliveryPaused?}` with
+at least one boolean. The version is shared with subscription/service-area settings.
+Accepting-today off rejects new one-time orders today and retains existing orders;
+it does not pause subscriptions. Delivery pause is open-ended, clears a legacy
+finite end, and atomically cancels NEW/ACCEPTED/PREPARING orders dated today onward.
+OUT_FOR_DELIVERY and terminal orders, past orders and other vendors are unchanged.
+Resume affects future eligibility; cancelled orders are never resurrected.
+
+GET `/vendor/holidays?limit=20&offset=0` returns owned today/upcoming holidays,
+stable date/UUID order, total and server clock (limit max 50). POST accepts an IST
+calendar date >= today and a trimmed reason of 1–100 characters. Date request
+fields use string patterns in OpenAPI so generated clients preserve YYYY-MM-DD.
+It inserts one unique vendor/date holiday and atomically cancels the same three
+eligible statuses on that date. Duplicate date is 409 HOLIDAY_EXISTS. DELETE by
+owned UUID permits only strictly future dates; today/past is 409
+HOLIDAY_NOT_FUTURE and foreign/missing UUID is 404 HOLIDAY_NOT_FOUND. Removing an
+exclusion before generation permits eligible future generation, without reviving
+previously cancelled orders. Impact routes return affectedOrders and server clock;
+preview is advisory and the mutation rechecks under the vendor lock.
+
+History/reducing controls remain available on an expired historical plan; enabling
+acceptingToday, resuming deliveries or deleting a holiday requires an active plan
+allowing new orders. Suspension/role checks remain mandatory. Every write locks
+actor then vendor, with ordered order updates in pages of 100. The entire action,
+version/timeline changes, owned customer cancellation notices, eligible subscriber
+calendar notices, USER audit and permanent replay response commit together, or
+roll back. Generated order/customer checkout writes serialize on the same vendor.
+Replay checks ownership/role before returning the original response, including
+after application recreation/deletion; key/path/body mismatch is 422. No stock,
+ledger, receipt, refund or financial-history reversal is created. Canonical
+customer order notices open `/customer/orders/{id}` and refresh owned readers;
+calendar notices open customer subscriptions. Live push/manual checks remain
+pending, and S-V-22 mobile controls belong to T-077.
 
 ### 4.9 Ledger & payments (FR-110–FR-116, FR-250–FR-253)
 T-071 exposes vendor payment recording/list/summary (other routes below remain

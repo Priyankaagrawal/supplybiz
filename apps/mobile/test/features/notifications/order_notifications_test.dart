@@ -93,7 +93,7 @@ Future<void> settleOrderPush(WidgetTester tester) async {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   test(
-      'T-052 TC-103 all seven owned order types require a canonical same-role order path',
+      'T-052/T-074 TC-103 owned order types require a canonical same-role order path',
       () {
     final f = OrderPushFixture();
     for (final role in ['VENDOR', 'CUSTOMER']) {
@@ -102,6 +102,7 @@ void main() {
           : [
               'ORDER_ACCEPTED',
               'ORDER_REJECTED',
+              'ORDER_CANCELLED_CUSTOMER',
               'OUT_FOR_DELIVERY',
               'ORDER_DELIVERED',
               'DELIVERY_FAILED'

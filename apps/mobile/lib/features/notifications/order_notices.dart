@@ -22,6 +22,7 @@ OrderNotice? ownedOrderNotice(InboxItem item, String account) {
       : const {
           'ORDER_ACCEPTED',
           'ORDER_REJECTED',
+          'ORDER_CANCELLED_CUSTOMER',
           'OUT_FOR_DELIVERY',
           'ORDER_DELIVERED',
           'DELIVERY_FAILED'

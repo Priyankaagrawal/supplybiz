@@ -158,6 +158,13 @@ Class | Method | HTTP request | Description
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerPreferences**](doc/NotificationsApi.md#notificationscontrollerpreferences) | **GET** /api/v1/me/notification-prefs |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerRead**](doc/NotificationsApi.md#notificationscontrollerread) | **POST** /api/v1/notifications/read |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerSavePreferences**](doc/NotificationsApi.md#notificationscontrollersavepreferences) | **PUT** /api/v1/me/notification-prefs |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerCreate**](doc/VendorAvailabilityApi.md#availabilitycontrollercreate) | **POST** /api/v1/vendor/holidays |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerDelete**](doc/VendorAvailabilityApi.md#availabilitycontrollerdelete) | **DELETE** /api/v1/vendor/holidays/{id} |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerGet**](doc/VendorAvailabilityApi.md#availabilitycontrollerget) | **GET** /api/v1/vendor/availability |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerImpact**](doc/VendorAvailabilityApi.md#availabilitycontrollerimpact) | **GET** /api/v1/vendor/holidays/impact |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerList**](doc/VendorAvailabilityApi.md#availabilitycontrollerlist) | **GET** /api/v1/vendor/holidays |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerPatch**](doc/VendorAvailabilityApi.md#availabilitycontrollerpatch) | **PATCH** /api/v1/vendor/availability |
+[*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerPauseImpact**](doc/VendorAvailabilityApi.md#availabilitycontrollerpauseimpact) | **GET** /api/v1/vendor/availability/impact |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerCreate**](doc/VendorCustomersApi.md#customerscontrollercreate) | **POST** /api/v1/vendor/customers |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerGet**](doc/VendorCustomersApi.md#customerscontrollerget) | **GET** /api/v1/vendor/customers/{id} |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
@@ -211,6 +218,9 @@ Class | Method | HTTP request | Description
  - [AuditPage](doc/AuditPage.md)
  - [AuditRow](doc/AuditRow.md)
  - [AuditSnapshot](doc/AuditSnapshot.md)
+ - [AvailabilityMutation](doc/AvailabilityMutation.md)
+ - [AvailabilityPatch](doc/AvailabilityPatch.md)
+ - [AvailabilityResponse](doc/AvailabilityResponse.md)
  - [BadgeInput](doc/BadgeInput.md)
  - [CatalogPlanInput](doc/CatalogPlanInput.md)
  - [CatalogPriceInput](doc/CatalogPriceInput.md)
@@ -227,6 +237,7 @@ Class | Method | HTTP request | Description
  - [CustomerResponse](doc/CustomerResponse.md)
  - [CustomerSubscriptionInput](doc/CustomerSubscriptionInput.md)
  - [DeliveryCounts](doc/DeliveryCounts.md)
+ - [DeliveryImpact](doc/DeliveryImpact.md)
  - [DeliveryList](doc/DeliveryList.md)
  - [DeliveryPaymentInput](doc/DeliveryPaymentInput.md)
  - [DeviceDto](doc/DeviceDto.md)
@@ -237,6 +248,11 @@ Class | Method | HTTP request | Description
  - [ExtendPlanInput](doc/ExtendPlanInput.md)
  - [FavoriteResult](doc/FavoriteResult.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
+ - [HolidayDeleted](doc/HolidayDeleted.md)
+ - [HolidayInput](doc/HolidayInput.md)
+ - [HolidayList](doc/HolidayList.md)
+ - [HolidayMutation](doc/HolidayMutation.md)
+ - [HolidayRecord](doc/HolidayRecord.md)
  - [HomeCategory](doc/HomeCategory.md)
  - [HomeDelivery](doc/HomeDelivery.md)
  - [HomeDeliveryItem](doc/HomeDeliveryItem.md)

@@ -4,6 +4,86 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AvailabilityController_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["AvailabilityController_patch"];
+        trace?: never;
+    };
+    "/api/v1/vendor/availability/impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AvailabilityController_pauseImpact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/holidays": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AvailabilityController_list"];
+        put?: never;
+        post: operations["AvailabilityController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/holidays/impact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AvailabilityController_impact"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/holidays/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AvailabilityController_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/settings": {
         parameters: {
             query?: never;
@@ -1677,6 +1757,67 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AvailabilityResponse: {
+            version: number;
+            acceptingToday: boolean;
+            deliveryPaused: boolean;
+            /**
+             * Format: date-time
+             * @description Legacy finite pause end; PATCH deliveryPaused always clears it to implement open-ended pause/resume.
+             */
+            deliveryPausedUntil: string | null;
+            canResume: boolean;
+            canReduceActivity: boolean;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
+        DeliveryImpact: {
+            /** @description Only NEW/ACCEPTED/PREPARING; preview is rechecked atomically on write. */
+            affectedOrders: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
+        AvailabilityPatch: {
+            version: number;
+            /** @description False rejects new one-time orders for today; existing orders remain. */
+            acceptingToday?: boolean;
+            /** @description Open-ended delivery pause. True cancels NEW/ACCEPTED/PREPARING orders today onward; progressed orders remain. */
+            deliveryPaused?: boolean;
+        };
+        AvailabilityMutation: {
+            cancelledOrders: number;
+            availability: components["schemas"]["AvailabilityResponse"];
+        };
+        HolidayRecord: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date */
+            date: string;
+            reason: string;
+        };
+        HolidayList: {
+            items: components["schemas"]["HolidayRecord"][];
+            total: number;
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+        };
+        HolidayInput: {
+            /** @description IST calendar date YYYY-MM-DD; deliberately string-valued for exact client serialization. */
+            date: string;
+            reason: string;
+        };
+        HolidayMutation: {
+            holiday: components["schemas"]["HolidayRecord"];
+            cancelledOrders: number;
+        };
+        HolidayDeleted: {
+            /** Format: uuid */
+            id: string;
+            deleted: boolean;
+        };
         SubscriptionSettingsSummary: {
             totalSubscriptions: number;
             active: number;
@@ -3003,6 +3144,308 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AvailabilityController_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityResponse"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_patch: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityPatch"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityMutation"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_pauseImpact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryImpact"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_list: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HolidayList"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HolidayInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HolidayMutation"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_impact: {
+        parameters: {
+            query: {
+                /** @description IST calendar date YYYY-MM-DD. */
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryImpact"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AvailabilityController_delete: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HolidayDeleted"];
+                };
+            };
+            /** @description Active vendor role/suspension or plan denial; reducing operations and history survive expiry. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, HOLIDAY_EXISTS or HOLIDAY_NOT_FUTURE. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description HOLIDAY_IN_PAST or IDEMPOTENCY_MISMATCH. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     SubscriptionSettingsController_get: {
         parameters: {
             query?: never;

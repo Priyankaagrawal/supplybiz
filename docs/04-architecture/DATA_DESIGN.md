@@ -109,6 +109,26 @@ transaction. Customer block uses the session advisory user lock and revokes
 sessions/clears push tokens atomically; vendor mutations take that lock before
 the vendor row. Deleted accounts and stale record versions cannot be overwritten.
 | `vendor_holidays` | id, vendor_id, date, reason | UNIQUE(vendor_id, date) |
+
+T-074 writes vendor_holidays under actor/vendor locks: new reasons are trimmed
+1–100 characters and dates use server IST today; only strictly future holidays
+may be deleted. Existing wider reason storage remains unchanged. Availability
+uses the existing shared vendor_settings.version, accepting_today, delivery_paused
+and delivery_paused_until (open-ended writes clear the latter). Holidays and
+pauses cancel only NEW/ACCEPTED/PREPARING affected orders with a version increment
+and timeline; no stock, ledger, receipt/refund or historical balance rewrite.
+OUT_FOR_DELIVERY, terminal and past orders remain intact, and deleting an
+exclusion does not resurrect a cancelled order.
+
+Migration 202611170001_vendor_operations adds vendor_operation_requests:
+request_key VARCHAR(64) PK (actor/key SHA-256), user_id UUID, path VARCHAR(120),
+request_hash VARCHAR(64), response JSONB, created_at TIMESTAMPTZ. It retains the
+permanent original acknowledgement atomically with business/audit/inbox effects,
+including delete replay, without a contact/request-body snapshot. It does not
+change financial tables, grants or historical data. Applied only to the isolated
+test DB; migrate the intended dev/staging DB before manual use and retain history
+on application rollback. T-074 bounded pages remain one transaction, so a timeout
+fails the full action rather than exposing a partial holiday/pause cancellation.
 | `vendor_kyc` | id, vendor_id, status, verification_method, provider_checks, aadhaar_front_media_id, aadhaar_back_media_id, pan_media_id, pan_enc, pan_last4, account_number_enc, account_last4, holder_name, bank_name, ifsc, upi_id, reviewer_id, reviewed_at, reason, submitted_at | T-022 revision PK(id); one pending revision/vendor; documents reference private media; closed revisions immutable |
 | `kyc_notices` | id, user_id, submission_id, status, reason, created_at | Unique submission_id; durable owned decision notice; immutable |
 | `categories` | id, code, name_en, name_hi, icon, type (SUPPLY/BILL), status (ENABLED/COMING_SOON/HIDDEN), sort_order, product_types JSONB | UNIQUE(code) |

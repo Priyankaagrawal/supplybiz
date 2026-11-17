@@ -1,5 +1,100 @@
 # Supply Biz API
 
+## T-074 holidays/availability handoff (2026-11-17): READY_FOR_VERIFY
+
+Owned GET/PATCH /vendor/availability, GET/POST /vendor/holidays and DELETE
+/vendor/holidays/{id} now implement FR-082–085. Two GET impact routes preview
+eligible cancellation counts for a holiday date or an open-ended pause. Holiday
+dates use server IST today, reasons trim to 1–100 characters, lists include today
+and future dates with bounded pagination, and only strictly future holidays may
+be deleted. Request calendar dates are pattern-validated strings in OpenAPI so
+the generated Dart client sends YYYY-MM-DD rather than a timestamp.
+
+Availability shares vendor_settings.version with T-075/service-area controls.
+acceptingToday=false blocks new one-time orders today and retains existing
+orders. deliveryPaused=true clears a legacy finite end and cancels dated orders
+today onward. Holiday/pause cancellation covers NEW/ACCEPTED/PREPARING, including
+one-time and subscription orders; OUT_FOR_DELIVERY, terminal/past/foreign orders
+remain intact. Snapshots/payment state remain; no stock, ledger, receipt/refund or
+financial-history reversal is created. Deletion/resume changes eligibility only,
+never resurrecting cancelled orders. Expired historical plans retain reducing/
+history controls; enabling acceptance/resume or deleting a holiday requires an
+active new-order entitlement. Suspension/ownership/role guards remain mandatory.
+
+Mutations lock actor → vendor → orders, update in pages of 100 inside one atomic
+transaction, and commit timeline/version, owned customer cancellation notices,
+subscriber calendar notices, USER audit and permanent replay response together.
+Timeout/failure rolls the full operation back. Source keys deduplicate notices;
+customer order cancellation notices open the canonical owned order reader and
+refresh the active mobile view. Replaying an acknowledged creation after a later
+holiday deletion returns its original acknowledgement without recreating state.
+Impact previews are advisory; writes recheck current eligible states under lock.
+
+Migration 202611170001_vendor_operations adds only vendor_operation_requests
+with permanent actor/key hash, path/body hash and acknowledgement. Applied only
+to supplybiz_service_area_test; migrate the intended dev/staging DB before manual
+use. Preserve operational/history records on application rollback; no grants,
+financial backfill or dependency changed. OpenAPI/TS/Dart clients regenerated.
+
+Executed from apps/api (PowerShell):
+
+```powershell
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/availability/availability.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t TC-222/223
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t TC-046/047
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/availability/*.ts src/app.module.ts src/modules/notifications/notification-events.ts --max-warnings=0
+```
+
+Executed from root:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+
+Eight native HTTP/PostgreSQL cases and two selected checkout/transition
+regressions pass (other order cases intentionally excluded). Native evidence
+includes real production generation consumers, holiday-versus-generation race,
+application-context recreation, permanent replay after deletion, date boundary,
+tenant isolation, expiry/reducing controls and notice-failure rollback. Fixture
+checks corrected missing completion timestamps/plan assignments without relaxing
+database constraints. No API timers or background services were started; contexts
+close after checks. Client/mobile evidence is recorded in the mobile README.
+No live FCM or manual PASS claim; G3 remains pending. iOS checks are deferred.
+
+Manual verification (suggested, not yet executed; T-077 owns the S-V-22 UI):
+
+1. Migrate the intended dev/staging DB and run the existing API/worker. As an
+   assigned vendor, GET availability and holiday impact for a future delivery
+   date containing NEW/ACCEPTED/PREPARING and OUT_FOR_DELIVERY orders.
+2. POST a holiday with a new Idempotency-Key. Verify only the first three states
+   cancel, the returned count/timelines/notices match and customer order readers
+   reload CANCELLED. Retry the same key: no extra effects or financial changes.
+3. PATCH open-ended deliveryPaused with the current shared settings version;
+   verify today/future eligible orders cancel and generation skips. Resume with
+   the new version; the next eligible dated generation runs, old cancellations
+   remain. Turn acceptingToday off and retain existing orders/subscriptions.
+4. Delete a strictly future holiday before its generation, then check normal
+   eligible generation. Verify today deletion, stale version, key/body mismatch
+   and foreign-vendor access fail; list/preview remain owned and server-dated.
+5. Verify expired-plan reducing/history controls versus locked resume, and check
+   offline/retried client actions and real notification refresh through the
+   eventual T-077 UI. Complete live FCM and module-level/manual verification
+   separately; no full module acceptance is claimed here.
+
 ## T-073 generation handoff (2026-11-16): READY_FOR_VERIFY
 
 The existing native worker now durably schedules next-day subscription generation
