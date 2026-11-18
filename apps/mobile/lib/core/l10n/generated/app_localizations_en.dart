@@ -9,6 +9,87 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get availabilityTitle => 'Availability & holidays';
+
+  @override
+  String get availabilityAccepting => 'Accepting deliveries today';
+
+  @override
+  String get availabilityAcceptingInfo =>
+      'Turning this off stops new one-time orders for today. Existing orders and subscriptions remain.';
+
+  @override
+  String get availabilityPause => 'Pause deliveries';
+
+  @override
+  String get availabilityResume => 'Resume deliveries';
+
+  @override
+  String get availabilityPaused => 'Deliveries paused';
+
+  @override
+  String get availabilityRunning => 'Deliveries running';
+
+  @override
+  String get availabilityPauseInfo =>
+      'Pause deliveries until you choose Resume. Eligible orders from today onward will be cancelled. Out-for-delivery and completed orders remain.';
+
+  @override
+  String get availabilityResumeInfo =>
+      'Restore future delivery eligibility. Previously cancelled orders are not restored.';
+
+  @override
+  String get availabilityMarkHoliday => 'Mark holiday';
+
+  @override
+  String get availabilityDelete => 'Delete holiday';
+
+  @override
+  String get availabilityDate => 'Holiday date';
+
+  @override
+  String get availabilityFutureOnly => 'Only a future holiday can be deleted.';
+
+  @override
+  String get availabilityExists =>
+      'A holiday already exists on this date. Refresh to view it.';
+
+  @override
+  String get availabilityConflict =>
+      'Settings changed. Refresh and review before trying again.';
+
+  @override
+  String get availabilitySaved => 'Change saved.';
+
+  @override
+  String get availabilityPlanLocked =>
+      'Enabling deliveries or deleting holidays requires an active plan. History and reducing controls remain available. Contact support about a plan change.';
+
+  @override
+  String get availabilityImpactInfo =>
+      'This is a preview. The affected count is checked again when saving. Eligible customers will be notified; no refund or payment reversal is recorded.';
+
+  @override
+  String availabilityImpact(int count) {
+    return '$count existing orders will be cancelled.';
+  }
+
+  @override
+  String availabilityCancelled(int count) {
+    return 'Saved. $count orders cancelled.';
+  }
+
+  @override
+  String availabilityBusinessDate(String date) {
+    return 'Today: $date (IST)';
+  }
+
+  @override
+  String availabilityLegacyEnd(String time) {
+    return 'Existing pause ends at $time IST.';
+  }
+
+  @override
   String get customerSubPlans => 'Subscription plans';
 
   @override

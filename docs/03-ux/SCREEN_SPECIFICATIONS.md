@@ -197,7 +197,7 @@ Customer selector (search + "New"), product (with price), qty/day stepper + unit
 Date selector (default today), status tabs with counts, cards sorted by slot then address. Card actions per status; Call. Pending-sync chip on cards modified offline. Empty: "No deliveries for this date".
 
 ### S-V-22 Availability & holidays
-Toggle "Accepting deliveries today"; "Pause deliveries" (with optional resume date); "Mark Holiday" (date picker ≥ today, reason ≤ 100 chars) → confirm dialog shows affected order count; Upcoming holidays list with delete.
+Toggle "Accepting deliveries today"; "Pause deliveries" (open-ended per FR-084, with explicit "Resume deliveries"); "Mark Holiday" (server IST date picker ≥ today, reason ≤ 100 chars) → confirm dialog shows affected order count; Upcoming holidays list with strictly future-only delete. T-077 uses the T-074 impact preview and rechecked server mutation count. A legacy finite pause end is displayed read-only; new pause/resume clears it. Turning accepting-today off retains existing orders/subscriptions. Resume/removal restores future eligibility without resurrecting cancelled orders. Expired-plan history/reducing controls remain; enabling/resume/removal needs the server canResume flag. Cached data is labeled and cannot authorize new writes; uncertain mutations retry the exact encrypted account-scoped saved request/key.
 
 ### S-C-01 Home (WF-1)
 Header: logo, location selector, bell. Search bar. Category grid (8 tiles: Milk & Dairy, Water Can, Tiffin, Laundry, Grocery, Fruits & Veg, Food & Restaurant, More). Milk sub-grid (Cow Milk, Buffalo Milk, Toned Milk, Curd, Paneer, Ghee) as in WF-1. "Today's Delivery" list (product, vendor, slot, status chip) + View All. Empty: "No deliveries today — Order now".

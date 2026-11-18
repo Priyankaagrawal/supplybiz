@@ -1,5 +1,58 @@
 # Supply Biz Mobile
 
+## T-077 availability & holidays (2026-11-18): READY_FOR_VERIFY
+
+Vendor More → Availability & holidays opens `/vendor/availability` (S-V-22).
+The generated T-074 client supplies accepting-today, open-ended pause/resume,
+server IST dates, paginated upcoming holidays, impact previews and mutations.
+Holiday date/reason validation, counted confirmation, strictly future-only deletion,
+server plan/suspension/role/version feedback and expired-plan reducing controls
+are wired. New pauses use explicit Resume under FR-084; an existing finite pause
+end is displayed in IST read-only. Resume/delete never recreates cancelled orders.
+
+Snapshots and uncertain mutation body/path/key use the existing encrypted,
+account/environment-scoped store. New writes require a fresh read; recovery is
+explicit same-key retry, including a deleted holiday and an acknowledgement-write
+failure. Role denial clears data. No API/schema/financial/history/dependency changes
+or API client regeneration; only English l10n was regenerated.
+
+Executed from apps/mobile:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/availability test/features/availability lib/core/router/app_router.dart lib/core/router/route_widgets.dart
+flutter analyze --no-pub lib/features/availability test/features/availability lib/core/router/app_router.dart lib/core/router/route_widgets.dart
+flutter test --no-pub --timeout 60s test/features/availability/availability_test.dart test/core/network/availability_client_test.dart test/core/router/app_router_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+Normal Android dev APK build PASS (30.2 seconds), clean analysis and 18 focused checks PASS (eleven new controller/widget cases,
+one existing generated transport and six router regressions). Cases cover all
+holiday pages, exact strings/versions/keys, no writes on preview/cancel, local-save
+failure, committed-response recovery/recreation/account isolation, stale/conflict/
+role/plan fencing, server date picker, today-delete restriction and 200% pause UI.
+The first dialog check exposed controllers disposed during the closing animation;
+the dialog now owns them until unmount, and the check passes. These HTTP calls
+are simulated; actual cancellation/ledger-preservation evidence remains T-074's
+recorded native API/PostgreSQL checks, not a live mobile financial test.
+
+Device runtime/native SQLCipher/OS-kill/TalkBack/live UI–API–DB/FCM: NOT_RUN;
+adb reported no attached Android device/emulator. No emulator/app service started;
+the task-started discovery-only adb daemon was stopped. iOS deferred. Manual PASS
+and G3 remain pending.
+
+Manual verification (not executed):
+
+1. More → Availability & holidays: check server IST today. Turn accepting-today off;
+   verify new same-day one-time orders are blocked and existing orders retained.
+2. Mark today/future holiday with a reason; inspect impact, cancel once, then confirm.
+   Verify eligible cancellations/customer notices; progressed orders/ledger remain.
+3. Pause, inspect impact and confirm; resume and verify cancelled orders stay cancelled.
+   Check expired-plan reducing controls and locked enabling/resume/removal.
+4. Delete a future holiday and check future eligibility; today's Delete stays disabled.
+5. Interrupt a response and recreate/retry: same key, one server action. Check logout/
+   account isolation and actual Android 200%/TalkBack behavior.
+
 ## T-078 customer subscriptions (2026-11-18): READY_FOR_VERIFY
 
 S-C-09/10/15/16 use generated customer APIs for address-owned daily/custom plans,

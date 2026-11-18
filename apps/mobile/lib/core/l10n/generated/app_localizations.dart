@@ -94,6 +94,138 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @availabilityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability & holidays'**
+  String get availabilityTitle;
+
+  /// No description provided for @availabilityAccepting.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting deliveries today'**
+  String get availabilityAccepting;
+
+  /// No description provided for @availabilityAcceptingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Turning this off stops new one-time orders for today. Existing orders and subscriptions remain.'**
+  String get availabilityAcceptingInfo;
+
+  /// No description provided for @availabilityPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause deliveries'**
+  String get availabilityPause;
+
+  /// No description provided for @availabilityResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume deliveries'**
+  String get availabilityResume;
+
+  /// No description provided for @availabilityPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries paused'**
+  String get availabilityPaused;
+
+  /// No description provided for @availabilityRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries running'**
+  String get availabilityRunning;
+
+  /// No description provided for @availabilityPauseInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause deliveries until you choose Resume. Eligible orders from today onward will be cancelled. Out-for-delivery and completed orders remain.'**
+  String get availabilityPauseInfo;
+
+  /// No description provided for @availabilityResumeInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore future delivery eligibility. Previously cancelled orders are not restored.'**
+  String get availabilityResumeInfo;
+
+  /// No description provided for @availabilityMarkHoliday.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark holiday'**
+  String get availabilityMarkHoliday;
+
+  /// No description provided for @availabilityDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete holiday'**
+  String get availabilityDelete;
+
+  /// No description provided for @availabilityDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Holiday date'**
+  String get availabilityDate;
+
+  /// No description provided for @availabilityFutureOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only a future holiday can be deleted.'**
+  String get availabilityFutureOnly;
+
+  /// No description provided for @availabilityExists.
+  ///
+  /// In en, this message translates to:
+  /// **'A holiday already exists on this date. Refresh to view it.'**
+  String get availabilityExists;
+
+  /// No description provided for @availabilityConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings changed. Refresh and review before trying again.'**
+  String get availabilityConflict;
+
+  /// No description provided for @availabilitySaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Change saved.'**
+  String get availabilitySaved;
+
+  /// No description provided for @availabilityPlanLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabling deliveries or deleting holidays requires an active plan. History and reducing controls remain available. Contact support about a plan change.'**
+  String get availabilityPlanLocked;
+
+  /// No description provided for @availabilityImpactInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a preview. The affected count is checked again when saving. Eligible customers will be notified; no refund or payment reversal is recorded.'**
+  String get availabilityImpactInfo;
+
+  /// No description provided for @availabilityImpact.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} existing orders will be cancelled.'**
+  String availabilityImpact(int count);
+
+  /// No description provided for @availabilityCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. {count} orders cancelled.'**
+  String availabilityCancelled(int count);
+
+  /// No description provided for @availabilityBusinessDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {date} (IST)'**
+  String availabilityBusinessDate(String date);
+
+  /// No description provided for @availabilityLegacyEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing pause ends at {time} IST.'**
+  String availabilityLegacyEnd(String time);
+
   /// No description provided for @customerSubPlans.
   ///
   /// In en, this message translates to:

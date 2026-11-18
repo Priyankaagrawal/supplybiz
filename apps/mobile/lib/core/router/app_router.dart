@@ -6,12 +6,16 @@ import 'routing_controller.dart';
 import '../../features/deliveries/deliveries_pages.dart';
 import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 import '../../features/subscriptions/customer_subscriptions_pages.dart';
+import '../../features/availability/availability_page.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/vendor/availability',
+            builder: (_, __) => const AvailabilityPage()),
         GoRoute(
             path: '/customer/subscriptions',
             builder: (_, __) => const CustomerSubscriptionsPage()),
