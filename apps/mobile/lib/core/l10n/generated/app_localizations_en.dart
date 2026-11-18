@@ -9,6 +9,81 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get customerSubPlans => 'Subscription plans';
+
+  @override
+  String get customerSubMine => 'My subscriptions';
+
+  @override
+  String get customerSubMore => 'Load more';
+
+  @override
+  String get customerSubCustom => 'Custom plan';
+
+  @override
+  String get customerSubPopular => 'Most popular';
+
+  @override
+  String get customerSubFree => 'Free delivery';
+
+  @override
+  String get customerSubFeatures =>
+      'Pause or skip anytime · Monthly billing · Manage from app';
+
+  @override
+  String get customerSubAddress => 'Delivery address';
+
+  @override
+  String get customerSubConfirm => 'Confirm subscription';
+
+  @override
+  String get customerSubCashOnly =>
+      'The vendor has not set a payment UPI ID. Cash is the only available option.';
+
+  @override
+  String get customerSubStatement => 'Monthly statement';
+
+  @override
+  String get customerSubMonth => 'Month (YYYY-MM)';
+
+  @override
+  String get customerSubDelivered => 'Delivered subscription orders';
+
+  @override
+  String get customerSubLedger =>
+      'Shared vendor account: payments and balances include all purchases. Unallocated payments are not assigned to this subscription.';
+
+  @override
+  String get customerSubOpening => 'Opening balance';
+
+  @override
+  String get customerSubClosing => 'Closing balance';
+
+  @override
+  String get customerSubPaid => 'Payments recorded this month';
+
+  @override
+  String get customerSubCurrent => 'Current vendor balance';
+
+  @override
+  String get customerSubAmount => 'Delivered amount';
+
+  @override
+  String get customerSubQuantity => 'Delivered packs';
+
+  @override
+  String get customerSubCutoffError =>
+      'That date is frozen by the 21:00 IST cutoff. Refresh and choose the next eligible delivery date.';
+
+  @override
+  String get customerSubLink =>
+      'Accept the vendor’s customer-link request on Home before subscribing.';
+
+  @override
+  String get customerSubEmptyStatement =>
+      'No delivered orders for this subscription in this month.';
+
+  @override
   String get subTitle => 'Subscriptions';
 
   @override

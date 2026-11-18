@@ -17,6 +17,7 @@ import 'package:supplybiz_api_client/src/model/subscription_pause.dart';
 import 'package:supplybiz_api_client/src/model/subscription_plans.dart';
 import 'package:supplybiz_api_client/src/model/subscription_record.dart';
 import 'package:supplybiz_api_client/src/model/subscription_skip.dart';
+import 'package:supplybiz_api_client/src/model/subscription_statement.dart';
 import 'package:supplybiz_api_client/src/model/subscription_version.dart';
 
 class CustomerSubscriptionsApi {
@@ -811,6 +812,102 @@ class CustomerSubscriptionsApi {
     }
 
     return Response<SubscriptionMutation>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// customerSubscriptionsControllerStatement
+  ///
+  ///
+  /// Parameters:
+  /// * [id]
+  /// * [limit]
+  /// * [offset]
+  /// * [month] - Calendar month YYYY-MM; defaults to server IST current month.
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [SubscriptionStatement] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<SubscriptionStatement>>
+      customerSubscriptionsControllerStatement({
+    required String id,
+    int? limit = 20,
+    int? offset = 0,
+    String? month,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/api/v1/customer/subscriptions/{id}/statement'
+        .replaceAll('{' r'id' '}', id.toString());
+    final _options = Options(
+      method: r'GET',
+      headers: <String, dynamic>{
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'bearer',
+          },
+        ],
+        ...?extra,
+      },
+      validateStatus: validateStatus,
+    );
+
+    final _queryParameters = <String, dynamic>{
+      if (limit != null) r'limit': limit,
+      if (offset != null) r'offset': offset,
+      if (month != null) r'month': month,
+    };
+
+    final _response = await _dio.request<Object>(
+      _path,
+      options: _options,
+      queryParameters: _queryParameters,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    SubscriptionStatement? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<SubscriptionStatement, SubscriptionStatement>(
+              rawData, 'SubscriptionStatement',
+              growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<SubscriptionStatement>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

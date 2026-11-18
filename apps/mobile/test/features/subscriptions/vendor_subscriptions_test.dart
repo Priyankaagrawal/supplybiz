@@ -79,6 +79,8 @@ void main() {
     expect(subscriptionParseDate('2026-02-30'), isNull);
     expect(subscriptionParseDate('2028-02-29'), isNotNull);
     expect(subscriptionAmount(BigInt.from(123456789)), '12,34,567.89');
+    expect(subscriptionAmount(BigInt.from(-123456789)), '-12,34,567.89');
+    expect(subscriptionAmount(BigInt.from(-1)), '-0.01');
   });
   test(
       'T-076 reads every page, searches, filters and restores offline only for the same account/environment',

@@ -143,6 +143,7 @@ import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
 import 'package:supplybiz_api_client/src/model/subscription_customer.dart';
 import 'package:supplybiz_api_client/src/model/subscription_customer_list.dart';
+import 'package:supplybiz_api_client/src/model/subscription_delivery.dart';
 import 'package:supplybiz_api_client/src/model/subscription_list.dart';
 import 'package:supplybiz_api_client/src/model/subscription_mutation.dart';
 import 'package:supplybiz_api_client/src/model/subscription_patch.dart';
@@ -157,6 +158,7 @@ import 'package:supplybiz_api_client/src/model/subscription_settings_patch.dart'
 import 'package:supplybiz_api_client/src/model/subscription_settings_response.dart';
 import 'package:supplybiz_api_client/src/model/subscription_settings_summary.dart';
 import 'package:supplybiz_api_client/src/model/subscription_skip.dart';
+import 'package:supplybiz_api_client/src/model/subscription_statement.dart';
 import 'package:supplybiz_api_client/src/model/subscription_version.dart';
 import 'package:supplybiz_api_client/src/model/tokens_response.dart';
 import 'package:supplybiz_api_client/src/model/totp_dto.dart';
@@ -585,6 +587,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'SubscriptionCustomerList':
       return SubscriptionCustomerList.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'SubscriptionDelivery':
+      return SubscriptionDelivery.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'SubscriptionList':
       return SubscriptionList.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -626,6 +631,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'SubscriptionSkip':
       return SubscriptionSkip.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubscriptionStatement':
+      return SubscriptionStatement.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'SubscriptionVersion':
       return SubscriptionVersion.fromJson(value as Map<String, dynamic>)

@@ -187,6 +187,7 @@ export 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 export 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
 export 'package:supplybiz_api_client/src/model/subscription_customer.dart';
 export 'package:supplybiz_api_client/src/model/subscription_customer_list.dart';
+export 'package:supplybiz_api_client/src/model/subscription_delivery.dart';
 export 'package:supplybiz_api_client/src/model/subscription_list.dart';
 export 'package:supplybiz_api_client/src/model/subscription_mutation.dart';
 export 'package:supplybiz_api_client/src/model/subscription_patch.dart';
@@ -201,6 +202,7 @@ export 'package:supplybiz_api_client/src/model/subscription_settings_patch.dart'
 export 'package:supplybiz_api_client/src/model/subscription_settings_response.dart';
 export 'package:supplybiz_api_client/src/model/subscription_settings_summary.dart';
 export 'package:supplybiz_api_client/src/model/subscription_skip.dart';
+export 'package:supplybiz_api_client/src/model/subscription_statement.dart';
 export 'package:supplybiz_api_client/src/model/subscription_version.dart';
 export 'package:supplybiz_api_client/src/model/tokens_response.dart';
 export 'package:supplybiz_api_client/src/model/totp_dto.dart';

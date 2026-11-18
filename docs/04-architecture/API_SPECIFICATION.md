@@ -360,8 +360,24 @@ insufficient stock, malformed audit timestamps and overflow fail without effects
 | GET | `/customer/subscriptions/{id}/statement?month=YYYY-MM` |
 
 T-072 implements the list/create/detail/PATCH and named action routes above,
-plus address-owned subscription plans. Statement delivery remains with the
-customer statement/Khata tasks; generation/scheduling is T-073 and settings T-075.
+plus address-owned subscription plans. T-078 implements customer screens and the
+statement read; generation/scheduling is T-073 and settings T-075.
+
+The statement accepts `month=YYYY-MM` (default server IST month), limit 1–50
+and offset. It requires an active CUSTOMER role and accepted subscription account
+ownership; foreign/unlinked IDs return 404. It remains historical/readable at
+vendor expiry or suspension. Within one repeatable-read transaction it returns
+`subscriptionId,month,items,total,deliveredAmountPaise,deliveredQty,ledger`.
+Items contain delivered order ID/date, immutable product-name snapshot, pack qty,
+exact amount string and stored payment status, ordered delivery date descending
+then UUID. Cancelled/undelivered/other-subscription orders are excluded. Amount
+and quantity totals cover the entire selected month independently of pagination.
+`ledger` reuses the T-082 vendor-account reader (first 50 ledger entries, full
+month aggregates/current due), with identical ownership and payment/reversal
+rules. Its paid and due amounts are explicitly shared account balances across
+all purchases; no allocation of standalone payments/claims to a subscription or
+delivered row is invented. This read creates no ledger/payment/schema changes.
+
 All mutations require Idempotency-Key. Changes require the current integer
 `version`; stale versions return 409 VERSION_CONFLICT. Permanent actor-scoped
 request records return the original `{id,version,status,effectiveFrom}` on replay

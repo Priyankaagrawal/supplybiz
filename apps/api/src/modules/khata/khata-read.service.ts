@@ -41,7 +41,8 @@ export class KhataReadService {
     await this.access.actor(tx,userId,'VENDOR');const v=await this.access.vendor(tx,userId),link=await tx.vendor_customers.findFirst({where:{id:customerId,vendor_id:v.id}});
     if(!link)throw new NotFoundException({code:'CUSTOMER_NOT_FOUND'});return this.entries(tx,v.id,[link],q);
   },{isolationLevel:'RepeatableRead',timeout:15000}).catch(khataUnavailable);}
-  private async entries(tx:KhataTx,vendorId:string,links:{id:string;deleted_at:Date|null;user_id:string|null}[],q:KhataMonthQuery){
+  // Internal transaction-scoped reader; callers must establish accepted-link ownership.
+  async entries(tx:KhataTx,vendorId:string,links:{id:string;deleted_at:Date|null;user_id:string|null}[],q:KhataMonthQuery){
     const clock=await homeClock(tx),month=q.month??clock.day.slice(0,7),{from,to}=khataMonth(month),ids=links.map(c=>c.id),parameters=Prisma.join(ids.map(id=>Prisma.sql`${id}::uuid`));
     const where={vendor_customer_id:{in:ids},entry_date:{gte:from,lt:to}},rows=await tx.ledger_entries.findMany({where,orderBy:[{entry_date:'desc'},{created_at:'desc'},{id:'desc'}],take:q.limit??20,skip:q.offset??0});
     const [totals]=await tx.$queryRaw<{opening:string;debit:string;credit:string;paid:string}[]>`SELECT

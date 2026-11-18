@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, ArrayUnique, IsArray, IsIn, IsInt, IsString, IsUUID, Length, Matches, Max, Min, ValidateIf, ValidateNested } from 'class-validator';
 import { CustomerInput } from '../customers/customers.dto';
+import { KhataVendorEntries } from '../khata/khata.dto';
 const defined=(_:unknown,v:unknown)=>v!==undefined;
 export class SubscriptionSetup {
   @ApiProperty({format:'uuid'}) @IsUUID() productId!:string;
@@ -111,4 +112,21 @@ export class SubscriptionPlans {
   @ApiProperty() freeDelivery!:boolean;
   @ApiProperty({format:'date'}) earliestStartDate!:string;
   @ApiProperty() estimateMonth!:string;
+}
+export class SubscriptionDelivery {
+  @ApiProperty({format:'uuid'}) orderId!:string;
+  @ApiProperty({type:String,format:'date'}) deliveryDate!:string;
+  @ApiProperty() productName!:string;
+  @ApiProperty({type:'integer'}) qty!:number;
+  @ApiProperty() amountPaise!:string;
+  @ApiProperty() paymentStatus!:string;
+}
+export class SubscriptionStatement {
+  @ApiProperty({format:'uuid'}) subscriptionId!:string;
+  @ApiProperty() month!:string;
+  @ApiProperty({type:[SubscriptionDelivery]}) items!:SubscriptionDelivery[];
+  @ApiProperty({type:'integer'}) total!:number;
+  @ApiProperty({description:'Full selected-month delivered subtotal, independent of pagination.'}) deliveredAmountPaise!:string;
+  @ApiProperty({description:'Full selected-month delivered pack quantity, exact decimal string.'}) deliveredQty!:string;
+  @ApiProperty({type:KhataVendorEntries,description:'Shared vendor account ledger. Unallocated payments/claims are not assigned to individual subscriptions.'}) ledger!:KhataVendorEntries;
 }

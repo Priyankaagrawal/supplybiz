@@ -12,6 +12,7 @@ import { homeClock } from '../home/home.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { assignPlanFixture } from '../../../test/fixtures/plans';
 import { dateOnly, SubscriptionClock, subscriptionForDate, subscriptionRead } from './subscription-policy';
+import { LedgerService } from '../ledger/ledger.service';
 const url=process.env.NATIVE_TEST_DATABASE_URL;
 const native=url?describe:describe.skip;
 type Actor={id:string;token:string};
@@ -37,9 +38,9 @@ native('T-072 native subscription consent/cutoff/ownership transactions',()=>{
   const edit=(id:string,body:object,who=buyer,key:string=randomUUID())=>request(app.getHttpServer()).patch(`/api/v1/${who===owner?'vendor':'customer'}/subscriptions/${id}`).set('Authorization',`Bearer ${who.token}`).set('Idempotency-Key',key).send(body);
   const read=(id:string)=>db.subscriptions.findUniqueOrThrow({where:{id},include:subscriptionRead});
   async function active(){const row=(await create().expect(201)).body;await change(row.id,'approve',{version:1},owner).expect(201);return row.id as string;}
-  async function generated(id:string,status='ACCEPTED'){
+  async function generated(id:string,status='ACCEPTED',day='2026-10-02'){
     return db.orders.create({data:{order_no:`SYN-${randomUUID()}`,vendor_id:vendorId,vendor_customer_id:customerId,source:'SUBSCRIPTION',subscription_id:id,
-      status,delivery_date:dateOnly('2026-10-02'),time_slot:'AM',address_snapshot:{text:'Synthetic'},subtotal_paise:4800n,total_paise:4800n,
+      status,delivery_date:dateOnly(day),time_slot:'AM',address_snapshot:{text:'Synthetic'},subtotal_paise:4800n,total_paise:4800n,
       delivery_charge_paise:0n,payment_mode:'KHATA',payment_status:'UNPAID'}});
   }
   beforeAll(async()=>{
@@ -62,6 +63,36 @@ native('T-072 native subscription consent/cutoff/ownership transactions',()=>{
   });
   afterEach(()=>jest.restoreAllMocks());
   afterAll(async()=>{if(categoryId)await db.categories.update({where:{id:categoryId},data:{status:'HIDDEN'}});await app?.close();await db.$disconnect();for(const k of Object.keys(process.env))if(!(k in env))delete process.env[k];Object.assign(process.env,env);});
+  it('T-078 TC-077/FR-233 delivered snapshots and paged totals reconcile with shared ledger, payments and reversal',async()=>{
+    const id=await active(),otherId=await active(),clock=await db.$transaction(tx=>homeClock(tx)),month=clock.day.slice(0,7);
+    async function deliver(sub:string,paid=false,day=`${month}-02`){
+      const order=await generated(sub,'ACCEPTED',day);
+      await db.order_items.create({data:{order_id:order.id,product_id:productId,product_name_snapshot:'Synthetic frozen milk',unit_snapshot:{value:1,type:'L'},unit_price_paise:4800n,qty:1,line_total_paise:4800n}});
+      await post(`vendor/orders/${order.id}/transitions`,{version:1,to:'OUT_FOR_DELIVERY'},owner).expect(201);
+      await post(`vendor/orders/${order.id}/transitions`,{version:2,to:'DELIVERED',payment:paid?{collected:true,method:'CASH',amountPaise:'1000'}:{collected:false}},owner).expect(201);
+      return order.id;
+    }
+    const first=await deliver(id,true);await deliver(id,false,`${month}-01`);await deliver(otherId);
+    await generated(id,'CANCELLED',`${month}-03`);
+    const statement=(await get(`customer/subscriptions/${id}/statement?month=${month}&limit=1`).expect(200)).body;
+    expect(statement).toMatchObject({subscriptionId:id,month,total:2,deliveredQty:'2',deliveredAmountPaise:'9600'});expect(statement.items).toHaveLength(1);expect(statement.items[0]).toMatchObject({deliveryDate:`${month}-02`,productName:'Synthetic frozen milk',qty:1,amountPaise:'4800',paymentStatus:'UNPAID'});
+    const vendor=(await get(`vendor/khata/${customerId}/entries?month=${month}&limit=50`,owner).expect(200)).body;
+    expect({...statement.ledger,serverTime:null}).toEqual({...vendor,serverTime:null});expect(statement.ledger).toMatchObject({monthPaidPaise:'1000',closingDuePaise:'13400',duePaise:'13400'});
+    const second=(await get(`customer/subscriptions/${id}/statement?month=${month}&limit=1&offset=1`).expect(200)).body;expect(second.items[0].orderId).not.toBe(statement.items[0].orderId);expect(second.deliveredAmountPaise).toBe('9600');
+    const receipt=await db.payments.findUniqueOrThrow({where:{order_id:first}}),credit=await db.ledger_entries.findFirstOrThrow({where:{ref_id:receipt.id,ref_type:'PAYMENT',type:'CREDIT'}});
+    await app.get(LedgerService).reverse(owner.id,randomUUID(),credit.id,'Synthetic payment correction');
+    await db.products.update({where:{id:productId},data:{name:'Synthetic renamed milk'}});
+    const refreshed=(await get(`customer/subscriptions/${id}/statement?month=${month}`).expect(200)).body;expect(refreshed.items[0].productName).toBe('Synthetic frozen milk');expect(refreshed.ledger).toMatchObject({monthPaidPaise:'0',closingDuePaise:'14400'});
+  });
+  it('T-078 FR-233 statement is accepted-link owned, role/month validated, empty and historical after expiry',async()=>{
+    const id=await active(),path=`customer/subscriptions/${id}/statement?month=2026-10`;
+    await get(path,stranger).expect(404);await get(path,owner).expect(403);await get(`customer/subscriptions/${id}/statement?month=2026-13`).expect(400);
+    const response=await get(path).expect(200);expect(response.headers['cache-control']).toBe('no-store');expect(response.body).toMatchObject({items:[],total:0,deliveredAmountPaise:'0',deliveredQty:'0'});
+    await db.$transaction(tx=>assignPlanFixture(tx,vendorId,'STANDARD',new Date(Date.now()-2*86400000),new Date(Date.now()-86400000)));
+    await get(path).expect(200);
+    await db.vendors.update({where:{id:vendorId},data:{is_suspended:true}});await get(path).expect(200);
+    await db.vendor_customers.update({where:{id:customerId},data:{user_id:null}});await get(path).expect(404);
+  });
   it('TC-070/072 creates pending, approves/rejects with owned notices, exact estimates and no financial writes',async()=>{
     const created=await create().expect(201);expect(created.headers['cache-control']).toBe('no-store');expect(created.body.status).toBe('PENDING_APPROVAL');
     const id=created.body.id;

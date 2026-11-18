@@ -17,6 +17,7 @@ Method | HTTP request | Description
 [**customerSubscriptionsControllerPause**](CustomerSubscriptionsApi.md#customersubscriptionscontrollerpause) | **POST** /api/v1/customer/subscriptions/{id}/pause |
 [**customerSubscriptionsControllerResume**](CustomerSubscriptionsApi.md#customersubscriptionscontrollerresume) | **POST** /api/v1/customer/subscriptions/{id}/resume |
 [**customerSubscriptionsControllerSkip**](CustomerSubscriptionsApi.md#customersubscriptionscontrollerskip) | **POST** /api/v1/customer/subscriptions/{id}/skip |
+[**customerSubscriptionsControllerStatement**](CustomerSubscriptionsApi.md#customersubscriptionscontrollerstatement) | **GET** /api/v1/customer/subscriptions/{id}/statement |
 [**subscriptionPlansControllerPlans**](CustomerSubscriptionsApi.md#subscriptionplanscontrollerplans) | **GET** /api/v1/customer/vendors/{id}/subscription-plans |
 
 
@@ -368,6 +369,53 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
  - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **customerSubscriptionsControllerStatement**
+> SubscriptionStatement customerSubscriptionsControllerStatement(id, limit, offset, month)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getCustomerSubscriptionsApi();
+final String id = id_example; // String |
+final int limit = 56; // int |
+final int offset = 56; // int |
+final String month = month_example; // String | Calendar month YYYY-MM; defaults to server IST current month.
+
+try {
+    final response = api.customerSubscriptionsControllerStatement(id, limit, offset, month);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling CustomerSubscriptionsApi->customerSubscriptionsControllerStatement: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **id** | **String**|  |
+ **limit** | **int**|  | [optional] [default to 20]
+ **offset** | **int**|  | [optional] [default to 0]
+ **month** | **String**| Calendar month YYYY-MM; defaults to server IST current month. | [optional]
+
+### Return type
+
+[**SubscriptionStatement**](SubscriptionStatement.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

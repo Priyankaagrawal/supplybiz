@@ -6,6 +6,7 @@ import '../../core/l10n/l10n.dart';
 import '../../core/router/routes.dart';
 import 'discovery_controller.dart';
 import 'favorites_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'discovery_widgets.dart';
 
 class CustomerVendorPage extends ConsumerStatefulWidget {
@@ -118,7 +119,10 @@ class _CustomerVendorPageState extends ConsumerState<CustomerVendorPage> {
                                 '${h.date?.toIso8601String().substring(0, 10) ?? ''}: ${h.reason ?? ''}'),
                         ] else ...[
                           if (tab == 'subscription')
-                            Text(l.discoverySubscriptionInfo),
+                            SbButton(
+                                label: l.customerSubPlans,
+                                onPressed: () => context.push(
+                                    '/customer/vendors/${widget.id}/subscription-plans')),
                           if (m.products
                               .where((p) =>
                                   tab != 'subscription' ||

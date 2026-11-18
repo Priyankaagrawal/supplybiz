@@ -6,6 +6,8 @@ import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
 import { CustomerSubscriptionInput, SubscriptionList, SubscriptionMutation, SubscriptionPatch, SubscriptionPause, SubscriptionPlans, SubscriptionPlansQuery, SubscriptionQuery, SubscriptionRecord, SubscriptionReject, SubscriptionSkip, SubscriptionVersion, VendorSubscriptionInput } from './subscriptions.dto';
 import { SubscriptionsService } from './subscriptions.service';
+import { KhataMonthQuery } from '../khata/khata.dto';
+import { SubscriptionStatement } from './subscriptions.dto';
 type AuthRequest=Request & {session:{userId:string}};
 abstract class SubscriptionRoutes {
   protected abstract role:user_role_type;
@@ -48,6 +50,8 @@ export class VendorSubscriptionsController extends SubscriptionRoutes {
 export class CustomerSubscriptionsController extends SubscriptionRoutes {
   protected role:user_role_type='CUSTOMER';
   constructor(service:SubscriptionsService){super(service);}
+  @Get(':id/statement') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:SubscriptionStatement})
+  statement(@Req() r:AuthRequest,@Param('id',ParseUUIDPipe) id:string,@Query() q:KhataMonthQuery){return this.service.statement(r.session.userId,id,q);}
   @Post() @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:SubscriptionMutation})
   create(@Req() r:AuthRequest,@Headers('Idempotency-Key') key:string,@Body() input:CustomerSubscriptionInput){return this.service.create(r.session.userId,this.role,key,input);}
 }

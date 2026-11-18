@@ -13,6 +13,8 @@ String subscriptionMoney(AppLocalizations l, BigInt amount) =>
 
 /// Indian grouping without converting integer paise through floating point.
 String subscriptionAmount(BigInt amount) {
+  final sign = amount.isNegative ? '-' : '';
+  amount = amount.abs();
   var whole = (amount ~/ BigInt.from(100)).toString();
   final parts = <String>[];
   if (whole.length > 3) {
@@ -24,7 +26,7 @@ String subscriptionAmount(BigInt amount) {
     whole = whole.substring(0, whole.length - 2);
   }
   parts.insert(0, whole);
-  return '${parts.join(',')}.${(amount % BigInt.from(100)).toString().padLeft(2, '0')}';
+  return '$sign${parts.join(',')}.${(amount % BigInt.from(100)).toString().padLeft(2, '0')}';
 }
 
 String subscriptionStatus(AppLocalizations l, String status) =>

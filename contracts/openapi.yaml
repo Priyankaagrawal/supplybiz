@@ -1392,6 +1392,54 @@ paths:
         - vendor-subscriptions
       security:
         - bearer: []
+  /api/v1/customer/subscriptions/{id}/statement:
+    get:
+      operationId: CustomerSubscriptionsController_statement
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: month
+          required: false
+          in: query
+          description: Calendar month YYYY-MM; defaults to server IST current month.
+          schema:
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatement'
+        '404':
+          description: Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access.
+        '409':
+          description: VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state.
+        '422':
+          description: PAST_CUTOFF or invalid date/slot/coverage; no partial effects.
+      tags:
+        - customer-subscriptions
+      security:
+        - bearer: []
   /api/v1/customer/subscriptions:
     post:
       operationId: CustomerSubscriptionsController_create
@@ -6801,6 +6849,62 @@ components:
       required:
         - version
         - date
+    SubscriptionDelivery:
+      type: object
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        deliveryDate:
+          type: string
+          format: date
+        productName:
+          type: string
+        qty:
+          type: integer
+        amountPaise:
+          type: string
+        paymentStatus:
+          type: string
+      required:
+        - orderId
+        - deliveryDate
+        - productName
+        - qty
+        - amountPaise
+        - paymentStatus
+    SubscriptionStatement:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          format: uuid
+        month:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionDelivery'
+        total:
+          type: integer
+        deliveredAmountPaise:
+          type: string
+          description: Full selected-month delivered subtotal, independent of pagination.
+        deliveredQty:
+          type: string
+          description: Full selected-month delivered pack quantity, exact decimal string.
+        ledger:
+          description: Shared vendor account ledger. Unallocated payments/claims are not assigned to individual subscriptions.
+          allOf:
+            - $ref: '#/components/schemas/KhataVendorEntries'
+      required:
+        - subscriptionId
+        - month
+        - items
+        - total
+        - deliveredAmountPaise
+        - deliveredQty
+        - ledger
     CustomerSubscriptionInput:
       type: object
       properties:

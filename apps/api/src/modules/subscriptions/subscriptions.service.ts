@@ -15,6 +15,9 @@ import { VendorsService } from '../vendors/vendors.service';
 import { CustomerSubscriptionInput, SubscriptionPatch, SubscriptionPause, SubscriptionQuery, SubscriptionReject, SubscriptionSkip, SubscriptionVersion, VendorSubscriptionInput } from './subscriptions.dto';
 import { addDays, dateOnly, dayString, effectiveDay, monthlyEstimate, pausedOn, SubscriptionClock, subscriptionRead, SubscriptionRead } from './subscription-policy';
 import { SubscriptionGenerationService } from './subscription-generation.service';
+import { KhataReadService } from '../khata/khata-read.service';
+import { KhataMonthQuery } from '../khata/khata.dto';
+import { khataMonth } from '../khata/khata-access.service';
 type Tx=Prisma.TransactionClient;
 type Action='EDIT'|'APPROVE'|'REJECT'|'PAUSE'|'RESUME'|'CANCEL'|'SKIP';
 const mask=(days:number[])=>days.reduce((m,d)=>m|(1<<(d-1)),0);
@@ -30,7 +33,8 @@ export class SubscriptionsService {
     private readonly catalog:CatalogService,private readonly customers:CustomersService,
     private readonly addresses:AddressesService,private readonly vendors:VendorsService,
     private readonly plans:PlanEntitlementsService,private readonly notifications:NotificationsService,
-    private readonly clock:SubscriptionClock,private readonly generation:SubscriptionGenerationService) {}
+    private readonly clock:SubscriptionClock,private readonly generation:SubscriptionGenerationService,
+    private readonly khata:KhataReadService) {}
   private async actor(tx:Tx,id:string,role:user_role_type) {
     const user=await tx.users.findUnique({where:{id},include:{roles:true,vendor:true}});
     if(!user || user.status!=='ACTIVE' || user.active_role!==role || !user.roles.some(r=>r.role===role)) throw new ForbiddenException({code:`${role}_ROLE_REQUIRED`});
@@ -232,6 +236,17 @@ export class SubscriptionsService {
       const row=await this.owned(tx,userId,role,id),clock=await this.clock.now(tx);
       if(role==='VENDOR') await this.plans.requireOperation(tx,row.vendor_id,'READ_HISTORY');
       return this.present(row,clock.day);
+    },{isolationLevel:'RepeatableRead',timeout:15000}).catch(unavailable);
+  }
+  statement(userId:string,id:string,q:KhataMonthQuery) {
+    return this.db.$transaction(async tx=>{
+      const row=await this.owned(tx,userId,'CUSTOMER',id),clock=await this.clock.now(tx),month=q.month??clock.day.slice(0,7),{from,to}=khataMonth(month);
+      const where={subscription_id:id,vendor_id:row.vendor_id,vendor_customer_id:row.vendor_customer_id,status:'DELIVERED',delivery_date:{gte:from,lt:to}};
+      const orders=await tx.orders.findMany({where,include:{items:true},orderBy:[{delivery_date:'desc'},{id:'asc'}],take:q.limit??20,skip:q.offset??0});
+      const totals=await tx.orders.aggregate({where,_sum:{total_paise:true},_count:true});
+      const [quantity]=await tx.$queryRaw<{qty:string}[]>`SELECT COALESCE(SUM(i.qty),0)::text AS qty FROM order_items i JOIN orders o ON o.id=i.order_id WHERE o.subscription_id=${id}::uuid AND o.vendor_id=${row.vendor_id}::uuid AND o.vendor_customer_id=${row.vendor_customer_id}::uuid AND o.status='DELIVERED' AND o.delivery_date>=${from}::date AND o.delivery_date<${to}::date`;
+      const ledger=await this.khata.entries(tx,row.vendor_id,[row.customer],{month,limit:50,offset:0});
+      return {subscriptionId:id,month,items:orders.map(o=>({orderId:o.id,deliveryDate:dayString(o.delivery_date),productName:o.items.map(i=>i.product_name_snapshot).join(', '),qty:o.items.reduce((n,i)=>n+i.qty,0),amountPaise:String(o.total_paise),paymentStatus:o.payment_status})),total:totals._count,deliveredAmountPaise:String(totals._sum.total_paise??0n),deliveredQty:quantity!.qty,ledger};
     },{isolationLevel:'RepeatableRead',timeout:15000}).catch(unavailable);
   }
   plansFor(userId:string,vendorId:string,addressId:string) {

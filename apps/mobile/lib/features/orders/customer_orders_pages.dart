@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 import 'package:ui_kit/ui_kit.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/router/routes.dart';
 import '../../core/storage/customer_device.dart';
@@ -61,6 +62,10 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       CustomerOrderFeedback(m),
+                      SbButton(
+                          label: l.customerSubMine,
+                          onPressed: () =>
+                              context.push('/customer/subscriptions')),
                       if (m.failure != null)
                         SbButton(
                             label: l.authRetry,

@@ -484,6 +484,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/customer/subscriptions/{id}/statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerSubscriptionsController_statement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customer/subscriptions": {
         parameters: {
             query?: never;
@@ -2526,6 +2542,29 @@ export interface components {
             version: number;
             /** Format: date */
             date: string;
+        };
+        SubscriptionDelivery: {
+            /** Format: uuid */
+            orderId: string;
+            /** Format: date */
+            deliveryDate: string;
+            productName: string;
+            qty: number;
+            amountPaise: string;
+            paymentStatus: string;
+        };
+        SubscriptionStatement: {
+            /** Format: uuid */
+            subscriptionId: string;
+            month: string;
+            items: components["schemas"]["SubscriptionDelivery"][];
+            total: number;
+            /** @description Full selected-month delivered subtotal, independent of pagination. */
+            deliveredAmountPaise: string;
+            /** @description Full selected-month delivered pack quantity, exact decimal string. */
+            deliveredQty: string;
+            /** @description Shared vendor account ledger. Unallocated payments/claims are not assigned to individual subscriptions. */
+            ledger: components["schemas"]["KhataVendorEntries"];
         };
         CustomerSubscriptionInput: {
             /** Format: uuid */
@@ -5215,6 +5254,53 @@ export interface operations {
                 content?: never;
             };
             /** @description Date/cutoff/slot or immutable retry mismatch. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CustomerSubscriptionsController_statement: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Calendar month YYYY-MM; defaults to server IST current month. */
+                month?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionStatement"];
+                };
+            };
+            /** @description Only accepted-link-owned subscriptions are readable/mutable; mobile matching grants no access. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERSION_CONFLICT, CUSTOMER_LINK_REQUIRED or invalid state. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description PAST_CUTOFF or invalid date/slot/coverage; no partial effects. */
             422: {
                 headers: {
                     [name: string]: unknown;

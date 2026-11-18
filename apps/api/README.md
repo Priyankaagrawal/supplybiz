@@ -1,5 +1,58 @@
 # Supply Biz API
 
+## T-078 subscription monthly statement (2026-11-18): READY_FOR_VERIFY
+
+GET `/customer/subscriptions/{id}/statement?month=YYYY-MM&limit=50&offset=0`
+now supplies S-C-16 with accepted-link-owned delivered order snapshots, full-month
+exact pack/amount totals and the shared T-082 vendor ledger. One repeatable-read
+transaction preserves parity with the vendor reader, including payments/reversals
+and month opening/closing versus current due. No standalone payment/claim is
+allocated to a particular subscription. Existing source payment status is retained.
+Historical reads remain available after expiry/suspension. No migration, financial
+write, grants, dependency or service configuration changed. OpenAPI/TS/Dart were
+regenerated from source; one path/two schemas added, existing semantics unchanged.
+
+Executed PASS (apps/api unless specified):
+
+```powershell
+# Root: regenerate the contract and clients from source.
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+# Set these only to the existing isolated local supplybiz_service_area_test URL;
+# never print credentials. No main dev database migration or write was performed.
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/subscriptions/subscriptions.postgres.spec.ts -t 'T-078'
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/subscriptions/subscriptions.service.ts src/modules/subscriptions/subscriptions.controller.ts src/modules/subscriptions/subscriptions.dto.ts src/modules/subscriptions/subscriptions.postgres.spec.ts src/modules/khata/khata-read.service.ts --max-warnings=0
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+# Root:
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+node --test tools/checks.spec.mjs
+git diff --check
+```
+
+Two focused native HTTP/PostgreSQL cases PASS, eleven existing cases intentionally
+unselected (not claimed as rerun): actual delivery transitions/stock/debit/payment,
+multi-subscription filtering, paging, cancelled exclusion, exact full totals,
+immutable renamed-product snapshots, vendor ledger parity, payment reversal,
+role/accepted-link ownership, invalid month, no-store, empty history, expiry and
+suspension. The first fixture attempted duplicate subscription/date orders; corrected
+it to respect the existing generation uniqueness constraint. Windows private-upload
+ACL initialization required the approved native execution context. Test synthetic
+financial history is retained; application contexts close. Five runner guards PASS.
+
+32 mobile/router/notice checks, generated client analysis and normal Android build
+PASS; mobile HTTP is simulated and is distinct from this native DB evidence.
+Device runtime/TalkBack/live FCM/integrated UI–API–DB and manual PASS/G3 are pending;
+no connected Android device/emulator was available. iOS deferred. Five manual
+verification steps and entry routes are in mobile README T-078.
+
 ## T-082 customer Khata handoff (2026-11-17): READY_FOR_VERIFY
 
 User confirmation (2026-11-17): keep the separate optional payment UPI setting

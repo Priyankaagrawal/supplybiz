@@ -205,7 +205,7 @@ String notificationLocation(InboxItem item) {
       return path.replaceFirst(
           '/customer/subscriptions/', '/customer/orders/subscriptions/');
     }
-    if (path == '/customer/subscriptions') return '/customer/orders';
+    if (path == '/customer/subscriptions') return '/customer/subscriptions';
   }
   return '/common/notifications';
 }

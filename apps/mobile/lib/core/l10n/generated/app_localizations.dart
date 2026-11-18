@@ -94,6 +94,144 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @customerSubPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription plans'**
+  String get customerSubPlans;
+
+  /// No description provided for @customerSubMine.
+  ///
+  /// In en, this message translates to:
+  /// **'My subscriptions'**
+  String get customerSubMine;
+
+  /// No description provided for @customerSubMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get customerSubMore;
+
+  /// No description provided for @customerSubCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom plan'**
+  String get customerSubCustom;
+
+  /// No description provided for @customerSubPopular.
+  ///
+  /// In en, this message translates to:
+  /// **'Most popular'**
+  String get customerSubPopular;
+
+  /// No description provided for @customerSubFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free delivery'**
+  String get customerSubFree;
+
+  /// No description provided for @customerSubFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause or skip anytime · Monthly billing · Manage from app'**
+  String get customerSubFeatures;
+
+  /// No description provided for @customerSubAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery address'**
+  String get customerSubAddress;
+
+  /// No description provided for @customerSubConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm subscription'**
+  String get customerSubConfirm;
+
+  /// No description provided for @customerSubCashOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The vendor has not set a payment UPI ID. Cash is the only available option.'**
+  String get customerSubCashOnly;
+
+  /// No description provided for @customerSubStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly statement'**
+  String get customerSubStatement;
+
+  /// No description provided for @customerSubMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month (YYYY-MM)'**
+  String get customerSubMonth;
+
+  /// No description provided for @customerSubDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered subscription orders'**
+  String get customerSubDelivered;
+
+  /// No description provided for @customerSubLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared vendor account: payments and balances include all purchases. Unallocated payments are not assigned to this subscription.'**
+  String get customerSubLedger;
+
+  /// No description provided for @customerSubOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get customerSubOpening;
+
+  /// No description provided for @customerSubClosing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing balance'**
+  String get customerSubClosing;
+
+  /// No description provided for @customerSubPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments recorded this month'**
+  String get customerSubPaid;
+
+  /// No description provided for @customerSubCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current vendor balance'**
+  String get customerSubCurrent;
+
+  /// No description provided for @customerSubAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered amount'**
+  String get customerSubAmount;
+
+  /// No description provided for @customerSubQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered packs'**
+  String get customerSubQuantity;
+
+  /// No description provided for @customerSubCutoffError.
+  ///
+  /// In en, this message translates to:
+  /// **'That date is frozen by the 21:00 IST cutoff. Refresh and choose the next eligible delivery date.'**
+  String get customerSubCutoffError;
+
+  /// No description provided for @customerSubLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the vendor’s customer-link request on Home before subscribing.'**
+  String get customerSubLink;
+
+  /// No description provided for @customerSubEmptyStatement.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivered orders for this subscription in this month.'**
+  String get customerSubEmptyStatement;
+
   /// No description provided for @subTitle.
   ///
   /// In en, this message translates to:

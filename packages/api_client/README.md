@@ -143,6 +143,7 @@ Class | Method | HTTP request | Description
 [*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerPause**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerpause) | **POST** /api/v1/customer/subscriptions/{id}/pause |
 [*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerResume**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerresume) | **POST** /api/v1/customer/subscriptions/{id}/resume |
 [*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerSkip**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerskip) | **POST** /api/v1/customer/subscriptions/{id}/skip |
+[*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**customerSubscriptionsControllerStatement**](doc/CustomerSubscriptionsApi.md#customersubscriptionscontrollerstatement) | **GET** /api/v1/customer/subscriptions/{id}/statement |
 [*CustomerSubscriptionsApi*](doc/CustomerSubscriptionsApi.md) | [**subscriptionPlansControllerPlans**](doc/CustomerSubscriptionsApi.md#subscriptionplanscontrollerplans) | **GET** /api/v1/customer/vendors/{id}/subscription-plans |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAbout**](doc/DiscoveryApi.md#discoverycontrollerabout) | **GET** /api/v1/customer/vendors/{id} |
 [*DiscoveryApi*](doc/DiscoveryApi.md) | [**discoveryControllerAdd**](doc/DiscoveryApi.md#discoverycontrolleradd) | **PUT** /api/v1/customer/favorites/{id} |
@@ -371,6 +372,7 @@ Class | Method | HTTP request | Description
  - [StockAdjustment](doc/StockAdjustment.md)
  - [SubscriptionCustomer](doc/SubscriptionCustomer.md)
  - [SubscriptionCustomerList](doc/SubscriptionCustomerList.md)
+ - [SubscriptionDelivery](doc/SubscriptionDelivery.md)
  - [SubscriptionList](doc/SubscriptionList.md)
  - [SubscriptionMutation](doc/SubscriptionMutation.md)
  - [SubscriptionPatch](doc/SubscriptionPatch.md)
@@ -385,6 +387,7 @@ Class | Method | HTTP request | Description
  - [SubscriptionSettingsResponse](doc/SubscriptionSettingsResponse.md)
  - [SubscriptionSettingsSummary](doc/SubscriptionSettingsSummary.md)
  - [SubscriptionSkip](doc/SubscriptionSkip.md)
+ - [SubscriptionStatement](doc/SubscriptionStatement.md)
  - [SubscriptionVersion](doc/SubscriptionVersion.md)
  - [TokensResponse](doc/TokensResponse.md)
  - [TotpDto](doc/TotpDto.md)

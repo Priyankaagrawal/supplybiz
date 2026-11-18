@@ -1,5 +1,59 @@
 # Supply Biz Mobile
 
+## T-078 customer subscriptions (2026-11-18): READY_FOR_VERIFY
+
+S-C-09/10/15/16 use generated customer APIs for address-owned daily/custom plans,
+server estimates/configured slots, confirmation, pending/active subscriptions,
+versioned edit/pause/resume/skip/cancel and paginated monthly statements. Vendor
+Subscription tab and New Order open plans; Orders opens My subscriptions; owned
+inbox/deep links open manage. Cash is the only setup preference without a separate
+published payment UPI ID. KYC is never reused. No wallet/payment-settings screen
+was added. Monthly amounts remain postpaid estimates; setup takes no funds.
+
+Account/environment-scoped encrypted snapshots and exact saved mutation/key are
+restored for explicit retry, with no automatic resend/new key after uncertainty.
+Stale data cannot authorize writes; denied roles clear data. Server effective dates
+and the 21:00 IST explanation handle frozen changes. Statement dates/quantities/
+amounts are subscription-specific; paid/opening/closing/current balances are
+clearly labeled as the shared vendor account, without invented payment allocation.
+The existing exact paise formatter now also handles negative advance balances.
+
+Executed PASS from apps/mobile (HTTP simulated):
+
+```powershell
+flutter gen-l10n
+dart format lib/features/subscriptions/customer_subscriptions_controller.dart lib/features/subscriptions/customer_subscriptions_pages.dart lib/features/subscriptions/vendor_subscriptions_pages.dart test/features/subscriptions/customer_subscription_fixture.dart test/features/subscriptions/customer_subscriptions_test.dart test/features/subscriptions/vendor_subscriptions_test.dart
+flutter analyze --no-pub lib/features/subscriptions lib/core/router lib/features/discovery/vendor_page.dart lib/features/checkout/new_order_page.dart lib/features/orders/customer_orders_pages.dart lib/features/notifications/notifications_controller.dart test/features/subscriptions/customer_subscription_fixture.dart test/features/subscriptions/customer_subscriptions_test.dart test/features/subscriptions/vendor_subscriptions_test.dart ../../packages/api_client/lib
+flutter test --no-pub --timeout 60s test/features/subscriptions/customer_subscriptions_test.dart test/features/subscriptions/vendor_subscriptions_test.dart test/core/router/app_router_test.dart test/features/notifications/notifications_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+32 focused tests PASS (eight new customer, ten vendor, fourteen router/notice),
+clean analysis and normal dev APK build PASS (88 seconds). Widget cases check
+200% setup, optional cash-only UPI, plan selection and cancel confirmation.
+Controller cases cover paging, date-only bodies, lost-response/recreation exact
+replay, storage failure, account/role isolation, cutoff/conflict and exact ledger
+strings. Early checks fixed a date-only UTC assertion, widget runAsync setup and
+offscreen statement assertion. Actual API/PostgreSQL evidence is in API README.
+
+Android native device/SQLCipher recreation/OS-kill/TalkBack/live UI–API–DB and
+live FCM checks: NOT_RUN, adb reported no connected device/emulator. No emulator
+or application service was started. The discovery-only adb daemon was stopped
+after checking. iOS deferred; manual PASS and G3 remain pending.
+
+Manual verification (not yet performed):
+
+1. Vendor → Subscription tab → plans: select an owned address and daily/custom
+   product/qty/days. Check estimates, slots, tomorrow start and cash-only fallback.
+2. Confirm setup; check Pending Approval or Active, then vendor approval and inbox
+   link → My subscriptions/manage. No payment/ledger entry should arise at setup.
+3. Edit, range/open pause, resume and skip around 21:00 IST; inspect server effective
+   date and frozen-date explanation. Cancel only after explicit confirmation.
+4. Open a delivered month's statement; compare snapshots/quantity/subtotal and
+   shared paid/due totals with vendor ledger, including a payment reversal.
+5. Interrupt a response, recreate and explicitly retry the saved change; verify
+   one server mutation. Check logout/account isolation, Android 200% and TalkBack.
+
 ## Manual delivery settlement runtime (2026-11-18)
 
 The first live Delivered action remained in the vendor outbox because the manual

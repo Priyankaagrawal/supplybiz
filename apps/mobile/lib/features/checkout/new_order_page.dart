@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ui_kit/ui_kit.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/l10n/l10n.dart';
 import '../../core/router/routes.dart';
 import '../discovery/cart_controller.dart';
@@ -40,6 +41,10 @@ class _NewOrderPageState extends ConsumerState<NewOrderPage> {
         body: SafeArea(
             child: ListView(padding: const EdgeInsets.all(16), children: [
           Text(l.checkoutOneTime),
+          SbButton(
+              label: l.customerSubPlans,
+              onPressed: () => context
+                  .push('/customer/vendors/${widget.id}/subscription-plans')),
           Wrap(spacing: 8, children: [
             SbButton(
                 label: l.checkoutMilk,
