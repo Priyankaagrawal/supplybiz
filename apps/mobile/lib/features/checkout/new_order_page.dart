@@ -56,10 +56,11 @@ class _NewOrderPageState extends ConsumerState<NewOrderPage> {
           if (m.failure != null) Text(m.failure!.toMessage(l)),
           if (!m.busy && products.isEmpty)
             SbEmpty(message: l.discoveryNoProducts),
-          SbButton(
-              label: l.authRetry,
-              variant: SbButtonVariant.secondary,
-              onPressed: m.busy ? null : m.load),
+          if (m.failure != null)
+            SbButton(
+                label: l.authRetry,
+                variant: SbButtonVariant.secondary,
+                onPressed: m.busy ? null : m.load),
           for (final p in products)
             Card(
                 child: Padding(

@@ -76,6 +76,16 @@ class CheckoutFixture implements HttpClientAdapter {
   Future<ResponseBody> fetch(
       RequestOptions r, Stream<Uint8List>? stream, Future<void>? cancel) async {
     requests.add(r);
+    if (r.method == 'POST' &&
+        (r.path.endsWith('/orders/quote') ||
+            r.path.endsWith('/customer/orders'))) {
+      final body = jsonDecode(r.data as String) as Map;
+      if (body['deliveryDate'] is! String ||
+          !RegExp(r'^\d{4}-\d{2}-\d{2}$')
+              .hasMatch(body['deliveryDate'] as String)) {
+        return reply({'code': 'VALIDATION_FAILED'}, 400);
+      }
+    }
     if (gate != null) await gate!.future;
     if (offline) {
       throw DioException(
@@ -150,6 +160,82 @@ Widget checkoutApp(CheckoutController m, {double scale = 1}) => ProviderScope(
             home: const CheckoutPage()));
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('T-046 quantity changes retain choices and require a fresh bill',
+      () async {
+    final f = CheckoutFixture(),
+        store = MemoryDrafts(),
+        client = checkoutClient(f);
+    addTearDown(client.close);
+    final cart = await checkoutCart(store);
+    final m = CheckoutController(checkoutOrdersApi(client.dio),
+        CustomerAddressesApi(client.dio), cart, store, 'quantity:checkout');
+    addTearDown(cart.dispose);
+    addTearDown(m.dispose);
+    await m.load();
+    await m.refreshQuote();
+    final date = m.date, slot = m.slot;
+    await cart.quantity(syntheticProductId, 3);
+    expect(m.quote, isNull);
+    expect(m.canPlace, isFalse);
+    expect(m.canQuote, isTrue);
+    expect(m.date, date);
+    expect(m.slot, slot);
+    await m.refreshQuote();
+    expect(m.canPlace, isTrue);
+    final body = jsonDecode(f.requests.last.data as String) as Map;
+    expect((body['items'] as List).single['qty'], 3);
+  });
+  test('T-046 a cart filled after initial load fetches delivery choices',
+      () async {
+    final f = CheckoutFixture(),
+        store = MemoryDrafts(),
+        client = checkoutClient(f);
+    addTearDown(client.close);
+    final cart = CartController(store, 'late:cart');
+    await cart.load();
+    final m = CheckoutController(checkoutOrdersApi(client.dio),
+        CustomerAddressesApi(client.dio), cart, store, 'late:checkout');
+    addTearDown(cart.dispose);
+    addTearDown(m.dispose);
+    await m.load();
+    expect(m.canQuote, isFalse);
+    final choicesReady = Completer<void>();
+    m.addListener(() {
+      if (m.canQuote && !choicesReady.isCompleted) choicesReady.complete();
+    });
+    await cart.add(checkoutVendor, 'Synthetic shop',
+        ProductResponse.fromJson(productJson()), 2);
+    await choicesReady.future.timeout(const Duration(seconds: 3));
+    expect(m.canQuote, isTrue);
+    expect(f.requests.where((r) => r.path.endsWith('/options')), hasLength(1));
+  });
+  testWidgets('T-046 missing slots explains why Review bill stays disabled',
+      (tester) async {
+    final f = CheckoutFixture()..noSlots = true,
+        client = checkoutClient(f),
+        store = MemoryDrafts();
+    addTearDown(client.close);
+    late CheckoutController m;
+    await tester.runAsync(() async {
+      final cart = await checkoutCart(store);
+      m = CheckoutController(checkoutOrdersApi(client.dio),
+          CustomerAddressesApi(client.dio), cart, store, 'slots:checkout');
+      await m.load();
+    });
+    await tester.pumpWidget(checkoutApp(m));
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('Review bill'));
+    expect(
+        find.text(
+            'No delivery dates or time slots are available. Contact the vendor or refresh later.'),
+        findsOneWidget);
+    expect(
+        tester
+            .widget<SbButton>(find.widgetWithText(SbButton, 'Review bill'))
+            .onPressed,
+        isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   test(
       'TC-220/227 same-key retry survives restart, locks cart before checkout opens, and saves result once',
       () async {
@@ -158,7 +244,7 @@ void main() {
         client = checkoutClient(f);
     addTearDown(client.close);
     var cart = await checkoutCart(store);
-    var m = CheckoutController(CustomerOrdersApi(client.dio),
+    var m = CheckoutController(checkoutOrdersApi(client.dio),
         CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
     await m.load();
     expect(m.options!.availableDates, ['2026-11-14', '2026-11-15']);
@@ -173,7 +259,7 @@ void main() {
     cart = CartController(store, 'one:cart');
     await cart.load();
     expect(cart.canEdit, isFalse);
-    m = CheckoutController(CustomerOrdersApi(client.dio),
+    m = CheckoutController(checkoutOrdersApi(client.dio),
         CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
     await m.load();
     await m.retry();
@@ -196,7 +282,7 @@ void main() {
         client = checkoutClient(f);
     addTearDown(client.close);
     final cart = await checkoutCart(store);
-    final m = CheckoutController(CustomerOrdersApi(client.dio),
+    final m = CheckoutController(checkoutOrdersApi(client.dio),
         CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
     addTearDown(m.dispose);
     addTearDown(cart.dispose);
@@ -225,7 +311,7 @@ void main() {
         client = checkoutClient(f);
     addTearDown(client.close);
     final cart = await checkoutCart(store);
-    final m = CheckoutController(CustomerOrdersApi(client.dio),
+    final m = CheckoutController(checkoutOrdersApi(client.dio),
         CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
     addTearDown(m.dispose);
     addTearDown(cart.dispose);
@@ -255,7 +341,7 @@ void main() {
         client = checkoutClient(f);
     addTearDown(client.close);
     final cart = await checkoutCart(store);
-    final m = CheckoutController(CustomerOrdersApi(client.dio),
+    final m = CheckoutController(checkoutOrdersApi(client.dio),
         CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
     await m.load();
     await m.refreshQuote();
@@ -313,7 +399,7 @@ void main() {
     late CheckoutController m;
     await tester.runAsync(() async {
       final cart = await checkoutCart(store);
-      m = CheckoutController(CustomerOrdersApi(client.dio),
+      m = CheckoutController(checkoutOrdersApi(client.dio),
           CustomerAddressesApi(client.dio), cart, store, 'one:checkout');
       await m.load();
       await m.refreshQuote();

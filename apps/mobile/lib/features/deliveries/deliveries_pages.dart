@@ -93,9 +93,10 @@ class _DeliveriesPageState extends ConsumerState<DeliveriesPage> {
                             liveRegion: true,
                             child: Text(orderFailure(m.failure!, l))),
                       if (m.stale && m.cache.isNotEmpty) Text(l.deliveryCached),
-                      SbButton(
-                          label: l.authRetry,
-                          onPressed: m.busy ? null : m.load),
+                      if (m.failure != null)
+                        SbButton(
+                            label: l.authRetry,
+                            onPressed: m.busy ? null : m.load),
                       if (!widget.queueOnly) ...[
                         SbButton(
                             label: '${l.deliveryQueue} (${m.queue.length})',

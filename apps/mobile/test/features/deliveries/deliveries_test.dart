@@ -33,6 +33,11 @@ class DeliveriesFixture extends OrdersFixture {
       RequestOptions r, Stream<Uint8List>? s, Future<void>? c) async {
     if (r.path.endsWith('/deliveries')) {
       requests.add(r);
+      final requestedDate = r.uri.queryParameters['date'];
+      if (requestedDate != null &&
+          !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(requestedDate)) {
+        return reply({'code': 'VALIDATION_FAILED'}, 400);
+      }
       if (offline) {
         throw DioException(
             requestOptions: r, type: DioExceptionType.connectionError);
@@ -52,7 +57,7 @@ class DeliveriesFixture extends OrdersFixture {
       return reply({
         'serverTime': '2026-11-14T01:00:00Z',
         'businessDate': '2026-11-14',
-        'deliveryDate': '2026-11-14',
+        'deliveryDate': requestedDate ?? '2026-11-14',
         'counts': {
           for (final t in [
             'ALL',
@@ -116,6 +121,26 @@ Widget deliveriesApp(DeliveriesController m,
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('T-050 selected delivery date is sent as a calendar date and reloads',
+      () async {
+    final f = DeliveriesFixture()
+      ..rows.first['status'] = 'OUT_FOR_DELIVERY'
+      ..rows.first['deliveryDate'] = '2026-11-19';
+    final http = ordersClient(f);
+    addTearDown(http.close);
+    final m =
+        DeliveriesController(http.dio, MemoryDrafts(), 'dated:deliveries');
+    addTearDown(m.dispose);
+    await m.load(day: '2026-11-19');
+    expect(m.failure, isNull);
+    expect(m.date, '2026-11-19');
+    expect(m.rows.single.status, 'OUT_FOR_DELIVERY');
+    expect(f.requests.last.uri.queryParameters['date'], '2026-11-19');
+    await m.load();
+    expect(m.failure, isNull);
+    expect(m.rows.single.status, 'OUT_FOR_DELIVERY');
+    expect(f.requests.last.uri.queryParameters['date'], '2026-11-19');
+  });
   test(
       'T-050 an open stale card uses the base version advanced by another engine',
       () async {

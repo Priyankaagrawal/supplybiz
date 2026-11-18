@@ -9,6 +9,7 @@ import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
+      navigatorKey: rootNavigatorKey,
       routes: [
         GoRoute(
             path: '/vendor/subscriptions',

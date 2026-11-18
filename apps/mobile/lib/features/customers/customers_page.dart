@@ -80,10 +80,11 @@ class CustomersPage extends ConsumerWidget {
                             label: l.subTitle,
                             onPressed: () =>
                                 context.push('/vendor/subscriptions')),
-                        SbButton(
-                            label: l.authRetry,
-                            variant: SbButtonVariant.secondary,
-                            onPressed: model.busy ? null : model.load),
+                        if (model.failure != null)
+                          SbButton(
+                              label: l.authRetry,
+                              variant: SbButtonVariant.secondary,
+                              onPressed: model.busy ? null : model.load),
                         if (model.ready && model.customerLimit != null)
                           Text(l.customersCapacity(
                               model.activeCount, model.customerLimit!)),
@@ -178,10 +179,11 @@ class CustomerDetailPage extends ConsumerWidget {
         body: SafeArea(
             child: ListView(padding: const EdgeInsets.all(16), children: [
           CustomerFeedback(model: model),
-          SbButton(
-              label: l.authRetry,
-              variant: SbButtonVariant.secondary,
-              onPressed: model.busy ? null : model.load),
+          if (model.failure != null)
+            SbButton(
+                label: l.authRetry,
+                variant: SbButtonVariant.secondary,
+                onPressed: model.busy ? null : model.load),
           if (customer == null) ...[
             if (!model.ready && model.failure == null) const SbSkeleton(),
             if (model.ready) Text(l.customersNotFound),

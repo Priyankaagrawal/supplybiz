@@ -1,5 +1,131 @@
 # Supply Biz Mobile
 
+## Manual delivery settlement runtime (2026-11-18)
+
+The first live Delivered action remained in the vendor outbox because the manual
+API used the PostgreSQL administrator. The ledger deliberately fails closed for
+unsafe runtime UPDATE/DELETE/balance privileges. The dedicated manual DB now has
+`supplybiz_manual_app` (restricted login) and `supplybiz_manual_ledger_owner`
+(non-login financial owner), configured with `tools/ledger-grants.sql`.
+Ignored apps/api/.env.manual.local now sets both DATABASE_URL and
+MOBILE_AUTH_TEST_DATABASE_URL to the restricted manual connection; original KYC
+and admin encryption keys were retained. Source that file when restarting API or
+worker; do not override these URLs back to the administrator. Normal migrations
+remain an operator action, separate from the runtime login.
+
+After the manual API restarted, the app rotated its session and retried the
+already-saved delivery action. The API/DB confirmed DELIVERED/PAID with exactly
+one order debit and one payment credit, and refreshed Customer Orders displays
+Delivered. No direct order/ledger edits or replacement delivery action were used.
+FCM is disabled in this manual configuration; pull to refresh customer tracking
+when testing across emulators. Automated-test databases and task/module acceptance
+statuses were unchanged.
+
+## T-048/T-050 selected-date query fix (2026-11-18)
+
+Generated vendor Orders/Deliveries clients send DateTime query objects, while
+the API requires YYYY-MM-DD. The selected delivery date therefore failed server
+validation and showed an empty stale list. An endpoint-scoped GET interceptor
+now preserves the selected calendar day as a date-only query; mutation/audit
+timestamps remain untouched. No API or generated-client source changes.
+
+The regression reproduces the validation failure before the fix, then loads and
+reloads an OUT_FOR_DELIVERY order on its selected date. Both fixtures now enforce
+the real date-only query contract. All 22 focused order/delivery/queue regressions
+and targeted analysis pass. Task manual acceptance/module gates remain pending.
+
+Android dev APK built/installed on vendor emulator-5554 with the existing
+localhost override/ADB reverse. Live date selection for 2026-11-19 now displays
+the saved OUT_FOR_DELIVERY order and enabled Mark delivered/Mark failed actions.
+No delivery or payment mutation was submitted during this check.
+
+## Two-emulator manual API connectivity (2026-11-18)
+
+The vendor emulator later timed out through 10.0.2.2 and showed an empty stale
+order cache. Both emulators now run the localhost-override dev APK with
+`adb -s <device> reverse tcp:3000 tcp:3000` and
+`--dart-define=API_BASE_URL=http://127.0.0.1:3000/api/v1` after the dev JSON flag.
+Recreate forwarding after emulator restarts. config/dev.json remains unchanged.
+After restoring the vendor session, the real Orders screen displays the placed
+NEW order from the dedicated manual DB. No order transition was submitted.
+Customer-detail activity panels remain separate from the main Orders screen.
+
+## Retry controls and checkout choices (2026-11-18)
+
+Load Retry buttons are conditional on failure/recovery, rather than present on
+successfully loaded screens. Explicit saved-write retry controls are preserved.
+Existing pull-to-refresh and dedicated refresh actions remain available.
+
+Checkout options depend on vendor/address, so quantity edits retain valid dates
+and slots while invalidating the quote. Filling an initially empty cart or
+replacing its vendor automatically loads fresh choices, including when a prior
+request is in flight. Responses for an old vendor/address remain fenced. Empty
+server slot lists still disable Review bill and show the availability message.
+
+Live bill review also exposed generated midnight timestamps in checkout's
+calendar-date payloads. A checkout-owned interceptor normalizes only quote/place
+POST `deliveryDate` fields to YYYY-MM-DD without editing generated clients or
+changing the API. The transport fixture now enforces the real API's date-only
+rule for both operations; all nine checkout checks pass, including permanent
+same-key retries, and targeted analysis is clean. The native checkout fixture
+uses the same feature-owned API factory.
+
+101 affected checks across checkout, discovery, products, customers, addresses,
+orders, deliveries and subscriptions pass. New regression coverage checks
+quantity changes/fresh quotes, delayed cart population, missing-slot guidance and
+Retry appearing on failed loads then disappearing after recovery. A synthetic
+07:00–09:00 slot was configured only for the existing verified vendor in the
+dedicated manual DB, incrementing settings version; vendor settings UI is T-106.
+Manual task acceptance/module gates remain pending.
+
+Updated Retry UI installed on both existing Android emulators. Live customer
+discovery no longer displays Retry after success. On emulator-5556, checkout
+loads the manual-test slot, enables Review bill and retrieves a real API quote:
+two packs total ₹116 with ₹0 delivery and an enabled Place Order action. No order
+was placed. Customer retains the command-line localhost API override/ADB reverse;
+vendor APK retains config/dev.json's original 10.0.2.2 URL.
+
+## T-044 View vendor navigation fix (2026-11-18)
+
+Pushing vendor details from the root-level discovery list previously duplicated
+the existing customer shell page and triggered Flutter's navigator page-key
+assertion. Vendor/product details now explicitly use the root navigator via
+typed `$parentNavigatorKey`; their URLs, role guards and Back history remain.
+Router output was regenerated from source with the scoped build filter.
+
+The new Home → discovery → View vendor → product → Back regression reproduces
+the original assertion before the fix and passes afterward. All 33 checks across
+discovery, Home, app router and guards pass; targeted analysis is clean.
+Task-specific manual PASS and module gates remain pending.
+
+Android dev APK build/install passes on customer emulator-5556 with the existing
+ADB-forwarded API. Live restored session → Browse vendors → View vendor loads
+Products/Subscription/About and the saved product; View product displays quantity
+and Add to cart, and Back returns to vendor details without an assertion. No cart
+or order mutation was submitted. The customer APK uses a command-line
+`API_BASE_URL=http://127.0.0.1:3000/api/v1` override; config/dev.json is unchanged.
+
+## T-013/T-025 manual-test navigation fix (2026-11-18)
+
+An onboarding-step redirect could become a saved pending destination after the
+server reported onboarding complete. Every subsequent vendor tab selection then
+returned to Home. Internal onboarding destinations now follow the current server
+step without becoming pending navigation; explicit business deep links retain
+their existing guard/replay behavior. More → Service area is reachable again.
+
+Verification: 25 focused checks across `test/core/router/app_router_test.dart`,
+`test/core/router/guards_test.dart`, `test/features/onboarding/onboarding_test.dart`
+and `test/features/service_area/service_area_test.dart` pass, including a new
+restored-vendor → More → Service area regression. Targeted analysis is clean.
+Rebuild/restart the app to clear the old in-memory pending destination; app data
+does not need clearing. Task-specific manual acceptance and module gates remain
+pending.
+
+Android dev APK build/install passes. On the existing vendor emulator-5554,
+the restored session now opens More → Service area and displays six editable
+shop-location fields from the running API. No business mutation was submitted;
+coverage/location save acceptance remains the user's manual check.
+
 ## T-082 generated Khata client compatibility (2026-11-17)
 
 Generated CustomerKhataApi/VendorKhataApi now expose exact summary/month reads,

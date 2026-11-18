@@ -65,7 +65,12 @@ class RoutingController extends ChangeNotifier {
         target ?? ((_goHome || unknown || isAlias) ? _access.home : path);
     final gate = guardRedirect(_access, desired);
     if (gate != null) {
-      if (target == null && routeRole(desired) != null && !isAlias) {
+      // Onboarding destinations follow the current server step. Replaying an
+      // obsolete step after completion would keep redirecting every tab Home.
+      if (target == null &&
+          routeRole(desired) != null &&
+          !desired.startsWith('/vendor/onboarding/') &&
+          !isAlias) {
         _pendingLocation = desired;
       }
       return gate == path ? null : gate;

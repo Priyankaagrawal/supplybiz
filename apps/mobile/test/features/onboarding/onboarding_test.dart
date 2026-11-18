@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ui_kit/ui_kit.dart';
+import 'package:supplybiz_mobile/features/service_area/service_area_page.dart';
+import 'package:supplybiz_mobile/core/router/routing_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supplybiz_mobile/core/l10n/l10n.dart';
 import 'package:supplybiz_mobile/app.dart';
 import 'package:supplybiz_mobile/core/config/app_environment.dart';
@@ -377,6 +381,43 @@ void main() {
     await tester.tap(find.text('Save & Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Step 3 of 4'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
+  testWidgets('T-025 onboarded vendor opens More and Service area',
+      (tester) async {
+    final api = OnboardingAppFixture();
+    api.vendor.step = 4;
+    final routing = RoutingController();
+    addTearDown(routing.dispose);
+    await tester.pumpWidget(ProviderScope(
+        overrides: [
+          authConfigProvider.overrideWithValue(testAuthConfig),
+          authAdapterProvider.overrideWithValue(api),
+          authStorageProvider.overrideWithValue(
+              MemoryAuthStorage()..token = 'synthetic-refresh'),
+          onboardingDraftsProvider.overrideWithValue(MemoryDrafts()),
+        ],
+        child: SupplyBizApp(
+            routingController: routing,
+            environment: AppEnvironment.dev,
+            enableAuth: true)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(
+        of: find.byType(SbBottomNav), matching: find.text('More')));
+    await tester.pumpAndSettle();
+    expect(
+        GoRouter.of(tester.element(find.byType(SbBottomNav)))
+            .routeInformationProvider
+            .value
+            .uri
+            .path,
+        '/vendor/more');
+    expect(find.text('Service area'), findsOneWidget);
+    await tester.tap(find.text('Service area'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ServiceAreaPage), findsOneWidget);
+    expect(find.text('Save coverage'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });

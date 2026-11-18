@@ -101,10 +101,11 @@ class _CustomerProductPageState extends ConsumerState<CustomerProductPage> {
                 label: l.homeChooseLocation,
                 onPressed: () =>
                     const CustomerLocationRoute().push<void>(context)),
-          SbButton(
-              label: l.authRetry,
-              variant: SbButtonVariant.secondary,
-              onPressed: model.busy || checking ? null : model.load),
+          if (model.failure != null)
+            SbButton(
+                label: l.authRetry,
+                variant: SbButtonVariant.secondary,
+                onPressed: model.busy || checking ? null : model.load),
           if (p != null && model.about != null) ...[
             VendorImage(
                 key: ValueKey('${identityHashCode(model)}:${p.imageMediaId}'),

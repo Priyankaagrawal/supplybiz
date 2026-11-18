@@ -30,6 +30,8 @@ Each row ends with lightweight integrated smoke. QA prepares module scenarios du
 
 ## 3. Module completion gates
 
+Day 8 audit (2026-11-18): **incomplete** — T-072/T-073/T-075/T-076 are READY_FOR_VERIFY; T-078 is TODO. Worker kill/restart/catch-up evidence is recorded, but customer subscription screens and the live Android customer/vendor generation journey remain pending. See [TASKS §13](TASKS.md#13-day-8-status-audit-2026-11-18) for evidence and remaining acceptance work.
+
 Implementation eligibility follows TASKS §1 and ADR-030: DONE or READY_FOR_VERIFY prerequisite tasks permit downstream implementation. Pending manual verification or an unpassed prior module gate alone must not block that work. Gate-only dependencies require their constituent prerequisite tasks to be DONE or READY_FOR_VERIFY for implementation. The gates below remain required for integrated acceptance; they do not replace real task prerequisites, manual PASS, release authorization or external prerequisites.
 
 | Gate | Required integrated journeys and comprehensive checks | Deadline |

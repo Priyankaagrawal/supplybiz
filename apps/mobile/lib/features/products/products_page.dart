@@ -49,10 +49,11 @@ class ProductsPage extends ConsumerWidget {
                 label: l.productsRetryPending,
                 onPressed: model.busy ? null : model.retryPending),
           ],
-          SbButton(
-              label: l.authRetry,
-              variant: SbButtonVariant.secondary,
-              onPressed: model.busy ? null : model.load),
+          if (model.failure != null || model.cached)
+            SbButton(
+                label: l.authRetry,
+                variant: SbButtonVariant.secondary,
+                onPressed: model.busy ? null : model.load),
           TextField(
               decoration: InputDecoration(labelText: l.productsSearch),
               maxLength: 120,

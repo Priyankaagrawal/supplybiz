@@ -12,6 +12,7 @@ import '../auth/session_controller.dart';
 import '../home/home_controller.dart';
 import '../onboarding/onboarding_controller.dart';
 import 'delivery_background.dart';
+import '../orders/order_date_queries.dart';
 
 final deliveriesProvider = ChangeNotifierProvider<DeliveriesController>((ref) {
   final identity = ref.watch(
@@ -60,7 +61,9 @@ class DeliveryAction {
 
 class DeliveriesController extends ChangeNotifier {
   DeliveriesController(this.dio, this.store, this.owner,
-      {this.coordinated = false, this.schedule});
+      {this.coordinated = false, this.schedule}) {
+    configureOrderDateQueries(dio);
+  }
   final Dio dio;
   final OnboardingDrafts store;
   final String owner;

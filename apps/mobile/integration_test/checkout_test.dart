@@ -35,7 +35,7 @@ void main() {
     final live = checkoutClient(f);
     addTearDown(live.close);
     var cart = await checkoutCart(store, owner: 'native:cart');
-    var m = CheckoutController(CustomerOrdersApi(live.dio),
+    var m = CheckoutController(checkoutOrdersApi(live.dio),
         CustomerAddressesApi(live.dio), cart, store, 'native:checkout');
     await m.load();
     await m.refreshQuote();
@@ -49,7 +49,7 @@ void main() {
     cart = CartController(store, 'native:cart');
     await cart.load();
     expect(cart.checkoutLocked, isTrue);
-    m = CheckoutController(CustomerOrdersApi(live.dio),
+    m = CheckoutController(checkoutOrdersApi(live.dio),
         CustomerAddressesApi(live.dio), cart, store, 'native:checkout');
     await m.load();
     expect(m.pending!['key'], key);

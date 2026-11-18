@@ -850,10 +850,13 @@ RouteBase get $customerShell => StatefulShellRouteData.$route(
               routes: [
                 GoRouteData.$route(
                   path: 'vendors/:id',
+                  parentNavigatorKey: CustomerVendorRoute.$parentNavigatorKey,
                   factory: _$CustomerVendorRoute._fromState,
                   routes: [
                     GoRouteData.$route(
                       path: 'products/:productId',
+                      parentNavigatorKey:
+                          CustomerProductRoute.$parentNavigatorKey,
                       factory: _$CustomerProductRoute._fromState,
                     ),
                   ],

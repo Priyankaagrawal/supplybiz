@@ -81,10 +81,11 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                           Semantics(
                               liveRegion: true,
                               child: Text(m.failure!.toMessage(l))),
-                        SbButton(
-                            label: l.authRetry,
-                            variant: SbButtonVariant.secondary,
-                            onPressed: m.busy ? null : m.load),
+                        if (m.failure != null)
+                          SbButton(
+                              label: l.authRetry,
+                              variant: SbButtonVariant.secondary,
+                              onPressed: m.busy ? null : m.load),
                         if (m.ready && m.items.isEmpty)
                           SbEmpty(
                               message: widget.favorites

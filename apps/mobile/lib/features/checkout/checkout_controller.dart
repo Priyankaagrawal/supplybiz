@@ -11,12 +11,41 @@ import '../home/home_controller.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../discovery/cart_controller.dart';
 
+CustomerOrdersApi checkoutOrdersApi(Dio dio) {
+  if (!dio.interceptors.any((i) => i is _CheckoutDateInterceptor)) {
+    dio.interceptors.add(_CheckoutDateInterceptor());
+  }
+  return CustomerOrdersApi(dio);
+}
+
+// Generated date models serialize midnight timestamps. These two endpoints
+// require calendar dates; keep this adaptation scoped to checkout writes.
+class _CheckoutDateInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    if (options.method == 'POST' &&
+        {'/api/v1/customer/orders/quote', '/api/v1/customer/orders'}
+            .contains(options.uri.path)) {
+      final raw = options.data;
+      final body = Map<String, dynamic>.from(
+          raw is String ? jsonDecode(raw) as Map : raw as Map);
+      final value = body['deliveryDate'];
+      if (value is String &&
+          RegExp(r'^\d{4}-\d{2}-\d{2}T00:00:00(?:\.0+)?Z?$').hasMatch(value)) {
+        body['deliveryDate'] = value.substring(0, 10);
+        options.data = raw is String ? jsonEncode(body) : body;
+      }
+    }
+    handler.next(options);
+  }
+}
+
 final checkoutProvider = ChangeNotifierProvider<CheckoutController>((ref) {
   final identity = ref.watch(
       sessionProvider.select((s) => (s.user?.id, s.user?.activeRole?.value)));
   final client = homeClient(ref);
   final model = CheckoutController(
-      CustomerOrdersApi(client.dio),
+      checkoutOrdersApi(client.dio),
       CustomerAddressesApi(client.dio),
       ref.read(cartProvider),
       ref.read(onboardingDraftsProvider),
@@ -32,6 +61,7 @@ class CheckoutController extends ChangeNotifier {
   CheckoutController(
       this.api, this.addressApi, this.cart, this.store, this.owner) {
     signature = _signature;
+    _vendorId = cart.lines.firstOrNull?.vendorId;
     cart.addListener(_cartChanged);
   }
   final CustomerOrdersApi api;
@@ -49,6 +79,8 @@ class CheckoutController extends ChangeNotifier {
   String? addressId, date, slot;
   String payment = 'POD_CASH';
   late String signature;
+  String? _vendorId;
+  bool _reloadChoices = false;
   bool busy = false,
       ready = false,
       _restored = false,
@@ -77,7 +109,21 @@ class CheckoutController extends ChangeNotifier {
     if (next == signature || _disposed) return;
     signature = next;
     quote = null;
-    options = null;
+    // Choices depend on the vendor/address, not cart quantities or prices.
+    // Keep valid selections when an item changes; never keep another vendor's.
+    final vendor = cart.lines.firstOrNull?.vendorId;
+    if (vendor != _vendorId) {
+      _vendorId = vendor;
+      options = null;
+      date = null;
+      slot = null;
+      _reloadChoices =
+          ready && vendor != null && pending == null && result == null;
+      if (_reloadChoices && !busy) {
+        _reloadChoices = false;
+        Future.microtask(load);
+      }
+    }
     notifyListeners();
   }
 
@@ -109,6 +155,10 @@ class CheckoutController extends ChangeNotifier {
     } finally {
       busy = false;
       if (!_disposed) notifyListeners();
+      if (!_disposed && _reloadChoices) {
+        _reloadChoices = false;
+        Future.microtask(load);
+      }
     }
   }
 
@@ -164,11 +214,15 @@ class CheckoutController extends ChangeNotifier {
     options = null;
     priceChanged = false;
     if (addressId == null || cart.lines.isEmpty) return;
-    final snapshot = _signature;
+    final vendor = cart.lines.first.vendorId, address = addressId!;
     final data = (await api.customerOrdersControllerOptions(
-            vendorId: cart.lines.first.vendorId, addressId: addressId!))
+            vendorId: vendor, addressId: address))
         .data!;
-    if (_disposed || snapshot != _signature) return;
+    if (_disposed ||
+        cart.lines.firstOrNull?.vendorId != vendor ||
+        addressId != address) {
+      return;
+    }
     options = data;
     if (!data.availableDates.contains(date)) {
       date = data.availableDates.firstOrNull;

@@ -79,10 +79,11 @@ class AddressesPage extends ConsumerWidget {
                     padding: const EdgeInsets.all(16),
                     children: [
                       AddressFeedback(model: model),
-                      SbButton(
-                          label: l.authRetry,
-                          variant: SbButtonVariant.secondary,
-                          onPressed: model.busy ? null : model.load),
+                      if (model.failure != null)
+                        SbButton(
+                            label: l.authRetry,
+                            variant: SbButtonVariant.secondary,
+                            onPressed: model.busy ? null : model.load),
                       const SizedBox(height: 12),
                       SbButton(
                           label: l.addressAdd,

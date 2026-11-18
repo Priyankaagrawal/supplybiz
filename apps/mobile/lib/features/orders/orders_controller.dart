@@ -11,12 +11,14 @@ import '../auth/session_controller.dart';
 import '../home/home_controller.dart';
 import '../onboarding/onboarding_controller.dart';
 import '../notifications/order_notices.dart';
+import 'order_date_queries.dart';
 
 final vendorOrdersProvider =
     ChangeNotifierProvider<VendorOrdersController>((ref) {
   final identity = ref.watch(
       sessionProvider.select((s) => (s.user?.id, s.user?.activeRole?.value)));
   final client = homeClient(ref);
+  configureOrderDateQueries(client.dio);
   final model = VendorOrdersController(
       VendorOrdersApi(client.dio),
       ref.read(onboardingDraftsProvider),

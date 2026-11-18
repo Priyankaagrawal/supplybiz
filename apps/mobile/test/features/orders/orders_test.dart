@@ -11,6 +11,7 @@ import 'package:supplybiz_mobile/core/network/network_client.dart';
 import 'package:supplybiz_mobile/core/storage/customer_device.dart';
 import 'package:supplybiz_mobile/features/orders/orders_controller.dart';
 import 'package:supplybiz_mobile/features/orders/orders_pages.dart';
+import 'package:supplybiz_mobile/features/orders/order_date_queries.dart';
 import 'package:ui_kit/ui_kit.dart';
 import '../onboarding/onboarding_test.dart' show MemoryDrafts, TestSession;
 import '../addresses/address_fixture.dart' show addressJson;
@@ -102,6 +103,10 @@ class OrdersFixture implements HttpClientAdapter {
     if (denial != null) return reply({'code': 'VENDOR_ROLE_REQUIRED'}, denial!);
     final id = r.path.split('/').where((p) => p.isNotEmpty).last;
     if (r.method == 'GET' && r.path.endsWith('/orders')) {
+      final date = r.uri.queryParameters['date'];
+      if (date != null && !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date)) {
+        return reply({'code': 'VALIDATION_FAILED'}, 400);
+      }
       var selected = rows.toList();
       final q = r.queryParameters;
       if (q['status'] != null && q['status'] != 'ALL') {
@@ -158,11 +163,16 @@ class OrdersFixture implements HttpClientAdapter {
   }
 }
 
-NetworkClient ordersClient(OrdersFixture f) => NetworkClient(
-    baseUrl: 'https://api.example.test',
-    session: TestSession(),
-    adapter: f,
-    delay: (_) async {});
+NetworkClient ordersClient(OrdersFixture f) {
+  final client = NetworkClient(
+      baseUrl: 'https://api.example.test',
+      session: TestSession(),
+      adapter: f,
+      delay: (_) async {});
+  configureOrderDateQueries(client.dio);
+  return client;
+}
+
 Widget ordersApp(VendorOrdersController m, {Widget? child, double scale = 1}) =>
     ProviderScope(
         overrides: [vendorOrdersProvider.overrideWith((ref) => m)],
@@ -197,8 +207,7 @@ void main() {
     expect(f.requests.last.queryParameters, containsPair('status', 'NEW'));
     expect(f.requests.last.queryParameters,
         containsPair('q', 'Synthetic order customer'));
-    expect(
-        '${f.requests.last.queryParameters['date']}', startsWith('2026-11-14'));
+    expect(f.requests.last.uri.queryParameters['date'], '2026-11-14');
     await m.open(orderId);
     m.dispose();
     f.offline = true;

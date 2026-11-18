@@ -24,8 +24,9 @@ class CustomerEditorPage extends ConsumerWidget {
             CustomerFeedback(model: model),
             if (!model.ready && model.failure == null) const SbSkeleton(),
             if (model.ready) Text(l.customersNotFound),
-            SbButton(
-                label: l.authRetry, onPressed: model.busy ? null : model.load)
+            if (model.failure != null || model.ready)
+              SbButton(
+                  label: l.authRetry, onPressed: model.busy ? null : model.load)
           ])));
     }
     return CustomerForm(

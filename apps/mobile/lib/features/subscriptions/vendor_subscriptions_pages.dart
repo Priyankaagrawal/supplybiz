@@ -78,10 +78,11 @@ class SubscriptionFeedback extends StatelessWidget {
                     ? model.discardExpired
                     : model.retry)
       ],
-      SbButton(
-          label: l.authRetry,
-          variant: SbButtonVariant.secondary,
-          onPressed: model.busy ? null : model.load),
+      if (model.failure != null)
+        SbButton(
+            label: l.authRetry,
+            variant: SbButtonVariant.secondary,
+            onPressed: model.busy ? null : model.load),
     ]);
   }
 }

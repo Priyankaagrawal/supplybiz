@@ -7,6 +7,12 @@ import 'package:supplybiz_api_client/supplybiz_api_client.dart'
     hide DiscoveryPage;
 import 'package:supplybiz_mobile/core/l10n/l10n.dart';
 import 'package:supplybiz_mobile/core/network/network_client.dart';
+import 'package:supplybiz_mobile/core/config/app_environment.dart';
+import 'package:supplybiz_mobile/core/router/app_router.dart';
+import 'package:supplybiz_mobile/core/router/guards.dart';
+import 'package:supplybiz_mobile/core/router/route_widgets.dart';
+import 'package:supplybiz_mobile/core/router/routes.dart';
+import 'package:supplybiz_mobile/core/router/routing_controller.dart';
 import 'package:supplybiz_mobile/features/discovery/cart_controller.dart';
 import 'package:supplybiz_mobile/features/discovery/favorites_controller.dart';
 import 'package:supplybiz_mobile/features/discovery/discovery_controller.dart';
@@ -57,6 +63,75 @@ Widget discoveryApp(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  testWidgets('T-044 Home to discovery to vendor and back preserves navigation',
+      (tester) async {
+    final f = DiscoveryFixture(),
+        client = discoveryClient(f),
+        store = MemoryDrafts();
+    addTearDown(client.close);
+    final api = DiscoveryApi(client.dio);
+    final cart = CartController(store, 'router:cart'),
+        fav = FavoritesController(api, store, 'router:fav', manualLocation),
+        vendor = VendorController(api, manualLocation, vendorId),
+        list = DiscoveryController(
+            api, manualLocation, (category: null, favorites: false));
+    await cart.load();
+    await fav.load();
+    final routing = RoutingController(
+        access:
+            const RouteAccess(signedIn: true, activeRole: AppRole.customer));
+    final router = createAppRouter(routing, initialLocation: '/customer/home');
+    addTearDown(router.dispose);
+    addTearDown(routing.dispose);
+    await tester.pumpWidget(ProviderScope(
+        overrides: [
+          cartProvider.overrideWith((ref) => cart),
+          favoritesProvider.overrideWith((ref) => fav),
+          vendorProvider(vendorId).overrideWith((ref) => vendor),
+          discoveryProvider((category: null, favorites: false))
+              .overrideWith((ref) => list),
+        ],
+        child: AppRoutingScope(
+            controller: routing,
+            environment: AppEnvironment.dev,
+            child: MaterialApp.router(
+                routerConfig: router,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  ...SbLocalizations.delegates
+                ],
+                supportedLocales: AppLocalizations.supportedLocales))));
+    await tester.pumpAndSettle();
+    router.push<void>(const CustomerDiscoveryRoute().location);
+    await tester.pumpAndSettle();
+    await reveal(tester, find.text('View vendor'));
+    await tester.tap(find.text('View vendor'));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is RoutePlaceholder && w.title == RouteTitle.vendor),
+        findsOneWidget);
+    router.push<void>(
+        const CustomerProductRoute(vendorId, discoveryProductId).location);
+    await tester.pumpAndSettle();
+    expect(find.byType(CustomerProductPage), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(
+        find.byWidgetPredicate(
+            (w) => w is RoutePlaceholder && w.title == RouteTitle.vendor),
+        findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('View vendor'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.byType(SbBottomNav), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
   test(
       'TC-204/205/210 forwards server sorting/location/category, deduplicates pages and clears denial',
       () async {
@@ -310,6 +385,7 @@ void main() {
         list: list,
         child: const DiscoveryPage()));
     await tester.pumpAndSettle();
+    expect(find.text('Retry'), findsNothing);
     await tester.tap(find.byType(DropdownButtonFormField<String>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Popular').last);
@@ -320,6 +396,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(f.favorite, isTrue);
     expect(find.text('Remove from favorites'), findsOneWidget);
+    f.offline = true;
+    await tester.runAsync(list.load);
+    await tester.pumpAndSettle();
+    expect(find.text('Retry'), findsOneWidget);
+    f.offline = false;
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+    expect(find.text('Retry'), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
     await tester.pumpAndSettle();

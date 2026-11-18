@@ -24,8 +24,9 @@ class AddressEditorPage extends ConsumerWidget {
               child: ListView(padding: const EdgeInsets.all(16), children: [
             AddressFeedback(model: model),
             if (model.ready) Text(l.networkNotFound),
-            SbButton(
-                label: l.authRetry, onPressed: model.busy ? null : model.load)
+            if (model.failure != null || model.ready)
+              SbButton(
+                  label: l.authRetry, onPressed: model.busy ? null : model.load)
           ])));
     }
     return AddressForm(key: ValueKey('${model.owner}:$id'), row: row);
@@ -129,10 +130,11 @@ class _AddressFormState extends ConsumerState<AddressForm> {
                         await model.retryPending();
                         if (model.completed) backToAddresses();
                       }),
-                  SbButton(
-                      label: l.authRetry,
-                      variant: SbButtonVariant.secondary,
-                      onPressed: model.busy || locating ? null : model.load),
+                  if (model.failure != null)
+                    SbButton(
+                        label: l.authRetry,
+                        variant: SbButtonVariant.secondary,
+                        onPressed: model.busy || locating ? null : model.load),
                   for (final entry in labels.entries)
                     Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),

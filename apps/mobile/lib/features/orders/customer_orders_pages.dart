@@ -61,9 +61,10 @@ class _CustomerOrdersPageState extends ConsumerState<CustomerOrdersPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       CustomerOrderFeedback(m),
-                      SbButton(
-                          label: l.authRetry,
-                          onPressed: m.busy ? null : m.load),
+                      if (m.failure != null)
+                        SbButton(
+                            label: l.authRetry,
+                            onPressed: m.busy ? null : m.load),
                       DropdownButtonFormField<String>(
                           key: ValueKey(m.tab),
                           initialValue: m.tab,
@@ -213,9 +214,10 @@ class _CustomerOrderPageState extends ConsumerState<CustomerOrderPage> {
                     padding: const EdgeInsets.all(16),
                     children: [
                       CustomerOrderFeedback(m),
-                      SbButton(
-                          label: l.authRetry,
-                          onPressed: m.busy ? null : () => m.open(widget.id)),
+                      if (m.failure != null)
+                        SbButton(
+                            label: l.authRetry,
+                            onPressed: m.busy ? null : () => m.open(widget.id)),
                       if (d == null && !m.busy && m.failure == null)
                         SbEmpty(message: l.ordersEmpty),
                       if (d != null) ...[

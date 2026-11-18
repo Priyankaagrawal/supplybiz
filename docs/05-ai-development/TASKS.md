@@ -204,3 +204,17 @@ SR-01–SR-06 are approved (user, 2026-10-29; ADR-024). Skip DEFERRED/REMOVED ta
 ## 12. Day 1 implementation handoff (2026-10-29)
 
 [DAY1_HANDOFF](DAY1_HANDOFF.md) records the T-001/T-003–T-013 audits, native T-002/T-182 setup, English/Android T-183 checks, T-184 task/module CI preparation and unresolved decision-owner roles. T-002/T-009/T-182/T-183/T-184 are READY_FOR_VERIFY, not DONE. Actual Android dev entrypoint, encrypted storage and Android-to-native-API readiness pass; manual milestone acceptance, named decision owners/deadlines, hosted CI and G0 remain pending. Existing financial idempotency/worker audit limitations are explicit in the handoff; historical DONE is not a revised module pass.
+
+## 13. Day 8 status audit (2026-11-18)
+
+Day 8 is **incomplete**: its five tasks comprise four READY_FOR_VERIFY, one TODO and zero DONE. This audit compares ROADMAP §2, task records, API/mobile README handoffs and current mobile routes; it does not rerun runtime checks or supply manual PASS.
+
+| Task | Current status | Completion evidence / remaining work |
+|---|---|---|
+| T-072 Subscription API | READY_FOR_VERIFY | Recorded focused API/PostgreSQL checks pass; manual PASS and integrated mobile journey pending. |
+| T-075 Subscription settings API | READY_FOR_VERIFY | Recorded focused API/client checks pass; manual settings/generation journey pending. |
+| T-073 Generation worker | READY_FOR_VERIFY | Recorded real child-process kill/restart, lease/retry/catch-up and both-role API reader checks pass; manual operational acceptance, deployed capacity and external alert routing pending. |
+| T-076 Vendor subscription screens | READY_FOR_VERIFY | Recorded Android build, focused tests and native storage/retry smoke pass with simulated HTTP; live UI/API/DB journey, TalkBack and manual PASS pending. |
+| T-078 Customer subscription screens/statements | TODO | Customer subscription route remains a placeholder. Implement S-C-09/10/15/16 and statement flow; T-072/T-082/T-016 are READY_FOR_VERIFY, so prerequisites permit implementation under ADR-030. |
+
+Next implementation priority within Day 8 is T-078. Then verify the Android customer creation → vendor approval → actual scheduled generation → dated order visible to both roles journey and obtain task-specific manual PASS before finalization. G0–G3 remain NOT RUN; the recorded worker drill alone does not complete Day 8 or G3. iOS verification remains deferred under ADR-025.

@@ -52,10 +52,11 @@ class _CustomerVendorPageState extends ConsumerState<CustomerVendorPage> {
                             label: l.homeChooseLocation,
                             onPressed: () => const CustomerLocationRoute()
                                 .push<void>(context)),
-                      SbButton(
-                          label: l.authRetry,
-                          variant: SbButtonVariant.secondary,
-                          onPressed: m.busy ? null : m.load),
+                      if (m.failure != null)
+                        SbButton(
+                            label: l.authRetry,
+                            variant: SbButtonVariant.secondary,
+                            onPressed: m.busy ? null : m.load),
                       if (vendor != null) ...[
                         VendorImage(
                             key: ValueKey(

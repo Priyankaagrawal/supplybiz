@@ -28,6 +28,9 @@ import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 
 part 'routes.g.dart';
 
+// Details opened from discovery sit above the existing customer shell.
+final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
 @TypedGoRoute<CustomerCartRoute>(path: '/customer/cart')
 class CustomerCartRoute extends GoRouteData with _$CustomerCartRoute {
   const CustomerCartRoute();
@@ -64,6 +67,7 @@ class CustomerFavoritesRoute extends GoRouteData with _$CustomerFavoritesRoute {
 
 class CustomerProductRoute extends GoRouteData with _$CustomerProductRoute {
   const CustomerProductRoute(this.id, this.productId);
+  static final GlobalKey<NavigatorState> $parentNavigatorKey = rootNavigatorKey;
   final String id, productId;
   @override
   Widget build(BuildContext context, GoRouterState state) =>
@@ -372,6 +376,7 @@ class CustomerHomeRoute extends GoRouteData with _$CustomerHomeRoute {
 
 class CustomerVendorRoute extends GoRouteData with _$CustomerVendorRoute {
   const CustomerVendorRoute(this.id);
+  static final GlobalKey<NavigatorState> $parentNavigatorKey = rootNavigatorKey;
   final String id;
   @override
   Widget build(BuildContext context, GoRouterState state) => Consumer(
