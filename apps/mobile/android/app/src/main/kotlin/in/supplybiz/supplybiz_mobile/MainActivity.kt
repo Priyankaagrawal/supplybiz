@@ -19,11 +19,13 @@ import java.security.MessageDigest
 class MainActivity : FlutterActivity() {
     private val deviceLocation by lazy { DeviceLocation(this) }
     private val onboardingFiles by lazy { OnboardingFiles(this) }
+    private val upiPayments by lazy { UpiPayments(this) }
     private var receiver: BroadcastReceiver? = null
     private var channel: MethodChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/upi").setMethodCallHandler(upiPayments::handle)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/customers").setMethodCallHandler { call, result ->
             if (call.method != "dial") { result.notImplemented(); return@setMethodCallHandler }
             val mobile = call.argument<String>("mobile") ?: ""
@@ -113,10 +115,11 @@ class MainActivity : FlutterActivity() {
         receiver = null
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (!onboardingFiles.selected(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data)
+        if (!upiPayments.returned(requestCode) && !onboardingFiles.selected(requestCode, resultCode, data)) super.onActivityResult(requestCode, resultCode, data)
     }
     override fun onDestroy() {
         deviceLocation.dispose()
+        upiPayments.dispose()
         onboardingFiles.dispose()
         stopRetriever()
         channel?.setMethodCallHandler(null)

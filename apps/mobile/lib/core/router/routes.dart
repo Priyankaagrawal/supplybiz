@@ -26,6 +26,7 @@ import '../../features/orders/orders_pages.dart';
 import '../../features/orders/customer_orders_pages.dart';
 import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 import '../../features/subscriptions/customer_subscriptions_pages.dart';
+import '../../features/khata/customer_khata_page.dart';
 
 part 'routes.g.dart';
 
@@ -427,16 +428,20 @@ class CustomerKhataBranch extends StatefulShellBranchData {
 class CustomerKhataRoute extends GoRouteData with _$CustomerKhataRoute {
   const CustomerKhataRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.khata);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const CustomerKhataPage()
+          : const RoutePlaceholder(title: RouteTitle.khata));
 }
 
 class CustomerLedgerRoute extends GoRouteData with _$CustomerLedgerRoute {
   const CustomerLedgerRoute(this.id);
   final String id;
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.ledger);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? CustomerKhataPage(scope: 'vendor:$id')
+          : const RoutePlaceholder(title: RouteTitle.ledger));
 }
 
 class CustomerServicesBranch extends StatefulShellBranchData {

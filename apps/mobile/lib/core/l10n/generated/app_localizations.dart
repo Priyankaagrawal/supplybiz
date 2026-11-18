@@ -4156,6 +4156,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Milk type: {type}'**
   String discoveryMilkType(String type);
+
+  /// No description provided for @customerKhataPayable.
+  ///
+  /// In en, this message translates to:
+  /// **'Payable'**
+  String get customerKhataPayable;
+
+  /// No description provided for @customerKhataNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Net balance'**
+  String get customerKhataNet;
+
+  /// No description provided for @customerKhataVendors.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendors'**
+  String get customerKhataVendors;
+
+  /// No description provided for @customerKhataPersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers (personal)'**
+  String get customerKhataPersonal;
+
+  /// No description provided for @customerKhataAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add personal contact'**
+  String get customerKhataAdd;
+
+  /// No description provided for @customerKhataEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit contact'**
+  String get customerKhataEdit;
+
+  /// No description provided for @customerKhataDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contact'**
+  String get customerKhataDelete;
+
+  /// No description provided for @customerKhataDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this personal contact and its personal entries?'**
+  String get customerKhataDeleteConfirm;
+
+  /// No description provided for @customerKhataName.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact name'**
+  String get customerKhataName;
+
+  /// No description provided for @customerKhataMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile (optional)'**
+  String get customerKhataMobile;
+
+  /// No description provided for @customerKhataGave.
+  ///
+  /// In en, this message translates to:
+  /// **'Gave'**
+  String get customerKhataGave;
+
+  /// No description provided for @customerKhataGot.
+  ///
+  /// In en, this message translates to:
+  /// **'Got'**
+  String get customerKhataGot;
+
+  /// No description provided for @customerKhataAddEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Add personal entry'**
+  String get customerKhataAddEntry;
+
+  /// No description provided for @customerKhataEditEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit personal entry'**
+  String get customerKhataEditEntry;
+
+  /// No description provided for @customerKhataDeleteEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete entry'**
+  String get customerKhataDeleteEntry;
+
+  /// No description provided for @customerKhataDeleteEntryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this personal entry?'**
+  String get customerKhataDeleteEntryConfirm;
+
+  /// No description provided for @customerKhataBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get customerKhataBalance;
+
+  /// No description provided for @customerKhataSettle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle dues'**
+  String get customerKhataSettle;
+
+  /// No description provided for @customerKhataCashOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This vendor has no published payment UPI ID. Only cash is available.'**
+  String get customerKhataCashOnly;
+
+  /// No description provided for @customerKhataCash.
+  ///
+  /// In en, this message translates to:
+  /// **'I paid cash - submit claim'**
+  String get customerKhataCash;
+
+  /// No description provided for @customerKhataUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'Open UPI app'**
+  String get customerKhataUpi;
+
+  /// No description provided for @customerKhataPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve paid'**
+  String get customerKhataPaid;
+
+  /// No description provided for @customerKhataNotPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'I did not pay - discard draft'**
+  String get customerKhataNotPaid;
+
+  /// No description provided for @customerKhataReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Did you pay? Submit only if you actually paid. Your claim stays pending until the vendor confirms it.'**
+  String get customerKhataReview;
+
+  /// No description provided for @customerKhataFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'No UPI app opened. Use this payment QR or copy the UPI ID to pay from another device.'**
+  String get customerKhataFallback;
+
+  /// No description provided for @customerKhataQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment QR code'**
+  String get customerKhataQr;
+
+  /// No description provided for @customerKhataCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy UPI ID'**
+  String get customerKhataCopy;
+
+  /// No description provided for @customerKhataCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID copied'**
+  String get customerKhataCopied;
+
+  /// No description provided for @customerKhataPaymentDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Payee and payment details'**
+  String get customerKhataPaymentDetails;
+
+  /// No description provided for @customerKhataAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Billing account'**
+  String get customerKhataAccount;
+
+  /// No description provided for @customerKhataDueLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim limit'**
+  String get customerKhataDueLimit;
+
+  /// No description provided for @customerKhataInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid name, mobile, date and positive amount as applicable. The amount must not exceed the current due or claim limit.'**
+  String get customerKhataInvalid;
+
+  /// No description provided for @customerKhataChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment details or dues changed. Refresh and review before paying.'**
+  String get customerKhataChanged;
+
+  /// No description provided for @customerKhataSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved. Payment claims remain pending until vendor confirmation.'**
+  String get customerKhataSaved;
+
+  /// No description provided for @customerKhataSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get customerKhataSource;
+
+  /// No description provided for @customerKhataUnallocated.
+  ///
+  /// In en, this message translates to:
+  /// **'No source payment allocation recorded'**
+  String get customerKhataUnallocated;
+
+  /// No description provided for @customerKhataDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get customerKhataDirection;
+
+  /// No description provided for @customerKhataMonthTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Month payable'**
+  String get customerKhataMonthTotal;
+
+  /// No description provided for @customerKhataMonthPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Month paid'**
+  String get customerKhataMonthPaid;
+
+  /// No description provided for @customerKhataNoDue.
+  ///
+  /// In en, this message translates to:
+  /// **'No eligible outstanding due.'**
+  String get customerKhataNoDue;
+
+  /// No description provided for @customerKhataPendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment draft is saved. Review it before starting another payment.'**
+  String get customerKhataPendingReview;
+
+  /// No description provided for @customerKhataConfirmCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm that you already paid this amount in cash. This submits a pending claim for vendor review.'**
+  String get customerKhataConfirmCash;
+
+  /// No description provided for @customerKhataApplyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply month'**
+  String get customerKhataApplyMonth;
+
+  /// No description provided for @customerKhataInvalidMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid month as YYYY-MM.'**
+  String get customerKhataInvalidMonth;
+
+  /// No description provided for @customerKhataConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get customerKhataConfirm;
+
+  /// No description provided for @customerKhataMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get customerKhataMethodCash;
+
+  /// No description provided for @customerKhataMethodUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get customerKhataMethodUpi;
 }
 
 class _AppLocalizationsDelegate

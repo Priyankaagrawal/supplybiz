@@ -1,5 +1,89 @@
 # Supply Biz Mobile
 
+## T-083 customer Khata (2026-11-19): READY_FOR_VERIFY
+
+Customer bottom navigation → Khata (`/customer/khata`) shows exact signed global
+Receivable/Payable/Net, search, All/Customers (personal)/Vendors and paged account
+rows. A vendor row opens its read-only monthly ledger, source product/quantity
+snapshots, persisted payment status, payable/paid/opening/closing totals and claims.
+Standalone payments are not allocated to individual purchases. Personal rows open
+`/customer/personal-khata/:id`: manual contact creation, edit/clear optional mobile,
+confirmed contact deletion and versioned Gave/Got entry create/edit/delete. Gave
+increases receivable; Got reduces it. No contacts permission is requested.
+
+Settle dues refetches the separate vendor-owned payment settings and account limits
+before the final action. The editable default is the current payable capped by the
+selected billing account's current due/claim limit. Unpublished/unset payment VPA
+offers cash only; KYC UPI is never reused. Cash explicitly asserts an existing cash
+payment; UPI opens only a validated `upi://pay` intent with exact amount/payee/INR/
+note. Android ignores all provider status and transaction extras. An encrypted,
+account/role/environment/vendor-scoped review draft is saved before leaving the
+app. Return/cancel/recreation never auto-launches again or auto-submits a claim.
+Only **I've paid** submits a PENDING claim; vendor confirmation creates credit.
+No handler exposes the same URI as an offline QR, VPA and Copy. Discarding a review
+draft never changes the ledger. An uncertain HTTP mutation retains one frozen
+body/key for explicit retry, including accepted-write/failed-local-ack recovery.
+Stale data disables new writes; auth/ownership denial hides cached private data.
+
+Dependency justification: pinned `qr: 3.0.3` is the maintained Dart-3.4-compatible
+line for this project's Dart >=3.5 / Flutter 3.35.7 (Dart 3.9.2); qr 4.x requires
+a newer SDK. BSD-3-Clause; 32,796 bytes of Dart library source, one already-present
+`meta` dependency, no native binary/plugin or network service. Flutter includes its
+license notice. The small Canvas renderer adds a four-module white quiet zone.
+See [published versions](https://pub.dev/packages/qr/versions) and
+[license](https://pub.dev/packages/qr/versions/3.0.3/license). Android launches directly
+and handles ActivityNotFoundException per the
+[official package-visibility guidance](https://developer.android.com/training/package-visibility/use-cases);
+no app enumeration or new permissions. No API/schema/client contract changes.
+
+Executed from `apps/mobile` using `C:\flutter\bin\flutter.bat` / `dart.bat`:
+
+```powershell
+flutter pub get
+flutter gen-l10n
+dart format lib/features/khata/customer_khata_controller.dart lib/features/khata/customer_khata_page.dart lib/features/khata/upi_device.dart lib/core/router/routes.dart lib/core/router/app_router.dart
+dart format test/features/khata/customer_khata_fixture.dart test/features/khata/customer_khata_test.dart
+flutter analyze --no-pub lib/features/khata lib/core/router test/features/khata/customer_khata_fixture.dart test/features/khata/customer_khata_test.dart
+flutter test --no-pub test/features/khata/customer_khata_test.dart
+flutter test --no-pub test/core/network/khata_client_test.dart test/core/router
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+PASS: clean final analysis; 15 new customer controller/widget checks (TC-250–255),
+15 existing transport/router checks, normal dev APK including native Kotlin bridge.
+New tests cover exact large paise, month/account paging, personal wire versions/date/
+clear/delete, cash-only/due caps, changed payee/offline fences, saved launch before
+simulated destruction, explicit paid/cancel, ignored fake provider status, no-handler
+QR/VPA UI, uncertain immutable retry and 200% personal/fallback forms. HTTP, storage
+and external UPI return are simulated; these are not real financial/provider evidence.
+Initial analysis found compile/lint issues, corrected before final PASS. An initial
+l10n/fix command used repository root/multiple paths and failed; corrected commands
+from the mobile directory passed. qr pub get added only the justified QR package.
+
+`adb devices` (Android SDK platform-tools) listed no devices; no emulator was started.
+Actual native launch/return/no-handler/QR scan, native SQLCipher/process kill, live
+customer UI → API/DB → vendor confirmation, TalkBack and manual PASS are **NOT_RUN**.
+G3 remains pending; TC-256/iOS validation is deferred by ADR-025. Existing backend
+T-082/T-081 PostgreSQL evidence is unchanged, not re-claimed as an execution here.
+
+Manual verification on Android with synthetic accounts (pending):
+1. Open Khata, compare global totals/tabs and a vendor's two monthly ledgers against
+   the vendor view/DB, including advances, paid snapshots and independent payments.
+2. Add a personal contact; Gave ₹200 increases receivable by ₹200. Edit to Got,
+   change date/note, clear mobile, then delete entry/contact; verify ownership/version
+   conflicts, refreshed balances and confirmed deletion.
+3. With no published payment VPA, confirm only cash appears. Submit an actual cash
+   claim, confirm PENDING/customer due unchanged, then vendor-confirm it once. Reject
+   zero, negative, above-account-limit and above-current-due amounts.
+4. In a test environment with a vendor-published synthetic VPA, inspect Android UPI
+   payee/amount, cancel and return without a claim. Use no handler and scan the QR/
+   copy VPA; confirm matching fields. Submit **I've paid** only after a test payment;
+   verify PENDING until vendor confirms. Never infer payment from provider SUCCESS.
+5. Kill/reopen while external UI is open and after a lost claim response. Review
+   without auto-payment; retry one stored key/body and verify a single credit after
+   vendor confirmation. Check logout/role/account isolation, offline blocks, changed
+   payee/due review, TalkBack labels, 48dp controls and 200% scrolling.
+
 ## T-081 vendor Khata (2026-11-18): READY_FOR_VERIFY
 
 Vendor More → Customer Khata / Payments & collection opens `/vendor/khata` and

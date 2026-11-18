@@ -2290,4 +2290,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String discoveryMilkType(String type) {
     return 'Milk type: $type';
   }
+
+  @override
+  String get customerKhataPayable => 'Payable';
+
+  @override
+  String get customerKhataNet => 'Net balance';
+
+  @override
+  String get customerKhataVendors => 'Vendors';
+
+  @override
+  String get customerKhataPersonal => 'Customers (personal)';
+
+  @override
+  String get customerKhataAdd => 'Add personal contact';
+
+  @override
+  String get customerKhataEdit => 'Edit contact';
+
+  @override
+  String get customerKhataDelete => 'Delete contact';
+
+  @override
+  String get customerKhataDeleteConfirm =>
+      'Delete this personal contact and its personal entries?';
+
+  @override
+  String get customerKhataName => 'Contact name';
+
+  @override
+  String get customerKhataMobile => 'Mobile (optional)';
+
+  @override
+  String get customerKhataGave => 'Gave';
+
+  @override
+  String get customerKhataGot => 'Got';
+
+  @override
+  String get customerKhataAddEntry => 'Add personal entry';
+
+  @override
+  String get customerKhataEditEntry => 'Edit personal entry';
+
+  @override
+  String get customerKhataDeleteEntry => 'Delete entry';
+
+  @override
+  String get customerKhataDeleteEntryConfirm => 'Delete this personal entry?';
+
+  @override
+  String get customerKhataBalance => 'Balance';
+
+  @override
+  String get customerKhataSettle => 'Settle dues';
+
+  @override
+  String get customerKhataCashOnly =>
+      'This vendor has no published payment UPI ID. Only cash is available.';
+
+  @override
+  String get customerKhataCash => 'I paid cash - submit claim';
+
+  @override
+  String get customerKhataUpi => 'Open UPI app';
+
+  @override
+  String get customerKhataPaid => 'I\'ve paid';
+
+  @override
+  String get customerKhataNotPaid => 'I did not pay - discard draft';
+
+  @override
+  String get customerKhataReview =>
+      'Did you pay? Submit only if you actually paid. Your claim stays pending until the vendor confirms it.';
+
+  @override
+  String get customerKhataFallback =>
+      'No UPI app opened. Use this payment QR or copy the UPI ID to pay from another device.';
+
+  @override
+  String get customerKhataQr => 'Payment QR code';
+
+  @override
+  String get customerKhataCopy => 'Copy UPI ID';
+
+  @override
+  String get customerKhataCopied => 'UPI ID copied';
+
+  @override
+  String get customerKhataPaymentDetails => 'Payee and payment details';
+
+  @override
+  String get customerKhataAccount => 'Billing account';
+
+  @override
+  String get customerKhataDueLimit => 'Claim limit';
+
+  @override
+  String get customerKhataInvalid =>
+      'Enter a valid name, mobile, date and positive amount as applicable. The amount must not exceed the current due or claim limit.';
+
+  @override
+  String get customerKhataChanged =>
+      'Payment details or dues changed. Refresh and review before paying.';
+
+  @override
+  String get customerKhataSaved =>
+      'Saved. Payment claims remain pending until vendor confirmation.';
+
+  @override
+  String get customerKhataSource => 'Source';
+
+  @override
+  String get customerKhataUnallocated =>
+      'No source payment allocation recorded';
+
+  @override
+  String get customerKhataDirection => 'Direction';
+
+  @override
+  String get customerKhataMonthTotal => 'Month payable';
+
+  @override
+  String get customerKhataMonthPaid => 'Month paid';
+
+  @override
+  String get customerKhataNoDue => 'No eligible outstanding due.';
+
+  @override
+  String get customerKhataPendingReview =>
+      'A payment draft is saved. Review it before starting another payment.';
+
+  @override
+  String get customerKhataConfirmCash =>
+      'Confirm that you already paid this amount in cash. This submits a pending claim for vendor review.';
+
+  @override
+  String get customerKhataApplyMonth => 'Apply month';
+
+  @override
+  String get customerKhataInvalidMonth => 'Enter a valid month as YYYY-MM.';
+
+  @override
+  String get customerKhataConfirm => 'Confirm';
+
+  @override
+  String get customerKhataMethodCash => 'Cash';
+
+  @override
+  String get customerKhataMethodUpi => 'UPI';
 }

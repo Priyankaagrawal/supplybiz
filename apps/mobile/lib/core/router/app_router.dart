@@ -9,12 +9,17 @@ import '../../features/subscriptions/customer_subscriptions_pages.dart';
 import '../../features/availability/availability_page.dart';
 import '../../features/sales/sales_page.dart';
 import '../../features/khata/vendor_khata_page.dart';
+import '../../features/khata/customer_khata_page.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/customer/personal-khata/:id',
+            builder: (_, s) =>
+                CustomerKhataPage(scope: 'personal:${s.pathParameters['id']}')),
         GoRoute(
             path: '/vendor/khata', builder: (_, __) => const VendorKhataPage()),
         GoRoute(
