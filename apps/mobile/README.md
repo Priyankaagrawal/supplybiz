@@ -1,5 +1,81 @@
 # Supply Biz Mobile
 
+## T-080 Quick Sale / offline outbox (2026-11-18): READY_FOR_VERIFY
+
+Vendor More → Quick Sale opens `/vendor/sales` (S-V-11). Walk-in and owned active
+customer modes use cached/paginated vendor products/customers, product search/type
+chips, editable whole-pack quantities and exact paise rates/totals. Cash/UPI/Other
+record external payment only. Walk-ins must pay in full; customer sales may leave
+a balance. Confirmation freezes explicit rates, customer, payment, audit timestamp
+and draft key. Server receipts show immutable item snapshots and paid/balance;
+pending local entries never pretend to be completed sales. New sale is explicit.
+Receipt sharing stays absent while its S-V-11 specification is TBD.
+
+The existing encrypted snapshot store and native DeviceCoordination lease cover
+cache + durable FIFO together. Pending sales reserve local stock; acknowledgement
+applies the stock delta and dequeues in one write. Unknown sends retain the exact
+key/body; known validation/stock conflicts release reservations, show review and
+never create a local financial correction. Six failures stop automatic attempts;
+explicit retry keeps identity. Uncertain actions cannot be discarded. Storage
+failure before persistence sends nothing; failed acknowledgement persistence
+recovers from disk before further writes. Account/environment namespaces and
+logout/session fencing reuse T-050. The shared Android network-constrained worker
+now discovers `:sales` as well as `:deliveries`; foreground/off-screen/resume sync
+drains both under the existing safeguards. API/schema/ledger/dependencies unchanged;
+no API client regeneration. Only English l10n regenerated.
+
+Executed PASS from apps/mobile:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/sales test/features/sales integration_test/sales_test.dart test/features/deliveries/deliveries_test.dart lib/features/deliveries lib/core/router/app_router.dart lib/core/router/route_widgets.dart
+flutter analyze --no-pub lib/features/sales test/features/sales integration_test/sales_test.dart lib/features/deliveries test/features/deliveries/deliveries_test.dart lib/core/router/app_router.dart lib/core/router/route_widgets.dart
+flutter test --no-pub --timeout 60s test/features/sales/sales_test.dart test/core/network/sales_client_test.dart test/features/deliveries/deliveries_test.dart test/core/router/app_router_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+31 checks PASS: ten POS, one generated sales transport, fourteen delivery/outbox
+and six router cases. Clean analysis; normal Android dev APK build PASS (30.6s).
+The cases cover exact huge amounts/bounds, full walk-in versus customer partial/zero
+payment, editable rates, stock reservation/rollback, queue paging/account scope,
+same-key recreation and committed-response/local-write failure, retry bounds,
+authorization, 200% UI and receipt-only completion. The shared scheduler regression
+now asserts both queues stay paused and resume off-screen. Its mock sales client
+must be constructed inside tester.runAsync; otherwise Flutter fake-async setup
+stalls before any POS request. The corrected harness passes. All test HTTP is
+simulated; T-079's recorded real API/PostgreSQL evidence remains separate.
+
+Android native smoke `integration_test/sales_test.dart` is supplied and analyzed,
+but NOT_RUN: no physical device was connected, and two hidden read-only attempts
+to boot the existing Pixel_5_4 API-34 emulator (1536 MB then configured 2048 MB)
+never reached stable `sys.boot_completed`; adb alternated connected/offline.
+Both task-owned emulator instances and the discovery adb daemon were stopped.
+No emulator data was wiped, app/API service started or native pass claimed.
+Suggested after a healthy Android device is available (NOT executed):
+
+```powershell
+flutter test --no-pub integration_test/sales_test.dart -d <android-device-id> --flavor dev --dart-define-from-file=config/dev.json
+```
+
+The supplied native scenario covers SQLCipher, two handles/controllers, shared
+worker entry, uncertain replay, logout and 200%; it still uses simulated HTTP and
+controller/DB recreation. Actual OS process kill/headless scheduling TC-059, live
+UI–API–DB reconciliation, TalkBack, task manual PASS and G3 remain pending. iOS
+deferred. No comprehensive gate is claimed.
+
+Manual verification (not executed):
+
+1. More → Quick Sale: add products, edit quantity/rate and compare exact totals;
+   walk-in partial payment must remain blocked. Complete a fully paid cash sale.
+2. Customer Sale: select an owned active customer, record partial/zero payment;
+   verify the server receipt, stock and gross debit/paid credit/net due in Khata.
+3. Go offline, complete multiple sales and inspect Pending sync/local reserved
+   stock. Kill/relaunch Android, reconnect and verify one server sale per saved key.
+4. Interrupt a committed response; retry the same saved record. Confirm no duplicate
+   sale/stock/ledger effect. Stock/plan/customer rejection must prompt review.
+5. Leave the screen to test foreground/background reconnect; verify logout/account
+   isolation, 200% layout and TalkBack. Only acknowledged records have receipts.
+
 ## T-077 availability & holidays (2026-11-18): READY_FOR_VERIFY
 
 Vendor More → Availability & holidays opens `/vendor/availability` (S-V-22).

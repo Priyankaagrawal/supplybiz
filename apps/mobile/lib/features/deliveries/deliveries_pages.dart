@@ -11,6 +11,7 @@ import '../auth/session_controller.dart';
 import '../home/home_page.dart' show homeStatus;
 import '../orders/orders_pages.dart' show orderFilterDate, orderFailure;
 import 'deliveries_controller.dart';
+import '../sales/sales_controller.dart';
 
 /// Foreground sync lives above navigation so leaving Deliveries does not stop it.
 /// API reachability is tested by sending the durable action itself.
@@ -38,6 +39,8 @@ class _DeliverySyncHostState extends ConsumerState<DeliverySyncHost>
     if (foreground && user?.activeRole?.value == 'VENDOR') {
       final m = ref.read(deliveriesProvider);
       if (!m.busy) unawaited(m.flush());
+      final sales = ref.read(salesProvider);
+      if (!sales.busy) unawaited(sales.flush());
     }
   }
 

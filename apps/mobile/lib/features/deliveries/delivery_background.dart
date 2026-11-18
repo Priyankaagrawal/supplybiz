@@ -13,6 +13,7 @@ import '../auth/auth_repository.dart';
 import '../auth/session_controller.dart';
 import '../onboarding/onboarding_controller.dart';
 import 'deliveries_controller.dart';
+import '../sales/sales_controller.dart';
 
 const deliverySyncTask = 'in.supplybiz.delivery-sync';
 Future<void>? _initialization;
@@ -51,7 +52,7 @@ Future<bool> runDeliveryWorker(
         await device.initialize();
         final rows = await device.database
             .customSelect(
-                "SELECT payload FROM onboarding_drafts WHERE substr(owner, -11) = ':deliveries'")
+                "SELECT payload FROM onboarding_drafts WHERE substr(owner, -11) = ':deliveries' OR substr(owner, -6) = ':sales'")
             .get();
         final hasWork = rows.any((row) {
           final saved = jsonDecode(row.read<String>('payload')) as Map;
@@ -90,12 +91,28 @@ Future<bool> runDeliveryWorker(
             EncryptedOnboardingDrafts(storage: device),
             '${providers.read(authConfigProvider).baseUrl}:${session.user!.id}:deliveries',
             coordinated: true);
+        final sales = SalesController(
+            client.dio,
+            EncryptedOnboardingDrafts(storage: device),
+            '${providers.read(authConfigProvider).baseUrl}:${session.user!.id}:sales',
+            coordinated: true);
         try {
           await model.flush();
+          if (model.failure != null) return false;
+          if (providers.read(sessionProvider).user?.id != session.user!.id ||
+              providers.read(sessionProvider).user?.activeRole?.value !=
+                  'VENDOR' ||
+              providers.read(configProvider).serverBlocked) {
+            return true;
+          }
+          await sales.flush();
           return model.failure == null &&
-              !model.queue.any((a) => !a.rejected && !a.retryable);
+              !model.queue.any((a) => !a.rejected && !a.retryable) &&
+              sales.failure == null &&
+              !sales.queue.any((a) => !a.rejected && !a.retryable);
         } finally {
           model.dispose();
+          sales.dispose();
           client.close();
         }
       } finally {

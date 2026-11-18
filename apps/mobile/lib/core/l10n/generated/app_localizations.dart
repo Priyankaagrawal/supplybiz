@@ -94,6 +94,210 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @salesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Sale'**
+  String get salesTitle;
+
+  /// No description provided for @salesWalkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale on POS'**
+  String get salesWalkin;
+
+  /// No description provided for @salesCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Sale'**
+  String get salesCustomer;
+
+  /// No description provided for @salesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search products'**
+  String get salesSearch;
+
+  /// No description provided for @salesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add product'**
+  String get salesAdd;
+
+  /// No description provided for @salesQty.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity (whole packs)'**
+  String get salesQty;
+
+  /// No description provided for @salesRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate per pack (₹)'**
+  String get salesRate;
+
+  /// No description provided for @salesPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid amount'**
+  String get salesPaid;
+
+  /// No description provided for @salesBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get salesBalance;
+
+  /// No description provided for @salesTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount'**
+  String get salesTotal;
+
+  /// No description provided for @salesFullPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid in full'**
+  String get salesFullPaid;
+
+  /// No description provided for @salesComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Sale'**
+  String get salesComplete;
+
+  /// No description provided for @salesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New sale'**
+  String get salesNew;
+
+  /// No description provided for @salesReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'View receipt'**
+  String get salesReceipt;
+
+  /// No description provided for @salesReceipts.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent confirmed receipts on this device'**
+  String get salesReceipts;
+
+  /// No description provided for @salesWalkinPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk-in sales must be paid in full. Select a customer to record an unpaid balance.'**
+  String get salesWalkinPaid;
+
+  /// No description provided for @salesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check whole-pack quantities, available stock and amounts (up to two decimal places). Paid cannot exceed total.'**
+  String get salesInvalid;
+
+  /// No description provided for @salesExternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a payment made directly to you. This does not transfer money or verify a UPI payment.'**
+  String get salesExternal;
+
+  /// No description provided for @salesCached.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved catalog. Prices, products, customer eligibility, plan and stock are checked when the sale syncs.'**
+  String get salesCached;
+
+  /// No description provided for @salesLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Sale needs an active eligible plan. Contact support, then explicitly retry the saved sale.'**
+  String get salesLocked;
+
+  /// No description provided for @salesCustomerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected customer is no longer available. Refresh and review the sale.'**
+  String get salesCustomerMissing;
+
+  /// No description provided for @salesQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale sync queue'**
+  String get salesQueue;
+
+  /// No description provided for @salesQueueEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending sales.'**
+  String get salesQueueEmpty;
+
+  /// No description provided for @salesQueueInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending sales reserve local stock. Only a server receipt confirms a completed sale. Uncertain sends keep the same reference when retried.'**
+  String get salesQueueInfo;
+
+  /// No description provided for @salesRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved sales'**
+  String get salesRetry;
+
+  /// No description provided for @salesPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved locally · Pending sync'**
+  String get salesPending;
+
+  /// No description provided for @salesRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not completed · Review and enter a new sale'**
+  String get salesRejected;
+
+  /// No description provided for @salesNeedsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs explicit retry'**
+  String get salesNeedsRetry;
+
+  /// No description provided for @salesDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard unsent or rejected sale'**
+  String get salesDiscard;
+
+  /// No description provided for @salesDiscardInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this local record. A sale with an uncertain server result cannot be discarded.'**
+  String get salesDiscardInfo;
+
+  /// No description provided for @salesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Available after pending sales: {count}'**
+  String salesAvailable(int count);
+
+  /// No description provided for @salesItemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total packs: {count}'**
+  String salesItemCount(int count);
+
+  /// No description provided for @salesConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sale confirmed: {number}'**
+  String salesConfirmed(String number);
+
+  /// No description provided for @salesRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name} from sale'**
+  String salesRemove(String name);
+
   /// No description provided for @availabilityTitle.
   ///
   /// In en, this message translates to:

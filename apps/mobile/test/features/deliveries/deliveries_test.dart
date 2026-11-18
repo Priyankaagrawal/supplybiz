@@ -14,6 +14,9 @@ import '../orders/orders_test.dart' show OrdersFixture, ordersClient, orderJson;
 import '../onboarding/onboarding_test.dart' show MemoryDrafts;
 import '../addresses/addresses_test.dart' show reveal;
 import '../notifications/notification_fixture.dart' show NotificationSession;
+import 'package:supplybiz_mobile/features/sales/sales_controller.dart';
+import '../sales/sales_fixture.dart';
+import '../sales/sales_test.dart' show salesModel;
 
 /// HTTP is simulated; transactional money/ownership evidence remains T-049.
 class DeliveriesFixture extends OrdersFixture {
@@ -422,14 +425,24 @@ void main() {
     final f = DeliveriesFixture(), http = ordersClient(f);
     addTearDown(http.close);
     final m = DeliveriesController(http.dio, MemoryDrafts(), 'vendor');
+    final saleFixture = SalesFixture();
+    late SalesController pos;
+    addTearDown(() => pos.dio.close(force: true));
     await tester.runAsync(() async {
       await m.load();
       f.offline = true;
       await m.enqueue(m.rows.single, 'OUT_FOR_DELIVERY');
       m.queue.single.nextAt = null;
+      pos = salesModel(saleFixture, MemoryDrafts());
+      await pos.load();
+      saleFixture.offline = true;
+      await pos.enqueue('foreground-pos', saleItems(),
+          paidPaise: '6010', method: 'CASH');
+      pos.queue.single.nextAt = null;
     });
     await tester.pumpWidget(ProviderScope(overrides: [
       deliveriesProvider.overrideWith((ref) => m),
+      salesProvider.overrideWith((ref) => pos),
       sessionProvider
           .overrideWith(() => NotificationSession()..role = 'VENDOR'),
     ], child: const DeliverySyncHost(child: SizedBox())));
@@ -439,14 +452,23 @@ void main() {
     expect(container.read(deliveriesProvider), same(m));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     f.offline = false;
+    saleFixture.offline = false;
     await tester.pump(const Duration(seconds: 3));
     expect(f.commits, 0);
+    expect(saleFixture.commits, 0);
     await tester.runAsync(() async {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      for (var i = 0; i < 100 && (m.busy || m.queue.isNotEmpty); i++) {
+      for (var i = 0;
+          i < 100 &&
+              (m.busy ||
+                  m.queue.isNotEmpty ||
+                  pos.busy ||
+                  pos.queue.isNotEmpty);
+          i++) {
         await Future<void>.delayed(const Duration(milliseconds: 10));
       }
     });
+    expect(saleFixture.commits, 1);
     expect(f.commits, 1,
         reason: 'busy=${m.busy}; failure=${m.failure?.code}; '
             'states=${m.queue.map((a) => a.state).join(',')}; '

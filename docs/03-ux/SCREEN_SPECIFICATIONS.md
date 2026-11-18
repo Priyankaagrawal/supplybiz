@@ -190,6 +190,15 @@ Sections: status stepper (New → Accepted → Out for Delivery → Delivered), 
 ### S-V-11 Quick Sale
 Segmented control: Sale on POS | Customer Sale (search field appears). Product picker (search, chips). Table rows: Product, Qty (−/+), Rate (editable), Amount, Delete. Footer: Total Items, Total Amount; Payment Status (Paid/Not Paid); Method (Cash/UPI/Other); Paid Amount; Balance (read-only). Validation RULE-11. CTA "Complete Sale" → success sheet with "New sale" / "Share receipt" (receipt share TBD).
 
+T-080 uses an explicit Paid-in-full switch and exact decimal rate/paid fields.
+Confirmed offline intent is labeled Pending sync, reserves provisional local stock
+and freezes the saved key/body. Only server acknowledgement produces a receipt;
+known rejections show review, uncertain sends retain identity and cannot be
+discarded. New sale is explicit; sharing remains absent while TBD. The existing
+encrypted store/native lease, shared Android worker and off-screen foreground
+sync handle delivery and sale queues. Cached eligibility is rechecked by the
+server; there is no local ledger posting, payment verification or funds transfer.
+
 ### S-V-15 Create subscription
 Customer selector (search + "New"), product (with price), qty/day stepper + unit display, delivery days chips (Mon–Sun, "Daily" shortcut), start date, end date (optional), slot, payment method, status (edit mode: Active/Pause/Cancel). Live summary: Daily ₹, Monthly ₹ (estimate per RULE-16). Locked below STANDARD.
 

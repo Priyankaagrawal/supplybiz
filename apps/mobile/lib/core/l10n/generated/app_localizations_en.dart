@@ -9,6 +9,124 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get salesTitle => 'Quick Sale';
+
+  @override
+  String get salesWalkin => 'Sale on POS';
+
+  @override
+  String get salesCustomer => 'Customer Sale';
+
+  @override
+  String get salesSearch => 'Search products';
+
+  @override
+  String get salesAdd => 'Add product';
+
+  @override
+  String get salesQty => 'Quantity (whole packs)';
+
+  @override
+  String get salesRate => 'Rate per pack (₹)';
+
+  @override
+  String get salesPaid => 'Paid amount';
+
+  @override
+  String get salesBalance => 'Balance';
+
+  @override
+  String get salesTotal => 'Total amount';
+
+  @override
+  String get salesFullPaid => 'Paid in full';
+
+  @override
+  String get salesComplete => 'Complete Sale';
+
+  @override
+  String get salesNew => 'New sale';
+
+  @override
+  String get salesReceipt => 'View receipt';
+
+  @override
+  String get salesReceipts => 'Recent confirmed receipts on this device';
+
+  @override
+  String get salesWalkinPaid =>
+      'Walk-in sales must be paid in full. Select a customer to record an unpaid balance.';
+
+  @override
+  String get salesInvalid =>
+      'Check whole-pack quantities, available stock and amounts (up to two decimal places). Paid cannot exceed total.';
+
+  @override
+  String get salesExternal =>
+      'Record a payment made directly to you. This does not transfer money or verify a UPI payment.';
+
+  @override
+  String get salesCached =>
+      'Saved catalog. Prices, products, customer eligibility, plan and stock are checked when the sale syncs.';
+
+  @override
+  String get salesLocked =>
+      'Quick Sale needs an active eligible plan. Contact support, then explicitly retry the saved sale.';
+
+  @override
+  String get salesCustomerMissing =>
+      'The selected customer is no longer available. Refresh and review the sale.';
+
+  @override
+  String get salesQueue => 'Sale sync queue';
+
+  @override
+  String get salesQueueEmpty => 'No pending sales.';
+
+  @override
+  String get salesQueueInfo =>
+      'Pending sales reserve local stock. Only a server receipt confirms a completed sale. Uncertain sends keep the same reference when retried.';
+
+  @override
+  String get salesRetry => 'Retry saved sales';
+
+  @override
+  String get salesPending => 'Saved locally · Pending sync';
+
+  @override
+  String get salesRejected => 'Not completed · Review and enter a new sale';
+
+  @override
+  String get salesNeedsRetry => 'Needs explicit retry';
+
+  @override
+  String get salesDiscard => 'Discard unsent or rejected sale';
+
+  @override
+  String get salesDiscardInfo =>
+      'Remove this local record. A sale with an uncertain server result cannot be discarded.';
+
+  @override
+  String salesAvailable(int count) {
+    return 'Available after pending sales: $count';
+  }
+
+  @override
+  String salesItemCount(int count) {
+    return 'Total packs: $count';
+  }
+
+  @override
+  String salesConfirmed(String number) {
+    return 'Sale confirmed: $number';
+  }
+
+  @override
+  String salesRemove(String name) {
+    return 'Remove $name from sale';
+  }
+
+  @override
   String get availabilityTitle => 'Availability & holidays';
 
   @override
