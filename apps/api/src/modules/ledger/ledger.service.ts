@@ -26,27 +26,29 @@ export class LedgerService {
   }
 
   opening(userId: string, key: string, customerId: string,
-    input: { type: LedgerType; amountPaise: bigint; note: string; entryDate?: string }) {
+    input: { type: LedgerType; amountPaise: bigint; note: string; entryDate?: string }, transaction?: Tx) {
     const request = this.request(userId, key, { action: 'OPENING', customerId, ...input, amountPaise: String(input.amountPaise) });
     const hex = request.requestKey;
     const refId = `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;
-    return this.db.$transaction(async tx => {
+    const run=async (tx:Tx) => {
       const vendor = await this.vendor(tx, userId);
       return this.present(await this.append(tx, { ...input, ...request, refType: 'OPENING', refId,
         vendorId: vendor.id, customerId, actorId: userId }));
-    }, { timeout: 15000 });
+    };
+    return transaction?run(transaction):this.db.$transaction(run,{timeout:15000});
   }
-  reverse(userId: string, key: string, entryId: string, note: string) {
+  reverse(userId: string, key: string, entryId: string, note: string, transaction?: Tx) {
     if (!uuid.test(entryId)) throw new BadRequestException({ code: 'INVALID_LEDGER_ENTRY' });
     const request = this.request(userId, key, { action: 'REVERSAL', entryId, note });
-    return this.db.$transaction(async tx => {
+    const run=async (tx:Tx) => {
       const vendor = await this.vendor(tx, userId);
       const original = await tx.ledger_entries.findFirst({ where: { id: entryId, vendor_id: vendor.id } });
       if (!original) throw new NotFoundException({ code: 'LEDGER_ENTRY_NOT_FOUND' });
       return this.present(await this.append(tx, { ...request, vendorId: vendor.id,
         customerId: original.vendor_customer_id, actorId: userId, refType: 'REVERSAL', refId: entryId,
         reversesId: entryId, type: original.type === 'DEBIT' ? 'CREDIT' : 'DEBIT', amountPaise: original.amount_paise, note }));
-    }, { timeout: 15000 });
+    };
+    return transaction?run(transaction):this.db.$transaction(run,{timeout:15000});
   }
   async balance(userId: string, customerId: string) {
     const vendor = await this.vendor(this.db, userId);

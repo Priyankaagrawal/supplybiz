@@ -5,6 +5,7 @@ import { PlanEntitlementsService } from '../plans/plan-entitlements.service';
 import { homeClock } from '../home/home.service';
 import { KhataAccess,KhataTx,khataMonth,khataUnavailable } from './khata-access.service';
 import { KhataMonthQuery,KhataSummaryQuery } from './khata.dto';
+import { ledgerRoots } from '../ledger/ledger-roots';
 @Injectable()
 export class KhataReadService {
   constructor(private readonly access:KhataAccess,private readonly plans:PlanEntitlementsService){}
@@ -45,18 +46,17 @@ export class KhataReadService {
   async entries(tx:KhataTx,vendorId:string,links:{id:string;deleted_at:Date|null;user_id:string|null}[],q:KhataMonthQuery){
     const clock=await homeClock(tx),month=q.month??clock.day.slice(0,7),{from,to}=khataMonth(month),ids=links.map(c=>c.id),parameters=Prisma.join(ids.map(id=>Prisma.sql`${id}::uuid`));
     const where={vendor_customer_id:{in:ids},entry_date:{gte:from,lt:to}},rows=await tx.ledger_entries.findMany({where,orderBy:[{entry_date:'desc'},{created_at:'desc'},{id:'desc'}],take:q.limit??20,skip:q.offset??0});
-    const [totals]=await tx.$queryRaw<{opening:string;debit:string;credit:string;paid:string}[]>`SELECT
+    const [totals]=await tx.$queryRaw<{opening:string;debit:string;credit:string;paid:string}[]>`${ledgerRoots(vendorId)} SELECT
       COALESCE(SUM(CASE WHEN e.entry_date<${from}::date THEN CASE WHEN e.type='DEBIT' THEN e.amount_paise::numeric ELSE -e.amount_paise::numeric END ELSE 0 END),0)::text AS opening,
       COALESCE(SUM(e.amount_paise) FILTER(WHERE e.entry_date>=${from}::date AND e.type='DEBIT'),0)::text AS debit,
       COALESCE(SUM(e.amount_paise) FILTER(WHERE e.entry_date>=${from}::date AND e.type='CREDIT'),0)::text AS credit,
       COALESCE(SUM(CASE WHEN e.entry_date>=${from}::date THEN CASE
-        WHEN e.type='CREDIT' AND e.ref_type IN ('PAYMENT','SALE','CLAIM') THEN e.amount_paise::numeric
-        WHEN e.type='DEBIT' AND e.ref_type='REVERSAL' AND original.type='CREDIT' AND original.ref_type IN ('PAYMENT','SALE','CLAIM') THEN -e.amount_paise::numeric ELSE 0 END ELSE 0 END),0)::text AS paid
-      FROM ledger_entries e LEFT JOIN ledger_entries original ON original.id=e.reverses_entry_id
+        WHEN root.root_type='CREDIT' AND root.ref_type IN ('PAYMENT','SALE','CLAIM') THEN CASE WHEN e.type='CREDIT' THEN e.amount_paise::numeric ELSE -e.amount_paise::numeric END ELSE 0 END ELSE 0 END),0)::text AS paid
+      FROM ledger_entries e JOIN ledger_roots root ON root.id=e.id
       WHERE e.vendor_customer_id IN (${parameters}) AND e.entry_date<${to}::date`;
     const balances=await tx.ledger_balances.findMany({where:{vendor_customer_id:{in:ids}}}),due=balances.reduce((n,b)=>n+b.due_paise,0n),allowed=await this.canSettle(tx,vendorId);
-    const originals=await tx.ledger_entries.findMany({where:{id:{in:rows.flatMap(r=>r.reverses_entry_id?[r.reverses_entry_id]:[])},vendor_customer_id:{in:ids}}});
-    const refs=rows.map(r=>originals.find(o=>o.id===r.reverses_entry_id)??r);
+    const sources=rows.length?await tx.$queryRaw<{id:string;ref_type:string;ref_id:string}[]>`${ledgerRoots(vendorId)} SELECT id,ref_type,ref_id FROM ledger_roots WHERE id IN (${Prisma.join(rows.map(r=>Prisma.sql`${r.id}::uuid`))})`:[];
+    const refs=rows.map(r=>sources.find(o=>o.id===r.id)??r);
     const orders=await tx.orders.findMany({where:{id:{in:refs.filter(r=>r.ref_type==='ORDER').map(r=>r.ref_id)},vendor_id:vendorId},include:{items:true}});
     const sales=await tx.sales.findMany({where:{id:{in:refs.filter(r=>r.ref_type==='SALE').map(r=>r.ref_id)},vendor_id:vendorId},include:{items:true}});
     const v=await tx.vendors.findUniqueOrThrow({where:{id:vendorId}});

@@ -9,6 +9,142 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get khataTitle => 'Customer Khata';
+
+  @override
+  String get khataPayments => 'Payments & collection';
+
+  @override
+  String get khataReceivable => 'Total receivable';
+
+  @override
+  String get khataMonthReceived =>
+      'Khata collections this month, net of corrections';
+
+  @override
+  String get khataSettled => 'Paid / settled';
+
+  @override
+  String get khataDebit => 'Debits';
+
+  @override
+  String get khataCredit => 'Credits';
+
+  @override
+  String get khataPaid => 'Payments received, net';
+
+  @override
+  String get khataDue => 'Current due / advance';
+
+  @override
+  String get khataArchived => 'Archived account · history only';
+
+  @override
+  String get khataEmpty => 'No customer accounts yet.';
+
+  @override
+  String get khataRecord => 'Record payment';
+
+  @override
+  String get khataOpening => 'Opening balance';
+
+  @override
+  String get khataReverse => 'Reverse entry';
+
+  @override
+  String get khataReversal => 'Reversal / correction';
+
+  @override
+  String get khataOriginalRetained =>
+      'The original entry stays in the ledger. This correction appends an opposite entry and an audit record.';
+
+  @override
+  String get khataNoAllocation =>
+      'Payments are recorded against this account. Unallocated payments do not change individual order payment statuses.';
+
+  @override
+  String get khataPending =>
+      'An uncertain financial change is saved privately. Retry the same change before creating another; no automatic resend occurs.';
+
+  @override
+  String get khataLocked =>
+      'New opening balances and reversals need an active plan with Khata. History and eligible payment/claim settlement remain available after expiry.';
+
+  @override
+  String get khataAlreadyReversed =>
+      'This entry already has a reversal. Refresh to review the ledger.';
+
+  @override
+  String get khataChanged =>
+      'This claim or account changed. Refresh and review before acting again.';
+
+  @override
+  String get khataClaimExceeds =>
+      'The claim exceeds the current amount due. Refresh and review the claim.';
+
+  @override
+  String get khataShowMonth => 'Show month';
+
+  @override
+  String get khataCollections => 'Recorded collections';
+
+  @override
+  String khataRecordedAt(String time) {
+    return 'Recorded $time IST';
+  }
+
+  @override
+  String get khataCollectionsEmpty => 'No collections recorded for this month.';
+
+  @override
+  String get khataNetInfo =>
+      'Customer account payments, paid customer sales and confirmed claims are shown once. Signed corrections adjust their net total; opening credits are not payments.';
+
+  @override
+  String get khataClaims => 'Customer payment claims';
+
+  @override
+  String get khataClaimPending => 'Pending';
+
+  @override
+  String get khataClaimConfirmed => 'Confirmed';
+
+  @override
+  String get khataClaimRejected => 'Rejected';
+
+  @override
+  String get khataClaimInfo =>
+      'This is the customer’s statement, not verified payment. Confirm only after checking you received it. Confirmation records one credit; rejection requires a reason.';
+
+  @override
+  String get khataConfirmClaim => 'Confirm payment claim';
+
+  @override
+  String get khataRejectClaim => 'Reject payment claim';
+
+  @override
+  String get khataAmount => 'Amount (₹)';
+
+  @override
+  String get khataInvalidAmount =>
+      'Enter a positive amount with up to two decimal places within the supported limit.';
+
+  @override
+  String get khataEntryType => 'Opening balance type';
+
+  @override
+  String get khataNote => 'Note';
+
+  @override
+  String get khataReceivedOn => 'Received date';
+
+  @override
+  String get khataBank => 'Bank';
+
+  @override
+  String get khataWallet => 'Wallet (external record)';
+
+  @override
   String get salesTitle => 'Quick Sale';
 
   @override

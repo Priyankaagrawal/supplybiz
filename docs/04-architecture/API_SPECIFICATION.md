@@ -525,8 +525,44 @@ CRUD and customer/vendor claim workflows above, plus GET
 `/customer/khata/vendors/{id}/claims`, GET
 `/customer/khata/vendors/{id}/settlement-options` and GET/PATCH
 `/vendor/khata/payment-details`. Vendor entries are also exposed read-only at
-`/vendor/khata/{id}/entries` for ledger parity. Public opening/reversal controls
-remain their owning vendor task; this does not expose ungated internal writes.
+`/vendor/khata/{id}/entries` for ledger parity. T-081 adds the gated vendor account,
+collection, opening and reversal controls described below.
+
+T-081 GET `/vendor/khata` accepts tab ALL/RECEIVABLE/PAID, literal name/mobile q,
+limit (20/max 50) and offset. RECEIVABLE means positive due; PAID means exactly
+zero (settled); advances stay visible in ALL. Owned inactive/archived history is
+retained and marked archived. Each row contains customer identity/status, total
+debit/credit, net recorded payments and current due as exact string paise. Global
+totalReceivablePaise sums positive per-account dues without netting other advances;
+thisMonthReceivedPaise includes PAYMENT/SALE/CLAIM credit roots and signed
+corrections in the current server IST month. Both totals are unaffected by tab,
+search or pagination. Returned canAdjust requires an active KHATA feature;
+canRecordPayment retains ADR-029's existing settlement exceptions.
+
+GET `/vendor/khata/collections?month=YYYY-MM&limit=&offset=` returns net collection
+lines with ledger/customer ID/name, signed amount, method, entry date, recorded
+timestamp, source and reversal flag. It includes standalone/delivery receipts,
+paid POS customer sales and confirmed claims once, and their signed reversal
+chains. Anonymous POS receipts have no customer ledger and are outside Khata
+collections. Opening credits and reversal of goods debits are not payments.
+The T-071 receipt-only list/summary contract remains unchanged. All reads require
+owned VENDOR/READ_HISTORY, use repeatable-read, are no-store and remain historical
+at expiry. No wallet balance, bank transfer or provider verification is added.
+
+POST `/vendor/khata/{id}/opening` takes `{type:DEBIT|CREDIT,amountPaise,note}`;
+positive exact amount ≤ signed BIGINT and trimmed required note ≤500. Server IST
+sets entry date; client vendor/date/source fields are not accepted. POST
+`/vendor/ledger-entries/{id}/reverse` takes trimmed required `{reason}` ≤500.
+Both require an active KHATA entitlement (no new expiry exemption), owned
+undeleted account/source, Idempotency-Key and the existing immutable append
+guards/runtime grant checks. Plan check, append, trigger balance/audit and the
+minimal permanent `{id}` replay acknowledgement commit in one transaction.
+Existing same-key replay checks role/vendor ownership and returns the original
+ack even at expiry; changed body/path is 422. Another reversal key on the same
+original is 409 ENTRY_ALREADY_REVERSED; the original is never edited/deleted.
+Corrections may themselves be reversed; recursive root resolution preserves
+net receipt totals and immutable product summaries through the chain. No schema,
+financial backfill, ledger grants or receipt/source status rewrite is involved.
 
 All customer reads bind accepted vendor_customers.user_id to the active customer;
 matching mobile alone grants no history. Owned vendor history survives inactive/

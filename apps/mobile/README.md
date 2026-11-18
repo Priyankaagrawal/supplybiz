@@ -1,5 +1,67 @@
 # Supply Biz Mobile
 
+## T-081 vendor Khata (2026-11-18): READY_FOR_VERIFY
+
+Vendor More → Customer Khata / Payments & collection opens `/vendor/khata` and
+`/vendor/payments`. Owned account search/All/Receivable/settled tabs, exact signed
+debit/credit/paid/due, month ledger/collection paging, customer creation entry,
+external payment recording, opening debit/credit, appended reversals and confirmed/
+rejected payment claims implement S-V-23–26. Vendor inbox claim notices open the
+owned customer ledger. Collections distinguish value date from recorded IST time.
+Opening credits remain separate from actual collections; immutable corrections
+retain originals. No bank settlement/transfer, wallet balance or payment UPI
+settings UI is exposed; payment method labels are external records only.
+
+Fresh server reads/permission flags fence writes. Financial forms validate exact
+positive paise and required reasons, own their controllers through dialog teardown,
+and freeze account/body/key before transmission. The existing encrypted account/
+environment store retains one uncertain financial change for explicit same-key
+retry, with no automatic resend or new attempt replacing it. Cached data is labeled;
+denied roles clear identity/history but preserve an uncertain private action until
+authorized replay or normal logout wipe. Another selected customer never receives
+the cached ledger from a previous selection. New adjustments require an active
+Khata entitlement; eligible expiry payment/claim settlement and replay remain.
+
+Executed PASS from apps/mobile:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/khata test/features/khata lib/features/notifications/notifications_controller.dart test/features/notifications/notifications_test.dart lib/core/router/app_router.dart lib/core/router/route_widgets.dart
+flutter analyze --no-pub lib/features/khata test/features/khata lib/core/router lib/features/notifications/notifications_controller.dart test/features/notifications/notifications_test.dart ../../packages/api_client/lib
+flutter test --no-pub --timeout 60s test/features/khata/vendor_khata_test.dart test/core/network/khata_client_test.dart test/core/router/app_router_test.dart test/features/notifications/notifications_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+25 checks PASS: nine new vendor controller/widget, two existing Khata transport,
+six router and eight notification cases. Includes huge exact amounts, owned paging/
+tabs/global totals, date-only payment body, adjustment reasons/claim versions,
+committed-response and acknowledgement-write recovery, no send before local save,
+stale/role/account/expiry fences, explicit confirmation and 200% opening forms.
+Clean app/generated-client analysis and normal Android dev APK PASS (22.3 seconds).
+OpenAPI/TS/Dart regenerated; four paths/seven schemas added with existing contracts
+unchanged. API/ledger build/typecheck/lint and 23 focused checks pass separately
+(17 actual native HTTP/PostgreSQL, six unit); see API README T-081. No DB schema,
+grant, dependency or historical financial-data change. Mobile HTTP is simulated.
+
+Android device/SQLCipher/recreation/TalkBack/live UI–API–DB/FCM: NOT_RUN, adb
+reported no attached device. The earlier T-080 read-only emulator boots in this
+session were unstable; no additional emulator or app service was started for
+T-081. The task-started discovery adb daemon was stopped. iOS deferred; manual
+PASS and G3 remain pending. No live/provider or comprehensive gate pass is claimed.
+
+Manual verification (not performed):
+
+1. More → Customer Khata: check All/Receivable/settled/search, signed advances and
+   global receivables against vendor ledger; open a customer and switch months.
+2. Record a dated cash/UPI/Bank/external-wallet payment with note; verify one CREDIT,
+   exact due reduction and collection line/net total. No order allocation is invented.
+3. Add opening DEBIT/CREDIT with required note for an owned customer; verify the
+   distinct ledger entry. Reverse with reason; original/audit remain and net updates.
+4. Confirm/reject a customer claim after checking receipt; verify one credit or a
+   required rejection reason/notice. Concurrent payment must recheck current due.
+5. Interrupt a response and recreate/retry the original key; verify one financial
+   effect. Check expiry permissions, logout/account isolation, 200% and TalkBack.
+
 ## T-080 Quick Sale / offline outbox (2026-11-18): READY_FOR_VERIFY
 
 Vendor More → Quick Sale opens `/vendor/sales` (S-V-11). Walk-in and owned active

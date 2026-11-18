@@ -463,6 +463,150 @@ paths:
         - customer-khata
       security:
         - bearer: []
+  /api/v1/vendor/khata:
+    get:
+      operationId: VendorKhataController_accounts
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: tab
+          required: false
+          in: query
+          schema:
+            enum:
+              - ALL
+              - RECEIVABLE
+              - PAID
+            type: string
+        - name: q
+          required: false
+          in: query
+          schema:
+            maxLength: 120
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorKhataList'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/khata/collections:
+    get:
+      operationId: VendorKhataController_collections
+      parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: integer
+        - name: month
+          required: false
+          in: query
+          description: Calendar month YYYY-MM; defaults to server IST current month.
+          schema:
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorCollectionList'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/khata/{id}/opening:
+    post:
+      operationId: VendorKhataController_opening
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LedgerOpeningInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerAdjustmentAck'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
+  /api/v1/vendor/ledger-entries/{id}/reverse:
+    post:
+      operationId: VendorKhataController_reverse
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LedgerReversalInput'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LedgerAdjustmentAck'
+      tags:
+        - vendor-khata
+      security:
+        - bearer: []
   /api/v1/vendor/khata/payment-details:
     get:
       operationId: VendorKhataController_detailsGet
@@ -6010,6 +6154,153 @@ components:
           maxLength: 500
       required:
         - version
+    VendorKhataAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        mobile:
+          type: string
+        status:
+          type: string
+        archived:
+          type: boolean
+        totalDebitPaise:
+          type: string
+        totalCreditPaise:
+          type: string
+        totalPaidPaise:
+          type: string
+        duePaise:
+          type: string
+      required:
+        - id
+        - name
+        - mobile
+        - status
+        - archived
+        - totalDebitPaise
+        - totalCreditPaise
+        - totalPaidPaise
+        - duePaise
+    VendorKhataList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorKhataAccount'
+        total:
+          type: integer
+        totalReceivablePaise:
+          type: string
+        thisMonthReceivedPaise:
+          type: string
+        canAdjust:
+          type: boolean
+        canRecordPayment:
+          type: boolean
+        serverTime:
+          type: string
+        businessDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+      required:
+        - items
+        - total
+        - totalReceivablePaise
+        - thisMonthReceivedPaise
+        - canAdjust
+        - canRecordPayment
+        - serverTime
+        - businessDate
+    VendorCollection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        vendorCustomerId:
+          type: string
+          format: uuid
+        customerName:
+          type: string
+        amountPaise:
+          type: string
+          description: Signed net receipt/correction, exact integer paise.
+        method:
+          type: string
+        entryDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        createdAt:
+          type: string
+        reversal:
+          type: boolean
+        source:
+          type: string
+      required:
+        - id
+        - vendorCustomerId
+        - customerName
+        - amountPaise
+        - method
+        - entryDate
+        - createdAt
+        - reversal
+        - source
+    VendorCollectionList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VendorCollection'
+        total:
+          type: integer
+        month:
+          type: string
+      required:
+        - items
+        - total
+        - month
+    LedgerOpeningInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - DEBIT
+            - CREDIT
+        amountPaise:
+          type: string
+          pattern: ^[1-9][0-9]{0,18}$
+        note:
+          type: string
+          maxLength: 500
+      required:
+        - type
+        - amountPaise
+        - note
+    LedgerAdjustmentAck:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    LedgerReversalInput:
+      type: object
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+      required:
+        - reason
     VendorPaymentDetails:
       type: object
       properties:

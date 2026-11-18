@@ -186,12 +186,16 @@ Class | Method | HTTP request | Description
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerPatch**](doc/VendorCustomersApi.md#customerscontrollerpatch) | **PATCH** /api/v1/vendor/customers/{id} |
 [*VendorDeliveriesApi*](doc/VendorDeliveriesApi.md) | [**vendorDeliveriesControllerList**](doc/VendorDeliveriesApi.md#vendordeliveriescontrollerlist) | **GET** /api/v1/vendor/deliveries |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerAccounts**](doc/VendorKhataApi.md#vendorkhatacontrolleraccounts) | **GET** /api/v1/vendor/khata |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerCollections**](doc/VendorKhataApi.md#vendorkhatacontrollercollections) | **GET** /api/v1/vendor/khata/collections |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerConfirm**](doc/VendorKhataApi.md#vendorkhatacontrollerconfirm) | **POST** /api/v1/vendor/payment-claims/{id}/confirm |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerDetailsGet**](doc/VendorKhataApi.md#vendorkhatacontrollerdetailsget) | **GET** /api/v1/vendor/khata/payment-details |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerDetailsPublish**](doc/VendorKhataApi.md#vendorkhatacontrollerdetailspublish) | **PATCH** /api/v1/vendor/khata/payment-details |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerEntries**](doc/VendorKhataApi.md#vendorkhatacontrollerentries) | **GET** /api/v1/vendor/khata/{id}/entries |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerList**](doc/VendorKhataApi.md#vendorkhatacontrollerlist) | **GET** /api/v1/vendor/payment-claims |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerOpening**](doc/VendorKhataApi.md#vendorkhatacontrolleropening) | **POST** /api/v1/vendor/khata/{id}/opening |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerReject**](doc/VendorKhataApi.md#vendorkhatacontrollerreject) | **POST** /api/v1/vendor/payment-claims/{id}/reject |
+[*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerReverse**](doc/VendorKhataApi.md#vendorkhatacontrollerreverse) | **POST** /api/v1/vendor/ledger-entries/{id}/reverse |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
@@ -298,6 +302,9 @@ Class | Method | HTTP request | Description
  - [KycPage](doc/KycPage.md)
  - [KycResponse](doc/KycResponse.md)
  - [KycSubmissionDto](doc/KycSubmissionDto.md)
+ - [LedgerAdjustmentAck](doc/LedgerAdjustmentAck.md)
+ - [LedgerOpeningInput](doc/LedgerOpeningInput.md)
+ - [LedgerReversalInput](doc/LedgerReversalInput.md)
  - [LinkDecisionResponse](doc/LinkDecisionResponse.md)
  - [LinkRequestList](doc/LinkRequestList.md)
  - [LinkRequestResponse](doc/LinkRequestResponse.md)
@@ -397,6 +404,10 @@ Class | Method | HTTP request | Description
  - [VendorBusinessDto](doc/VendorBusinessDto.md)
  - [VendorCategoryDto](doc/VendorCategoryDto.md)
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
+ - [VendorCollection](doc/VendorCollection.md)
+ - [VendorCollectionList](doc/VendorCollectionList.md)
+ - [VendorKhataAccount](doc/VendorKhataAccount.md)
+ - [VendorKhataList](doc/VendorKhataList.md)
  - [VendorPaymentDetails](doc/VendorPaymentDetails.md)
  - [VendorProfileResponse](doc/VendorProfileResponse.md)
  - [VendorSettingsResponse](doc/VendorSettingsResponse.md)

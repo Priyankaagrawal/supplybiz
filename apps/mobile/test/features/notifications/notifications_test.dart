@@ -136,6 +136,16 @@ void main() {
         '/common/notifications');
     expect(
         notificationLocation(
+            row('/vendor/khata/$notificationId', role: 'VENDOR')),
+        '/vendor/khata/$notificationId');
+    expect(notificationLocation(row('/vendor/khata/$notificationId')),
+        '/common/notifications');
+    expect(
+        notificationLocation(
+            row('/vendor/khata/$notificationId?role=VENDOR', role: 'VENDOR')),
+        '/common/notifications');
+    expect(
+        notificationLocation(
             row('/customer/orders/$notificationId?role=VENDOR')),
         '/common/notifications');
     expect(notificationLocation(row('/customer/subscriptions/$notificationId')),

@@ -94,6 +94,252 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @khataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Khata'**
+  String get khataTitle;
+
+  /// No description provided for @khataPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments & collection'**
+  String get khataPayments;
+
+  /// No description provided for @khataReceivable.
+  ///
+  /// In en, this message translates to:
+  /// **'Total receivable'**
+  String get khataReceivable;
+
+  /// No description provided for @khataMonthReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Khata collections this month, net of corrections'**
+  String get khataMonthReceived;
+
+  /// No description provided for @khataSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid / settled'**
+  String get khataSettled;
+
+  /// No description provided for @khataDebit.
+  ///
+  /// In en, this message translates to:
+  /// **'Debits'**
+  String get khataDebit;
+
+  /// No description provided for @khataCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits'**
+  String get khataCredit;
+
+  /// No description provided for @khataPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments received, net'**
+  String get khataPaid;
+
+  /// No description provided for @khataDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Current due / advance'**
+  String get khataDue;
+
+  /// No description provided for @khataArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived account · history only'**
+  String get khataArchived;
+
+  /// No description provided for @khataEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No customer accounts yet.'**
+  String get khataEmpty;
+
+  /// No description provided for @khataRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get khataRecord;
+
+  /// No description provided for @khataOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get khataOpening;
+
+  /// No description provided for @khataReverse.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverse entry'**
+  String get khataReverse;
+
+  /// No description provided for @khataReversal.
+  ///
+  /// In en, this message translates to:
+  /// **'Reversal / correction'**
+  String get khataReversal;
+
+  /// No description provided for @khataOriginalRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'The original entry stays in the ledger. This correction appends an opposite entry and an audit record.'**
+  String get khataOriginalRetained;
+
+  /// No description provided for @khataNoAllocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments are recorded against this account. Unallocated payments do not change individual order payment statuses.'**
+  String get khataNoAllocation;
+
+  /// No description provided for @khataPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An uncertain financial change is saved privately. Retry the same change before creating another; no automatic resend occurs.'**
+  String get khataPending;
+
+  /// No description provided for @khataLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'New opening balances and reversals need an active plan with Khata. History and eligible payment/claim settlement remain available after expiry.'**
+  String get khataLocked;
+
+  /// No description provided for @khataAlreadyReversed.
+  ///
+  /// In en, this message translates to:
+  /// **'This entry already has a reversal. Refresh to review the ledger.'**
+  String get khataAlreadyReversed;
+
+  /// No description provided for @khataChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'This claim or account changed. Refresh and review before acting again.'**
+  String get khataChanged;
+
+  /// No description provided for @khataClaimExceeds.
+  ///
+  /// In en, this message translates to:
+  /// **'The claim exceeds the current amount due. Refresh and review the claim.'**
+  String get khataClaimExceeds;
+
+  /// No description provided for @khataShowMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Show month'**
+  String get khataShowMonth;
+
+  /// No description provided for @khataCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded collections'**
+  String get khataCollections;
+
+  /// No description provided for @khataRecordedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded {time} IST'**
+  String khataRecordedAt(String time);
+
+  /// No description provided for @khataCollectionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No collections recorded for this month.'**
+  String get khataCollectionsEmpty;
+
+  /// No description provided for @khataNetInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer account payments, paid customer sales and confirmed claims are shown once. Signed corrections adjust their net total; opening credits are not payments.'**
+  String get khataNetInfo;
+
+  /// No description provided for @khataClaims.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer payment claims'**
+  String get khataClaims;
+
+  /// No description provided for @khataClaimPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get khataClaimPending;
+
+  /// No description provided for @khataClaimConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get khataClaimConfirmed;
+
+  /// No description provided for @khataClaimRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get khataClaimRejected;
+
+  /// No description provided for @khataClaimInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the customer’s statement, not verified payment. Confirm only after checking you received it. Confirmation records one credit; rejection requires a reason.'**
+  String get khataClaimInfo;
+
+  /// No description provided for @khataConfirmClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm payment claim'**
+  String get khataConfirmClaim;
+
+  /// No description provided for @khataRejectClaim.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject payment claim'**
+  String get khataRejectClaim;
+
+  /// No description provided for @khataAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount (₹)'**
+  String get khataAmount;
+
+  /// No description provided for @khataInvalidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a positive amount with up to two decimal places within the supported limit.'**
+  String get khataInvalidAmount;
+
+  /// No description provided for @khataEntryType.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance type'**
+  String get khataEntryType;
+
+  /// No description provided for @khataNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get khataNote;
+
+  /// No description provided for @khataReceivedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Received date'**
+  String get khataReceivedOn;
+
+  /// No description provided for @khataBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get khataBank;
+
+  /// No description provided for @khataWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet (external record)'**
+  String get khataWallet;
+
   /// No description provided for @salesTitle.
   ///
   /// In en, this message translates to:

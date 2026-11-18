@@ -7,6 +7,8 @@ import { KhataReadService } from './khata-read.service';
 import { PersonalKhataService } from './personal-khata.service';
 import { PaymentClaimsService } from './payment-claims.service';
 import { PaymentDetailsService } from './payment-details.service';
+import { VendorKhataService } from './vendor-khata.service';
+import { VendorKhataQuery,VendorKhataList,VendorCollectionList,LedgerOpeningInput,LedgerReversalInput,LedgerAdjustmentAck } from './vendor-khata.dto';
 import { CustomerSettlementOptions,PaymentPublicationAck,PaymentPublicationInput,VendorPaymentDetails,PersonalContactRecord,PersonalEntryRecord } from './khata.dto';
 import { ClaimMutation,ClaimQuery,ClaimRejection,KhataMonthQuery,KhataPage,KhataSummary,KhataSummaryQuery,KhataVendorEntries,KhataVersion,PaymentClaimInput,PaymentClaimList,PersonalContactInput,PersonalContactList,PersonalContactPatch,PersonalEntryInput,PersonalEntryList,PersonalEntryPatch,PersonalEntryQuery,PersonalMutation } from './khata.dto';
 type Auth=Request & {session:{userId:string}};
@@ -46,7 +48,15 @@ export class CustomerKhataController {
 }
 @ApiTags('vendor-khata') @ApiBearerAuth() @UseGuards(SessionGuard) @SetMetadata(NO_IDEMPOTENCY_CACHE,true) @Controller('vendor')
 export class VendorKhataController {
-  constructor(private readonly reads:KhataReadService,private readonly claims:PaymentClaimsService,private readonly details:PaymentDetailsService){}
+  constructor(private readonly reads:KhataReadService,private readonly claims:PaymentClaimsService,private readonly details:PaymentDetailsService,private readonly vendorKhata:VendorKhataService){}
+  @Get('khata') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:VendorKhataList})
+  accounts(@Req() r:Auth,@Query() q:VendorKhataQuery){return this.vendorKhata.list(r.session.userId,q);}
+  @Get('khata/collections') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:VendorCollectionList})
+  collections(@Req() r:Auth,@Query() q:KhataMonthQuery){return this.vendorKhata.collections(r.session.userId,q);}
+  @Post('khata/:id/opening') @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:LedgerAdjustmentAck})
+  opening(@Req() r:Auth,@Param('id',ParseUUIDPipe) id:string,@Headers('Idempotency-Key') key:string,@Body() body:LedgerOpeningInput){return this.vendorKhata.opening(r.session.userId,id,key,body);}
+  @Post('ledger-entries/:id/reverse') @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:201,type:LedgerAdjustmentAck})
+  reverse(@Req() r:Auth,@Param('id',ParseUUIDPipe) id:string,@Headers('Idempotency-Key') key:string,@Body() body:LedgerReversalInput){return this.vendorKhata.reverse(r.session.userId,id,key,body);}
   @Get('khata/payment-details') @Header('Cache-Control','no-store') @ApiResponse({status:200,type:VendorPaymentDetails})
   detailsGet(@Req() r:Auth){return this.details.vendor(r.session.userId);}
   @Patch('khata/payment-details') @Header('Cache-Control','no-store') @ApiHeader({name:'Idempotency-Key',required:true}) @ApiResponse({status:200,type:PaymentPublicationAck})

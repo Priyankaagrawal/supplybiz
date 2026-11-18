@@ -132,6 +132,70 @@ export interface paths {
         patch: operations["CustomerKhataController_entryPatch"];
         trace?: never;
     };
+    "/api/v1/vendor/khata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorKhataController_accounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/khata/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorKhataController_collections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/khata/{id}/opening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorKhataController_opening"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/ledger-entries/{id}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VendorKhataController_reverse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/khata/payment-details": {
         parameters: {
             query?: never;
@@ -2201,6 +2265,60 @@ export interface components {
             date?: string;
             note?: string;
         };
+        VendorKhataAccount: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            mobile: string;
+            status: string;
+            archived: boolean;
+            totalDebitPaise: string;
+            totalCreditPaise: string;
+            totalPaidPaise: string;
+            duePaise: string;
+        };
+        VendorKhataList: {
+            items: components["schemas"]["VendorKhataAccount"][];
+            total: number;
+            totalReceivablePaise: string;
+            thisMonthReceivedPaise: string;
+            canAdjust: boolean;
+            canRecordPayment: boolean;
+            serverTime: string;
+            businessDate: string;
+        };
+        VendorCollection: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            vendorCustomerId: string;
+            customerName: string;
+            /** @description Signed net receipt/correction, exact integer paise. */
+            amountPaise: string;
+            method: string;
+            entryDate: string;
+            createdAt: string;
+            reversal: boolean;
+            source: string;
+        };
+        VendorCollectionList: {
+            items: components["schemas"]["VendorCollection"][];
+            total: number;
+            month: string;
+        };
+        LedgerOpeningInput: {
+            /** @enum {string} */
+            type: "DEBIT" | "CREDIT";
+            amountPaise: string;
+            note: string;
+        };
+        LedgerAdjustmentAck: {
+            /** Format: uuid */
+            id: string;
+        };
+        LedgerReversalInput: {
+            reason: string;
+        };
         VendorPaymentDetails: {
             version: number;
             published: boolean;
@@ -4058,6 +4176,108 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PersonalMutation"];
+                };
+            };
+        };
+    };
+    VendorKhataController_accounts: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                tab?: "ALL" | "RECEIVABLE" | "PAID";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorKhataList"];
+                };
+            };
+        };
+    };
+    VendorKhataController_collections: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+                /** @description Calendar month YYYY-MM; defaults to server IST current month. */
+                month?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorCollectionList"];
+                };
+            };
+        };
+    };
+    VendorKhataController_opening: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LedgerOpeningInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerAdjustmentAck"];
+                };
+            };
+        };
+    };
+    VendorKhataController_reverse: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LedgerReversalInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LedgerAdjustmentAck"];
                 };
             };
         };

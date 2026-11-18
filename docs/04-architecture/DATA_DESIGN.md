@@ -1,5 +1,12 @@
 # DATA DESIGN
 
+T-081 vendor Khata uses existing ledger/balance/source/request tables: no schema
+change. Public opening/reversal plan checks and immutable append run in the same
+transaction, reusing khata_requests for minimal permanent acknowledgements. A
+recursive read resolves correction chains to their original source, so payments
+and reversals have exact signed net totals without allocating payments to orders
+or subscriptions. Opening credits remain distinct from received payment credits.
+
 | Field | Value |
 |---|---|
 | Status | Draft v0.1 |

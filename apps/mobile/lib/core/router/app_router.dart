@@ -8,12 +8,21 @@ import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 import '../../features/subscriptions/customer_subscriptions_pages.dart';
 import '../../features/availability/availability_page.dart';
 import '../../features/sales/sales_page.dart';
+import '../../features/khata/vendor_khata_page.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/vendor/khata', builder: (_, __) => const VendorKhataPage()),
+        GoRoute(
+            path: '/vendor/khata/:id',
+            builder: (_, s) => VendorKhataPage(id: s.pathParameters['id']!)),
+        GoRoute(
+            path: '/vendor/payments',
+            builder: (_, __) => const VendorKhataPage(paymentsOnly: true)),
         GoRoute(path: '/vendor/sales', builder: (_, __) => const SalesPage()),
         GoRoute(
             path: '/vendor/availability',

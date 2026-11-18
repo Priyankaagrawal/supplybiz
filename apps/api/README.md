@@ -1,5 +1,67 @@
 # Supply Biz API
 
+## T-081 vendor Khata financial controls (2026-11-18): READY_FOR_VERIFY
+
+Added owned GET `/vendor/khata` and `/vendor/khata/collections`, POST
+`/vendor/khata/{customerId}/opening` and
+`/vendor/ledger-entries/{entryId}/reverse`. Account tabs/search/page preserve
+global positive receivables; settled means zero and advances stay in All. Net
+customer collections include payment/POS/confirmed-claim credits and their signed
+corrections once; opening credits are not payments. The receipt-only T-071 API
+is unchanged. Anonymous POS receipts remain outside customer Khata collections.
+
+Public adjustments require an active KHATA entitlement under the existing expiry
+default, owned source/customer, required note/reason and exact positive BIGINT
+amounts. History and existing payment/claim settlement exceptions remain. Opening
+dates are server-owned. The existing ledger append can participate in the outer
+plan/ownership/replay transaction; no nested transaction or ungated write is added.
+Immutable ledger/balance/audit guards and minimal permanent `{id}` acknowledgements
+commit or roll back together. Existing-key replay remains available at expiry;
+another key reversing the same original is a conflict. Originals remain visible.
+Recursive source resolution handles reversal-of-reversal net payment totals and
+immutable item summaries. No schema/migration/grant/backfill/dependency change.
+
+Executed PASS (apps/api unless indicated):
+
+```powershell
+# Root: regenerate OpenAPI and TS/Dart clients from source.
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+# Dedicated local test database only; never print the URL/credentials.
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/khata/khata.postgres.spec.ts src/modules/ledger/ledger.service.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/khata/vendor-khata.*.ts src/modules/khata/khata.controller.ts src/modules/khata/khata-read.service.ts src/modules/khata/khata.postgres.spec.ts src/modules/ledger/ledger.service.ts src/modules/ledger/ledger-roots.ts src/app.module.ts --max-warnings=0
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+# Root:
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+
+23 checks PASS: seventeen native HTTP/PostgreSQL Khata cases (four new T-081,
+thirteen existing customer/personal/claim regressions) and six ledger boundary
+unit cases. Native coverage proves exact signed totals, filtering/page isolation,
+concurrent opening/reversal replay, original preservation, foreign-role/source
+denial, actual POS/payment/claim net receipts, correction chains, rollback after
+the real append/audit, expiry flags/replay and suspension. Initial rollback fault
+injection on the non-transaction Prisma delegate did not intercept the transaction;
+it was corrected to fail after the actual append inside the transaction, and passes.
+Native execution uses the existing Windows private-upload ACL context and existing
+isolated runtime ledger grants. No main dev DB writes/migrations or financial
+history cleanup. Application contexts close; synthetic test financial history stays.
+Semantic contract comparison: four paths/seven schemas added, no existing changes.
+
+25 mobile/client/router/notice checks and normal Android build pass; mobile HTTP
+is simulated and distinct from native API/DB evidence. Manual financial journey,
+actual Android storage/recreation/TalkBack/live FCM and G3 remain pending. Mobile
+README has entry routes, exact commands, limitations and five manual steps.
+
 ## T-078 subscription monthly statement (2026-11-18): READY_FOR_VERIFY
 
 GET `/customer/subscriptions/{id}/statement?month=YYYY-MM&limit=50&offset=0`

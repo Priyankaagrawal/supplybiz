@@ -208,6 +208,21 @@ Date selector (default today), status tabs with counts, cards sorted by slot the
 ### S-V-22 Availability & holidays
 Toggle "Accepting deliveries today"; "Pause deliveries" (open-ended per FR-084, with explicit "Resume deliveries"); "Mark Holiday" (server IST date picker ≥ today, reason ≤ 100 chars) → confirm dialog shows affected order count; Upcoming holidays list with strictly future-only delete. T-077 uses the T-074 impact preview and rechecked server mutation count. A legacy finite pause end is displayed read-only; new pause/resume clears it. Turning accepting-today off retains existing orders/subscriptions. Resume/removal restores future eligibility without resurrecting cancelled orders. Expired-plan history/reducing controls remain; enabling/resume/removal needs the server canResume flag. Cached data is labeled and cannot authorize new writes; uncertain mutations retry the exact encrypted account-scoped saved request/key.
 
+### S-V-23–S-V-26 Vendor Khata / payments (T-081)
+More opens Customer Khata and Payments & collection. Account tabs are All,
+positive Receivable and zero Paid/settled; advances remain visible in All. Each
+row shows debit, credit, net payments and signed due/advance. Customer detail
+has month paging and distinct opening/reversal entries; corrections retain originals.
+Record-payment and opening sheets require an owned customer and exact positive
+amount; opening note/reversal/rejection reason is mandatory. Payments accept a
+received date and external method/note. Collections show value date, recorded IST
+time, method and signed net receipt/correction; opening credits are not payments.
+Claims explicitly say unverified customer statement and require Confirm or a
+rejection reason. Archived history is read-only. New opening/reversal requires
+active Khata; existing payment/claim expiry rules remain. Encrypted saved financial
+requests retry the same key/body; cached data cannot authorize another write.
+Settle to Bank, wallet balance and later payment-UPI-setting UI remain absent.
+
 ### S-C-01 Home (WF-1)
 Header: logo, location selector, bell. Search bar. Category grid (8 tiles: Milk & Dairy, Water Can, Tiffin, Laundry, Grocery, Fruits & Veg, Food & Restaurant, More). Milk sub-grid (Cow Milk, Buffalo Milk, Toned Milk, Curd, Paneer, Ghee) as in WF-1. "Today's Delivery" list (product, vendor, slot, status chip) + View All. Empty: "No deliveries today — Order now".
 

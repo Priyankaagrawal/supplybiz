@@ -190,6 +190,9 @@ String notificationLocation(InboxItem item) {
   const id =
       r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
   if (path == '/common/settings') return path;
+  if (role == 'vendor' && RegExp('^/vendor/khata/$id\$').hasMatch(path)) {
+    return path;
+  }
   if (role == 'vendor' && path == '/vendor/onboarding/status') return path;
   if (RegExp('^/$role/orders/$id\$').hasMatch(path)) return path;
   if (role == 'vendor' &&

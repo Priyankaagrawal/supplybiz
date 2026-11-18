@@ -137,6 +137,14 @@ class RoutePlaceholder extends StatelessWidget {
           const SizedBox(height: 16),
           if (title == RouteTitle.more)
             SbButton(
+                label: l10n.khataTitle,
+                onPressed: () => context.push('/vendor/khata')),
+          if (title == RouteTitle.more)
+            SbButton(
+                label: l10n.khataPayments,
+                onPressed: () => context.push('/vendor/payments')),
+          if (title == RouteTitle.more)
+            SbButton(
                 label: l10n.salesTitle,
                 onPressed: () => context.push('/vendor/sales')),
           if (title == RouteTitle.more)

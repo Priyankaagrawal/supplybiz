@@ -37,6 +37,46 @@ native('T-082 native customer Khata/personal/claims',()=>{
     const user=await db.users.findUniqueOrThrow({where:{id:buyer.id}});customerId=(await db.vendor_customers.create({data:{vendor_id:vendorId,user_id:buyer.id,name:'Synthetic linked Khata',mobile:user.mobile}})).id;otherCustomerId=(await db.vendor_customers.create({data:{vendor_id:otherVendorId,user_id:buyer.id,name:'Synthetic second link',mobile:user.mobile}})).id;
     productId=(await db.products.create({data:{vendor_id:vendorId,name:'Synthetic immutable milk',product_type:'MILK',milk_type:'COW',unit_value:1,unit_type:'L',selling_price_paise:3000,stock_qty:100}})).id;});
   afterEach(()=>jest.restoreAllMocks());afterAll(async()=>{if(categoryId)await db.categories.update({where:{id:categoryId},data:{status:'HIDDEN'}});await app?.close();await db.$disconnect();for(const key of Object.keys(process.env))if(!(key in env))delete process.env[key];Object.assign(process.env,env);});
+  it('T-081 TC-110 vendor tabs/search/page preserve positive receivables, advances, exact credits and zero settlement',async()=>{
+    await post(`vendor/khata/${customerId}/opening`,{type:'DEBIT',amountPaise:'10000',note:'Synthetic opening'},owner).expect(201);
+    const advance=await db.vendor_customers.create({data:{vendor_id:vendorId,name:'Synthetic advance',mobile:'+919000000001'}}),settled=await db.vendor_customers.create({data:{vendor_id:vendorId,name:'Synthetic settled',mobile:'+919000000002'}});
+    await post(`vendor/khata/${advance.id}/opening`,{type:'CREDIT',amountPaise:'5000',note:'Synthetic advance'},owner).expect(201);
+    const all=(await get('vendor/khata',owner).expect(200)).body;expect(all).toMatchObject({total:3,totalReceivablePaise:'10000',thisMonthReceivedPaise:'0',canAdjust:true,canRecordPayment:true});expect(all.items.find((r:{id:string})=>r.id===advance.id)).toMatchObject({duePaise:'-5000',totalCreditPaise:'5000',totalPaidPaise:'0'});
+    const paid=(await get('vendor/khata?tab=PAID&limit=1',owner).expect(200)).body;expect(paid.total).toBe(1);expect(paid.items[0].id).toBe(settled.id);expect(paid.totalReceivablePaise).toBe('10000');
+    expect((await get('vendor/khata?tab=RECEIVABLE',owner).expect(200)).body.total).toBe(1);expect((await get('vendor/khata?q=%25',owner).expect(200)).body).toMatchObject({total:0,totalReceivablePaise:'10000'});
+    await get('vendor/khata',buyer).expect(403);await get(`vendor/khata/${otherCustomerId}/entries`,owner).expect(404);
+  });
+  it('T-081 TC-112/116 opening/reversal concurrency replays minimal acknowledgements, retains originals and chains corrections',async()=>{
+    const key=randomUUID(),body={type:'DEBIT',amountPaise:'9007199254740993',note:'Synthetic private opening'};
+    const [a,b]=await Promise.all([post(`vendor/khata/${customerId}/opening`,body,owner,key).expect(201),post(`vendor/khata/${customerId}/opening`,body,owner,key).expect(201)]);expect(a.body).toEqual(b.body);expect(Object.keys(a.body)).toEqual(['id']);expect(await due()).toBe(9007199254740993n);
+    await post(`vendor/khata/${customerId}/opening`,{...body,note:'Synthetic changed'},owner,key).expect(422);await post(`vendor/khata/${otherCustomerId}/opening`,body,owner).expect(404);await post(`vendor/khata/${customerId}/opening`,{...body,note:''},owner).expect(400);await post(`vendor/khata/${customerId}/opening`,{...body,entryDate:day},owner).expect(400);
+    const reverseKey=randomUUID(),path=`vendor/ledger-entries/${a.body.id}/reverse`;
+    const [r,s]=await Promise.all([post(path,{reason:'Synthetic correction'},owner,reverseKey).expect(201),post(path,{reason:'Synthetic correction'},owner,reverseKey).expect(201)]);expect(r.body).toEqual(s.body);expect(await due()).toBe(0n);await post(path,{reason:'Synthetic another correction'},owner).expect(409);await post(path,{reason:'Synthetic foreign'},other).expect(404);
+    await post(`vendor/ledger-entries/${r.body.id}/reverse`,{reason:'Synthetic restore'},owner).expect(201);expect(await due()).toBe(9007199254740993n);expect((await db.ledger_entries.findUniqueOrThrow({where:{id:a.body.id}})).amount_paise).toBe(9007199254740993n);
+    const requests=await db.khata_requests.findMany({where:{user_id:owner.id}});expect(JSON.stringify(requests)).not.toContain('Synthetic private opening');expect(await db.audit_logs.count({where:{entity_id:a.body.id,actor_id:owner.id}})).toBeGreaterThan(0);
+  });
+  it('T-081 TC-111/114/116 net collections unify POS, payment and claim credits including correction chains',async()=>{
+    await debit(10000n);
+    await post('vendor/sales',{vendorCustomerId:customerId,items:[{productId,qty:1}],paidPaise:'1000',paymentMethod:'CASH'},owner).expect(201);
+    const payment=(await post('vendor/payments',{vendorCustomerId:customerId,amountPaise:'2000',method:'CASH',receivedOn:day},owner).expect(201)).body;
+    const c=(await claim('1000').expect(201)).body;await confirm(c.id).expect(201);
+    expect((await get('vendor/khata',owner).expect(200)).body.thisMonthReceivedPaise).toBe('4000');const list=(await get(`vendor/khata/collections?month=${month}&limit=1`,owner).expect(200)).body;expect(list.total).toBe(3);expect(list.items).toHaveLength(1);
+    const credit=await db.ledger_entries.findFirstOrThrow({where:{ref_id:payment.id,ref_type:'PAYMENT',type:'CREDIT'}}),reversed=(await post(`vendor/ledger-entries/${credit.id}/reverse`,{reason:'Synthetic correction'},owner).expect(201)).body;
+    expect((await get('vendor/khata',owner).expect(200)).body.thisMonthReceivedPaise).toBe('2000');await post(`vendor/ledger-entries/${reversed.id}/reverse`,{reason:'Synthetic restore correction'},owner).expect(201);
+    const entries=(await get(`customer/khata/vendors/${vendorId}/entries?month=${month}`).expect(200)).body;expect(entries.monthPaidPaise).toBe('4000');expect((await get('vendor/khata',owner).expect(200)).body.thisMonthReceivedPaise).toBe(entries.monthPaidPaise);
+    const receipts=(await get(`vendor/khata/collections?month=${month}`,owner).expect(200)).body;expect(receipts.total).toBe(5);expect(receipts.items.some((r:{amountPaise:string})=>r.amountPaise==='-2000')).toBe(true);expect(receipts.items.every((r:{method:string})=>r.method==='CASH')).toBe(true);
+  });
+  it('T-081 public adjustments roll back append/audit/replay together and active-plan gate preserves expiry reads/replay',async()=>{
+    const key=randomUUID(),path=`vendor/khata/${customerId}/opening`,body={type:'DEBIT',amountPaise:'10000',note:'Synthetic opening'};
+    const ledger=app.get(LedgerService),append=ledger.opening.bind(ledger);
+    jest.spyOn(ledger,'opening').mockImplementationOnce(async(user,key,id,input,tx)=>{await append(user,key,id,input,tx);throw new Error('Synthetic failure after actual append');});
+    await post(path,body,owner,key).expect(503);expect(await db.ledger_entries.count({where:{vendor_customer_id:customerId}})).toBe(0);expect(await db.ledger_balances.findUnique({where:{vendor_customer_id:customerId}})).toBeNull();
+    const entry=(await post(path,body,owner,key).expect(201)).body;
+    await db.$transaction(tx=>assignPlanFixture(tx,vendorId,'BASIC',new Date(Date.now()-2*86400000),new Date(Date.now()-86400000)));
+    expect((await get('vendor/khata',owner).expect(200)).body).toMatchObject({canAdjust:false,canRecordPayment:true});await post(path,body,owner,key).expect(201);await post(path,body,owner).expect(403);await post(`vendor/ledger-entries/${entry.id}/reverse`,{reason:'Synthetic correction'},owner).expect(403);
+    await post('vendor/payments',{vendorCustomerId:customerId,amountPaise:'100',method:'CASH',receivedOn:day},owner).expect(201);
+    await db.vendors.update({where:{id:vendorId},data:{is_suspended:true}});await get('vendor/khata',owner).expect(403);
+  });
   it('TC-250 global totals combine vendor payables/advances and personal signed balances; tabs/page do not alter totals',async()=>{
     await debit();await app.get(LedgerService).opening(other.id,randomUUID(),otherCustomerId,{type:'CREDIT',amountPaise:2000n,note:'Synthetic advance'});const c=await contact();await entry(c);await entry(c,'5000','GOT');
     const all=(await get('customer/khata/summary?limit=1').expect(200)).body;expect(all).toMatchObject({totalReceivablePaise:'17000',totalPayablePaise:'10000',netBalancePaise:'7000',total:3});expect(all.items).toHaveLength(1);
