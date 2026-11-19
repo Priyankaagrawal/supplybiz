@@ -28,6 +28,7 @@ import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 import '../../features/subscriptions/customer_subscriptions_pages.dart';
 import '../../features/khata/customer_khata_page.dart';
 import '../../features/dashboard/dashboard_page.dart';
+import '../../features/profile/profile_pages.dart';
 
 part 'routes.g.dart';
 
@@ -467,8 +468,10 @@ class CustomerProfileBranch extends StatefulShellBranchData {
 class CustomerProfileRoute extends GoRouteData with _$CustomerProfileRoute {
   const CustomerProfileRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.profile);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const AccountProfilePage(customer: true)
+          : const RoutePlaceholder(title: RouteTitle.profile));
 }
 
 @TypedGoRoute<LinkRoute>(path: '/:kind/:id')

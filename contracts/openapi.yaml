@@ -1,5 +1,45 @@
 openapi: 3.0.0
 paths:
+  /api/v1/me/profile:
+    get:
+      operationId: ProfileController_get
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+      tags:
+        - profile
+      security:
+        - bearer: []
+    put:
+      operationId: ProfileController_save
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileResponse'
+      tags:
+        - profile
+      security:
+        - bearer: []
   /api/v1/content/faqs:
     get:
       operationId: ContentController_faqs
@@ -6245,6 +6285,55 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    ProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        mobile:
+          type: string
+          description: Read-only authenticated mobile.
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        photoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - mobile
+        - name
+        - email
+        - photoMediaId
+        - updatedAt
+    ProfileInput:
+      type: object
+      properties:
+        expectedUpdatedAt:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          nullable: true
+          description: Contact email only; not verified by this operation.
+        photoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - expectedUpdatedAt
+        - name
+        - email
+        - photoMediaId
     FaqRow:
       type: object
       properties:

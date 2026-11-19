@@ -184,6 +184,8 @@ Class | Method | HTTP request | Description
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerPreferences**](doc/NotificationsApi.md#notificationscontrollerpreferences) | **GET** /api/v1/me/notification-prefs |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerRead**](doc/NotificationsApi.md#notificationscontrollerread) | **POST** /api/v1/notifications/read |
 [*NotificationsApi*](doc/NotificationsApi.md) | [**notificationsControllerSavePreferences**](doc/NotificationsApi.md#notificationscontrollersavepreferences) | **PUT** /api/v1/me/notification-prefs |
+[*ProfileApi*](doc/ProfileApi.md) | [**profileControllerGet**](doc/ProfileApi.md#profilecontrollerget) | **GET** /api/v1/me/profile |
+[*ProfileApi*](doc/ProfileApi.md) | [**profileControllerSave**](doc/ProfileApi.md#profilecontrollersave) | **PUT** /api/v1/me/profile |
 [*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerCreate**](doc/VendorAvailabilityApi.md#availabilitycontrollercreate) | **POST** /api/v1/vendor/holidays |
 [*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerDelete**](doc/VendorAvailabilityApi.md#availabilitycontrollerdelete) | **DELETE** /api/v1/vendor/holidays/{id} |
 [*VendorAvailabilityApi*](doc/VendorAvailabilityApi.md) | [**availabilityControllerGet**](doc/VendorAvailabilityApi.md#availabilitycontrollerget) | **GET** /api/v1/vendor/availability |
@@ -392,6 +394,8 @@ Class | Method | HTTP request | Description
  - [ProductOptions](doc/ProductOptions.md)
  - [ProductPatch](doc/ProductPatch.md)
  - [ProductResponse](doc/ProductResponse.md)
+ - [ProfileInput](doc/ProfileInput.md)
+ - [ProfileResponse](doc/ProfileResponse.md)
  - [ReadNotifications](doc/ReadNotifications.md)
  - [RecordPaymentInput](doc/RecordPaymentInput.md)
  - [RefreshDto](doc/RefreshDto.md)

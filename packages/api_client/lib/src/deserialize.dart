@@ -139,6 +139,8 @@ import 'package:supplybiz_api_client/src/model/product_list.dart';
 import 'package:supplybiz_api_client/src/model/product_options.dart';
 import 'package:supplybiz_api_client/src/model/product_patch.dart';
 import 'package:supplybiz_api_client/src/model/product_response.dart';
+import 'package:supplybiz_api_client/src/model/profile_input.dart';
+import 'package:supplybiz_api_client/src/model/profile_response.dart';
 import 'package:supplybiz_api_client/src/model/read_notifications.dart';
 import 'package:supplybiz_api_client/src/model/record_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
@@ -600,6 +602,11 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return ProductPatch.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ProductResponse':
       return ProductResponse.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ProfileInput':
+      return ProfileInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ProfileResponse':
+      return ProfileResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'ReadNotifications':
       return ReadNotifications.fromJson(value as Map<String, dynamic>)

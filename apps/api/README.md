@@ -1,5 +1,25 @@
 # Supply Biz API
 
+## T-126 owned profile (2026-11-19): READY_FOR_VERIFY
+
+GET/PUT /api/v1/me/profile reads/edits the authenticated account's personal name,
+optional unverified contact email and owned READY PROFILE media reference. Mobile,
+roles, status, actor/owner and business/KYC identity are not editable here. PUT
+requires Idempotency-Key and exact expectedUpdatedAt; user locking, active-account
+check, monotonic timestamp, audit change-flags and replay commit together. Foreign/
+wrong-purpose media returns 404; stale version 409 and mismatched retry body 422.
+Both endpoints are no-store and existing auth/session semantics are unchanged.
+
+No schema migration/dependency: existing users name/email/photo columns. Five
+native HTTP/PostgreSQL ownership/validation/concurrency/replay/media/blocking/
+recreation/rollback cases PASS on supplybiz_service_area_test only. Twenty-three
+focused mobile checks, API build/typecheck/lint, shared-client admin typecheck,
+mobile/Dart analysis and final Android APK pass. One path/two schemas generated;
+all existing operations/schemas compared unchanged. Media fixtures validate
+ownership metadata; actual native photo picker/upload/download journey NOT_RUN.
+Full exact commands, four manual checks and limitations are in mobile README
+T-126. Pending manual PASS/G4; iOS deferred. No main DB/KYC/financial/grant change.
+
 ## T-106 settings and re-verification (2026-11-19): READY_FOR_VERIFY
 
 GET /vendor/settings/profile and PUT /vendor/settings/business|delivery use

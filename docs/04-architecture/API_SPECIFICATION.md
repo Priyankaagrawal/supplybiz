@@ -1066,3 +1066,23 @@ optional nullable sameDayCutoff for compatibility with old replay snapshots.
 Existing operations remain unchanged. Re-verification continues manual review,
 provider checks NOT_RUN and existing production KMS fail-closed policy. The two
 T-106 migrations and focused check/manual handoff are recorded in mobile README.
+
+### T-126 personal account profile
+
+`GET /me/profile` returns `{id,mobile,name,email,photoMediaId,updatedAt}` for the
+current authenticated ACTIVE user. `PUT /me/profile` accepts only required
+`{expectedUpdatedAt,name,email,photoMediaId}` with required Idempotency-Key. Name is
+trimmed/nonblank and at most 120 characters; email is nullable validated contact
+text (at most 254), not verified by saving; photoMediaId is nullable and must be
+an owned READY PROFILE attachment. Mobile, status, user/vendor/actor IDs, roles,
+business name and KYC identity cannot be supplied. No edits to historical records.
+
+ProfileResponse.updatedAt is a server date-time and the exact optimistic token.
+A stale token returns 409 VERSION_CONFLICT; altered same-key body returns 422
+IDEMPOTENCY_MISMATCH; unowned/wrong-purpose media returns 404 MEDIA_NOT_FOUND.
+Ownership/ACTIVE user is rechecked before replay under the user lock. Profile,
+monotonic updatedAt, PII-minimized audit change-flags and 24-hour replay commit
+atomically; failed audit rolls back all. Both responses are no-store. Existing
+session/auth and public /me contracts remain unchanged. Photos continue through
+the existing owned media upload/content APIs. No schema migration/dependency.
+Mobile recovery/cache/photo/actual-device limitations are in mobile README T-126.

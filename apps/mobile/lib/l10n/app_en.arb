@@ -1053,5 +1053,47 @@
   "settingsSlots": "Delivery slots (HH:mm-HH:mm)",
   "settingsSameDay": "Accept same-day orders",
   "settingsCutoff": "Same-day cutoff (HH:mm IST)",
-  "settingsSave": "Save settings"
+  "settingsSave": "Save settings",
+  "profileEdit": "Edit profile",
+  "profilePhoto": "Profile photo",
+  "profilePhotoOnly": "Choose a PNG or JPEG photo, up to 5 MB.",
+  "profilePhotoUnavailable": "The profile photo could not be loaded.",
+  "profileOffline": "Offline: showing saved profile details. Refresh before saving.",
+  "profileChoosePhoto": "Choose photo",
+  "profileRemovePhoto": "Remove photo",
+  "profilePhotoStaged": "Photo change selected. Save your profile to apply it.",
+  "profileEmailNote": "Email is an optional contact address. Saving it does not verify the address.",
+  "profileName": "Name",
+  "profileEmail": "Email (optional)",
+  "profileMobile": "Mobile",
+  "profileMobileReadOnly": "Your sign-in mobile is read-only.",
+  "profileSave": "Save profile",
+  "profileSwitchRole": "Switch role",
+  "profileAbout": "About Supply Biz",
+  "profileClearCache": "Clear profile cache",
+  "profileCacheHelp": "Clears saved profile details and downloaded profile photos. Pending changes and offline deliveries are kept. Refresh to download the profile again.",
+  "profileNameMissing": "Add your name",
+  "profileNoEmail": "No contact email added",
+  "profileAddresses": "My addresses",
+  "profileUnavailable": "Profile unavailable. Connect and retry.",
+  "profileVersion": "Version: {version}",
+  "@profileVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "profileUnknownVersion": "Unavailable",
+  "profileLicenses": "Open-source licenses",
+  "profileLegalUnavailable": "No published document is available right now. Retry when connected.",
+  "profileLegalStale": "Showing previously loaded text. Refresh to check the current published version.",
+  "profileLegalVersion": "Published version: {version}",
+  "@profileLegalVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -30,6 +30,7 @@ import 'package:supplybiz_api_client/src/api/kyc_api.dart';
 import 'package:supplybiz_api_client/src/api/me_api.dart';
 import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/notifications_api.dart';
+import 'package:supplybiz_api_client/src/api/profile_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_availability_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_dashboard_api.dart';
@@ -298,6 +299,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   NotificationsApi getNotificationsApi() {
     return NotificationsApi(dio);
+  }
+
+  /// Get ProfileApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ProfileApi getProfileApi() {
+    return ProfileApi(dio);
   }
 
   /// Get VendorAvailabilityApi instance, base route and serializer can be overridden by a given but be careful,

@@ -240,8 +240,7 @@ class _SettingsState extends ConsumerState<VendorSettingsPage> {
                               onPressed: m.busy ? null : m.reviewConflict)
                       ],
                       if (section == null) ...[
-                        row(l.settingsProfile,
-                            const CommonRoute(CommonPage.settings).location),
+                        row(l.settingsProfile, '/account/profile'),
                         row(l.settingsBusiness, '/vendor/settings/business'),
                         row(l.settingsKyc, '/vendor/settings/kyc'),
                         row(l.areaTitle, const ServiceAreaRoute().location),

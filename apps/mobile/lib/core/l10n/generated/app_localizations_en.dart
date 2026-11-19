@@ -2947,4 +2947,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsSave => 'Save settings';
+
+  @override
+  String get profileEdit => 'Edit profile';
+
+  @override
+  String get profilePhoto => 'Profile photo';
+
+  @override
+  String get profilePhotoOnly => 'Choose a PNG or JPEG photo, up to 5 MB.';
+
+  @override
+  String get profilePhotoUnavailable =>
+      'The profile photo could not be loaded.';
+
+  @override
+  String get profileOffline =>
+      'Offline: showing saved profile details. Refresh before saving.';
+
+  @override
+  String get profileChoosePhoto => 'Choose photo';
+
+  @override
+  String get profileRemovePhoto => 'Remove photo';
+
+  @override
+  String get profilePhotoStaged =>
+      'Photo change selected. Save your profile to apply it.';
+
+  @override
+  String get profileEmailNote =>
+      'Email is an optional contact address. Saving it does not verify the address.';
+
+  @override
+  String get profileName => 'Name';
+
+  @override
+  String get profileEmail => 'Email (optional)';
+
+  @override
+  String get profileMobile => 'Mobile';
+
+  @override
+  String get profileMobileReadOnly => 'Your sign-in mobile is read-only.';
+
+  @override
+  String get profileSave => 'Save profile';
+
+  @override
+  String get profileSwitchRole => 'Switch role';
+
+  @override
+  String get profileAbout => 'About Supply Biz';
+
+  @override
+  String get profileClearCache => 'Clear profile cache';
+
+  @override
+  String get profileCacheHelp =>
+      'Clears saved profile details and downloaded profile photos. Pending changes and offline deliveries are kept. Refresh to download the profile again.';
+
+  @override
+  String get profileNameMissing => 'Add your name';
+
+  @override
+  String get profileNoEmail => 'No contact email added';
+
+  @override
+  String get profileAddresses => 'My addresses';
+
+  @override
+  String get profileUnavailable => 'Profile unavailable. Connect and retry.';
+
+  @override
+  String profileVersion(String version) {
+    return 'Version: $version';
+  }
+
+  @override
+  String get profileUnknownVersion => 'Unavailable';
+
+  @override
+  String get profileLicenses => 'Open-source licenses';
+
+  @override
+  String get profileLegalUnavailable =>
+      'No published document is available right now. Retry when connected.';
+
+  @override
+  String get profileLegalStale =>
+      'Showing previously loaded text. Refresh to check the current published version.';
+
+  @override
+  String profileLegalVersion(String version) {
+    return 'Published version: $version';
+  }
 }

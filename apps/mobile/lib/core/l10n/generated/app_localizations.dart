@@ -5314,6 +5314,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save settings'**
   String get settingsSave;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profileEdit;
+
+  /// No description provided for @profilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo'**
+  String get profilePhoto;
+
+  /// No description provided for @profilePhotoOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PNG or JPEG photo, up to 5 MB.'**
+  String get profilePhotoOnly;
+
+  /// No description provided for @profilePhotoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The profile photo could not be loaded.'**
+  String get profilePhotoUnavailable;
+
+  /// No description provided for @profileOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: showing saved profile details. Refresh before saving.'**
+  String get profileOffline;
+
+  /// No description provided for @profileChoosePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photo'**
+  String get profileChoosePhoto;
+
+  /// No description provided for @profileRemovePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get profileRemovePhoto;
+
+  /// No description provided for @profilePhotoStaged.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo change selected. Save your profile to apply it.'**
+  String get profilePhotoStaged;
+
+  /// No description provided for @profileEmailNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is an optional contact address. Saving it does not verify the address.'**
+  String get profileEmailNote;
+
+  /// No description provided for @profileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get profileName;
+
+  /// No description provided for @profileEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email (optional)'**
+  String get profileEmail;
+
+  /// No description provided for @profileMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile'**
+  String get profileMobile;
+
+  /// No description provided for @profileMobileReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Your sign-in mobile is read-only.'**
+  String get profileMobileReadOnly;
+
+  /// No description provided for @profileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get profileSave;
+
+  /// No description provided for @profileSwitchRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch role'**
+  String get profileSwitchRole;
+
+  /// No description provided for @profileAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About Supply Biz'**
+  String get profileAbout;
+
+  /// No description provided for @profileClearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear profile cache'**
+  String get profileClearCache;
+
+  /// No description provided for @profileCacheHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Clears saved profile details and downloaded profile photos. Pending changes and offline deliveries are kept. Refresh to download the profile again.'**
+  String get profileCacheHelp;
+
+  /// No description provided for @profileNameMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your name'**
+  String get profileNameMissing;
+
+  /// No description provided for @profileNoEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'No contact email added'**
+  String get profileNoEmail;
+
+  /// No description provided for @profileAddresses.
+  ///
+  /// In en, this message translates to:
+  /// **'My addresses'**
+  String get profileAddresses;
+
+  /// No description provided for @profileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile unavailable. Connect and retry.'**
+  String get profileUnavailable;
+
+  /// No description provided for @profileVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version: {version}'**
+  String profileVersion(String version);
+
+  /// No description provided for @profileUnknownVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get profileUnknownVersion;
+
+  /// No description provided for @profileLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licenses'**
+  String get profileLicenses;
+
+  /// No description provided for @profileLegalUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No published document is available right now. Retry when connected.'**
+  String get profileLegalUnavailable;
+
+  /// No description provided for @profileLegalStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing previously loaded text. Refresh to check the current published version.'**
+  String get profileLegalStale;
+
+  /// No description provided for @profileLegalVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Published version: {version}'**
+  String profileLegalVersion(String version);
 }
 
 class _AppLocalizationsDelegate

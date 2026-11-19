@@ -1,5 +1,103 @@
 # Supply Biz Mobile
 
+## T-126 profile/settings/About (2026-11-19): READY_FOR_VERIFY
+
+The customer Profile tab (S-C-27) and vendor Settings -> Profile and account open
+owned profile details. `/account/profile/edit` edits personal name, optional
+contact email and profile photo; authenticated mobile is selectable/read-only.
+Personal name is users.name, not the reviewed vendors.business_name. No role,
+mobile, status or KYC change is accepted by the profile API. Email is explicitly
+unverified contact information. The role-specific customer entry links My addresses.
+
+Settings (S-C-33) links existing notification preferences and role switching,
+About, logout and Clear profile cache. Cache clearing removes only this owner's
+saved profile/read photo bytes while retaining frozen profile changes and other
+features' pending/offline-delivery state. The confirmation explains that scope.
+Deletion remains unavailable under T-019/Q-20. Help remains with T-107; deferred
+Money/referral/payment-method routes are absent. Q-30 contacts remain unpublished
+TBD at the user's request; SCOPE records the TODO to configure them later, while
+FAQ/legal work may proceed separately.
+
+About (S-C-36) obtains the actual installed Android version, opens Flutter's
+packaged open-source license page, and links Terms/Privacy. Legal links display
+existing T-158 CMS plaintext and its exact published version, with unavailable/
+retry and stale-in-memory states; no placeholder legal document or fake consent.
+This viewer can be reused by T-107. Existing login consent/build legal text and
+historical consent rows are unchanged by reading About/CMS content.
+
+`GET/PUT /me/profile` uses current session/active-user ownership, expected server
+updatedAt, owned READY PROFILE media, required Idempotency-Key, audit and atomic
+replay. Stale edits are explicit conflicts; mobile/roles/status/owner fields are
+rejected. Audit records field-change flags rather than name/email/photo bodies.
+Profile/read-photo cache and frozen write body/key use existing encrypted SQLCipher
+storage scoped by environment/account/role. Offline saved data cannot write;
+uncertain replies keep the exact pending request across recreation. Clear cache
+never clears pending changes. Photos are bounded to 5 MiB and fetched through the
+authenticated UUID media endpoint, never an arbitrary URL. The existing Android
+SAF picker/media normalization is reused without a new dependency. Uploading only
+stages owned media; explicit Save applies it to the profile. Same-instance photo
+upload retries reuse the bytes/key; after process loss the user may need to pick
+again. Profile save retries are durable; no automatic upload/save on restoration.
+
+Changed source: API `modules/profile/` and AppModule; mobile `features/profile/`,
+customer/shared routes, vendor profile link, English ARB/generated l10n; focused
+native/mobile tests and generated OpenAPI/TS/Dart clients. Existing users name/
+email/photo columns suffice: no schema migration, dependency, KYC/financial/grant
+or retention-policy changes. Compatibility comparison found one new path and two
+schemas; every existing operation/schema remains unchanged.
+
+Executed commands (repo root unless noted; C:/flutter/bin SDK):
+
+```powershell
+# Git Bash with Flutter SDK in PATH:
+bash tools/codegen.sh
+# apps/api:
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src/modules/profile src/app.module.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+# NATIVE_TEST_DATABASE_URL privately rewritten from API-local .env to ONLY
+# local supplybiz_service_area_test; no credentials printed:
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/profile/profile.postgres.spec.ts
+# apps/admin (shared TS-client compatibility):
+.\node_modules\.bin\next.cmd typegen
+.\node_modules\.bin\tsc.cmd --noEmit
+# apps/mobile:
+flutter gen-l10n
+flutter test --no-pub test/features/profile/profile_test.dart test/core/router/app_router_test.dart test/features/settings/vendor_settings_test.dart
+flutter analyze --no-pub
+dart analyze ../../packages/api_client
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+Results: five native profile HTTP/PostgreSQL + 23 focused mobile checks = 28 unique
+PASS. Mobile tests include 200% text, read-only phone/validation, byte/key transport,
+photo staging/removal, frozen recovery, safe cache clearing, disposal/owner denial,
+CMS legal and About/license links plus route/vendor-settings regressions. Initial
+MapEntry identity matcher and test lint findings were corrected. API checks/build,
+admin typecheck, mobile/generated-client analysis, final Android dev APK and root
+git diff --check PASS. Native media ownership fixtures use metadata; mobile media
+HTTP is simulated, not evidence of live native picking/upload/download.
+
+No adb device attached: actual Android photo picker/media round-trip, real native
+storage/restart, TalkBack and live UI-API-DB journey NOT_RUN. Manual PASS/G4 pending;
+iOS deferred. No main development DB mutation/migration. Test API processes closed;
+only task-created build daemon stopped, pre-existing services/devices preserved.
+
+Manual Android verification (not executed):
+1. Open customer Profile, edit name/email and confirm mobile cannot change. Save,
+   reload/restart and verify the values; test invalid email and stale-editor review.
+   As vendor, confirm the personal profile does not change reviewed business/KYC.
+2. Choose a PNG/JPEG photo through SAF, preview the staged result, explicitly Save,
+   then remove it and Save. Verify ownership/private download and interruption/
+   same-key recovery; no save should happen automatically after recreation.
+3. Open notification preferences/role switch, clear profile cache and verify pending
+   changes/offline deliveries remain. Test offline warnings, logout/account-role
+   isolation and blocked-session denial, keyboard, 200% text and TalkBack.
+4. Open About: compare installed version, inspect licenses, read published CMS
+   Terms/Privacy and exact versions. With no published content or offline, check
+   unavailable/stale messaging. Deferred finance/referral/payment-method links must
+   be absent; help/contact/deletion remain with their owning tasks.
+
 ## T-106 vendor settings/re-verification (2026-11-19): READY_FOR_VERIFY
 
 More -> Vendor settings opens S-V-20. Business information and delivery settings

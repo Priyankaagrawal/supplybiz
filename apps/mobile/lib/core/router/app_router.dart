@@ -17,12 +17,29 @@ import '../../features/plans/plans_page.dart';
 import '../../features/reports/reports_page.dart';
 import '../../features/settings/vendor_settings_page.dart';
 import '../../features/onboarding/onboarding_pages.dart';
+import '../../features/profile/profile_pages.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/account/profile',
+            builder: (_, __) => const AccountProfilePage()),
+        GoRoute(
+            path: '/account/profile/edit',
+            builder: (_, __) => const AccountProfilePage(section: 'edit')),
+        GoRoute(
+            path: '/account/settings',
+            builder: (_, __) => const AccountProfilePage(section: 'settings')),
+        GoRoute(
+            path: '/account/about',
+            builder: (_, __) => const ProfileAboutPage()),
+        GoRoute(
+            path: '/account/legal/:type',
+            builder: (_, s) =>
+                ProfileLegalPage(type: s.pathParameters['type']!)),
         GoRoute(
             path: '/vendor/settings',
             builder: (_, __) => const VendorSettingsPage()),

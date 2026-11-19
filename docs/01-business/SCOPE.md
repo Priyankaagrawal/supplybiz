@@ -132,7 +132,7 @@ See [README](../../README.md#document-dependencies).
 | Q-27 | Target scale (vendors, customers, orders/day) and business KPI targets? | NFR-005 | PO |
 | Q-28 | Voice/OCR processing on-device vs cloud (privacy/cost/accuracy)? | POST-DELIVERY SR-01; grocery recognition deferred | Architect |
 | Q-29 | Confirm "Staff" menu item hidden in v1? | UX | PO |
-| Q-30 | Support phone number / email / hours for "Call Support"? | FR-133 | Ops |
+| Q-30 | TBD (user, 2026-11-19): keep support phone/email/hours unpublished for now. TODO: configure and verify real contacts later before enabling call/email actions; do not invent placeholders. FAQ/legal work may proceed separately with contact actions unavailable. | FR-133 | Ops |
 | Q-31 | Git hosting & CI platform (A-14)? | GIT_CICD | Engineering |
 | Q-32 | Maps provider: Google Maps Platform or MapmyIndia? | POST-DELIVERY SR-04: interactive maps/provider choice deferred; manual address/coordinates + optional GPS approved | Architect |
 | Q-33 | Production domain(s) for API, admin, deep links, legal pages? | Deep links | PO |
