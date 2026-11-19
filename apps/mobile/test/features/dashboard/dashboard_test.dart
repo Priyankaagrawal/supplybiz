@@ -388,7 +388,7 @@ void main() {
     await reveal(t, find.text('Reports'));
     final row = t.widget<ListTile>(find.ancestor(
         of: find.text('Reports'), matching: find.byType(ListTile)));
-    expect(row.onTap, isNull);
+    expect(row.onTap, isNotNull); // T-102 now owns the Reports destination.
     await reveal(t, find.text('Plans'));
     final plansRow = t.widget<ListTile>(
         find.ancestor(of: find.text('Plans'), matching: find.byType(ListTile)));

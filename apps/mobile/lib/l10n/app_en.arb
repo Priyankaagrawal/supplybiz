@@ -950,5 +950,86 @@
   "plansHalfYearly": "Half-yearly",
   "plansYearly": "Yearly",
   "plansCatalogPrice": "{duration}: {price}",
-  "@plansCatalogPrice": {"placeholders": {"duration": {"type": "String"}, "price": {"type": "String"}}}
+  "@plansCatalogPrice": {"placeholders": {"duration": {"type": "String"}, "price": {"type": "String"}}},
+  "reportsOffline": "Offline: showing a previously fetched summary. Refresh before exporting.",
+  "reportsRangeHelp": "Reports use inclusive IST dates, up to 366 days. Weekly and monthly filters end today.",
+  "reportsWeek": "This week",
+  "reportsMonth": "This month",
+  "reportsFrom": "From (YYYY-MM-DD)",
+  "reportsTo": "To (YYYY-MM-DD)",
+  "reportsInvalidRange": "Enter valid dates in order, covering at most 366 days.",
+  "reportsSelected": "Report: {from} to {to}",
+  "reportsBasis": "Sales use actual delivery and POS sale dates. Order counts use scheduled delivery dates. Earnings are net receipts by payment date, including corrections.",
+  "reportsSales": "Total sales",
+  "reportsOrders": "Total orders",
+  "reportsDelivered": "Delivered orders",
+  "reportsCancelled": "Cancelled orders",
+  "reportsMilk": "Milk sold (L)",
+  "reportsUnknownMilk": "Milk volume is incomplete: {count} historical lines have no measured volume.",
+  "reportsEarnings": "Total earnings (net receipts)",
+  "reportsPending": "Pending payments (current)",
+  "reportsActive": "Active customers (current)",
+  "reportsCurrent": "Pending payments and active customers are current values, independent of the selected range.",
+  "reportsProductTotal": "Product sales",
+  "reportsCharges": "Delivery charges",
+  "reportsDiscount": "Discounts",
+  "reportsGap": "Unitemized sales adjustment",
+  "reportsNoData": "No report loaded. Connect and retry.",
+  "reportsLocked": "Daily and product tables and CSV require an active BUSINESS or PREMIUM plan. Contact support for a plan change.",
+  "reportsWeekly": "Weekly sales",
+  "reportsDaily": "Daily sales",
+  "reportsTableHint": "Swipe tables horizontally to view all columns. Long ranges use clipped Monday-based weeks.",
+  "reportsProducts": "Product sales by sold pack",
+  "reportsNoProducts": "No product sales in this range.",
+  "reportsProductCount": "Showing through {shown} of {total} product groups.",
+  "reportsAllProducts": "All product groups total",
+  "reportsProduct": "Product",
+  "reportsPack": "Sold pack",
+  "reportsQuantity": "Quantity (packs)",
+  "reportsPrevious": "Previous page",
+  "reportsNext": "Next page",
+  "reportsCsvHelp": "Download the authorized CSV and choose an app to save or share it. CSV includes all product groups. Exports expire after 24 hours. Import exact large numbers as text in spreadsheets.",
+  "reportsPendingExport": "Retry uses the frozen CSV request for {from} to {to}, even if the screen range changes.",
+  "reportsExportExpired": "This export expired or exceeds capacity. Start a new CSV, using a smaller range if needed.",
+  "reportsChooserOpened": "Share chooser opened. Choose an app to finish saving or sharing.",
+  "reportsRetryCsv": "Download / share same CSV",
+  "reportsShareCsv": "Download / share CSV",
+  "reportsNewCsv": "Start a new CSV request",
+  "@reportsSelected": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@reportsUnknownMilk": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@reportsProductCount": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@reportsPendingExport": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  }
 }

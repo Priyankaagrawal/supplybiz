@@ -70,6 +70,7 @@ void main() {
     storage = AppStorage(
       secrets: secrets,
       directory: () async => directory,
+      temporaryDirectory: () async => directory,
       databaseFactory: (_, __) {
         final database = FakeDatabase();
         databases.add(database);
@@ -109,6 +110,9 @@ void main() {
       await File('${directory.path}/supplybiz.sqlite$suffix')
           .writeAsString('fake');
     }
+    final exports =
+        await Directory('${directory.path}/report_exports').create();
+    await File('${exports.path}/synthetic.csv').writeAsString('synthetic');
     final wipe = storage.wipeOnLogout();
     expect(() => storage.database, throwsStateError);
     await wipe;
@@ -131,6 +135,7 @@ void main() {
     final restarted = AppStorage(
       secrets: secrets,
       directory: () async => directory,
+      temporaryDirectory: () async => directory,
       databaseFactory: (_, __) {
         final database = FakeDatabase();
         databases.add(database);

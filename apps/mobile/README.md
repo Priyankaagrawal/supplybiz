@@ -1,5 +1,77 @@
 # Supply Biz Mobile
 
+## T-102 vendor Reports (2026-11-19): READY_FOR_VERIFY
+
+More / dashboard Reports and recorded-sales tiles open `/vendor/reports`
+(S-V-17). The sales tile carries the selected business date; lifetime sales opens
+range reports with the explicit 366-day limit, never a fabricated lifetime range.
+Today, week-to-date, month-to-date and custom inclusive IST dates use server
+businessDate. Summary shows exact BigInt paise, signed net receipts, exact milk,
+legacy unknown-volume warning, current dues/customers and gross reconciliation.
+Daily/clipped-week tables and 20-row paginated sold-product snapshot groups use
+the generated T-100 APIs. Product total covers every page. No chart/PDF scope.
+
+T-101 generated export create/status/download freezes CSV dates/key before POST
+in existing encrypted environment/account/role storage. Lost responses retain
+that key/body through recreation; changing filters does not change a pending CSV.
+Known artifacts can be explicitly reset for a new request. Downloads recheck live
+server access. The mobile ignores downloadPath/remote filenames, checks byte size
+and sends the original bytes to Android, which validates SHA-256, UUID, dates and
+8 MiB capacity before opening ACTION_SEND with a narrow FileProvider content URI.
+Only selected receivers get read permission; no new package/storage permission.
+Chooser-open acknowledgment does not claim a recipient saved/sent the file.
+Private temporary exported files are capped at ten; files older than 24 hours are
+pruned on the next share, and logout deletes this dedicated cache before clearing
+the wipe-pending marker. They are explicit exported copies, not offline report
+storage. Copies saved to another app remain under that app's control.
+
+A single encrypted saved summary is labelled stale offline; tables require fresh
+reads and exports are disabled until summary refresh. Cached summaries never grant
+advanced access. Server plan denial clears tables and shows support-assisted
+BUSINESS/PREMIUM guidance; other authorization denial clears private report state.
+Late disposed responses cannot publish/write/share. Pending export read/write
+failure blocks sending a new request. All strings are English ARB; 200% text and
+horizontal tables are covered by the focused widget smoke.
+
+Changed source: `lib/features/reports/`, dashboard/router integration, `app_storage.dart`,
+English ARB/generated l10n, Android `ReportSharing.kt`, MainActivity, manifest and
+`res/xml/report_export_paths.xml`; focused report/dashboard/logout tests.
+No API/schema/client-contract/dependency or iOS change.
+
+Executed in `apps/mobile` with `C:\flutter\bin` tools:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/reports lib/core/router/app_router.dart lib/features/dashboard/dashboard_page.dart lib/core/storage/app_storage.dart test/features/reports test/core/storage/app_storage_test.dart
+flutter analyze --no-pub
+flutter test --no-pub test/features/reports/reports_test.dart test/core/network/reports_client_test.dart test/core/network/report_exports_client_test.dart test/core/storage/app_storage_test.dart test/features/dashboard/dashboard_test.dart test/core/router/app_router_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+Results: final analysis clean; 34 focused tests PASS; final development APK PASS
+(`build/app/outputs/flutter-apk/app-dev-debug.apk`). Root `git diff --check` PASS.
+Initial checks exposed an outdated disabled-Reports expectation and widget finder/
+reload issues; corrected, final combined run passed. `adb devices` showed no
+attached device: native chooser/save, real encrypted-storage/process restart,
+TalkBack and live UI-API-DB journey NOT_RUN. iOS deferred. Manual PASS/G4 pending.
+Prior T-100/T-101 migrations were applied only to the isolated test database;
+prepare the intended local runtime DB through the normal migration workflow before
+live report/export verification. No runtime DB changes were made for T-102.
+
+Manual Android verification (not yet executed):
+1. Open Reports from More and the selected-date sales tile. Test Today/week/month,
+   leap/custom dates and the 366-day boundary; compare gross, signed receipts,
+   scheduled-order counts and current dues/customers with known records.
+2. With active BUSINESS/PREMIUM, inspect zero-day/week rows, product pages and
+   reconciliation. Downgrade/expire via the authorized admin flow: summary follows
+   server history policy; tables/CSV lock with support guidance.
+3. Download/share CSV to a receiving app and save/open it. Compare all product
+   groups and exact paise/quantity columns; import large numbers as text. Cancel
+   chooser, retry after connection loss/recreation, and verify frozen dates/key.
+4. Test offline saved-summary warning, suspension, logout/account isolation and
+   exported-cache deletion. Check long product names, horizontal tables, 200%
+   text and TalkBack on a device; confirm no automatic sharing on recreation.
+
 ## T-105 vendor Plans (2026-11-19): READY_FOR_VERIFY
 
 More → Plans, dashboard plan guidance → View plans and owned PLAN_EXPIRING/

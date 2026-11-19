@@ -200,10 +200,12 @@ class _DashboardState extends ConsumerState<VendorDashboardPage>
                                 tap: () => orders(m, 'DELIVERED')),
                             tile(l.dashSales, money(v.todaySalesPaise),
                                 Icons.point_of_sale,
-                                hint: l.dashReportsSoon),
+                                tap: () => open(m,
+                                    '/vendor/reports?date=${m.selectedDate}')),
                             tile(l.dashLifetime, money(v.totalEarningsPaise),
                                 Icons.bar_chart,
-                                hint: l.dashReportsSoon),
+                                tap: () => open(m, '/vendor/reports'),
+                                hint: l.reportsRangeHelp),
                             tile(
                                 l.dashMilk,
                                 l.dashLitres(
@@ -240,9 +242,10 @@ class _DashboardState extends ConsumerState<VendorDashboardPage>
                           SbButton(
                               label: l.salesTitle,
                               onPressed: () => open(m, '/vendor/sales')),
-                          SbButton(label: l.dashReports, onPressed: null),
+                          SbButton(
+                              label: l.dashReports,
+                              onPressed: () => open(m, '/vendor/reports')),
                         ]),
-                        Text(l.dashReportsSoon),
                       ] else if (!m.busy)
                         Text(l.dashNoCache),
                     ]))));
@@ -382,7 +385,7 @@ class _MoreState extends ConsumerState<VendorMorePage> {
                       row(l.dashDeliveries, '/vendor/deliveries'),
                       row(l.availabilityTitle, '/vendor/availability'),
                       row(l.areaTitle, const ServiceAreaRoute().location),
-                      row(l.dashReports, null, subtitle: l.dashAvailableSoon),
+                      row(l.dashReports, '/vendor/reports'),
                       row(l.dashPlans, '/vendor/plans'),
                       row(l.dashVendorSettings, null,
                           subtitle: l.dashAvailableSoon),

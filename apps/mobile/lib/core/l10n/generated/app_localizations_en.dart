@@ -2726,4 +2726,154 @@ class AppLocalizationsEn extends AppLocalizations {
   String plansCatalogPrice(String duration, String price) {
     return '$duration: $price';
   }
+
+  @override
+  String get reportsOffline =>
+      'Offline: showing a previously fetched summary. Refresh before exporting.';
+
+  @override
+  String get reportsRangeHelp =>
+      'Reports use inclusive IST dates, up to 366 days. Weekly and monthly filters end today.';
+
+  @override
+  String get reportsWeek => 'This week';
+
+  @override
+  String get reportsMonth => 'This month';
+
+  @override
+  String get reportsFrom => 'From (YYYY-MM-DD)';
+
+  @override
+  String get reportsTo => 'To (YYYY-MM-DD)';
+
+  @override
+  String get reportsInvalidRange =>
+      'Enter valid dates in order, covering at most 366 days.';
+
+  @override
+  String reportsSelected(String from, String to) {
+    return 'Report: $from to $to';
+  }
+
+  @override
+  String get reportsBasis =>
+      'Sales use actual delivery and POS sale dates. Order counts use scheduled delivery dates. Earnings are net receipts by payment date, including corrections.';
+
+  @override
+  String get reportsSales => 'Total sales';
+
+  @override
+  String get reportsOrders => 'Total orders';
+
+  @override
+  String get reportsDelivered => 'Delivered orders';
+
+  @override
+  String get reportsCancelled => 'Cancelled orders';
+
+  @override
+  String get reportsMilk => 'Milk sold (L)';
+
+  @override
+  String reportsUnknownMilk(int count) {
+    return 'Milk volume is incomplete: $count historical lines have no measured volume.';
+  }
+
+  @override
+  String get reportsEarnings => 'Total earnings (net receipts)';
+
+  @override
+  String get reportsPending => 'Pending payments (current)';
+
+  @override
+  String get reportsActive => 'Active customers (current)';
+
+  @override
+  String get reportsCurrent =>
+      'Pending payments and active customers are current values, independent of the selected range.';
+
+  @override
+  String get reportsProductTotal => 'Product sales';
+
+  @override
+  String get reportsCharges => 'Delivery charges';
+
+  @override
+  String get reportsDiscount => 'Discounts';
+
+  @override
+  String get reportsGap => 'Unitemized sales adjustment';
+
+  @override
+  String get reportsNoData => 'No report loaded. Connect and retry.';
+
+  @override
+  String get reportsLocked =>
+      'Daily and product tables and CSV require an active BUSINESS or PREMIUM plan. Contact support for a plan change.';
+
+  @override
+  String get reportsWeekly => 'Weekly sales';
+
+  @override
+  String get reportsDaily => 'Daily sales';
+
+  @override
+  String get reportsTableHint =>
+      'Swipe tables horizontally to view all columns. Long ranges use clipped Monday-based weeks.';
+
+  @override
+  String get reportsProducts => 'Product sales by sold pack';
+
+  @override
+  String get reportsNoProducts => 'No product sales in this range.';
+
+  @override
+  String reportsProductCount(int shown, int total) {
+    return 'Showing through $shown of $total product groups.';
+  }
+
+  @override
+  String get reportsAllProducts => 'All product groups total';
+
+  @override
+  String get reportsProduct => 'Product';
+
+  @override
+  String get reportsPack => 'Sold pack';
+
+  @override
+  String get reportsQuantity => 'Quantity (packs)';
+
+  @override
+  String get reportsPrevious => 'Previous page';
+
+  @override
+  String get reportsNext => 'Next page';
+
+  @override
+  String get reportsCsvHelp =>
+      'Download the authorized CSV and choose an app to save or share it. CSV includes all product groups. Exports expire after 24 hours. Import exact large numbers as text in spreadsheets.';
+
+  @override
+  String reportsPendingExport(String from, String to) {
+    return 'Retry uses the frozen CSV request for $from to $to, even if the screen range changes.';
+  }
+
+  @override
+  String get reportsExportExpired =>
+      'This export expired or exceeds capacity. Start a new CSV, using a smaller range if needed.';
+
+  @override
+  String get reportsChooserOpened =>
+      'Share chooser opened. Choose an app to finish saving or sharing.';
+
+  @override
+  String get reportsRetryCsv => 'Download / share same CSV';
+
+  @override
+  String get reportsShareCsv => 'Download / share CSV';
+
+  @override
+  String get reportsNewCsv => 'Start a new CSV request';
 }

@@ -4918,6 +4918,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{duration}: {price}'**
   String plansCatalogPrice(String duration, String price);
+
+  /// No description provided for @reportsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: showing a previously fetched summary. Refresh before exporting.'**
+  String get reportsOffline;
+
+  /// No description provided for @reportsRangeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports use inclusive IST dates, up to 366 days. Weekly and monthly filters end today.'**
+  String get reportsRangeHelp;
+
+  /// No description provided for @reportsWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get reportsWeek;
+
+  /// No description provided for @reportsMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get reportsMonth;
+
+  /// No description provided for @reportsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From (YYYY-MM-DD)'**
+  String get reportsFrom;
+
+  /// No description provided for @reportsTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To (YYYY-MM-DD)'**
+  String get reportsTo;
+
+  /// No description provided for @reportsInvalidRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter valid dates in order, covering at most 366 days.'**
+  String get reportsInvalidRange;
+
+  /// No description provided for @reportsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Report: {from} to {to}'**
+  String reportsSelected(String from, String to);
+
+  /// No description provided for @reportsBasis.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales use actual delivery and POS sale dates. Order counts use scheduled delivery dates. Earnings are net receipts by payment date, including corrections.'**
+  String get reportsBasis;
+
+  /// No description provided for @reportsSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Total sales'**
+  String get reportsSales;
+
+  /// No description provided for @reportsOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Total orders'**
+  String get reportsOrders;
+
+  /// No description provided for @reportsDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered orders'**
+  String get reportsDelivered;
+
+  /// No description provided for @reportsCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled orders'**
+  String get reportsCancelled;
+
+  /// No description provided for @reportsMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk sold (L)'**
+  String get reportsMilk;
+
+  /// No description provided for @reportsUnknownMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk volume is incomplete: {count} historical lines have no measured volume.'**
+  String reportsUnknownMilk(int count);
+
+  /// No description provided for @reportsEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Total earnings (net receipts)'**
+  String get reportsEarnings;
+
+  /// No description provided for @reportsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending payments (current)'**
+  String get reportsPending;
+
+  /// No description provided for @reportsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active customers (current)'**
+  String get reportsActive;
+
+  /// No description provided for @reportsCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending payments and active customers are current values, independent of the selected range.'**
+  String get reportsCurrent;
+
+  /// No description provided for @reportsProductTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Product sales'**
+  String get reportsProductTotal;
+
+  /// No description provided for @reportsCharges.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery charges'**
+  String get reportsCharges;
+
+  /// No description provided for @reportsDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discounts'**
+  String get reportsDiscount;
+
+  /// No description provided for @reportsGap.
+  ///
+  /// In en, this message translates to:
+  /// **'Unitemized sales adjustment'**
+  String get reportsGap;
+
+  /// No description provided for @reportsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No report loaded. Connect and retry.'**
+  String get reportsNoData;
+
+  /// No description provided for @reportsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily and product tables and CSV require an active BUSINESS or PREMIUM plan. Contact support for a plan change.'**
+  String get reportsLocked;
+
+  /// No description provided for @reportsWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly sales'**
+  String get reportsWeekly;
+
+  /// No description provided for @reportsDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily sales'**
+  String get reportsDaily;
+
+  /// No description provided for @reportsTableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe tables horizontally to view all columns. Long ranges use clipped Monday-based weeks.'**
+  String get reportsTableHint;
+
+  /// No description provided for @reportsProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Product sales by sold pack'**
+  String get reportsProducts;
+
+  /// No description provided for @reportsNoProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'No product sales in this range.'**
+  String get reportsNoProducts;
+
+  /// No description provided for @reportsProductCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing through {shown} of {total} product groups.'**
+  String reportsProductCount(int shown, int total);
+
+  /// No description provided for @reportsAllProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'All product groups total'**
+  String get reportsAllProducts;
+
+  /// No description provided for @reportsProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get reportsProduct;
+
+  /// No description provided for @reportsPack.
+  ///
+  /// In en, this message translates to:
+  /// **'Sold pack'**
+  String get reportsPack;
+
+  /// No description provided for @reportsQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity (packs)'**
+  String get reportsQuantity;
+
+  /// No description provided for @reportsPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get reportsPrevious;
+
+  /// No description provided for @reportsNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get reportsNext;
+
+  /// No description provided for @reportsCsvHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the authorized CSV and choose an app to save or share it. CSV includes all product groups. Exports expire after 24 hours. Import exact large numbers as text in spreadsheets.'**
+  String get reportsCsvHelp;
+
+  /// No description provided for @reportsPendingExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry uses the frozen CSV request for {from} to {to}, even if the screen range changes.'**
+  String reportsPendingExport(String from, String to);
+
+  /// No description provided for @reportsExportExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This export expired or exceeds capacity. Start a new CSV, using a smaller range if needed.'**
+  String get reportsExportExpired;
+
+  /// No description provided for @reportsChooserOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Share chooser opened. Choose an app to finish saving or sharing.'**
+  String get reportsChooserOpened;
+
+  /// No description provided for @reportsRetryCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Download / share same CSV'**
+  String get reportsRetryCsv;
+
+  /// No description provided for @reportsShareCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Download / share CSV'**
+  String get reportsShareCsv;
+
+  /// No description provided for @reportsNewCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new CSV request'**
+  String get reportsNewCsv;
 }
 
 class _AppLocalizationsDelegate

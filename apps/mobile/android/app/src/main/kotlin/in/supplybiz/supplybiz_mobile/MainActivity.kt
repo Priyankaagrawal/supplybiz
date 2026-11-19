@@ -25,6 +25,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/reports").setMethodCallHandler(ReportSharing(this)::handle)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/upi").setMethodCallHandler(upiPayments::handle)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/customers").setMethodCallHandler { call, result ->
             if (call.method != "dial") { result.notImplemented(); return@setMethodCallHandler }

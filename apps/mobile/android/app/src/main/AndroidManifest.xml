@@ -9,6 +9,12 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="firebase_messaging_auto_init_enabled" android:value="false" />
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.report_exports"
+            android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/report_export_paths" />
+        </provider>
         <activity
             android:name=".MainActivity"
             android:exported="true"

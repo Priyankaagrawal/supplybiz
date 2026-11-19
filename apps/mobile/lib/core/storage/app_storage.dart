@@ -16,14 +16,17 @@ class AppStorage {
   AppStorage({
     SecureStore? secrets,
     Future<Directory> Function()? directory,
+    Future<Directory> Function()? temporaryDirectory,
     AppDatabase Function(String path, String key)? databaseFactory,
   })  : _secrets = secrets ?? SecureStore(),
         _directory = directory ?? getApplicationSupportDirectory,
+        _temporaryDirectory = temporaryDirectory ?? getTemporaryDirectory,
         _databaseFactory = databaseFactory ?? _encryptedDatabase;
 
   static final instance = AppStorage();
   final SecureStore _secrets;
   final Future<Directory> Function() _directory;
+  final Future<Directory> Function() _temporaryDirectory;
   final AppDatabase Function(String, String) _databaseFactory;
   Future<void> _tail = Future.value();
   AppDatabase? _database;
@@ -137,6 +140,10 @@ class AppStorage {
       final file = File('$path$suffix');
       if (await file.exists()) await file.delete();
     }
+    // T-102: user-shared report files are temporary exports, wiped on logout.
+    final reports =
+        Directory(p.join((await _temporaryDirectory()).path, 'report_exports'));
+    if (await reports.exists()) await reports.delete(recursive: true);
     await _secrets.clear();
     _blocked = false;
   }
