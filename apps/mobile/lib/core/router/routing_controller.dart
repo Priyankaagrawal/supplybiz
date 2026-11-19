@@ -45,6 +45,11 @@ class RoutingController extends ChangeNotifier {
 
   String? redirect(Uri uri, {bool unknown = false}) {
     final path = uri.path;
+    // T-107: reading public legal text must preserve a pending post-login link.
+    // Force-update/startup guards still apply; only this internal route is exempt.
+    if (path == '/common/legal' && !unknown && !uri.hasScheme) {
+      return guardRedirect(_access, path);
+    }
     // Explicit session settings must remain reachable while onboarding/link
     // navigation is pending, so users can switch roles or revoke their session.
     if (path == '/common/settings') {

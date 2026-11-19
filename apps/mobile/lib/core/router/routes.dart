@@ -163,18 +163,23 @@ class CommonRoute extends GoRouteData with _$CommonRoute {
   Widget build(BuildContext context, GoRouterState state) =>
       page == CommonPage.notifications
           ? const NotificationsPage()
-          : page == CommonPage.settings || page == CommonPage.switchRole
-              ? AuthPage(page == CommonPage.settings
-                  ? RouteTitle.settings
-                  : RouteTitle.switchRole)
-              : RoutePlaceholder(
-                  title: switch (page) {
-                  CommonPage.update => RouteTitle.update,
-                  CommonPage.legal => RouteTitle.legal,
-                  CommonPage.notifications => RouteTitle.notifications,
-                  CommonPage.settings => RouteTitle.settings,
-                  CommonPage.switchRole => RouteTitle.switchRole,
-                });
+          : page == CommonPage.legal
+              ? Consumer(
+                  builder: (context, ref, _) => ref.watch(authEnabledProvider)
+                      ? const ProfileLegalPage(type: 'TERMS', allowSwitch: true)
+                      : const RoutePlaceholder(title: RouteTitle.legal))
+              : page == CommonPage.settings || page == CommonPage.switchRole
+                  ? AuthPage(page == CommonPage.settings
+                      ? RouteTitle.settings
+                      : RouteTitle.switchRole)
+                  : RoutePlaceholder(
+                      title: switch (page) {
+                      CommonPage.update => RouteTitle.update,
+                      CommonPage.legal => RouteTitle.legal,
+                      CommonPage.notifications => RouteTitle.notifications,
+                      CommonPage.settings => RouteTitle.settings,
+                      CommonPage.switchRole => RouteTitle.switchRole,
+                    });
 }
 
 enum CommonPage { update, legal, notifications, settings, switchRole }

@@ -252,9 +252,9 @@ class _SettingsState extends ConsumerState<VendorSettingsPage> {
                         row(l.dashSubscriptions,
                             '/vendor/subscription-settings'),
                         row(l.dashPlans, '/vendor/plans'),
-                        row(l.authPrivacy, null),
-                        row(l.authTerms, null),
-                        row(l.dashHelp, null),
+                        row(l.authPrivacy, '/account/legal/PRIVACY'),
+                        row(l.authTerms, '/account/legal/TERMS'),
+                        row(l.dashHelp, '/account/help'),
                         row(l.settingsSwitch,
                             const CommonRoute(CommonPage.switchRole).location),
                         ListTile(

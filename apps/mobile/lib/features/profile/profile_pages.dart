@@ -203,6 +203,7 @@ class _ProfileState extends ConsumerState<AccountProfilePage> {
                                 .location),
                         row(l.profileSwitchRole,
                             const CommonRoute(CommonPage.switchRole).location),
+                        row(l.dashHelp, '/account/help'),
                         row(l.profileAbout, '/account/about'),
                         SbButton(
                             label: l.profileClearCache,
@@ -249,9 +250,9 @@ class _ProfileState extends ConsumerState<AccountProfilePage> {
                               const CustomerAddressesRoute().location),
                         row(l.routeSettings, '/account/settings'),
                         row(l.profileAbout, '/account/about'),
-                        row(l.dashHelp, null),
                       ] else if (!m.busy)
                         Text(l.profileUnavailable),
+                      if (!edit && !settings) row(l.dashHelp, '/account/help'),
                     ]))));
   }
 }
@@ -288,17 +289,21 @@ class ProfileAboutPage extends ConsumerWidget {
 }
 
 class ProfileLegalPage extends ConsumerStatefulWidget {
-  const ProfileLegalPage({required this.type, super.key});
+  const ProfileLegalPage(
+      {required this.type, this.allowSwitch = false, super.key});
   final String type;
+  final bool allowSwitch;
   @override
   ConsumerState<ProfileLegalPage> createState() => _LegalState();
 }
 
 class _LegalState extends ConsumerState<ProfileLegalPage> {
   ProfileLegalController? initialized;
+  String? selectedType;
   @override
   Widget build(BuildContext context) {
-    final m = ref.watch(profileLegalProvider(widget.type)),
+    final type = selectedType ?? widget.type;
+    final m = ref.watch(profileLegalProvider(type)),
         l = context.l10n,
         v = m.value;
     if (initialized != m) {
@@ -306,10 +311,23 @@ class _LegalState extends ConsumerState<ProfileLegalPage> {
       if (m.value == null || m.stale) Future.microtask(m.load);
     }
     return Scaffold(
-        appBar: AppBar(
-            title: Text(widget.type == 'TERMS' ? l.authTerms : l.authPrivacy)),
+        appBar:
+            AppBar(title: Text(type == 'TERMS' ? l.authTerms : l.authPrivacy)),
         body: SafeArea(
             child: ListView(padding: const EdgeInsets.all(16), children: [
+          if (widget.allowSwitch)
+            Wrap(spacing: 8, runSpacing: 8, children: [
+              SbButton(
+                  label: l.authTerms,
+                  onPressed: m.busy || type == 'TERMS'
+                      ? null
+                      : () => setState(() => selectedType = 'TERMS')),
+              SbButton(
+                  label: l.authPrivacy,
+                  onPressed: m.busy || type == 'PRIVACY'
+                      ? null
+                      : () => setState(() => selectedType = 'PRIVACY')),
+            ]),
           if (m.busy) const SbSkeleton(lines: 3),
           if (m.failure != null) Text(l.profileLegalUnavailable),
           if (m.stale && v != null) Text(l.profileLegalStale),

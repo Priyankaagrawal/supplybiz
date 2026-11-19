@@ -1095,5 +1095,44 @@
         "type": "String"
       }
     }
-  }
+  },
+  "helpTitle": "Help & Support",
+  "helpOrders": "Orders",
+  "helpPayments": "Payments",
+  "helpDelivery": "Delivery",
+  "helpAccount": "Account",
+  "helpKyc": "KYC",
+  "helpGeneral": "General",
+  "helpAll": "All topics",
+  "helpUnavailable": "Help content is temporarily unavailable. Connect and retry.",
+  "helpOffline": "Offline: showing previously downloaded FAQs. Refresh to check current published content.",
+  "helpCacheUnavailable": "FAQs could not be saved for offline reading.",
+  "helpDownloaded": "Downloaded: {time} UTC",
+  "@helpDownloaded": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "helpTopics": "Browse by topic",
+  "helpFaqs": "Frequently asked questions",
+  "helpEmpty": "No published FAQs on this page for the selected topic.",
+  "helpCount": "Showing through {shown} of {total} FAQs",
+  "@helpCount": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "helpContact": "Contact support",
+  "helpContactsUnavailable": "Support phone, email and operating hours have not been published yet. Call and email are currently unavailable.",
+  "helpCall": "Call support",
+  "helpEmail": "Email support",
+  "helpLegal": "Legal documents",
+  "helpPublishedLegal": "Published legal documents"
 }

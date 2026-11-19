@@ -270,6 +270,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             onPressed: () =>
                                 _legal(l10n.authPrivacy, config.privacy),
                             variant: SbButtonVariant.tertiary),
+                        SbButton(
+                            label: l10n.helpPublishedLegal,
+                            onPressed: () => const CommonRoute(CommonPage.legal)
+                                .push<void>(context),
+                            variant: SbButtonVariant.tertiary),
                         const SizedBox(height: 16),
                         SbButton(
                             label: l10n.authSend,

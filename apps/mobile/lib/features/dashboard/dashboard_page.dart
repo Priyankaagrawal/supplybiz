@@ -388,7 +388,7 @@ class _MoreState extends ConsumerState<VendorMorePage> {
                       row(l.dashReports, '/vendor/reports'),
                       row(l.dashPlans, '/vendor/plans'),
                       row(l.dashVendorSettings, '/vendor/settings'),
-                      row(l.dashHelp, null, subtitle: l.dashAvailableSoon),
+                      row(l.dashHelp, '/account/help'),
                       row(l.routeNotifications,
                           const CommonRoute(CommonPage.notifications).location),
                       row(l.dashAccountSettings,

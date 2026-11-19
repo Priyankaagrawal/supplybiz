@@ -338,8 +338,11 @@ class ProfileLegalController extends ChangeNotifier {
     stale = true;
     notifyListeners();
     try {
-      final result = (await api.contentControllerLegal(type: type)).data!;
+      final result = (await api.contentControllerLegal(
+              type: type, extra: {NetworkClient.publicRequest: true}))
+          .data!;
       if (_disposed) return;
+      if (result.type.value != type) throw const UnknownFailure();
       value = result;
       stale = false;
     } catch (e) {

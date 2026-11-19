@@ -8,6 +8,20 @@ const vendor = RouteAccess(
     signedIn: true, activeRole: AppRole.vendor, onboardingComplete: true);
 
 void main() {
+  test(
+      'T-107 public legal preserves a pending sign-in link and force-update priority',
+      () {
+    final controller = RoutingController();
+    addTearDown(controller.dispose);
+    controller.openLink('/v/$id');
+    expect(controller.redirect(Uri.parse('/login')), isNull);
+    expect(controller.redirect(Uri.parse('/common/legal')), isNull);
+    controller.update(customer);
+    expect(
+        controller.redirect(Uri.parse('/login')), '/customer/home/vendors/$id');
+    controller.update(const RouteAccess(forceUpdate: true));
+    expect(controller.redirect(Uri.parse('/common/legal')), '/common/update');
+  });
   test('T-013 guard order: update, startup, auth, role, onboarding, role match',
       () {
     expect(

@@ -1,5 +1,98 @@
 # Supply Biz Mobile
 
+## T-107 Help/FAQ/legal (2026-11-19): READY_FOR_VERIFY
+
+Vendor More/settings and customer Profile/settings now open `/account/help`
+(S-V-29/S-C-34), including when personal-profile loading fails. The existing
+published CMS FAQ API supplies expandable English plaintext questions/answers,
+All/Orders/Payments/Delivery/Account/KYC/General and current-page custom topics,
+20-row topic-preserving pagination and empty/error/retry states. Unknown topic
+slugs display as readable CMS content. No seeded/fake FAQs or HTML renderer.
+
+Five downloaded FAQ pages are retained in existing encrypted storage, scoped by
+environment/account/role and exact topic/offset. Offline cached data is labelled
+with its last download time (UTC download metadata, not an authoritative business
+clock). Uncached queries never relabel another page. Read/write failures remain
+readable where possible; recovery merges newer memory pages while preserving the
+five-page bound and clears storage warnings after a successful write. Fresh empty
+results replace old public entries, explicit denial drops the matching cached page,
+and disposed responses cannot publish/write. No business mutation/queued write.
+
+Terms/Privacy links from Help/vendor settings reuse T-126's CMS reader, now using
+explicit public requests without account credentials or auth refresh/logout on a
+public error. Returned document type must match the selected type; exact published
+version/plaintext are shown, never invented legal text. S-COM-08 `/common/legal`
+has a Terms/Privacy selector and is reachable from the sign-in form's Published
+legal documents link. Reading it preserves a pending post-login destination;
+force-update/startup guards retain priority and external unknown links remain
+subject to normal validation. The existing sign-in consent review uses its reviewed
+build-configured Terms/Privacy bundle; this read-only CMS viewer does not record
+agreement, replace those accepted versions or rewrite historical consent records.
+
+Q-30 exception (explicit user decision): phone, email and hours remain unpublished
+TBD. Call/email buttons are disabled and explain unavailability. TODO(Q-30) beside
+the controls and SCOPE records future configuration/verification and native intent
+wiring. No contact values, dial/email requests, ticket/chat flows or deferred
+finance/referral actions are fabricated. Contact intents are intentionally outside
+this approved slice, not claimed as passing. T-019 deletion/retention is unchanged.
+
+Changed source: `lib/features/help/`, shared profile/legal controller/view, auth
+sign-in link, dashboard/profile/vendor settings links, router/guard handling,
+English ARB/generated l10n and focused Help/routing tests. The existing T-158
+content APIs/contracts/clients/schema are unchanged; no API codegen, dependency,
+financial/grant/consent backfill, native Android/iOS source change or new migration.
+
+Executed commands (C:/flutter/bin SDK, apps/mobile unless noted):
+
+```powershell
+flutter gen-l10n
+flutter analyze --no-pub
+flutter test --no-pub test/features/help/help_test.dart test/features/profile/profile_test.dart test/core/router/app_router_test.dart test/core/router/guards_test.dart test/features/auth/auth_pages_test.dart
+flutter test --no-pub test/features/help/help_test.dart --plain-name 'common legal reader'
+flutter test --no-pub test/features/help/help_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+# apps/api; NATIVE_TEST_DATABASE_URL privately rewritten from .env to ONLY
+# local supplybiz_service_area_test; credentials never printed:
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/content/content.postgres.spec.ts
+# repo root:
+git diff --check
+```
+
+Results across final focused runs: 34 unique mobile cases (33 in the combined run
+plus the new cache-read-recovery case in the nine-case Help rerun) + seven existing
+native CMS/FAQ/legal/production Next-BFF/PostgreSQL regressions = 41 PASS. Mobile
+coverage includes exact topics/pages, bounded scoped cache, late-response fencing,
+read/write recovery, public 401/no account side effects, document-type binding,
+360px/200% plaintext/support states, anonymous legal switching, pending-deep-link
+preservation, auth consent/role/logout and existing profile/routing regressions.
+Final mobile analysis, Android dev APK and diff check PASS. Localization regenerated;
+no screenshot baselines. Existing test DB mobile/current legal pointers restored,
+task-owned FAQ/legal fixture records removed and test API/Next processes closed.
+Only task-created build daemon stopped; pre-existing services/devices preserved.
+
+NOT_RUN: no attached adb device, so real native encrypted cache/process restart,
+TalkBack/live Android UI-API-DB/auth journey and manual PASS/G4 remain pending.
+Phone/email intent tests are intentionally deferred by Q-30, not a device failure.
+iOS deferred. Main development DB was not changed; no API build was needed because
+backend source/contracts are unchanged. Runtime requires the existing content API
+and actual CMS publications; missing publication shows an explicit unavailable state.
+
+Manual Android verification (not executed):
+1. Publish synthetic English FAQs in the existing test CMS, including multiple
+   topics and more than 20 records. Open Help from both roles, expand long text,
+   filter/page and hide an entry; only fresh published records should appear.
+2. Download several pages, disconnect/restart, and check exact cached topic/page
+   labels/time, uncached empty/error behavior and refresh recovery. Switch accounts/
+   roles/logout and verify there is no cross-owner cache reuse. No writes replay.
+3. Signed out, open Published legal documents and switch Terms/Privacy; verify exact
+   CMS versions/plaintext and unavailable/offline states. Repeat while a valid
+   post-login deep link is pending, and confirm the destination resumes after
+   normal sign-in. Force update must still block. Reading creates no consent.
+4. Verify support phone/email/hours stay unpublished and both actions disabled.
+   Check 360px layout, 200% text, keyboard, TalkBack and legal navigation from Help,
+   Profile/About and vendor settings. Configure real contacts only under the later
+   Q-30 TODO; do not use placeholder contact data.
+
 ## T-126 profile/settings/About (2026-11-19): READY_FOR_VERIFY
 
 The customer Profile tab (S-C-27) and vendor Settings -> Profile and account open

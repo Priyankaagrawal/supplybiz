@@ -3042,4 +3042,79 @@ class AppLocalizationsEn extends AppLocalizations {
   String profileLegalVersion(String version) {
     return 'Published version: $version';
   }
+
+  @override
+  String get helpTitle => 'Help & Support';
+
+  @override
+  String get helpOrders => 'Orders';
+
+  @override
+  String get helpPayments => 'Payments';
+
+  @override
+  String get helpDelivery => 'Delivery';
+
+  @override
+  String get helpAccount => 'Account';
+
+  @override
+  String get helpKyc => 'KYC';
+
+  @override
+  String get helpGeneral => 'General';
+
+  @override
+  String get helpAll => 'All topics';
+
+  @override
+  String get helpUnavailable =>
+      'Help content is temporarily unavailable. Connect and retry.';
+
+  @override
+  String get helpOffline =>
+      'Offline: showing previously downloaded FAQs. Refresh to check current published content.';
+
+  @override
+  String get helpCacheUnavailable =>
+      'FAQs could not be saved for offline reading.';
+
+  @override
+  String helpDownloaded(String time) {
+    return 'Downloaded: $time UTC';
+  }
+
+  @override
+  String get helpTopics => 'Browse by topic';
+
+  @override
+  String get helpFaqs => 'Frequently asked questions';
+
+  @override
+  String get helpEmpty =>
+      'No published FAQs on this page for the selected topic.';
+
+  @override
+  String helpCount(int shown, int total) {
+    return 'Showing through $shown of $total FAQs';
+  }
+
+  @override
+  String get helpContact => 'Contact support';
+
+  @override
+  String get helpContactsUnavailable =>
+      'Support phone, email and operating hours have not been published yet. Call and email are currently unavailable.';
+
+  @override
+  String get helpCall => 'Call support';
+
+  @override
+  String get helpEmail => 'Email support';
+
+  @override
+  String get helpLegal => 'Legal documents';
+
+  @override
+  String get helpPublishedLegal => 'Published legal documents';
 }

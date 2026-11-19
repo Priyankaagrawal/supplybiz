@@ -18,12 +18,14 @@ import '../../features/reports/reports_page.dart';
 import '../../features/settings/vendor_settings_page.dart';
 import '../../features/onboarding/onboarding_pages.dart';
 import '../../features/profile/profile_pages.dart';
+import '../../features/help/help_page.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(path: '/account/help', builder: (_, __) => const HelpPage()),
         GoRoute(
             path: '/account/profile',
             builder: (_, __) => const AccountProfilePage()),

@@ -5482,6 +5482,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Published version: {version}'**
   String profileLegalVersion(String version);
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpTitle;
+
+  /// No description provided for @helpOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get helpOrders;
+
+  /// No description provided for @helpPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get helpPayments;
+
+  /// No description provided for @helpDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get helpDelivery;
+
+  /// No description provided for @helpAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get helpAccount;
+
+  /// No description provided for @helpKyc.
+  ///
+  /// In en, this message translates to:
+  /// **'KYC'**
+  String get helpKyc;
+
+  /// No description provided for @helpGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get helpGeneral;
+
+  /// No description provided for @helpAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All topics'**
+  String get helpAll;
+
+  /// No description provided for @helpUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Help content is temporarily unavailable. Connect and retry.'**
+  String get helpUnavailable;
+
+  /// No description provided for @helpOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: showing previously downloaded FAQs. Refresh to check current published content.'**
+  String get helpOffline;
+
+  /// No description provided for @helpCacheUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'FAQs could not be saved for offline reading.'**
+  String get helpCacheUnavailable;
+
+  /// No description provided for @helpDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded: {time} UTC'**
+  String helpDownloaded(String time);
+
+  /// No description provided for @helpTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse by topic'**
+  String get helpTopics;
+
+  /// No description provided for @helpFaqs.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequently asked questions'**
+  String get helpFaqs;
+
+  /// No description provided for @helpEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No published FAQs on this page for the selected topic.'**
+  String get helpEmpty;
+
+  /// No description provided for @helpCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing through {shown} of {total} FAQs'**
+  String helpCount(int shown, int total);
+
+  /// No description provided for @helpContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get helpContact;
+
+  /// No description provided for @helpContactsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Support phone, email and operating hours have not been published yet. Call and email are currently unavailable.'**
+  String get helpContactsUnavailable;
+
+  /// No description provided for @helpCall.
+  ///
+  /// In en, this message translates to:
+  /// **'Call support'**
+  String get helpCall;
+
+  /// No description provided for @helpEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email support'**
+  String get helpEmail;
+
+  /// No description provided for @helpLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal documents'**
+  String get helpLegal;
+
+  /// No description provided for @helpPublishedLegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Published legal documents'**
+  String get helpPublishedLegal;
 }
 
 class _AppLocalizationsDelegate
