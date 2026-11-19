@@ -223,3 +223,9 @@
 - **Decision:** Generate tomorrow's subscription orders at 22:00 IST. The customer pause/skip/modify cutoff for date D is 21:00 IST on D-1. Before cutoff, changes affect D; after cutoff, changes affect D+1. An explicit customer skip of a frozen date returns PAST_CUTOFF. Preserve the documented vendor exception for skipping an already-generated NEW/ACCEPTED order after cutoff.
 - **Billing:** Subscriptions are postpaid through Khata. Each delivered subscription order posts its ledger debit through the existing transactional delivery flow. Monthly amounts are estimates under RULE-16, not prepaid charges, invoices or platform-held funds.
 - **Application:** Resolves Q-15 and Q-19, confirming A-05/A-06. T-072 may proceed against READY_FOR_VERIFY T-045 under ADR-030. T-073 owns actual scheduled generation; T-076/T-078 own mobile screens. Manual PASS and module gates remain separate.
+
+### ADR-034 Re-verification pauses discovery - Accepted, 2026-11-19
+- **Authority:** User explicitly selected "Pause discovery until approval" when asked about editing verified business/KYC/bank details for T-106.
+- **Decision:** Editing business-name, PAN, bank or Aadhaar fields that require re-verification sets the vendor to PENDING and pauses customer discovery until authorized approval. Do not continue advertising prior approved details while the edit awaits review.
+- **Precedence:** Replaces FR-131's proposed continued discovery with prior verified data, and retains the verified-KYC discovery boundary in ADR-029. Existing orders, ledger/settlement access and subscription generation retain their established authorization/business rules; this decision does not authorize cancelling or deleting records.
+- **Implementation:** T-106 owns the actual editing/re-verification flow. Recording this decision does not implement or verify T-106 and does not change its task status.

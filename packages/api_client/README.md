@@ -70,6 +70,13 @@ Class | Method | HTTP request | Description
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerMe**](doc/AdminAuthApi.md#adminauthcontrollerme) | **GET** /api/v1/admin/auth/me |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerVerify**](doc/AdminAuthApi.md#adminauthcontrollerverify) | **POST** /api/v1/admin/auth/totp/verify |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerConfig**](doc/AdminContentApi.md#admincontentcontrollerconfig) | **GET** /api/v1/admin/config |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerFaq**](doc/AdminContentApi.md#admincontentcontrollerfaq) | **PUT** /api/v1/admin/faqs/{id} |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerFaqs**](doc/AdminContentApi.md#admincontentcontrollerfaqs) | **GET** /api/v1/admin/faqs |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerHistory**](doc/AdminContentApi.md#admincontentcontrollerhistory) | **GET** /api/v1/admin/legal |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerLegal**](doc/AdminContentApi.md#admincontentcontrollerlegal) | **GET** /api/v1/admin/legal/{type} |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerPublish**](doc/AdminContentApi.md#admincontentcontrollerpublish) | **PUT** /api/v1/admin/legal/{type} |
+[*AdminContentApi*](doc/AdminContentApi.md) | [**adminContentControllerSaveConfig**](doc/AdminContentApi.md#admincontentcontrollersaveconfig) | **PUT** /api/v1/admin/config |
 [*AdminDashboardApi*](doc/AdminDashboardApi.md) | [**dashboardControllerGet**](doc/AdminDashboardApi.md#dashboardcontrollerget) | **GET** /api/v1/admin/dashboard |
 [*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBadges**](doc/AdminManagementApi.md#managementcontrollerbadges) | **PATCH** /api/v1/admin/vendors/{id} |
 [*AdminManagementApi*](doc/AdminManagementApi.md) | [**managementControllerBlock**](doc/AdminManagementApi.md#managementcontrollerblock) | **POST** /api/v1/admin/customers/{id}/block |
@@ -104,6 +111,8 @@ Class | Method | HTTP request | Description
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerList**](doc/CategoriesApi.md#categoriescontrollerlist) | **GET** /api/v1/admin/categories |
 [*CategoriesApi*](doc/CategoriesApi.md) | [**categoriesControllerUpdate**](doc/CategoriesApi.md#categoriescontrollerupdate) | **PUT** /api/v1/admin/categories/{id} |
 [*ConfigurationApi*](doc/ConfigurationApi.md) | [**appConfigControllerRead**](doc/ConfigurationApi.md#appconfigcontrollerread) | **GET** /api/v1/config | Get public mobile minimum version and simple flags
+[*ContentApi*](doc/ContentApi.md) | [**contentControllerFaqs**](doc/ContentApi.md#contentcontrollerfaqs) | **GET** /api/v1/content/faqs |
+[*ContentApi*](doc/ContentApi.md) | [**contentControllerLegal**](doc/ContentApi.md#contentcontrollerlegal) | **GET** /api/v1/content/legal/{type} |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerCreate**](doc/CustomerAddressesApi.md#addressescontrollercreate) | **POST** /api/v1/customer/addresses |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerGet**](doc/CustomerAddressesApi.md#addressescontrollerget) | **GET** /api/v1/customer/addresses/{id} |
 [*CustomerAddressesApi*](doc/CustomerAddressesApi.md) | [**addressesControllerList**](doc/CustomerAddressesApi.md#addressescontrollerlist) | **GET** /api/v1/customer/addresses |
@@ -244,6 +253,7 @@ Class | Method | HTTP request | Description
  - [AddressPatch](doc/AddressPatch.md)
  - [AddressResponse](doc/AddressResponse.md)
  - [AdminChallengeResponse](doc/AdminChallengeResponse.md)
+ - [AdminConfigResponse](doc/AdminConfigResponse.md)
  - [AdminDashboard](doc/AdminDashboard.md)
  - [AdminEnrollmentResponse](doc/AdminEnrollmentResponse.md)
  - [AdminMeResponse](doc/AdminMeResponse.md)
@@ -267,6 +277,7 @@ Class | Method | HTTP request | Description
  - [ClaimMutation](doc/ClaimMutation.md)
  - [ClaimRejection](doc/ClaimRejection.md)
  - [CompleteSaleInput](doc/CompleteSaleInput.md)
+ - [ConfigInput](doc/ConfigInput.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
  - [CustomerHome](doc/CustomerHome.md)
@@ -286,6 +297,9 @@ Class | Method | HTTP request | Description
  - [DiscoveredVendor](doc/DiscoveredVendor.md)
  - [DiscoveryPage](doc/DiscoveryPage.md)
  - [ExtendPlanInput](doc/ExtendPlanInput.md)
+ - [FaqInput](doc/FaqInput.md)
+ - [FaqList](doc/FaqList.md)
+ - [FaqRow](doc/FaqRow.md)
  - [FavoriteResult](doc/FavoriteResult.md)
  - [HealthControllerGetLive200Response](doc/HealthControllerGetLive200Response.md)
  - [HolidayDeleted](doc/HolidayDeleted.md)
@@ -312,6 +326,9 @@ Class | Method | HTTP request | Description
  - [LedgerAdjustmentAck](doc/LedgerAdjustmentAck.md)
  - [LedgerOpeningInput](doc/LedgerOpeningInput.md)
  - [LedgerReversalInput](doc/LedgerReversalInput.md)
+ - [LegalInput](doc/LegalInput.md)
+ - [LegalList](doc/LegalList.md)
+ - [LegalRow](doc/LegalRow.md)
  - [LinkDecisionResponse](doc/LinkDecisionResponse.md)
  - [LinkRequestList](doc/LinkRequestList.md)
  - [LinkRequestResponse](doc/LinkRequestResponse.md)

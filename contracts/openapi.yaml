@@ -1,5 +1,238 @@
 openapi: 3.0.0
 paths:
+  /api/v1/content/faqs:
+    get:
+      operationId: ContentController_faqs
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            maximum: 100000
+            default: 0
+            type: integer
+        - name: topic
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqList'
+      tags:
+        - content
+  /api/v1/content/legal/{type}:
+    get:
+      operationId: ContentController_legal
+      parameters:
+        - name: type
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: version
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalRow'
+      tags:
+        - content
+  /api/v1/admin/faqs:
+    get:
+      operationId: AdminContentController_faqs
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            maximum: 100000
+            default: 0
+            type: integer
+        - name: topic
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqList'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+  /api/v1/admin/legal:
+    get:
+      operationId: AdminContentController_history
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalList'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+  /api/v1/admin/legal/{type}:
+    get:
+      operationId: AdminContentController_legal
+      parameters:
+        - name: type
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: version
+          required: false
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalRow'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+    put:
+      operationId: AdminContentController_publish
+      parameters:
+        - name: type
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalRow'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+  /api/v1/admin/config:
+    get:
+      operationId: AdminContentController_config
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConfigResponse'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+    put:
+      operationId: AdminContentController_saveConfig
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminConfigResponse'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
+  /api/v1/admin/faqs/{id}:
+    put:
+      operationId: AdminContentController_faq
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaqInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaqRow'
+      tags:
+        - admin-content
+      security:
+        - bearer: []
   /api/v1/vendor/reports/exports:
     post:
       operationId: ReportExportsController_create
@@ -5908,6 +6141,154 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    FaqRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        topic:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+        published:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - topic
+        - question
+        - answer
+        - published
+        - updatedAt
+    FaqList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/FaqRow'
+        total:
+          type: integer
+      required:
+        - items
+        - total
+    LegalRow:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - TERMS
+            - PRIVACY
+        version:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+        sha256:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+      required:
+        - type
+        - version
+        - title
+        - text
+        - sha256
+        - publishedAt
+    LegalList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalRow'
+      required:
+        - items
+    AdminConfigResponse:
+      type: object
+      properties:
+        minVersionAndroid:
+          type: string
+          example: 0.1.0
+          pattern: ^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})$
+        flags:
+          type: object
+          additionalProperties:
+            type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - minVersionAndroid
+        - flags
+        - updatedAt
+    FaqInput:
+      type: object
+      properties:
+        expectedUpdatedAt:
+          type: string
+          description: Null when creating; otherwise exact server updatedAt.
+          nullable: true
+        topic:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+          description: Plaintext only; clients must render as text, never HTML.
+        published:
+          type: boolean
+      required:
+        - expectedUpdatedAt
+        - topic
+        - question
+        - answer
+        - published
+    LegalInput:
+      type: object
+      properties:
+        expectedVersion:
+          type: string
+          nullable: true
+          description: Current published version, or null for the first version.
+        version:
+          type: string
+        title:
+          type: string
+        text:
+          type: string
+          description: English plaintext; published versions cannot be overwritten.
+      required:
+        - expectedVersion
+        - version
+        - title
+        - text
+    ConfigInput:
+      type: object
+      properties:
+        expectedUpdatedAt:
+          type: string
+          nullable: true
+        minVersionAndroid:
+          type: string
+        flags:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: Up to 50 simple presentation flags. Never grants permissions or entitlements.
+      required:
+        - expectedUpdatedAt
+        - minVersionAndroid
+        - flags
     ReportExportInput:
       type: object
       properties:

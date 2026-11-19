@@ -4,6 +4,118 @@
  */
 
 export interface paths {
+    "/api/v1/content/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ContentController_faqs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/content/legal/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ContentController_legal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/faqs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminContentController_faqs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/legal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminContentController_history"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/legal/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminContentController_legal"];
+        put: operations["AdminContentController_publish"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminContentController_config"];
+        put: operations["AdminContentController_saveConfig"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/faqs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AdminContentController_faq"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/reports/exports": {
         parameters: {
             query?: never;
@@ -2189,6 +2301,67 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        FaqRow: {
+            /** Format: uuid */
+            id: string;
+            topic: string;
+            question: string;
+            answer: string;
+            published: boolean;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        FaqList: {
+            items: components["schemas"]["FaqRow"][];
+            total: number;
+        };
+        LegalRow: {
+            /** @enum {string} */
+            type: "TERMS" | "PRIVACY";
+            version: string;
+            title: string;
+            text: string;
+            sha256: string;
+            /** Format: date-time */
+            publishedAt: string;
+        };
+        LegalList: {
+            items: components["schemas"]["LegalRow"][];
+        };
+        AdminConfigResponse: {
+            /** @example 0.1.0 */
+            minVersionAndroid: string;
+            flags: {
+                [key: string]: boolean;
+            };
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        FaqInput: {
+            /** @description Null when creating; otherwise exact server updatedAt. */
+            expectedUpdatedAt: string | null;
+            topic: string;
+            question: string;
+            /** @description Plaintext only; clients must render as text, never HTML. */
+            answer: string;
+            published: boolean;
+        };
+        LegalInput: {
+            /** @description Current published version, or null for the first version. */
+            expectedVersion: string | null;
+            version: string;
+            title: string;
+            /** @description English plaintext; published versions cannot be overwritten. */
+            text: string;
+        };
+        ConfigInput: {
+            expectedUpdatedAt: string | null;
+            minVersionAndroid: string;
+            /** @description Up to 50 simple presentation flags. Never grants permissions or entitlements. */
+            flags: {
+                [key: string]: boolean;
+            };
+        };
         ReportExportInput: {
             from: string;
             to: string;
@@ -4078,6 +4251,216 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ContentController_faqs: {
+        parameters: {
+            query?: {
+                offset?: number;
+                topic?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqList"];
+                };
+            };
+        };
+    };
+    ContentController_legal: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                type: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalRow"];
+                };
+            };
+        };
+    };
+    AdminContentController_faqs: {
+        parameters: {
+            query?: {
+                offset?: number;
+                topic?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqList"];
+                };
+            };
+        };
+    };
+    AdminContentController_history: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalList"];
+                };
+            };
+        };
+    };
+    AdminContentController_legal: {
+        parameters: {
+            query?: {
+                version?: string;
+            };
+            header?: never;
+            path: {
+                type: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalRow"];
+                };
+            };
+        };
+    };
+    AdminContentController_publish: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                type: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalRow"];
+                };
+            };
+        };
+    };
+    AdminContentController_config: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminConfigResponse"];
+                };
+            };
+        };
+    };
+    AdminContentController_saveConfig: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfigInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminConfigResponse"];
+                };
+            };
+        };
+    };
+    AdminContentController_faq: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaqInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FaqRow"];
+                };
+            };
+        };
+    };
     ReportExportsController_create: {
         parameters: {
             query?: never;

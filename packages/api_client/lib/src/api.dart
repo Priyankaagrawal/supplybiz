@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/src/auth/basic_auth.dart';
 import 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 import 'package:supplybiz_api_client/src/auth/oauth.dart';
 import 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
+import 'package:supplybiz_api_client/src/api/admin_content_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_dashboard_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_management_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_plans_api.dart';
@@ -16,6 +17,7 @@ import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/catalog_api.dart';
 import 'package:supplybiz_api_client/src/api/categories_api.dart';
 import 'package:supplybiz_api_client/src/api/configuration_api.dart';
+import 'package:supplybiz_api_client/src/api/content_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_addresses_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_home_api.dart';
 import 'package:supplybiz_api_client/src/api/customer_khata_api.dart';
@@ -166,6 +168,12 @@ class SupplybizApiClient {
     return AdminAuthApi(dio);
   }
 
+  /// Get AdminContentApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AdminContentApi getAdminContentApi() {
+    return AdminContentApi(dio);
+  }
+
   /// Get AdminDashboardApi instance, base route and serializer can be overridden by a given but be careful,
   /// by doing that all interceptors will not be executed
   AdminDashboardApi getAdminDashboardApi() {
@@ -212,6 +220,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   ConfigurationApi getConfigurationApi() {
     return ConfigurationApi(dio);
+  }
+
+  /// Get ContentApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  ContentApi getContentApi() {
+    return ContentApi(dio);
   }
 
   /// Get CustomerAddressesApi instance, base route and serializer can be overridden by a given but be careful,

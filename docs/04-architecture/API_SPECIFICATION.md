@@ -1001,3 +1001,37 @@ Development/test PAN and account encryption uses FIELD_ENCRYPTION_KEY with AES-2
 fresh nonces and vendor/field-bound AAD. No automatic secret fallback exists. Staging/production
 writes return 503 KYC_ENCRYPTION_UNAVAILABLE until the documented KMS envelope path is
 implemented/configured; local task evidence is not production encryption readiness.
+
+### T-158 English CMS and app-config contract
+
+Implemented paths, all under `/api/v1`: public `GET /content/faqs?topic=&offset=`
+returns `{items,total}` (20 records, published only; topic is a lowercase slug);
+`GET /content/legal/{type}?version=` returns exact published `{type,version,title,
+text,sha256,publishedAt}` (TERMS/PRIVACY; omitted version selects current).
+Public content reads cache at most 60 seconds. Missing legal publication is 404
+LEGAL_NOT_PUBLISHED, never placeholder wording.
+
+Admin `GET /admin/faqs?topic=&offset=`, `/admin/legal` (latest 20 versions),
+`/admin/legal/{type}?version=` and `PUT /admin/faqs/{id}`, `/admin/legal/{type}`
+require cms.manage (SUPER_ADMIN/OPS). `GET/PUT /admin/config` require config.manage
+(SUPER_ADMIN only). All admin responses are no-store; writes require current
+session/CSRF and Idempotency-Key, rechecked inside the same transaction as content,
+audit and replay. There is no raw HTML renderer or remote-content URL fetch.
+
+FAQ input: `{expectedUpdatedAt:null|string,topic,question,answer,published}`;
+null creates a new caller-generated UUID, nonnull compares the server timestamp.
+Legal input: `{expectedVersion:null|string,version,title,text}`; publishing appends
+an immutable version and atomically moves the current pointer. Version reuse is
+409 LEGAL_VERSION_EXISTS; stale edits are 409 VERSION_CONFLICT; changed-body/key
+reuse is 422 IDEMPOTENCY_MISMATCH. FAQ hiding changes public visibility without
+deleting records. Plaintext bounds: question 200, answer 5000, title 120, legal
+text 50000 characters; version identifiers up to 50 safe characters.
+
+Config input `{expectedUpdatedAt:null|string,minVersionAndroid,flags}` validates
+numeric major.minor.patch and at most 50 boolean presentation flags with safe
+names. Response adds updatedAt; existing public `/config` response stays unchanged.
+Flags do not authorize entitlements or enable deferred routes. The active Android
+app's existing four-minute/resume refresh meets TC-407. Existing consent rows are
+not rewritten by legal publishing; mobile CMS display/consent integration belongs
+to T-107/T-126. Storage namespaces and handoff are documented in DATA_DESIGN/admin
+README. No migration is required for the existing app_config JSONB store.

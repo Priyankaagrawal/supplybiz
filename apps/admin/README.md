@@ -1,5 +1,93 @@
 # Admin — T-150 handoff
 
+## T-158 CMS/config handoff (2026-11-19): READY_FOR_VERIFY
+
+Workspace links open `/cms` (S-A-12, cms.manage: SUPER_ADMIN/OPS) and `/config`
+(S-A-13, config.manage: SUPER_ADMIN). SUPPORT/FINANCE have neither permission;
+OPS cannot edit config. Server components use the generated TS client and BFF
+httpOnly session, Origin/CSRF checks and session/action/record-signed form keys.
+Only the form's pending-request state uses client JavaScript. An uncertain
+response freezes the exact form/body/key for explicit retry; it never auto-retries.
+Keep the tab open for that retry. Reload/closing discards in-memory recovery;
+review saved records before starting another request. Tokens never enter props.
+
+English plaintext FAQs support topic, published/hidden, create/edit and 20-row
+pagination. Hiding removes the item from public reads without deleting history.
+Terms/Privacy publishing requires a distinct version and expected current version;
+old versions stay readable and cannot be overwritten through the API. The UI shows
+current text/hash and latest twenty versions. React renders previews as escaped
+text, not HTML. No fabricated legal wording or placeholder publication is seeded.
+CMS publication does not alter existing consent rows or the build-configured mobile
+auth legal bundle; T-107/T-126 own mobile content presentation and integration.
+
+Config updates the existing public minVersionAndroid/boolean-flags policy with
+live server force-update enforcement; flags never grant permissions/entitlements.
+The existing active Android app refreshes every four minutes and on resume.
+Expected updatedAt/version rejects stale editors. FAQ/config timestamps advance
+monotonically even for rapid writes. API transactions hold live admin authorization
+through write, audit and same-key replay; failed audit rolls back all side effects.
+Public FAQs/legal use max-age=60; private admin reads/mutations are no-store.
+
+Storage reuses existing PostgreSQL app_config: mobile; cms:faq:<UUID>;
+cms:legal:<TERMS|PRIVACY>:<version>; cms:current:<TERMS|PRIVACY>. No schema migration,
+new package, financial backfill, plan grant or production content change.
+New source: API `modules/content/content.{dto,service,controller}.ts`, AppModule,
+admin CMS/config pages, client form, shared form fields, BFF save route, signature
+helper and focused tests. OpenAPI/TS/Dart generated: seven paths/eight schemas;
+all existing path/schema definitions were compared and remain unchanged.
+
+Executed commands (repo root unless noted):
+
+```powershell
+pnpm.cmd --filter @supplybiz/api typecheck
+pnpm.cmd --filter @supplybiz/api lint
+pnpm.cmd --filter @supplybiz/api build
+pnpm.cmd --filter @supplybiz/admin typecheck
+pnpm.cmd --filter @supplybiz/admin lint
+pnpm.cmd --filter @supplybiz/admin build
+pnpm.cmd --filter @supplybiz/admin exec tsx --test test/content.test.ts test/security.test.ts
+# NATIVE_TEST_DATABASE_URL and CONFIG_TEST_DATABASE_URL both pointed ONLY to
+# local supplybiz_service_area_test, using apps/api/.env credentials without logging them:
+pnpm.cmd --filter @supplybiz/api exec jest --runInBand src/modules/content/content.postgres.spec.ts src/modules/content/app-config.spec.ts
+# SDK path C:/flutter/bin prepended; Git Bash:
+bash tools/codegen.sh
+dart analyze packages/api_client
+# apps/mobile:
+flutter test --no-pub test/core/config/app_config_test.dart
+```
+
+Results: API/admin typecheck/lint/build PASS; generated Dart analysis PASS;
+11 API tests (seven CMS native including production Next/BFF/API/PostgreSQL smoke,
+three native existing config regressions, one version unit) + three admin security
+checks + six mobile config/force-update tests = 20 focused checks PASS.
+Public flags/version and persisted restart, hidden/published filtering, immutable
+history, current-role replay denial, concurrency, CSRF/origin, stale editor,
+rollback and escaped SSR text were exercised. Initial lint/query metadata findings
+and a wrong local env-file path were corrected before the final passing checks.
+Root git diff --check PASS. Native test API/Next processes were closed; pre-existing
+services preserved. Only isolated test DB content was changed/restored.
+Browser JavaScript uncertain-request interaction, keyboard/200%/screen-reader,
+hosted HTTPS and manual PASS/G4 NOT_RUN/pending; iOS deferred. No Android APK build
+was needed for these admin/API-only source changes.
+
+Manual verification (not executed):
+1. As OPS, create a synthetic hidden FAQ, publish/filter/page it, edit and hide;
+   compare /content/faqs reads. Verify SUPPORT/FINANCE denial and OPS config denial.
+2. In the test environment only, publish approved synthetic legal versions,
+   inspect current/history/hash/plaintext, attempt version reuse and stale edits.
+   Existing consent records must stay unchanged.
+3. As SUPER_ADMIN, change a simple flag and Android minimum; check public /config
+   and an active test app refresh/force-update. Restore a supported minimum after
+   the test to avoid locking test installations out.
+4. Interrupt a browser save, keep its tab open and explicitly retry the same
+   frozen request. Check one audit/write, then test session/permission expiry,
+   keyboard operation, 200% text and screen-reader labels/status messages.
+
+T-106 decision recorded separately, not implemented here: user confirmed discovery
+pauses during re-verification until approval (ADR-034 / FR-131). Its task remains
+TODO and is now eligible for a later auto-task invocation.
+
+
 ## T-154 dashboard handoff (2026-11-12): READY_FOR_VERIFY
 
 S-A-02 / FR-401: `/dashboard` is linked from the workspace for `dashboard.read`

@@ -514,3 +514,19 @@ FIELD_ENCRYPTION_KEY and vendor/field AAD. Production KMS envelope encryption re
 unimplemented; KYC mutations fail closed there. Replay input uses a canonical keyed digest;
 responses contain only PAN/account last-4. Vendor status, review, audit and in-app notice
 are transactional. Retention/deletion remains Q-20; this task invents no purge policy.
+
+### T-158 active CMS/config storage reconciliation (2026-11-19)
+
+The minimal retained implementation uses existing app_config JSONB instead of
+introducing separate proposed faqs/legal_documents tables: `mobile` retains
+`{minVersionAndroid,flags}`; `cms:faq:<UUID>` stores English topic/question/answer/
+published; `cms:legal:<TERMS|PRIVACY>:<version>` stores immutable published text,
+title, SHA-256 and publishedAt; `cms:current:<TERMS|PRIVACY>` stores the current
+version pointer. Legal version writes are insert-only through the CMS service;
+pointer/history/audit/replay commit atomically. No legal delete/overwrite endpoint.
+FAQ records are hidden through published=false, not hard-deleted. API writes hold
+live admin authorization and one content lock; expected updated_at/current version
+rejects stale edits. Content audits contain hashes/publication/config metadata,
+not FAQ/legal bodies. This reuses current schema without migrations/dependencies;
+existing source financial data, consent records and unresolved retention Q-20
+are unchanged. Unrelated/deferred table proposals remain future references.

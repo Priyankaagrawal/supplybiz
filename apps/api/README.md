@@ -1,5 +1,30 @@
 # Supply Biz API
 
+## T-158 CMS/config API (2026-11-19): READY_FOR_VERIFY
+
+Admin GET /faqs, /legal, /legal/{type}, /config and PUT /faqs/{id},
+/legal/{type}, /config use current cms.manage/config.manage permissions,
+CSRF and required Idempotency-Key. Public GET /content/faqs?topic=&offset= and
+/content/legal/{type}?version= expose published English plaintext and immutable
+historical legal versions. Types are TERMS/PRIVACY. Config retains the existing
+GET /config contract and force-update guard. All paths are under /api/v1.
+Existing app_config namespaces store FAQ records, immutable legal versions/current
+pointers and mobile policy. No migration/dependency or financial/grant change.
+Live admin/session authorization is held through audit and replay; expected record
+version/timestamp prevents stale overwrite. FAQ hide never deletes it. Old legal
+versions cannot be republished/overwritten through these endpoints. Public reads
+cache at most 60 seconds; private reads/writes are no-store. Body text stays out
+of general audit snapshots (content hashes/publication metadata only).
+Seven CMS native tests, four existing config checks, three admin security and six
+mobile config checks pass, with API/admin builds/lint/typechecks and generated
+Dart analysis. Seven paths/eight schemas added; existing definitions unchanged.
+Full executed commands, four manual checks and limitations are in admin README
+T-158. Test DB ONLY: supplybiz_service_area_test, prior mobile/current pointers
+restored and task FAQ/legal records removed. Production Next test server closed.
+Browser retry JavaScript/keyboard/200%/screen reader, hosted HTTPS, manual PASS/G4
+pending; iOS deferred. T-107/T-126 own mobile CMS integration, including migration
+from build-configured auth legal text; this task does not alter past consents.
+
 ## T-101 CSV report exports (2026-11-19): READY_FOR_VERIFY
 
 `POST /api/v1/vendor/reports/exports` requires Idempotency-Key and

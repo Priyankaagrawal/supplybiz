@@ -5,7 +5,7 @@ import { z } from "zod";
 import { PrismaService } from "../../prisma/prisma.service";
 
 const version = z.string().regex(/^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})$/);
-const policy = z.object({ minVersionAndroid: version, flags: z.record(z.boolean()) }).strict();
+export const appConfigPolicy = z.object({ minVersionAndroid: version, flags: z.record(z.boolean()) }).strict();
 export function isOlderVersion(current: string, minimum: string): boolean {
   const a = version.parse(current).split(".").map(Number);
   const b = version.parse(minimum).split(".").map(Number);
@@ -24,7 +24,7 @@ export class AppConfigService {
   async read(): Promise<AppConfigResponse> {
     try {
       const row = await this.prisma.app_config.findUnique({ where: { key: "mobile" } });
-      return policy.parse(row?.value);
+      return appConfigPolicy.parse(row?.value);
     } catch {
       // Configuration errors fail closed without exposing stored values or DB details.
       throw new ServiceUnavailableException({ code: "CONFIG_UNAVAILABLE", message: "App configuration is unavailable." });

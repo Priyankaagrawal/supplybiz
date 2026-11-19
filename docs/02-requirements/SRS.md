@@ -169,7 +169,7 @@
 | ID | Requirement | Pri |
 |---|---|---|
 | FR-130 | Settings menu: Profile, Business Information, KYC & Bank Details, Service Area, Delivery Settings, Notification Settings, Subscription Settings, Plan & Entitlements, Privacy Policy, Terms, Help & Support, Switch to Customer, Logout, Delete Account. ("Security / Change Password" removed — OTP-only.) | P1 |
-| FR-131 | Editing verified fields (business name, PAN, bank, Aadhaar) sets KYC to PENDING for re-verification; vendor remains discoverable with prior verified data until decision (proposed). | P1 |
+| FR-131 | Editing verified fields (business name, PAN, bank, Aadhaar) sets KYC to PENDING for re-verification; customer discovery pauses until authorized approval (ADR-034; user confirmed 2026-11-19). | P1 |
 | FR-132 | Vendor-controlled delivery settings: delivery charge (₹, initial 0), minimum order value (initial 0), time slots (default choices 7–8, 8–9, 9–10 AM), same-day enablement and cutoff (A-16; ADR-032). Same-day ordering is unavailable until enabled with a configured cutoff; server IST time applies. Unconfigured slots are not invented by checkout. No setting enables Add to Khata at checkout in this release. | P1 |
 | FR-133 | Help Center: FAQs (admin CMS) by topic (Orders, Payments, Delivery, Account/KYC), Call Support (number Q-30), email. Tickets/chat deferred. | P1 |
 | FR-134 | Legal pages (Terms, Privacy) rendered from CMS, versioned. | P0 |
