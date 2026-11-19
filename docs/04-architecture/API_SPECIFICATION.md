@@ -1035,3 +1035,34 @@ app's existing four-minute/resume refresh meets TC-407. Existing consent rows ar
 not rewritten by legal publishing; mobile CMS display/consent integration belongs
 to T-107/T-126. Storage namespaces and handoff are documented in DATA_DESIGN/admin
 README. No migration is required for the existing app_config JSONB store.
+
+### T-106 vendor settings and re-verification
+
+`GET /vendor/settings/profile` returns VendorProfileResponse, distinct from the
+existing subscription `GET/PATCH /vendor/settings`. `PUT /vendor/settings/business`
+accepts VendorBusinessEditDto (existing business fields plus required shared
+settings version); `PUT /vendor/settings/delivery` accepts version, integer paise
+charges/minimum, at most 12 explicit non-overlapping IST HH:mm-HH:mm timeSlots,
+acceptingToday and nullable IST HH:mm sameDayCutoff. Same-day enablement requires a
+cutoff; an empty slot list stays empty. Both return owned profile, increment the
+shared settings version and require Idempotency-Key with atomic audit/replay.
+Role/suspension/ownership is checked before replay. No input permits checkout
+Khata, entitlement changes, actor/vendor IDs or historical bill modification.
+
+`PUT /vendor/kyc` accepts KycRevisionDto: existing private KYC inputs plus UUID
+expectedSubmissionId. It creates a new PENDING revision with encrypted banking
+fields, supersedes an older pending revision when applicable and sets vendor KYC
+to PENDING. Reviewed business-name edits copy encrypted evidence into a new PENDING
+name snapshot. Customer discovery pauses until authorized approval (ADR-034);
+normal plan/vendor eligibility still applies afterward. Initial MANUAL_REVIEW
+must be decided before replacement; initial POST cannot replace pending edits.
+Queue/reviewer accepts MANUAL_REVIEW/PENDING; only the latest open revision can be
+decided. Approved/rejected/superseded revisions and submitted fields cannot mutate.
+Stale settings/submission is 409 VERSION_CONFLICT; changed-key replay is 422
+IDEMPOTENCY_MISMATCH. Responses never include raw PAN/account or stored ciphertext.
+
+KycResponse adds optional nullable businessName; VendorSettingsResponse adds
+optional nullable sameDayCutoff for compatibility with old replay snapshots.
+Existing operations remain unchanged. Re-verification continues manual review,
+provider checks NOT_RUN and existing production KMS fail-closed policy. The two
+T-106 migrations and focused check/manual handoff are recorded in mobile README.

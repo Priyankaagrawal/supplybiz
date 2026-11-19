@@ -169,6 +169,7 @@ Class | Method | HTTP request | Description
 [*KycApi*](doc/KycApi.md) | [**adminKycControllerDetail**](doc/KycApi.md#adminkyccontrollerdetail) | **GET** /api/v1/admin/kyc/{id} |
 [*KycApi*](doc/KycApi.md) | [**adminKycControllerQueue**](doc/KycApi.md#adminkyccontrollerqueue) | **GET** /api/v1/admin/kyc |
 [*KycApi*](doc/KycApi.md) | [**kycControllerNotices**](doc/KycApi.md#kyccontrollernotices) | **GET** /api/v1/vendor/kyc/notices |
+[*KycApi*](doc/KycApi.md) | [**kycControllerRevise**](doc/KycApi.md#kyccontrollerrevise) | **PUT** /api/v1/vendor/kyc |
 [*KycApi*](doc/KycApi.md) | [**kycControllerStatus**](doc/KycApi.md#kyccontrollerstatus) | **GET** /api/v1/vendor/kyc |
 [*KycApi*](doc/KycApi.md) | [**kycControllerSubmit**](doc/KycApi.md#kyccontrollersubmit) | **POST** /api/v1/vendor/kyc |
 [*MeApi*](doc/MeApi.md) | [**meControllerActiveRole**](doc/MeApi.md#mecontrolleractiverole) | **PUT** /api/v1/me/active-role |
@@ -209,9 +210,12 @@ Class | Method | HTTP request | Description
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerBusiness**](doc/VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategories**](doc/VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerCategory**](doc/VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerDelivery**](doc/VendorOnboardingApi.md#vendorscontrollerdelivery) | **PUT** /api/v1/vendor/settings/delivery |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerEditBusiness**](doc/VendorOnboardingApi.md#vendorscontrollereditbusiness) | **PUT** /api/v1/vendor/settings/business |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerProfile**](doc/VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerSaveServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollersaveservicearea) | **PUT** /api/v1/vendor/settings/service-area |
 [*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerServiceArea**](doc/VendorOnboardingApi.md#vendorscontrollerservicearea) | **GET** /api/v1/vendor/settings/service-area |
+[*VendorOnboardingApi*](doc/VendorOnboardingApi.md) | [**vendorsControllerSettings**](doc/VendorOnboardingApi.md#vendorscontrollersettings) | **GET** /api/v1/vendor/settings/profile |
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerDetail**](doc/VendorOrdersApi.md#vendororderscontrollerdetail) | **GET** /api/v1/vendor/orders/{id} |
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerList**](doc/VendorOrdersApi.md#vendororderscontrollerlist) | **GET** /api/v1/vendor/orders |
 [*VendorOrdersApi*](doc/VendorOrdersApi.md) | [**vendorOrdersControllerTransition**](doc/VendorOrdersApi.md#vendororderscontrollertransition) | **POST** /api/v1/vendor/orders/{id}/transitions |
@@ -322,6 +326,7 @@ Class | Method | HTTP request | Description
  - [KycNotice](doc/KycNotice.md)
  - [KycPage](doc/KycPage.md)
  - [KycResponse](doc/KycResponse.md)
+ - [KycRevisionDto](doc/KycRevisionDto.md)
  - [KycSubmissionDto](doc/KycSubmissionDto.md)
  - [LedgerAdjustmentAck](doc/LedgerAdjustmentAck.md)
  - [LedgerOpeningInput](doc/LedgerOpeningInput.md)
@@ -434,11 +439,13 @@ Class | Method | HTTP request | Description
  - [VendorAboutHolidaysInner](doc/VendorAboutHolidaysInner.md)
  - [VendorAssignmentResponse](doc/VendorAssignmentResponse.md)
  - [VendorBusinessDto](doc/VendorBusinessDto.md)
+ - [VendorBusinessEditDto](doc/VendorBusinessEditDto.md)
  - [VendorCategoryDto](doc/VendorCategoryDto.md)
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
  - [VendorCollection](doc/VendorCollection.md)
  - [VendorCollectionList](doc/VendorCollectionList.md)
  - [VendorDashboard](doc/VendorDashboard.md)
+ - [VendorDeliveryDto](doc/VendorDeliveryDto.md)
  - [VendorKhataAccount](doc/VendorKhataAccount.md)
  - [VendorKhataList](doc/VendorKhataList.md)
  - [VendorPaymentDetails](doc/VendorPaymentDetails.md)

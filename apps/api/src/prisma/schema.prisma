@@ -706,6 +706,7 @@ model audit_logs {
 
 // T-022: revisions preserve manual review evidence; no provider checks claimed.
 model vendor_kyc {
+  business_name String? @db.VarChar(80)
   id String @id @default(uuid()) @db.Uuid
   vendor_id String @db.Uuid
   status String @default("MANUAL_REVIEW") @db.VarChar(24)

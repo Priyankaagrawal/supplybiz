@@ -73,6 +73,7 @@ import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
 import 'package:supplybiz_api_client/src/model/kyc_page.dart';
 import 'package:supplybiz_api_client/src/model/kyc_response.dart';
+import 'package:supplybiz_api_client/src/model/kyc_revision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
 import 'package:supplybiz_api_client/src/model/ledger_adjustment_ack.dart';
 import 'package:supplybiz_api_client/src/model/ledger_opening_input.dart';
@@ -185,11 +186,13 @@ import 'package:supplybiz_api_client/src/model/vendor_about.dart';
 import 'package:supplybiz_api_client/src/model/vendor_about_holidays_inner.dart';
 import 'package:supplybiz_api_client/src/model/vendor_assignment_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_business_dto.dart';
+import 'package:supplybiz_api_client/src/model/vendor_business_edit_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_collection.dart';
 import 'package:supplybiz_api_client/src/model/vendor_collection_list.dart';
 import 'package:supplybiz_api_client/src/model/vendor_dashboard.dart';
+import 'package:supplybiz_api_client/src/model/vendor_delivery_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_khata_account.dart';
 import 'package:supplybiz_api_client/src/model/vendor_khata_list.dart';
 import 'package:supplybiz_api_client/src/model/vendor_payment_details.dart';
@@ -415,6 +418,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return KycPage.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'KycResponse':
       return KycResponse.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'KycRevisionDto':
+      return KycRevisionDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'KycSubmissionDto':
       return KycSubmissionDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -728,6 +734,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'VendorBusinessDto':
       return VendorBusinessDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'VendorBusinessEditDto':
+      return VendorBusinessEditDto.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'VendorCategoryDto':
       return VendorCategoryDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -742,6 +751,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'VendorDashboard':
       return VendorDashboard.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorDeliveryDto':
+      return VendorDeliveryDto.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'VendorKhataAccount':
       return VendorKhataAccount.fromJson(value as Map<String, dynamic>)

@@ -1031,5 +1031,27 @@
         "type": "String"
       }
     }
-  }
+  },
+  "settingsReverifyTitle": "Review verified details",
+  "settingsReverifyWarning": "Changing your business name, PAN, bank or Aadhaar details requires a new manual review. Your shop will be hidden from customer discovery until approval. Existing records are retained.",
+  "settingsConfirm": "Save for review",
+  "settingsCancel": "Cancel",
+  "settingsOffline": "Offline: showing saved settings. Connect and refresh before saving.",
+  "settingsFrozen": "A save is awaiting confirmation. Retry uses the same saved details and request key; editing is locked until the result is known.",
+  "settingsRetry": "Retry saved request",
+  "settingsReviewConflict": "Reload and review current details",
+  "settingsBusiness": "Business information",
+  "settingsDelivery": "Delivery settings",
+  "settingsProfile": "Profile and account",
+  "settingsKyc": "KYC and bank details",
+  "settingsSwitch": "Switch to customer",
+  "settingsDelete": "Delete account",
+  "settingsDeliveryInfo": "Charges and minimum order value apply to new checkout quotes. Existing order bills stay unchanged. Same-day dates use the server IST cutoff. Checkout credit cannot be enabled here.",
+  "settingsCharge": "Delivery charge (INR)",
+  "settingsMinimum": "Minimum order value (INR)",
+  "settingsSlotHelp": "Enter one IST slot per line, for example 07:00-08:00, 08:00-09:00 or 09:00-10:00. Saving explicitly configures these slots; blank means no checkout slots. Slots must not overlap.",
+  "settingsSlots": "Delivery slots (HH:mm-HH:mm)",
+  "settingsSameDay": "Accept same-day orders",
+  "settingsCutoff": "Same-day cutoff (HH:mm IST)",
+  "settingsSave": "Save settings"
 }

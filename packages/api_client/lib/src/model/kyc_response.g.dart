@@ -34,6 +34,7 @@ KycResponse _$KycResponseFromJson(Map<String, dynamic> json) => $checkedCreate(
           ],
         );
         final val = KycResponse(
+          businessName: $checkedConvert('businessName', (v) => v as String?),
           id: $checkedConvert('id', (v) => v as String),
           vendorId: $checkedConvert('vendorId', (v) => v as String),
           status: $checkedConvert('status', (v) => v as String),
@@ -65,6 +66,7 @@ KycResponse _$KycResponseFromJson(Map<String, dynamic> json) => $checkedCreate(
 
 Map<String, dynamic> _$KycResponseToJson(KycResponse instance) =>
     <String, dynamic>{
+      if (instance.businessName case final value?) 'businessName': value,
       'id': instance.id,
       'vendorId': instance.vendorId,
       'status': instance.status,

@@ -17,7 +17,11 @@ export class KycDecisionDto {
   @ApiProperty({ enum: ['VERIFIED', 'REJECTED'] }) @IsIn(['VERIFIED', 'REJECTED']) decision!: 'VERIFIED' | 'REJECTED';
   @ApiProperty() @IsString() @Length(3, 500) @Matches(/^\s*\S(?:[\s\S]*\S)?\s*$/) reason!: string;
 }
+export class KycRevisionDto extends KycSubmissionDto {
+  @ApiProperty({ format: 'uuid' }) @IsUUID() expectedSubmissionId!: string;
+}
 export class KycResponse {
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'Immutable business name at submission; legacy rows may have no snapshot.' }) businessName?: string | null;
   @ApiProperty() id!: string;
   @ApiProperty() vendorId!: string;
   @ApiProperty() status!: string;

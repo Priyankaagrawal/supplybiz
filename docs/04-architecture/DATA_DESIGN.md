@@ -530,3 +530,18 @@ rejects stale edits. Content audits contain hashes/publication/config metadata,
 not FAQ/legal bodies. This reuses current schema without migrations/dependencies;
 existing source financial data, consent records and unresolved retention Q-20
 are unchanged. Unrelated/deferred table proposals remain future references.
+
+### T-106 KYC/settings state expansion (2026-11-19)
+
+Two additive migrations introduce nullable vendor_kyc.business_name for new review
+snapshots (no historical reconstruction) and expand review states. MANUAL_REVIEW
+and PENDING are open; a shared partial unique index enforces one open row/vendor.
+PENDING may close as SUPERSEDED or receive a manual VERIFIED/REJECTED decision.
+MANUAL_REVIEW may receive a manual VERIFIED/REJECTED decision. Supersession retains
+no fabricated reviewer/date/reason; real decisions require all review metadata.
+Closed rows cannot update/delete/reopen, and submitted fields (including the name
+snapshot) remain immutable under protect_kyc_revision. Existing encryption/context,
+private media references and mandatory decision notices are preserved. Business
+and delivery settings increment shared vendor_settings.version with actor/vendor
+locking and audit/idempotent replay in the same transaction. No ledger/order
+snapshot backfill, source-record deletion or retention-policy change.

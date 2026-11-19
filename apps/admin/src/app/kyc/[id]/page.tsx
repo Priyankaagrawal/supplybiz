@@ -43,7 +43,8 @@ export default async function KycCase({ params, searchParams }: {
  <iframe className="h-[36rem] w-full" title={`Private ${kind} document`} src={`/kyc/${id}/documents/${kind}#toolbar=0`} />
  <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"><p className="rotate-[-25deg] break-all bg-white/80 p-4 text-lg font-bold text-slate-700">CONFIDENTIAL · {me.data.id} · {new Date().toISOString()}</p></div>
  </div>}</> : <p>You do not have permission to view private documents.</p>}
- {row.status === 'MANUAL_REVIEW' ? <form className="my-6 space-y-4" action={`/kyc/${id}/decision`} method="post">
+ {row.businessName && <p className="my-4 break-words">Business name at submission: {row.businessName}</p>}
+ {['MANUAL_REVIEW', 'PENDING'].includes(row.status) ? <form className="my-6 space-y-4" action={`/kyc/${id}/decision`} method="post">
  <input type="hidden" name="csrf" value={csrf(token)} /><input type="hidden" name="key" value={key} />
  <input type="hidden" name="signature" value={decisionSignature(token, id, key)} />
  <label className="flex flex-col gap-2">Decision<select className="min-h-12 rounded border p-2" name="decision" required defaultValue=""><option value="" disabled>Select a decision</option><option value="VERIFIED">Approve manual KYC</option><option value="REJECTED">Reject KYC</option></select></label>

@@ -5309,6 +5309,31 @@ paths:
       security:
         - bearer: []
   /api/v1/vendor/kyc:
+    put:
+      operationId: KycController_revise
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycRevisionDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KycResponse'
+      tags:
+        - kyc
+      security:
+        - bearer: []
     get:
       operationId: KycController_status
       parameters: []
@@ -5472,6 +5497,85 @@ paths:
                 $ref: '#/components/schemas/AuditPage'
       tags:
         - audit
+      security:
+        - bearer: []
+  /api/v1/vendor/settings/profile:
+    get:
+      operationId: VendorsController_settings
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+  /api/v1/vendor/settings/business:
+    put:
+      operationId: VendorsController_editBusiness
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorBusinessEditDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+      tags:
+        - vendor-onboarding
+      security:
+        - bearer: []
+  /api/v1/vendor/settings/delivery:
+    put:
+      operationId: VendorsController_delivery
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorDeliveryDto'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorProfileResponse'
+        '401':
+          description: Missing, expired or revoked session.
+        '403':
+          description: 'VENDOR_ROLE_REQUIRED: requires held and active vendor role.'
+      tags:
+        - vendor-onboarding
       security:
         - bearer: []
   /api/v1/vendor/settings/service-area:
@@ -10433,9 +10537,53 @@ components:
         - status
         - sortOrder
         - productTypes
+    KycRevisionDto:
+      type: object
+      properties:
+        aadhaarFrontMediaId:
+          type: string
+          format: uuid
+        aadhaarBackMediaId:
+          type: string
+          format: uuid
+        panMediaId:
+          type: string
+          format: uuid
+        pan:
+          type: string
+        holderName:
+          type: string
+        bankName:
+          type: string
+        accountNumber:
+          type: string
+        accountNumberConfirmation:
+          type: string
+        ifsc:
+          type: string
+        upiId:
+          type: string
+        expectedSubmissionId:
+          type: string
+          format: uuid
+      required:
+        - aadhaarFrontMediaId
+        - aadhaarBackMediaId
+        - panMediaId
+        - pan
+        - holderName
+        - bankName
+        - accountNumber
+        - accountNumberConfirmation
+        - ifsc
+        - expectedSubmissionId
     KycResponse:
       type: object
       properties:
+        businessName:
+          type: string
+          nullable: true
+          description: Immutable business name at submission; legacy rows may have no snapshot.
         id:
           type: string
         vendorId:
@@ -10680,6 +10828,10 @@ components:
     VendorSettingsResponse:
       type: object
       properties:
+        sameDayCutoff:
+          type: string
+          nullable: true
+          description: IST HH:mm; older replay snapshots may omit it.
         pincodes:
           description: Present on fresh reads/writes; older onboarding replay snapshots may omit it.
           type: array
@@ -10775,6 +10927,79 @@ components:
         - longitude
         - shopPhotoMediaId
         - settings
+    VendorBusinessEditDto:
+      type: object
+      properties:
+        businessName:
+          type: string
+        gstin:
+          type: string
+          nullable: true
+        addressLine:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        pincode:
+          type: string
+          pattern: ^[1-9]\d{5}$
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        shopPhotoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: integer
+          minimum: 1
+      required:
+        - businessName
+        - addressLine
+        - city
+        - state
+        - pincode
+        - latitude
+        - longitude
+        - version
+    VendorDeliveryDto:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        deliveryChargePaise:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        minOrderPaise:
+          type: integer
+          minimum: 0
+          maximum: 2147483647
+        timeSlots:
+          description: Explicit IST HH:mm-HH:mm slots; no overnight/overlapping slots. Empty disables checkout slots.
+          type: array
+          items:
+            type: string
+        acceptingToday:
+          type: boolean
+        sameDayCutoff:
+          type: string
+          nullable: true
+          description: IST HH:mm; required when acceptingToday is true.
+      required:
+        - version
+        - deliveryChargePaise
+        - minOrderPaise
+        - timeSlots
+        - acceptingToday
+        - sameDayCutoff
     ServiceAreaDto:
       type: object
       properties:

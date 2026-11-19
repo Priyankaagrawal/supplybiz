@@ -14,7 +14,8 @@ import '../../core/router/routes.dart';
 import 'onboarding_controller.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
-  const OnboardingPage({super.key});
+  const OnboardingPage({super.key, this.reverification = false});
+  final bool reverification;
   @override
   ConsumerState<OnboardingPage> createState() => _OnboardingPageState();
 }
@@ -31,6 +32,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.reverification) editing = 3;
     _secure();
   }
 
@@ -71,7 +73,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: TextFormField(
           controller: controller(key, model),
-          enabled: !model.busy && !picking && secure,
+          enabled: !model.busy && !model.revisionPending && !picking && secure,
           decoration: InputDecoration(
               labelText: label, border: const OutlineInputBorder()),
           obscureText: secret,
@@ -184,9 +186,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OutlinedButton.icon(
-                onPressed: model.busy || picking || !secure
-                    ? null
-                    : () => _pick(model, key, label),
+                onPressed:
+                    model.busy || model.revisionPending || picking || !secure
+                        ? null
+                        : () => _pick(model, key, label),
                 icon: const Icon(Icons.upload_file),
                 label: Text(pending.containsKey(key)
                     ? context.l10n.onboardingRetryUpload(label)
@@ -200,6 +203,27 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   label: Text(context.l10n.onboardingView(label))),
           ]);
   Future<void> _save(OnboardingController model, int step) async {
+    if (widget.reverification && step == 3) {
+      if (!model.revisionPending && !form.currentState!.validate()) return;
+      final accepted = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                  scrollable: true,
+                  title: Text(context.l10n.settingsReverifyTitle),
+                  content: Text(context.l10n.settingsReverifyWarning),
+                  actions: [
+                    TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(context.l10n.settingsCancel)),
+                    FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(context.l10n.settingsConfirm))
+                  ]));
+      if (accepted != true) return;
+      await model.submit();
+      if (mounted && model.failure == null) Navigator.pop(context);
+      return;
+    }
     if (step == 1) {
       if (category == null) return;
       await model.saveCategory(category!);
@@ -228,7 +252,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final model = ref.watch(onboardingProvider);
+    final model = ref.watch(
+        widget.reverification ? reverificationProvider : onboardingProvider);
     final l = context.l10n;
     final step = editing ?? model.step;
     final disabled = model.busy || picking || !secure;
@@ -344,6 +369,18 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                         l.onboardingShopPhoto),
                                   ],
                                   if (step == 3) ...[
+                                    if (widget.reverification) ...[
+                                      Text(l.settingsReverifyWarning),
+                                      if (model.revisionPending)
+                                        Text(l.settingsFrozen),
+                                      if (model.revisionConflict)
+                                        FilledButton(
+                                            onPressed: disabled
+                                                ? null
+                                                : model.reviewRevision,
+                                            child:
+                                                Text(l.settingsReviewConflict)),
+                                    ],
                                     Text(l.onboardingSecurityNote),
                                     Text(l.onboardingMaskGuide),
                                     attachment(model, 'aadhaarFrontMediaId',
@@ -382,7 +419,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                                             r'^[\w.\-]{2,256}@[a-zA-Z]{2,64}$'),
                                   ],
                                   if (step < 4) ...[
-                                    if (step == 3)
+                                    if (step == 3 && !widget.reverification)
                                       TextButton(
                                           onPressed: disabled
                                               ? null

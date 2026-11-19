@@ -1804,7 +1804,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["KycController_status"];
-        put?: never;
+        put: operations["KycController_revise"];
         post: operations["KycController_submit"];
         delete?: never;
         options?: never;
@@ -1885,6 +1885,54 @@ export interface paths {
         };
         get: operations["AuditController_list"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/settings/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["VendorsController_settings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/settings/business": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["VendorsController_editBusiness"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/settings/delivery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["VendorsController_delivery"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3995,7 +4043,26 @@ export interface components {
             sortOrder: number;
             productTypes: string[];
         };
+        KycRevisionDto: {
+            /** Format: uuid */
+            aadhaarFrontMediaId: string;
+            /** Format: uuid */
+            aadhaarBackMediaId: string;
+            /** Format: uuid */
+            panMediaId: string;
+            pan: string;
+            holderName: string;
+            bankName: string;
+            accountNumber: string;
+            accountNumberConfirmation: string;
+            ifsc: string;
+            upiId?: string;
+            /** Format: uuid */
+            expectedSubmissionId: string;
+        };
         KycResponse: {
+            /** @description Immutable business name at submission; legacy rows may have no snapshot. */
+            businessName?: string | null;
             id: string;
             vendorId: string;
             status: string;
@@ -4089,6 +4156,8 @@ export interface components {
             hasMore: boolean;
         };
         VendorSettingsResponse: {
+            /** @description IST HH:mm; older replay snapshots may omit it. */
+            sameDayCutoff?: string | null;
             /** @description Present on fresh reads/writes; older onboarding replay snapshots may omit it. */
             pincodes?: string[];
             serviceRadiusKm: number | null;
@@ -4120,6 +4189,29 @@ export interface components {
             /** Format: uuid */
             shopPhotoMediaId: string | null;
             settings: components["schemas"]["VendorSettingsResponse"];
+        };
+        VendorBusinessEditDto: {
+            businessName: string;
+            gstin?: string | null;
+            addressLine: string;
+            city: string;
+            state: string;
+            pincode: string;
+            latitude: number;
+            longitude: number;
+            /** Format: uuid */
+            shopPhotoMediaId?: string | null;
+            version: number;
+        };
+        VendorDeliveryDto: {
+            version: number;
+            deliveryChargePaise: number;
+            minOrderPaise: number;
+            /** @description Explicit IST HH:mm-HH:mm slots; no overnight/overlapping slots. Empty disables checkout slots. */
+            timeSlots: string[];
+            acceptingToday: boolean;
+            /** @description IST HH:mm; required when acceptingToday is true. */
+            sameDayCutoff: string | null;
         };
         ServiceAreaDto: {
             /** @description Null disables radius coverage. */
@@ -10294,6 +10386,31 @@ export interface operations {
             };
         };
     };
+    KycController_revise: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KycRevisionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KycResponse"];
+                };
+            };
+        };
+    };
     KycController_submit: {
         parameters: {
             query?: never;
@@ -10428,6 +10545,117 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AuditPage"];
                 };
+            };
+        };
+    };
+    VendorsController_settings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_editBusiness: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorBusinessEditDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    VendorsController_delivery: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorDeliveryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorProfileResponse"];
+                };
+            };
+            /** @description Missing, expired or revoked session. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VENDOR_ROLE_REQUIRED: requires held and active vendor role. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

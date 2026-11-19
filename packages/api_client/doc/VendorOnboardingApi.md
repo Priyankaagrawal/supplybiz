@@ -12,9 +12,12 @@ Method | HTTP request | Description
 [**vendorsControllerBusiness**](VendorOnboardingApi.md#vendorscontrollerbusiness) | **PUT** /api/v1/vendor/onboarding/business |
 [**vendorsControllerCategories**](VendorOnboardingApi.md#vendorscontrollercategories) | **GET** /api/v1/vendor/onboarding/categories |
 [**vendorsControllerCategory**](VendorOnboardingApi.md#vendorscontrollercategory) | **POST** /api/v1/vendor/onboarding/category |
+[**vendorsControllerDelivery**](VendorOnboardingApi.md#vendorscontrollerdelivery) | **PUT** /api/v1/vendor/settings/delivery |
+[**vendorsControllerEditBusiness**](VendorOnboardingApi.md#vendorscontrollereditbusiness) | **PUT** /api/v1/vendor/settings/business |
 [**vendorsControllerProfile**](VendorOnboardingApi.md#vendorscontrollerprofile) | **GET** /api/v1/vendor/onboarding |
 [**vendorsControllerSaveServiceArea**](VendorOnboardingApi.md#vendorscontrollersaveservicearea) | **PUT** /api/v1/vendor/settings/service-area |
 [**vendorsControllerServiceArea**](VendorOnboardingApi.md#vendorscontrollerservicearea) | **GET** /api/v1/vendor/settings/service-area |
+[**vendorsControllerSettings**](VendorOnboardingApi.md#vendorscontrollersettings) | **GET** /api/v1/vendor/settings/profile |
 
 
 # **vendorsControllerBusiness**
@@ -140,6 +143,92 @@ Name | Type | Description  | Notes
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **vendorsControllerDelivery**
+> VendorProfileResponse vendorsControllerDelivery(idempotencyKey, vendorDeliveryDto)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getVendorOnboardingApi();
+final String idempotencyKey = idempotencyKey_example; // String |
+final VendorDeliveryDto vendorDeliveryDto = ; // VendorDeliveryDto |
+
+try {
+    final response = api.vendorsControllerDelivery(idempotencyKey, vendorDeliveryDto);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling VendorOnboardingApi->vendorsControllerDelivery: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **idempotencyKey** | **String**|  |
+ **vendorDeliveryDto** | [**VendorDeliveryDto**](VendorDeliveryDto.md)|  |
+
+### Return type
+
+[**VendorProfileResponse**](VendorProfileResponse.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **vendorsControllerEditBusiness**
+> VendorProfileResponse vendorsControllerEditBusiness(idempotencyKey, vendorBusinessEditDto)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getVendorOnboardingApi();
+final String idempotencyKey = idempotencyKey_example; // String |
+final VendorBusinessEditDto vendorBusinessEditDto = ; // VendorBusinessEditDto |
+
+try {
+    final response = api.vendorsControllerEditBusiness(idempotencyKey, vendorBusinessEditDto);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling VendorOnboardingApi->vendorsControllerEditBusiness: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **idempotencyKey** | **String**|  |
+ **vendorBusinessEditDto** | [**VendorBusinessEditDto**](VendorBusinessEditDto.md)|  |
+
+### Return type
+
+[**VendorProfileResponse**](VendorProfileResponse.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **vendorsControllerProfile**
 > VendorProfileResponse vendorsControllerProfile()
 
@@ -236,6 +325,43 @@ try {
     print(response);
 } on DioException catch (e) {
     print('Exception when calling VendorOnboardingApi->vendorsControllerServiceArea: $e\n');
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**VendorProfileResponse**](VendorProfileResponse.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **vendorsControllerSettings**
+> VendorProfileResponse vendorsControllerSettings()
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getVendorOnboardingApi();
+
+try {
+    final response = api.vendorsControllerSettings();
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling VendorOnboardingApi->vendorsControllerSettings: $e\n');
 }
 ```
 

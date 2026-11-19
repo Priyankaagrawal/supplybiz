@@ -27,6 +27,7 @@ VendorSettingsResponse _$VendorSettingsResponseFromJson(
           ],
         );
         final val = VendorSettingsResponse(
+          sameDayCutoff: $checkedConvert('sameDayCutoff', (v) => v as String?),
           pincodes: $checkedConvert('pincodes',
               (v) => (v as List<dynamic>?)?.map((e) => e as String).toList()),
           serviceRadiusKm:
@@ -52,6 +53,7 @@ VendorSettingsResponse _$VendorSettingsResponseFromJson(
 Map<String, dynamic> _$VendorSettingsResponseToJson(
         VendorSettingsResponse instance) =>
     <String, dynamic>{
+      if (instance.sameDayCutoff case final value?) 'sameDayCutoff': value,
       if (instance.pincodes case final value?) 'pincodes': value,
       'serviceRadiusKm': instance.serviceRadiusKm,
       'deliveryChargePaise': instance.deliveryChargePaise,

@@ -2876,4 +2876,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsNewCsv => 'Start a new CSV request';
+
+  @override
+  String get settingsReverifyTitle => 'Review verified details';
+
+  @override
+  String get settingsReverifyWarning =>
+      'Changing your business name, PAN, bank or Aadhaar details requires a new manual review. Your shop will be hidden from customer discovery until approval. Existing records are retained.';
+
+  @override
+  String get settingsConfirm => 'Save for review';
+
+  @override
+  String get settingsCancel => 'Cancel';
+
+  @override
+  String get settingsOffline =>
+      'Offline: showing saved settings. Connect and refresh before saving.';
+
+  @override
+  String get settingsFrozen =>
+      'A save is awaiting confirmation. Retry uses the same saved details and request key; editing is locked until the result is known.';
+
+  @override
+  String get settingsRetry => 'Retry saved request';
+
+  @override
+  String get settingsReviewConflict => 'Reload and review current details';
+
+  @override
+  String get settingsBusiness => 'Business information';
+
+  @override
+  String get settingsDelivery => 'Delivery settings';
+
+  @override
+  String get settingsProfile => 'Profile and account';
+
+  @override
+  String get settingsKyc => 'KYC and bank details';
+
+  @override
+  String get settingsSwitch => 'Switch to customer';
+
+  @override
+  String get settingsDelete => 'Delete account';
+
+  @override
+  String get settingsDeliveryInfo =>
+      'Charges and minimum order value apply to new checkout quotes. Existing order bills stay unchanged. Same-day dates use the server IST cutoff. Checkout credit cannot be enabled here.';
+
+  @override
+  String get settingsCharge => 'Delivery charge (INR)';
+
+  @override
+  String get settingsMinimum => 'Minimum order value (INR)';
+
+  @override
+  String get settingsSlotHelp =>
+      'Enter one IST slot per line, for example 07:00-08:00, 08:00-09:00 or 09:00-10:00. Saving explicitly configures these slots; blank means no checkout slots. Slots must not overlap.';
+
+  @override
+  String get settingsSlots => 'Delivery slots (HH:mm-HH:mm)';
+
+  @override
+  String get settingsSameDay => 'Accept same-day orders';
+
+  @override
+  String get settingsCutoff => 'Same-day cutoff (HH:mm IST)';
+
+  @override
+  String get settingsSave => 'Save settings';
 }

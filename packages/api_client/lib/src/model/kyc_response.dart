@@ -16,6 +16,7 @@ part 'kyc_response.g.dart';
 class KycResponse {
   /// Returns a new [KycResponse] instance.
   KycResponse({
+    this.businessName,
     required this.id,
     required this.vendorId,
     required this.status,
@@ -35,6 +36,14 @@ class KycResponse {
     required this.ifsc,
     required this.upiId,
   });
+
+  /// Immutable business name at submission; legacy rows may have no snapshot.
+  @JsonKey(
+    name: r'businessName',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? businessName;
 
   @JsonKey(
     name: r'id',
@@ -166,6 +175,7 @@ class KycResponse {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is KycResponse &&
+          other.businessName == businessName &&
           other.id == id &&
           other.vendorId == vendorId &&
           other.status == status &&
@@ -187,6 +197,7 @@ class KycResponse {
 
   @override
   int get hashCode =>
+      (businessName == null ? 0 : businessName.hashCode) +
       id.hashCode +
       vendorId.hashCode +
       status.hashCode +

@@ -74,9 +74,30 @@ final onboardingProvider =
 });
 
 /// Encrypted local drafts contain fields and opaque attachment IDs, never raw documents.
+final reverificationProvider =
+    ChangeNotifierProvider.autoDispose<OnboardingController>((ref) {
+  final identity = ref.watch(sessionProvider
+          .select((s) => (s.user?.id, s.user?.activeRole?.value))),
+      config = ref.read(authConfigProvider);
+  final client = NetworkClient(
+      baseUrl: Uri.parse(config.baseUrl).replace(path: '').toString(),
+      session: ref.read(sessionProvider.notifier),
+      adapter: ref.read(authAdapterProvider),
+      appVersion: () => ref.read(configProvider).version);
+  ref.onDispose(client.close);
+  final model = OnboardingController(client, ref.read(onboardingDraftsProvider),
+      '${config.baseUrl}:${identity.$1}:${identity.$2}:reverification',
+      reverification: true);
+  if (identity.$1 != null && identity.$2 == 'VENDOR') {
+    Future.microtask(model.load);
+  }
+  return model;
+});
+
 /// Serialized snapshots and identity-scoped lifetime prevent late requests leaking across accounts.
 class OnboardingController extends ChangeNotifier {
-  OnboardingController(NetworkClient client, this.drafts, this.owner)
+  OnboardingController(NetworkClient client, this.drafts, this.owner,
+      {this.reverification = false})
       : vendors = VendorOnboardingApi(client.dio),
         kyc = KycApi(client.dio),
         media = MediaApi(client.dio);
@@ -85,6 +106,14 @@ class OnboardingController extends ChangeNotifier {
   final MediaApi media;
   final OnboardingDrafts drafts;
   final String owner;
+  final bool reverification;
+  bool get revisionPending =>
+      reverification && values.containsKey('revisionKey');
+  bool get revisionConflict =>
+      revisionPending &&
+      (failure is ConflictFailure ||
+          failure is ValidationFailure ||
+          failure?.code == 'IDEMPOTENCY_MISMATCH');
   final values = <String, String>{};
   List<VendorCategoryResponse> categories = [];
   VendorProfileResponse? profile;
@@ -108,7 +137,7 @@ class OnboardingController extends ChangeNotifier {
   }
 
   void edit(String key, String value) {
-    if (_disposed) return;
+    if (_disposed || revisionPending) return;
     values[key] = value;
     _persist();
   }
@@ -187,7 +216,24 @@ class OnboardingController extends ChangeNotifier {
               rethrow;
             }
           }
-          if (submission != null && submission!.status != 'REJECTED') {
+          if (reverification && submission != null && !revisionPending) {
+            final row = submission!;
+            values['expectedSubmissionId'] = row.id;
+            for (final entry in <String, String>{
+              'aadhaarFrontMediaId': row.aadhaarFrontMediaId,
+              'aadhaarBackMediaId': row.aadhaarBackMediaId,
+              'panMediaId': row.panMediaId,
+              'holderName': row.holderName,
+              'bankName': row.bankName,
+              'ifsc': row.ifsc,
+              'upiId': row.upiId ?? ''
+            }.entries) {
+              values.putIfAbsent(entry.key, () => entry.value);
+            }
+          }
+          if (!reverification &&
+              submission != null &&
+              submission!.status != 'REJECTED') {
             _clearBankDraft();
           }
         }
@@ -236,6 +282,12 @@ class OnboardingController extends ChangeNotifier {
         if (!_disposed) profile = result;
       });
   Future<void> submit() => _run(() async {
+        if (reverification && revisionPending) {
+          final payload = KycRevisionDto.fromJson(Map<String, dynamic>.from(
+              jsonDecode(values['revisionPayload']!) as Map));
+          await _sendRevision(payload);
+          return;
+        }
         final payload = KycSubmissionDto(
             aadhaarFrontMediaId: values['aadhaarFrontMediaId']!,
             aadhaarBackMediaId: values['aadhaarBackMediaId']!,
@@ -250,6 +302,16 @@ class OnboardingController extends ChangeNotifier {
             upiId: values['upiId']?.trim().isNotEmpty == true
                 ? values['upiId']!.trim()
                 : null);
+        if (reverification) {
+          if (values['expectedSubmissionId'] == null) {
+            throw const ConflictFailure();
+          }
+          await _sendRevision(KycRevisionDto.fromJson({
+            ...payload.toJson(),
+            'expectedSubmissionId': values['expectedSubmissionId']
+          }));
+          return;
+        }
         final key = await _key('submit', payload.toJson());
         final result = (await kyc.kycControllerSubmit(
                 idempotencyKey: key, kycSubmissionDto: payload))
@@ -259,13 +321,50 @@ class OnboardingController extends ChangeNotifier {
         _clearBankDraft();
         profile = (await vendors.vendorsControllerProfile()).data!;
       });
+  Future<void> _sendRevision(KycRevisionDto payload) async {
+    final key = await _key('revision', payload.toJson());
+    final result = (await kyc.kycControllerRevise(
+            idempotencyKey: key, kycRevisionDto: payload))
+        .data!;
+    if (_disposed) return;
+    submission = result;
+    final before = Map<String, String>.of(values);
+    _clearBankDraft();
+    await flush();
+    if (failure != null) {
+      values
+        ..clear()
+        ..addAll(before);
+      throw failure!;
+    }
+  }
+
+  Future<void> reviewRevision() async {
+    if (!revisionConflict || busy) return;
+    failure = null;
+    final before = Map<String, String>.of(values);
+    _clearBankDraft();
+    await flush();
+    if (failure != null) {
+      values
+        ..clear()
+        ..addAll(before);
+      _notify();
+      return;
+    }
+    await load();
+  }
+
   void _clearBankDraft() {
     for (final key in [
       'pan',
       'accountNumber',
       'accountNumberConfirmation',
       'submitPayload',
-      'submitKey'
+      'submitKey',
+      'revisionPayload',
+      'revisionKey',
+      'expectedSubmissionId'
     ]) {
       values.remove(key);
     }

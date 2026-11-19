@@ -1,16 +1,20 @@
-import { Body, Controller, Get, Header, Headers, Param, ParseUUIDPipe, Post, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Headers, Param, ParseUUIDPipe, Post, Put, Query, Req, SetMetadata, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
 import { AdminPermission, bearer } from '../admin-auth/admin-auth.controller';
-import { KycDecisionDto, KycNotice, KycPage, KycQueueQuery, KycResponse, KycSubmissionDto } from './kyc.dto';
+import { KycDecisionDto, KycRevisionDto, KycNotice, KycPage, KycQueueQuery, KycResponse, KycSubmissionDto } from './kyc.dto';
 import { KycService } from './kyc.service';
 type VendorRequest = Request & { session: { userId: string } };
 @ApiTags('kyc') @ApiBearerAuth()
 @SetMetadata(NO_IDEMPOTENCY_CACHE, true) @UseGuards(SessionGuard) @Controller('vendor/kyc')
 export class KycController {
   constructor(private readonly kyc: KycService) {}
+  @Header('Cache-Control', 'no-store') @Put() @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiOkResponse({ type: KycResponse })
+  revise(@Req() req: VendorRequest, @Headers('Idempotency-Key') key: string, @Body() input: KycRevisionDto) {
+    return this.kyc.submit(req.session.userId, key, input, req.ip, input.expectedSubmissionId);
+  }
   @Header('Cache-Control', 'no-store') @Get() @ApiOkResponse({ type: KycResponse })
   status(@Req() req: VendorRequest) { return this.kyc.status(req.session.userId); }
   @Header('Cache-Control', 'no-store') @Get('notices') @ApiOkResponse({ type: [KycNotice] })

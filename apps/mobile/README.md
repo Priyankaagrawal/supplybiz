@@ -1,5 +1,116 @@
 # Supply Biz Mobile
 
+## T-106 vendor settings/re-verification (2026-11-19): READY_FOR_VERIFY
+
+More -> Vendor settings opens S-V-20. Business information and delivery settings
+have owned/versioned generated-client editors; KYC/bank opens a separate secure
+S-V-33 instance of the existing masking/upload/FLAG_SECURE flow. The menu links
+working account/role/logout, service area, notification preferences, subscription
+settings and plans. Terms/Privacy/help and deletion stay unavailable until their
+owning T-107/T-019 work; no placeholder route is enabled. Payment UPI publication
+is not changed: KYC UPI remains verification-only, separate payment settings stay
+outside this task. Shop photo is retained; this business editor does not replace it.
+
+Business-name edits warn before save and create a fresh PENDING review snapshot.
+Bank/PAN/Aadhaar edits warn and send an expected-submission revision. Discovery is
+hidden until approval (ADR-034), and reappears only if normal active-plan/vendor
+eligibility still holds. Pending revisions can be superseded atomically; approved/
+rejected/superseded evidence cannot be changed or deleted. Reviewer UI accepts
+PENDING and shows the submitted business-name snapshot. An initial MANUAL_REVIEW
+submission must finish review before settings can replace it; stale reviewers
+cannot approve a newer submission. Existing orders and financial records are
+retained; no cancellation/reversal or historical price backfill is introduced.
+
+Delivery settings use exact integer paise, explicit non-overlapping IST slots,
+shared settings version and nullable same-day cutoff. Same-day requires an explicit
+cutoff. Empty slots remain empty; the form suggests common slots without saving
+them automatically. Changes affect future checkout quotes, not existing bills.
+No setting enables checkout Khata. Availability/holidays use their existing flow.
+
+Saved profiles and pending bodies/keys use existing encrypted per-environment/
+account/role storage. Offline profiles are labelled stale and cannot write. New
+writes require a durable frozen payload/key before sending. Pending settings show
+the saved values; retry keeps the original operation even across recreation or
+another editor. Definitive conflict requires explicit reload/review. KYC secrets
+remain in the encrypted revision draft until acknowledgment can be persisted, then
+PAN/account and replay body/key are cleared. No automatic submit on open/resume.
+Session/role lifetime fences late reads and writes. Logout uses the existing
+server-session/local-wipe flow.
+
+Source: `features/settings/`, secure onboarding controller/page, dashboard/router,
+English ARB/generated localization, API vendors/KYC/controller DTOs, two additive
+migrations, reviewer page and regenerated clients. No new dependency/iOS change.
+API compatibility check: three new paths plus PUT on existing /vendor/kyc, three
+new schemas; only optional response fields businessName/sameDayCutoff were added.
+Existing operations and other schemas were compared and remain unchanged.
+
+Executed checks (C:/flutter/bin SDK; repo root for pnpm/codegen):
+
+```powershell
+pnpm.cmd --filter @supplybiz/api prisma:generate
+pnpm.cmd --filter @supplybiz/api typecheck
+pnpm.cmd --filter @supplybiz/api lint
+pnpm.cmd --filter @supplybiz/api build
+pnpm.cmd --filter @supplybiz/admin typecheck
+pnpm.cmd --filter @supplybiz/admin lint
+pnpm.cmd --filter @supplybiz/admin build
+# Git Bash, SDK in PATH:
+bash tools/codegen.sh
+# apps/mobile:
+flutter gen-l10n
+flutter analyze --no-pub
+flutter test --no-pub test/features/settings/vendor_settings_test.dart test/features/onboarding/onboarding_test.dart test/core/router/app_router_test.dart
+flutter test --no-pub test/features/settings/vendor_settings_test.dart
+dart analyze ../../packages/api_client
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+# apps/api; connection targets rewritten privately to supplybiz_service_area_test:
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand src/modules/vendors/vendor-settings.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/kyc/kyc.postgres.spec.ts
+```
+
+Final evidence across focused runs: seven native settings/checkout/discovery/
+re-verification cases + nine legacy native KYC/encryption/immutability/review cases
++ 23 focused mobile cases = 39 unique PASS. API/admin checks/builds, mobile and
+Dart-client analysis, final Android dev APK and git diff --check PASS. Initial
+native failures found the old KYC DB checks (expanded by migration), a synthetic
+phone fixture and the existing hook's five-second Windows ACL timeout; corrected
+and focused reruns pass. Initial route collision was fixed before final generation.
+Optional legacy KYC_ADMIN_SMOKE browser-server case was skipped (flag not enabled),
+not counted as PASS. A temporary automatic-approval usage limit was resolved on
+retry; unavailable command was not claimed as executed.
+
+Both 202611190003_kyc_business_snapshot and 202611190004_kyc_pending_review were
+applied ONLY to supplybiz_service_area_test. Main development DB was not migrated.
+The latter expands state checks/unique-open-review index and retains closed-row/
+submission-field immutability in the DB trigger. Apply both through the normal
+migration workflow before running this source against another local environment.
+Rollback is by forward-compatible fixes: do not drop review evidence/columns or
+shrink status checks while PENDING/SUPERSEDED rows exist. No financial backfill,
+plan grant, source-ledger change or retention-policy decision. Native tests use
+synthetic accounts/documents and local AES; existing production KMS fail-closed
+behavior remains and no live KYC/provider delivery is claimed.
+
+NOT_RUN: no attached adb device, so actual secure file picker/native encrypted
+restart/OS-kill/live UI-API-DB/TalkBack journey. Manual browser pending-review UI,
+manual PASS and G4 remain pending. iOS deferred. Task-created build daemons stopped;
+pre-existing build daemons/devices preserved.
+
+Manual Android verification (not executed):
+1. With the migrations applied to the intended local runtime, open More -> Vendor
+   settings. Change delivery charge/minimum/IST slots/cutoff, compare a new customer
+   quote, and confirm a previously created order retains its saved bill.
+2. Edit a verified business name: verify the warning and PENDING status, hidden
+   customer discovery and the admin snapshot/queue. Approve the current review and
+   confirm normal eligible discovery returns. Reject or supersede another revision;
+   old submissions must not be editable/approvable.
+3. Edit bank/PAN/masked Aadhaar using the secure picker, save for review, interrupt
+   the response and restart. Retry must retain identical saved details/key, avoid
+   duplicate review, and clear raw bank draft values after acknowledged success.
+4. Test stale editors, offline saved profile, account/role/logout isolation and
+   suspension. Check menu links, scrollable warnings, keyboard, 200% text, TalkBack
+   and native FLAG_SECURE on Android. Legal/help/deletion entries remain unavailable.
+
 ## T-102 vendor Reports (2026-11-19): READY_FOR_VERIFY
 
 More / dashboard Reports and recorded-sales tiles open `/vendor/reports`

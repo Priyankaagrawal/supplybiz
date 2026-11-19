@@ -1,5 +1,34 @@
 # Supply Biz API
 
+## T-106 settings and re-verification (2026-11-19): READY_FOR_VERIFY
+
+GET /vendor/settings/profile and PUT /vendor/settings/business|delivery use
+owned active-vendor role, suspension guard, shared version, required key and
+atomic audit/replay. Existing GET/PATCH /vendor/settings subscription semantics
+remain unchanged. Delivery configuration validates exact bounded integer paise,
+explicit IST slots/cutoff; old checkout snapshots stay unchanged. No checkout
+credit/payment UPI publication is introduced.
+
+PUT /vendor/kyc takes KycRevisionDto (existing submission fields plus required
+expectedSubmissionId), encrypts new bank/PAN values and creates PENDING; business
+name edits clone the last encrypted document/bank evidence into a new name snapshot.
+ADR-034 pauses discovery until current review approval. One open MANUAL_REVIEW or
+PENDING revision/vendor, expected submission checks, supersession and latest-only
+review decisions prevent stale approval. Closed/superseded revisions and submitted
+fields remain DB-immutable. Initial POST onboarding remains MANUAL_REVIEW; PENDING
+edits use PUT. Admin queue/reviewer supports both open states and the new optional
+businessName snapshot. Existing settings/KYC response additions are optional.
+
+Both additive migrations applied ONLY to supplybiz_service_area_test; no main DB
+migration/backfill/grant or financial mutation. Seven focused native settings
+checks plus nine legacy KYC native checks pass across focused runs; mobile's
+23 focused checks, API/admin checks/builds, mobile/client analysis and final
+Android APK pass. An initial Windows ACL setup timeout was resolved using the
+bounded --testTimeout=60000 rerun. Optional production admin smoke flag was not
+enabled; browser/manual pending-review checks remain NOT_RUN. Full exact commands,
+four manual steps, migration/rollback notes and limitations are in mobile README
+T-106. Manual PASS/G4 pending; iOS deferred. No dependency change.
+
 ## T-158 CMS/config API (2026-11-19): READY_FOR_VERIFY
 
 Admin GET /faqs, /legal, /legal/{type}, /config and PUT /faqs/{id},

@@ -15,12 +15,26 @@ import '../../features/dashboard/dashboard_destinations.dart';
 import '../../features/orders/orders_pages.dart';
 import '../../features/plans/plans_page.dart';
 import '../../features/reports/reports_page.dart';
+import '../../features/settings/vendor_settings_page.dart';
+import '../../features/onboarding/onboarding_pages.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/vendor/settings',
+            builder: (_, __) => const VendorSettingsPage()),
+        GoRoute(
+            path: '/vendor/settings/business',
+            builder: (_, __) => const VendorSettingsPage(section: 'business')),
+        GoRoute(
+            path: '/vendor/settings/delivery',
+            builder: (_, __) => const VendorSettingsPage(section: 'delivery')),
+        GoRoute(
+            path: '/vendor/settings/kyc',
+            builder: (_, __) => const OnboardingPage(reverification: true)),
         GoRoute(
             path: '/vendor/reports',
             builder: (_, s) => ReportsPage(

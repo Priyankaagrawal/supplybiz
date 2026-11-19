@@ -5182,6 +5182,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start a new CSV request'**
   String get reportsNewCsv;
+
+  /// No description provided for @settingsReverifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review verified details'**
+  String get settingsReverifyTitle;
+
+  /// No description provided for @settingsReverifyWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing your business name, PAN, bank or Aadhaar details requires a new manual review. Your shop will be hidden from customer discovery until approval. Existing records are retained.'**
+  String get settingsReverifyWarning;
+
+  /// No description provided for @settingsConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Save for review'**
+  String get settingsConfirm;
+
+  /// No description provided for @settingsCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get settingsCancel;
+
+  /// No description provided for @settingsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline: showing saved settings. Connect and refresh before saving.'**
+  String get settingsOffline;
+
+  /// No description provided for @settingsFrozen.
+  ///
+  /// In en, this message translates to:
+  /// **'A save is awaiting confirmation. Retry uses the same saved details and request key; editing is locked until the result is known.'**
+  String get settingsFrozen;
+
+  /// No description provided for @settingsRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry saved request'**
+  String get settingsRetry;
+
+  /// No description provided for @settingsReviewConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload and review current details'**
+  String get settingsReviewConflict;
+
+  /// No description provided for @settingsBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business information'**
+  String get settingsBusiness;
+
+  /// No description provided for @settingsDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery settings'**
+  String get settingsDelivery;
+
+  /// No description provided for @settingsProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile and account'**
+  String get settingsProfile;
+
+  /// No description provided for @settingsKyc.
+  ///
+  /// In en, this message translates to:
+  /// **'KYC and bank details'**
+  String get settingsKyc;
+
+  /// No description provided for @settingsSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to customer'**
+  String get settingsSwitch;
+
+  /// No description provided for @settingsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get settingsDelete;
+
+  /// No description provided for @settingsDeliveryInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Charges and minimum order value apply to new checkout quotes. Existing order bills stay unchanged. Same-day dates use the server IST cutoff. Checkout credit cannot be enabled here.'**
+  String get settingsDeliveryInfo;
+
+  /// No description provided for @settingsCharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery charge (INR)'**
+  String get settingsCharge;
+
+  /// No description provided for @settingsMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order value (INR)'**
+  String get settingsMinimum;
+
+  /// No description provided for @settingsSlotHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter one IST slot per line, for example 07:00-08:00, 08:00-09:00 or 09:00-10:00. Saving explicitly configures these slots; blank means no checkout slots. Slots must not overlap.'**
+  String get settingsSlotHelp;
+
+  /// No description provided for @settingsSlots.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery slots (HH:mm-HH:mm)'**
+  String get settingsSlots;
+
+  /// No description provided for @settingsSameDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept same-day orders'**
+  String get settingsSameDay;
+
+  /// No description provided for @settingsCutoff.
+  ///
+  /// In en, this message translates to:
+  /// **'Same-day cutoff (HH:mm IST)'**
+  String get settingsCutoff;
+
+  /// No description provided for @settingsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save settings'**
+  String get settingsSave;
 }
 
 class _AppLocalizationsDelegate

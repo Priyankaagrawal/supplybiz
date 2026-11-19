@@ -13,6 +13,7 @@ Method | HTTP request | Description
 [**adminKycControllerDetail**](KycApi.md#adminkyccontrollerdetail) | **GET** /api/v1/admin/kyc/{id} |
 [**adminKycControllerQueue**](KycApi.md#adminkyccontrollerqueue) | **GET** /api/v1/admin/kyc |
 [**kycControllerNotices**](KycApi.md#kyccontrollernotices) | **GET** /api/v1/vendor/kyc/notices |
+[**kycControllerRevise**](KycApi.md#kyccontrollerrevise) | **PUT** /api/v1/vendor/kyc |
 [**kycControllerStatus**](KycApi.md#kyccontrollerstatus) | **GET** /api/v1/vendor/kyc |
 [**kycControllerSubmit**](KycApi.md#kyccontrollersubmit) | **POST** /api/v1/vendor/kyc |
 
@@ -179,6 +180,49 @@ This endpoint does not need any parameter.
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **kycControllerRevise**
+> KycResponse kycControllerRevise(idempotencyKey, kycRevisionDto)
+
+
+
+### Example
+```dart
+import 'package:supplybiz_api_client/api.dart';
+
+final api = SupplybizApiClient().getKycApi();
+final String idempotencyKey = idempotencyKey_example; // String |
+final KycRevisionDto kycRevisionDto = ; // KycRevisionDto |
+
+try {
+    final response = api.kycControllerRevise(idempotencyKey, kycRevisionDto);
+    print(response);
+} on DioException catch (e) {
+    print('Exception when calling KycApi->kycControllerRevise: $e\n');
+}
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **idempotencyKey** | **String**|  |
+ **kycRevisionDto** | [**KycRevisionDto**](KycRevisionDto.md)|  |
+
+### Return type
+
+[**KycResponse**](KycResponse.md)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

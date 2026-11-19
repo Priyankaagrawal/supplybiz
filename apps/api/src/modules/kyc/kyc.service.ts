@@ -33,6 +33,7 @@ export class KycService {
     }
     const vendor = await tx.vendors.findUnique({ where: { user_id: userId } });
     if (!vendor) throw new ConflictException({ code: 'BUSINESS_REQUIRED' });
+    if (vendor.is_suspended) throw new ForbiddenException({ code: 'VENDOR_SUSPENDED' });
     return vendor;
   }
   async status(userId: string) {
@@ -46,31 +47,52 @@ export class KycService {
     const rows = await this.db.kyc_notices.findMany({ where: { user_id: userId }, orderBy: [{ created_at: 'desc' }, { id: 'desc' }], take: 50 });
     return rows.map(row => ({ id: row.id, status: row.status, reason: row.reason, createdAt: row.created_at.toISOString() }));
   }
-  submit(userId: string, key: string, input: KycSubmissionDto, ip?: string) {
+  submit(userId: string, key: string, input: KycSubmissionDto, ip?: string, expectedSubmissionId?: string) {
     const encryptionKey = this.key();
     if (input.accountNumber !== input.accountNumberConfirmation) throw new BadRequestException({ code: 'ACCOUNT_CONFIRMATION_MISMATCH' });
-    return this.mutate(userId, key, 'submit', input, async tx => {
+    return this.mutate(userId, key, expectedSubmissionId ? 'revise' : 'submit', input, async tx => {
       const vendor = await this.vendor(tx, userId);
       if (!vendor.business_name || vendor.onboarding_step < 3 || vendor.is_suspended) throw new ConflictException({ code: 'BUSINESS_REQUIRED' });
-      if (!['NOT_VERIFIED', 'REJECTED', 'PENDING'].includes(vendor.kyc_status)) throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });
+      const latest = await tx.vendor_kyc.findFirst({ where: { vendor_id: vendor.id }, orderBy: [{ submitted_at: 'desc' }, { id: 'desc' }] });
+      if (expectedSubmissionId && latest?.id !== expectedSubmissionId) throw new ConflictException({ code: 'VERSION_CONFLICT' });
+      if (!(expectedSubmissionId ? ['VERIFIED', 'REJECTED', 'PENDING'] : ['NOT_VERIFIED', 'REJECTED']).includes(vendor.kyc_status)) throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });
       const ids = [input.aadhaarFrontMediaId, input.aadhaarBackMediaId, input.panMediaId];
       if (new Set(ids).size !== 3) throw new BadRequestException({ code: 'DISTINCT_DOCUMENTS_REQUIRED' });
       const files = await tx.media_files.count({ where: { id: { in: ids }, owner_user_id: userId, purpose: 'KYC_DOC', status: 'READY' } });
       if (files !== 3) throw new NotFoundException({ code: 'MEDIA_NOT_FOUND' });
-      const row = await tx.vendor_kyc.create({ data: { vendor_id: vendor.id,
+      if (latest?.status === 'PENDING') await tx.vendor_kyc.update({ where: { id: latest.id }, data: { status: 'SUPERSEDED' } });
+      const row = await tx.vendor_kyc.create({ data: { vendor_id: vendor.id, business_name: vendor.business_name,
+        status: expectedSubmissionId ? 'PENDING' : 'MANUAL_REVIEW',
         aadhaar_front_media_id: ids[0], aadhaar_back_media_id: ids[1], pan_media_id: ids[2],
         pan_enc: this.encrypt(input.pan, encryptionKey, `${vendor.id}:pan`), pan_last4: input.pan.slice(-4),
         account_number_enc: this.encrypt(input.accountNumber, encryptionKey, `${vendor.id}:account`), account_last4: input.accountNumber.slice(-4),
         holder_name: input.holderName.trim(), bank_name: input.bankName.trim(), ifsc: input.ifsc, upi_id: input.upiId,
       } });
-      await tx.vendors.update({ where: { id: vendor.id }, data: { kyc_status: 'MANUAL_REVIEW', onboarding_step: 4 } });
+      await tx.vendors.update({ where: { id: vendor.id }, data: { kyc_status: row.status, onboarding_step: 4 } });
       await this.audit(tx, 'USER', userId, row, 'KYC_SUBMITTED', ip);
       return this.present(row);
     }, async tx => { await this.vendor(tx, userId); });
   }
+  /** T-106: preserve encrypted bank/doc evidence; only the proposed name changes. */
+  async businessRevision(tx: Prisma.TransactionClient, userId: string, name: string) {
+    const vendor = await this.vendor(tx, userId);
+    if (vendor.kyc_status === 'NOT_VERIFIED') return;
+    if (vendor.kyc_status === 'MANUAL_REVIEW') throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });
+    const latest = await tx.vendor_kyc.findFirst({ where: { vendor_id: vendor.id }, orderBy: [{ submitted_at: 'desc' }, { id: 'desc' }] });
+    if (!latest) throw new ConflictException({ code: 'KYC_NOT_SUBMITTED' });
+    if (latest.status === 'PENDING') await tx.vendor_kyc.update({ where: { id: latest.id }, data: { status: 'SUPERSEDED' } });
+    const row = await tx.vendor_kyc.create({ data: { vendor_id: vendor.id, business_name: name, status: 'PENDING',
+      aadhaar_front_media_id: latest.aadhaar_front_media_id, aadhaar_back_media_id: latest.aadhaar_back_media_id,
+      pan_media_id: latest.pan_media_id, pan_enc: latest.pan_enc, pan_last4: latest.pan_last4,
+      account_number_enc: latest.account_number_enc, account_last4: latest.account_last4,
+      holder_name: latest.holder_name, bank_name: latest.bank_name, ifsc: latest.ifsc, upi_id: latest.upi_id,
+    } });
+    await tx.vendors.update({ where: { id: vendor.id }, data: { kyc_status: 'PENDING' } });
+    await this.audit(tx, 'USER', userId, row, 'KYC_SUBMITTED');
+  }
   async queue(token: string, beforeId?: string) {
     await this.admins.authenticate(token, 'kyc.review');
-    const rows = await this.db.vendor_kyc.findMany({ where: { status: 'MANUAL_REVIEW' },
+    const rows = await this.db.vendor_kyc.findMany({ where: { status: { in: ['MANUAL_REVIEW', 'PENDING'] } },
       ...(beforeId ? { cursor: { id: beforeId }, skip: 1 } : {}),
       orderBy: [{ submitted_at: 'asc' }, { id: 'asc' }], take: 51 });
     return { items: rows.slice(0, 50).map(row => this.present(row)), hasMore: rows.length > 50 };
@@ -91,22 +113,23 @@ export class KycService {
       // Shared with onboarding, role changes and vendor resubmission.
       await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${vendor.user_id}, 0))::text`;
       const row = await tx.vendor_kyc.findUniqueOrThrow({ where: { id } });
-      if (row.status !== 'MANUAL_REVIEW') throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });
+      const latest = await tx.vendor_kyc.findFirstOrThrow({ where: { vendor_id: row.vendor_id }, orderBy: [{ submitted_at: 'desc' }, { id: 'desc' }] });
+      if (!['MANUAL_REVIEW', 'PENDING'].includes(row.status) || latest.id !== row.id) throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });
       const updated = await tx.vendor_kyc.update({ where: { id }, data: {
         status: input.decision, reason: input.reason.trim(), reviewer_id: admin.id, reviewed_at: new Date(),
       } });
       await tx.vendors.update({ where: { id: row.vendor_id }, data: { kyc_status: input.decision } });
-      await this.audit(tx, 'ADMIN', admin.id, updated, `KYC_${input.decision}`, ip);
+      await this.audit(tx, 'ADMIN', admin.id, updated, `KYC_${input.decision}`, ip, row.status);
       // Actual durable in-app notice; no claim of push/SMS delivery before T-032.
       await tx.kyc_notices.create({ data: { user_id: vendor.user_id, submission_id: id, status: input.decision, reason: updated.reason } });
       await this.notifications.enqueue(tx, { recipientId: vendor.user_id, role: 'VENDOR', type: 'KYC_STATUS', sourceKey: `kyc:${id}` });
       return this.present(updated);
-    }, async () => { await this.admins.authenticate(token, 'kyc.review', csrf); });
+    }, async tx => { await this.admins.authenticateInTransaction(tx, token, 'kyc.review', csrf); });
   }
-  private async audit(tx: Prisma.TransactionClient, actor: string, actorId: string, row: vendor_kyc, action: string, ip?: string) {
+  private async audit(tx: Prisma.TransactionClient, actor: string, actorId: string, row: vendor_kyc, action: string, ip?: string, beforeStatus = 'MANUAL_REVIEW') {
     // Free-text reasons and banking PII stay outside the general audit viewer.
     await tx.audit_logs.create({ data: { actor_type: actor, actor_id: actorId, action, entity: 'vendor_kyc', entity_id: row.id, ip: ip && isIP(ip) ? ip : undefined,
-      ...(action === 'KYC_SUBMITTED' ? {} : { before: { status: 'MANUAL_REVIEW', verificationMethod: 'MANUAL_REVIEW', providerChecks: 'NOT_RUN', reviewerId: null } }),
+      ...(action === 'KYC_SUBMITTED' ? {} : { before: { status: beforeStatus, verificationMethod: 'MANUAL_REVIEW', providerChecks: 'NOT_RUN', reviewerId: null } }),
       after: { status: row.status, verificationMethod: row.verification_method, providerChecks: row.provider_checks, reviewerId: row.reviewer_id } } });
   }
   private mutate(actor: string, key: string, path: string, input: object,
@@ -134,7 +157,7 @@ export class KycService {
     });
   }
   private present(row: vendor_kyc): KycResponse {
-    return { id: row.id, vendorId: row.vendor_id, status: row.status, verificationMethod: row.verification_method,
+    return { id: row.id, vendorId: row.vendor_id, businessName: row.business_name, status: row.status, verificationMethod: row.verification_method,
       providerChecks: row.provider_checks, submittedAt: row.submitted_at.toISOString(), reviewedAt: row.reviewed_at?.toISOString() ?? null,
       reviewerId: row.reviewer_id, reason: row.reason, aadhaarFrontMediaId: row.aadhaar_front_media_id,
       aadhaarBackMediaId: row.aadhaar_back_media_id, panMediaId: row.pan_media_id, panLast4: row.pan_last4,

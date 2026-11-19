@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayUnique, IsArray, IsInt, Max, Min, IsNumber, IsLatitude, IsLongitude, IsOptional, IsString, IsUUID, Length, Matches, ValidateIf } from 'class-validator';
+import { ArrayMaxSize, ArrayUnique, IsArray, IsBoolean, IsInt, Max, Min, IsNumber, IsLatitude, IsLongitude, IsOptional, IsString, IsUUID, Length, Matches, ValidateIf } from 'class-validator';
 
 const trimmed = ({ value }: { value: unknown }) => typeof value === 'string' ? value.trim() : value;
 export class ServiceAreaDto {
@@ -32,7 +32,21 @@ export class VendorCategoryResponse {
   @ApiProperty() name!: string;
   @ApiProperty({ type: String, nullable: true }) icon!: string | null;
 }
+export class VendorBusinessEditDto extends VendorBusinessDto {
+  @ApiProperty({ type: 'integer', minimum: 1 }) @IsInt() @Min(1) version!: number;
+}
+export class VendorDeliveryDto {
+  @ApiProperty({ type: 'integer', minimum: 1 }) @IsInt() @Min(1) version!: number;
+  @ApiProperty({ type: 'integer', minimum: 0, maximum: 2147483647 }) @IsInt() @Min(0) @Max(2147483647) deliveryChargePaise!: number;
+  @ApiProperty({ type: 'integer', minimum: 0, maximum: 2147483647 }) @IsInt() @Min(0) @Max(2147483647) minOrderPaise!: number;
+  @ApiProperty({ type: [String], description: 'Explicit IST HH:mm-HH:mm slots; no overnight/overlapping slots. Empty disables checkout slots.' })
+  @IsArray() @ArrayMaxSize(12) @ArrayUnique() @Matches(/^(?:[01]\d|2[0-3]):[0-5]\d-(?:[01]\d|2[0-3]):[0-5]\d$/, { each: true }) timeSlots!: string[];
+  @ApiProperty() @IsBoolean() acceptingToday!: boolean;
+  @ApiProperty({ type: String, nullable: true, description: 'IST HH:mm; required when acceptingToday is true.' })
+  @ValidateIf((_o, v: unknown) => v !== null) @Matches(/^(?:[01]\d|2[0-3]):[0-5]\d$/) sameDayCutoff!: string | null;
+}
 export class VendorSettingsResponse {
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'IST HH:mm; older replay snapshots may omit it.' }) sameDayCutoff?: string | null;
   @ApiPropertyOptional({ type: [String], description: 'Present on fresh reads/writes; older onboarding replay snapshots may omit it.' }) pincodes?: string[];
   @ApiProperty({ type: 'integer', nullable: true }) serviceRadiusKm!: number | null;
   @ApiProperty({ type: 'integer' }) deliveryChargePaise!: number;

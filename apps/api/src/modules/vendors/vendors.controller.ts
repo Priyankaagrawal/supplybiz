@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express';
 import { NO_IDEMPOTENCY_CACHE } from '../../common/idempotency.constants';
 import { SessionGuard } from '../auth/sessions.controller';
-import { ServiceAreaDto, VendorBusinessDto, VendorCategoryDto, VendorCategoryResponse, VendorProfileResponse } from './vendors.dto';
+import { ServiceAreaDto, VendorBusinessDto, VendorBusinessEditDto, VendorDeliveryDto, VendorCategoryDto, VendorCategoryResponse, VendorProfileResponse } from './vendors.dto';
 import { VendorsService } from './vendors.service';
 
 type VendorRequest = Request & { session: { userId: string } };
@@ -14,6 +14,12 @@ type VendorRequest = Request & { session: { userId: string } };
 @Controller('vendor')
 export class VendorsController {
   constructor(private readonly vendors: VendorsService) {}
+  @Get('settings/profile') @Header('Cache-Control', 'no-store') @ApiResponse({ status: 200, type: VendorProfileResponse })
+  settings(@Req() req: VendorRequest) { return this.vendors.profile(req.session.userId); }
+  @Put('settings/business') @Header('Cache-Control', 'no-store') @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiResponse({ status: 200, type: VendorProfileResponse })
+  editBusiness(@Body() input: VendorBusinessEditDto, @Headers('Idempotency-Key') key: string, @Req() req: VendorRequest) { return this.vendors.businessSettings(req.session.userId, key, input); }
+  @Put('settings/delivery') @Header('Cache-Control', 'no-store') @ApiHeader({ name: 'Idempotency-Key', required: true }) @ApiResponse({ status: 200, type: VendorProfileResponse })
+  delivery(@Body() input: VendorDeliveryDto, @Headers('Idempotency-Key') key: string, @Req() req: VendorRequest) { return this.vendors.deliverySettings(req.session.userId, key, input); }
   @Header('Cache-Control', 'no-store')
   @Get('settings/service-area') @ApiResponse({ status: 200, type: VendorProfileResponse })
   serviceArea(@Req() req: VendorRequest) { return this.vendors.profile(req.session.userId); }

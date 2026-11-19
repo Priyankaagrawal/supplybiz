@@ -13,6 +13,7 @@ import 'package:supplybiz_api_client/src/model/kyc_decision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_notice.dart';
 import 'package:supplybiz_api_client/src/model/kyc_page.dart';
 import 'package:supplybiz_api_client/src/model/kyc_response.dart';
+import 'package:supplybiz_api_client/src/model/kyc_revision_dto.dart';
 import 'package:supplybiz_api_client/src/model/kyc_submission_dto.dart';
 
 class KycApi {
@@ -359,6 +360,107 @@ class KycApi {
     }
 
     return Response<List<KycNotice>>(
+      data: _responseData,
+      headers: _response.headers,
+      isRedirect: _response.isRedirect,
+      requestOptions: _response.requestOptions,
+      redirects: _response.redirects,
+      statusCode: _response.statusCode,
+      statusMessage: _response.statusMessage,
+      extra: _response.extra,
+    );
+  }
+
+  /// kycControllerRevise
+  ///
+  ///
+  /// Parameters:
+  /// * [idempotencyKey]
+  /// * [kycRevisionDto]
+  /// * [cancelToken] - A [CancelToken] that can be used to cancel the operation
+  /// * [headers] - Can be used to add additional headers to the request
+  /// * [extras] - Can be used to add flags to the request
+  /// * [validateStatus] - A [ValidateStatus] callback that can be used to determine request success based on the HTTP status of the response
+  /// * [onSendProgress] - A [ProgressCallback] that can be used to get the send progress
+  /// * [onReceiveProgress] - A [ProgressCallback] that can be used to get the receive progress
+  ///
+  /// Returns a [Future] containing a [Response] with a [KycResponse] as data
+  /// Throws [DioException] if API call or serialization fails
+  Future<Response<KycResponse>> kycControllerRevise({
+    required String idempotencyKey,
+    required KycRevisionDto kycRevisionDto,
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    final _path = r'/api/v1/vendor/kyc';
+    final _options = Options(
+      method: r'PUT',
+      headers: <String, dynamic>{
+        r'Idempotency-Key': idempotencyKey,
+        ...?headers,
+      },
+      extra: <String, dynamic>{
+        'secure': <Map<String, String>>[
+          {
+            'type': 'http',
+            'scheme': 'bearer',
+            'name': 'bearer',
+          },
+        ],
+        ...?extra,
+      },
+      contentType: 'application/json',
+      validateStatus: validateStatus,
+    );
+
+    dynamic _bodyData;
+
+    try {
+      _bodyData = jsonEncode(kycRevisionDto);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _options.compose(
+          _dio.options,
+          _path,
+        ),
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    final _response = await _dio.request<Object>(
+      _path,
+      data: _bodyData,
+      options: _options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    KycResponse? _responseData;
+
+    try {
+      final rawData = _response.data;
+      _responseData = rawData == null
+          ? null
+          : deserialize<KycResponse, KycResponse>(rawData, 'KycResponse',
+              growable: true);
+    } catch (error, stackTrace) {
+      throw DioException(
+        requestOptions: _response.requestOptions,
+        response: _response,
+        type: DioExceptionType.unknown,
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+
+    return Response<KycResponse>(
       data: _responseData,
       headers: _response.headers,
       isRedirect: _response.isRedirect,

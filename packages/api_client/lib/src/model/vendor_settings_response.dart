@@ -16,6 +16,7 @@ part 'vendor_settings_response.g.dart';
 class VendorSettingsResponse {
   /// Returns a new [VendorSettingsResponse] instance.
   VendorSettingsResponse({
+    this.sameDayCutoff,
     this.pincodes,
     required this.serviceRadiusKm,
     required this.deliveryChargePaise,
@@ -27,6 +28,14 @@ class VendorSettingsResponse {
     required this.allowKhataOrders,
     required this.version,
   });
+
+  /// IST HH:mm; older replay snapshots may omit it.
+  @JsonKey(
+    name: r'sameDayCutoff',
+    required: false,
+    includeIfNull: false,
+  )
+  final String? sameDayCutoff;
 
   /// Present on fresh reads/writes; older onboarding replay snapshots may omit it.
   @JsonKey(
@@ -103,6 +112,7 @@ class VendorSettingsResponse {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is VendorSettingsResponse &&
+          other.sameDayCutoff == sameDayCutoff &&
           other.pincodes == pincodes &&
           other.serviceRadiusKm == serviceRadiusKm &&
           other.deliveryChargePaise == deliveryChargePaise &&
@@ -116,6 +126,7 @@ class VendorSettingsResponse {
 
   @override
   int get hashCode =>
+      (sameDayCutoff == null ? 0 : sameDayCutoff.hashCode) +
       pincodes.hashCode +
       (serviceRadiusKm == null ? 0 : serviceRadiusKm.hashCode) +
       deliveryChargePaise.hashCode +

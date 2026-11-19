@@ -8,6 +8,7 @@ import 'package:supplybiz_api_client/api.dart';
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**businessName** | **String** | Immutable business name at submission; legacy rows may have no snapshot. | [optional]
 **id** | **String** |  |
 **vendorId** | **String** |  |
 **status** | **String** |  |
