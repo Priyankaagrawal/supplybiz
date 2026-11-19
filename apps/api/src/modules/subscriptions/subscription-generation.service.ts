@@ -166,7 +166,8 @@ export class SubscriptionGenerationService implements OnModuleInit,OnModuleDestr
       const order=await tx.orders.create({data:{order_no:`ORD${String(number!.value).padStart(8,'0')}`,vendor_id:vendorId,vendor_customer_id:row.vendor_customer_id,
         source:'SUBSCRIPTION',subscription_id:row.id,status,delivery_date:dateOnly(date),time_slot:revision.time_slot,address_snapshot:row.address_snapshot as Prisma.InputJsonObject,
         subtotal_paise:subtotal,delivery_charge_paise:charge,total_paise:total,payment_mode:'KHATA',payment_status:total===0n?'PAID':'UNPAID',
-        items:{create:{product_id:row.product_id,product_name_snapshot:row.product.name,unit_snapshot:{value:row.product.unit_value.toString(),type:row.product.unit_type},unit_price_paise:rate,qty:revision.qty,line_total_paise:subtotal,milk_quantity_ml:milk}},
+        items:{create:{product_id:row.product_id,product_name_snapshot:row.product.name,unit_snapshot:{value:row.product.unit_value.toString(),type:row.product.unit_type},unit_price_paise:rate,qty:revision.qty,line_total_paise:subtotal,milk_quantity_ml:milk,
+          milk_quantity_known:row.product.product_type!=='MILK'||['L','ML'].includes(row.product.unit_type)}},
         timeline:{create:{status}}}});
       await this.notifications.enqueue(tx,{recipientId:vendor.user_id,role:'VENDOR',type:'ORDER_NEW',sourceKey:`order:${order.id}:new`,entityId:order.id});
       if(auto && row.customer.user_id)await this.notifications.enqueue(tx,{recipientId:row.customer.user_id,role:'CUSTOMER',type:'ORDER_ACCEPTED',sourceKey:`order:${order.id}:1`,entityId:order.id});

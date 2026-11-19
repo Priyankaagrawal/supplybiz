@@ -153,7 +153,8 @@ export class OrdersService {
         address_snapshot:{id:a.id,label:a.label,line1:a.line1,line2:a.line2,landmark:a.landmark,city:a.city,state:a.state,pincode:a.pincode,latitude:a.latitude,longitude:a.longitude,isDefault:a.is_default},
         subtotal_paise:BigInt(priced.quote.subtotalPaise),delivery_charge_paise:BigInt(priced.quote.deliveryChargePaise),total_paise:BigInt(priced.quote.totalPaise),
         payment_mode:input.paymentMode,payment_status:'UNPAID',items:{create:priced.lines.map(l=>({product_id:l.product.id,product_name_snapshot:l.product.name,
-          unit_snapshot:{value:l.product.unit_value.toString(),type:l.product.unit_type},unit_price_paise:BigInt(l.product.selling_price_paise),qty:l.qty,line_total_paise:l.total,milk_quantity_ml:l.milk}))},
+          unit_snapshot:{value:l.product.unit_value.toString(),type:l.product.unit_type},unit_price_paise:BigInt(l.product.selling_price_paise),qty:l.qty,line_total_paise:l.total,milk_quantity_ml:l.milk,
+          milk_quantity_known:l.product.product_type!=='MILK'||['L','ML'].includes(l.product.unit_type)}))},
         timeline:{create:{status:'NEW'}}}});
       await this.notifications.enqueue(tx,{recipientId:priced.vendor.user_id,role:'VENDOR',type:'ORDER_NEW',sourceKey:`order:${order.id}:new`,entityId:order.id});
       return this.present(order);

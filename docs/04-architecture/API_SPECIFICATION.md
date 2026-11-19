@@ -738,6 +738,25 @@ These endpoints are future reference only; no routes, credentials or tests are r
 | GET | `/vendor/plans` ; GET `/vendor/plan` (current, entitlements) |
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
+T-100 implements the three report GET routes above. `from`/`to` are inclusive IST
+dates supplied together (max 366 days), or both omitted for server Today. Vendor
+identity is session-derived; unknown selectors are rejected. No-store/repeatable
+snapshot and held/active role/suspension guards apply. Summary follows assigned-plan
+READ_HISTORY access including approved expiry history; daily/product tables require
+active BUSINESS/PREMIUM ADVANCED_REPORTS (403 PLAN_FEATURE_LOCKED otherwise).
+Gross sales use actual delivered/POS completion/sale dates, with stored charges;
+counts use scheduled-range orders. Report earnings are net receipt credit roots
+PAYMENT/SALE/CLAIM plus walk-in POS paid once, by ledger value date; opening credits
+and pending claims are excluded. Reversal chains can make net receipts negative.
+Pending Khata receivable and active customers are current, independent of range.
+Summary includes product/charge/discount/unitemized-gap reconciliation and frozen
+milk litres/unknown-line disclosure. Daily sales include zero days (<=62 days),
+otherwise clipped Monday-based weeks. Product table groups immutable ID/name/pack
+snapshots; exact integer packs/paise strings, limit 1–50/offset, global count/total.
+Responses include normalized from/to, serverTime and current IST businessDate.
+Legacy unknown milk classification/volume is never inferred from current products.
+CSV/T-101 remains separate; no export stub or deferred chart/PDF provider added.
+
 T-103 implements `/vendor/plans` (active DB catalog, integer-paise prices, approved
 tier features/caps) and `/vendor/plan` (owned assignment ID/tier/dates, lifecycle
 status, effective features, active customer count and growth availability).

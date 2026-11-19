@@ -81,7 +81,7 @@ native('T-073 native bounded generation and worker recovery',()=>{
     const id=await sub();await engine.ensureScheduled();await drain(date);
     const rows=await orders(id);expect(rows).toHaveLength(1);const order=rows[0]!;
     expect(order).toMatchObject({source:'SUBSCRIPTION',status:'NEW',payment_mode:'KHATA',payment_status:'UNPAID',total_paise:4800n});
-    expect(order.items[0]).toMatchObject({product_name_snapshot:'Synthetic milk',qty:1,unit_price_paise:4800n,milk_quantity_ml:new Prisma.Decimal(1000)});
+    expect(order.items[0]).toMatchObject({product_name_snapshot:'Synthetic milk',qty:1,unit_price_paise:4800n,milk_quantity_ml:new Prisma.Decimal(1000),milk_quantity_known:true});
     expect((await get('customer/orders',buyer).expect(200)).body.items.some((o:{id:string})=>o.id===order.id)).toBe(true);
     expect((await get('vendor/orders').expect(200)).body.items.some((o:{id:string})=>o.id===order.id)).toBe(true);
     expect((await get('customer/home',buyer).expect(200)).body.deliveries.some((o:{id:string})=>o.id===order.id)).toBe(true);

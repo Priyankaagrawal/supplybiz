@@ -211,6 +211,9 @@ Class | Method | HTTP request | Description
 [*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
+[*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerDaily**](doc/VendorReportsApi.md#reportscontrollerdaily) | **GET** /api/v1/vendor/reports/sales-daily |
+[*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerProducts**](doc/VendorReportsApi.md#reportscontrollerproducts) | **GET** /api/v1/vendor/reports/products |
+[*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerSummary**](doc/VendorReportsApi.md#reportscontrollersummary) | **GET** /api/v1/vendor/reports/summary |
 [*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerComplete**](doc/VendorSalesApi.md#salescontrollercomplete) | **POST** /api/v1/vendor/sales |
 [*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerGet**](doc/VendorSalesApi.md#salescontrollerget) | **GET** /api/v1/vendor/sales/{id} |
 [*VendorSalesApi*](doc/VendorSalesApi.md) | [**salesControllerList**](doc/VendorSalesApi.md#salescontrollerlist) | **GET** /api/v1/vendor/sales |
@@ -369,6 +372,11 @@ Class | Method | HTTP request | Description
  - [RefreshDto](doc/RefreshDto.md)
  - [ReorderLine](doc/ReorderLine.md)
  - [ReorderUnavailable](doc/ReorderUnavailable.md)
+ - [ReportDailySales](doc/ReportDailySales.md)
+ - [ReportProduct](doc/ReportProduct.md)
+ - [ReportProducts](doc/ReportProducts.md)
+ - [ReportSalesBucket](doc/ReportSalesBucket.md)
+ - [ReportSummary](doc/ReportSummary.md)
  - [RoleDto](doc/RoleDto.md)
  - [SaleItemResponse](doc/SaleItemResponse.md)
  - [SaleLineInput](doc/SaleLineInput.md)

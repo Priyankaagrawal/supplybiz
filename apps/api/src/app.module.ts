@@ -11,6 +11,8 @@ import { AvailabilityController } from './modules/availability/availability.cont
 import { AvailabilityService } from './modules/availability/availability.service';
 import { DashboardController } from './modules/dashboard/dashboard.controller';
 import { VendorDashboardController } from './modules/dashboard/vendor-dashboard.controller';
+import { ReportsController } from './modules/reports/reports.controller';
+import { ReportsService } from './modules/reports/reports.service';
 import { VendorDashboardService } from './modules/dashboard/vendor-dashboard.service';
 import { VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController } from './modules/subscriptions/subscriptions.controller';
 import { SubscriptionsService } from './modules/subscriptions/subscriptions.service';
@@ -102,7 +104,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     AuthModule,
   ],
   // Synthetic mutation fixtures are available only to automated tests.
-  controllers: [VendorDashboardController, CustomerKhataController, VendorKhataController, SalesController, AvailabilityController, SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
+  controllers: [ReportsController, VendorDashboardController, CustomerKhataController, VendorKhataController, SalesController, AvailabilityController, SubscriptionSettingsController, VendorSubscriptionsController, CustomerSubscriptionsController, SubscriptionPlansController, PaymentsController, CustomerOrdersController, VendorOrdersController, VendorDeliveriesController, DashboardController, HomeController, DiscoveryController, AddressesController, ManagementController, AdminPlansController, VendorPlansController, CustomersController, CustomerLinksController, NotificationsController, CatalogController, CategoriesController, KycController, AdminKycController, AuditController, VendorsController, MediaController, AdminMediaController, AdminAuthController, VersionController, AppConfigController, ...(process.env.NODE_ENV === "test" ? [IdempotencyTestController] : [])],
   providers: [
     KhataAccess,KhataReadService,VendorKhataService,PersonalKhataService,PaymentClaimsService,PaymentDetailsService,
     SalesService,
@@ -115,6 +117,7 @@ import { PostgresThrottlerStorage } from "./common/abuse/postgres-throttler.stor
     DeliveryEffectsService,
     DashboardService,
     VendorDashboardService,
+    ReportsService,
     HomeService,
     DiscoveryService,
     AddressesService,

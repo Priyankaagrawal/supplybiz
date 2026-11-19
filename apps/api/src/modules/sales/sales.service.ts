@@ -46,7 +46,10 @@ export class SalesService {
         const p=products.find(p=>p.id===line.productId)!,rate=line.ratePaise===undefined?BigInt(p.selling_price_paise):amount(line.ratePaise),sum=rate*BigInt(line.qty);
         if(line.qty>p.stock_qty)throw new ConflictException({code:'INSUFFICIENT_STOCK'});
         total+=sum;if(sum>max||total>max)throw new BadRequestException({code:'AMOUNT_OVERFLOW'});
-        return {product_id:p.id,name_snapshot:p.name,unit_value_snapshot:p.unit_value.toString(),unit_type_snapshot:p.unit_type,qty:line.qty,rate_paise:rate,amount_paise:sum};
+        const volumeKnown=p.product_type!=='MILK'||['L','ML'].includes(p.unit_type);
+        const milk=p.product_type==='MILK'&&volumeKnown?p.unit_value.mul(line.qty).mul(p.unit_type==='L'?1000:1):new Prisma.Decimal(0);
+        return {product_id:p.id,name_snapshot:p.name,unit_value_snapshot:p.unit_value.toString(),unit_type_snapshot:p.unit_type,qty:line.qty,rate_paise:rate,amount_paise:sum,
+          milk_quantity_ml:milk,milk_quantity_known:volumeKnown};
       });
       const paid=amount(input.paidPaise);if(paid>total)throw new UnprocessableEntityException({code:'PAID_EXCEEDS_TOTAL'});
       if(!input.vendorCustomerId&&paid!==total)throw new UnprocessableEntityException({code:'WALKIN_MUST_BE_PAID'});

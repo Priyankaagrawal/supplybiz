@@ -135,6 +135,11 @@ import 'package:supplybiz_api_client/src/model/record_payment_input.dart';
 import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/reorder_line.dart';
 import 'package:supplybiz_api_client/src/model/reorder_unavailable.dart';
+import 'package:supplybiz_api_client/src/model/report_daily_sales.dart';
+import 'package:supplybiz_api_client/src/model/report_product.dart';
+import 'package:supplybiz_api_client/src/model/report_products.dart';
+import 'package:supplybiz_api_client/src/model/report_sales_bucket.dart';
+import 'package:supplybiz_api_client/src/model/report_summary.dart';
 import 'package:supplybiz_api_client/src/model/role_dto.dart';
 import 'package:supplybiz_api_client/src/model/sale_item_response.dart';
 import 'package:supplybiz_api_client/src/model/sale_line_input.dart';
@@ -574,6 +579,21 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
       return ReorderLine.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'ReorderUnavailable':
       return ReorderUnavailable.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportDailySales':
+      return ReportDailySales.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportProduct':
+      return ReportProduct.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportProducts':
+      return ReportProducts.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportSalesBucket':
+      return ReportSalesBucket.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportSummary':
+      return ReportSummary.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'RoleDto':
       return RoleDto.fromJson(value as Map<String, dynamic>) as ReturnType;

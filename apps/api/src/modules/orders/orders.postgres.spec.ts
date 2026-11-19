@@ -231,6 +231,7 @@ native('T-045 native order HTTP/DB critical checks',()=>{
     await settings({daily_milk_capacity_ml:1500});await place().expect(201);
     await db.products.update({where:{id:productId},data:{unit_value:0.001}});
     const second=await place().expect(201);expect((await db.order_items.findFirstOrThrow({where:{order_id:second.body.id as string}})).milk_quantity_ml.toString()).toBe('2');
+    expect((await db.order_items.findFirstOrThrow({where:{order_id:second.body.id as string}})).milk_quantity_known).toBe(true);
     await settings({daily_milk_capacity_ml:1001});await expectCode(place().expect(422),'CAPACITY_REACHED');
   });
   it('TC-046/047/048/049 enforces versioned transitions, reasons, exact replay and delivery boundary',async()=>{

@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/reports/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/reports/sales-daily": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_daily"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/reports/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportsController_products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/dashboard": {
         parameters: {
             query?: never;
@@ -2093,6 +2141,89 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ReportSummary: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date-time */
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            /** @description Gross delivered-order totals plus POS totals on actual completion/sale dates. Includes charges; not receipts. */
+            totalSalesPaise: string;
+            /** @description Retained orders scheduled in range; POS is not an order. */
+            totalOrders: number;
+            /** @description Scheduled-in-range orders now DELIVERED. */
+            deliveredOrders: number;
+            /** @description Scheduled-in-range orders now CANCELLED; excludes REJECTED/FAILED. */
+            cancelledOrders: number;
+            /** @description Known milk litres from immutable delivered/POS line snapshots in actual completion/sale range. */
+            milkSoldLitres: string;
+            /** @description Legacy zero-volume/unknown-classification or non-volume milk lines. Milk total is incomplete when nonzero; never infer history from current catalog. */
+            milkSoldUnmeasuredLines: number;
+            /** @description Net external receipts by ledger value date: payment/POS/confirmed-claim credit roots and reversal chains, plus paid walk-ins once. Opening credits excluded. May be negative for corrections. */
+            totalEarningsPaise: string;
+            /** @description Current positive Khata due summed per customer, including archived/inactive links, as of serverTime; independent of date range. */
+            pendingPaymentsPaise: string;
+            /** @description Current ACTIVE non-deleted customer links; independent of range. */
+            activeCustomers: number;
+            /** @description Range item sales excluding delivery charges; matches complete product table total. */
+            productSalesPaise: string;
+            deliveryChargesPaise: string;
+            /** @description Stored order discounts; zero under current scope. */
+            discountPaise: string;
+            /** @description Legacy missing/inconsistent item subtotal gap. Sales = products + charges - discounts + this gap. */
+            unitemizedSalesPaise: string;
+        };
+        ReportSalesBucket: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            salesPaise: string;
+        };
+        ReportDailySales: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date-time */
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            /**
+             * @description DAY through 62 inclusive days; otherwise Monday-based weeks clipped to requested range. Zero periods included.
+             * @enum {string}
+             */
+            bucket: "DAY" | "WEEK";
+            items: components["schemas"]["ReportSalesBucket"][];
+        };
+        ReportProduct: {
+            /** Format: uuid */
+            productId: string;
+            /** @description Immutable sold name; renamed/repacked products produce distinct snapshot groups. */
+            name: string;
+            unitValue: string;
+            unitType: string;
+            /** @description Integer packs, not litres. Exact aggregate string. */
+            quantityPacks: string;
+            salesPaise: string;
+        };
+        ReportProducts: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date-time */
+            serverTime: string;
+            /** Format: date */
+            businessDate: string;
+            items: components["schemas"]["ReportProduct"][];
+            total: number;
+            /** @description All product snapshot groups across the range, not just the current page. */
+            totalProductSalesPaise: string;
+        };
         VendorDashboard: {
             /**
              * Format: date-time
@@ -3866,6 +3997,140 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ReportsController_summary: {
+        parameters: {
+            query?: {
+                /** @description Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days. */
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportSummary"];
+                };
+            };
+            /** @description Invalid inclusive IST range (max 366 days), unknown query field or pagination. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORTS_UNAVAILABLE; no fabricated/cached totals. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReportsController_daily: {
+        parameters: {
+            query?: {
+                /** @description Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days. */
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportDailySales"];
+                };
+            };
+            /** @description Invalid inclusive IST range (max 366 days), unknown query field or pagination. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORTS_UNAVAILABLE; no fabricated/cached totals. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReportsController_products: {
+        parameters: {
+            query?: {
+                /** @description Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days. */
+                from?: string;
+                to?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportProducts"];
+                };
+            };
+            /** @description Invalid inclusive IST range (max 366 days), unknown query field or pagination. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORTS_UNAVAILABLE; no fabricated/cached totals. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     VendorDashboardController_get: {
         parameters: {
             query?: {

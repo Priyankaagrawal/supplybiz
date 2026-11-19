@@ -844,6 +844,7 @@ model order_items {
   qty Int
   line_total_paise BigInt
   milk_quantity_ml Decimal @default(0) @db.Decimal(30,3)
+  milk_quantity_known Boolean @default(false)
   order orders @relation(fields: [order_id], references: [id], onDelete: Restrict)
   product products @relation(fields: [product_id], references: [id], onDelete: Restrict)
   @@index([order_id, id])
@@ -987,6 +988,8 @@ model sale_items {
   name_snapshot String @db.VarChar(120)
   unit_value_snapshot String @db.VarChar(40)
   unit_type_snapshot String @db.VarChar(8)
+  milk_quantity_ml Decimal @default(0) @db.Decimal(30,3)
+  milk_quantity_known Boolean @default(false)
   qty Int
   rate_paise BigInt
   amount_paise BigInt

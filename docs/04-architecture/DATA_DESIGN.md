@@ -251,6 +251,16 @@ T-079 materializes these immutable POS sources in 202611170002_quick_sales.
 sales also stores creator, explicit sale_date (server IST date after locks),
 untrusted client_created_at, permanent unique actor/key hash and request_hash.
 sale_items adds unit_value_snapshot/unit_type_snapshot and UNIQUE(sale_id,product_id).
+T-100 migration 202611190001_report_volume_snapshots adds sale_items.milk_quantity_ml
+NUMERIC(30,3) and milk_quantity_known, plus order_items.milk_quantity_known. New
+POS/checkout/subscription-generation lines freeze trusted milk volume/classification
+at source creation. Non-milk lines are known zero; milk sold in non-volume units is
+unknown zero. Positive legacy order milk snapshots remain usable, while legacy zero
+lines/POS rows default unknown. Reports disclose unknown lines without reclassifying
+history from current catalog or updating immutable financial sources. Existing source
+immutability/grants remain; no financial backfill. Milk totals sum frozen known
+volumes, not today's prices/pack sizes. The additive defaulted fields can remain
+through application rollback; do not drop history-bearing metadata as routine rollback.
 Rates/totals/paid/balance are nonnegative BIGINT with paid<=total and balance=
 total-paid; walk-ins require balance=0. Numeric line arithmetic and deferred
 bill-sum checks (explicitly forced before stock/ledger posting) reject inconsistent snapshots, and insert guards enforce vendor/

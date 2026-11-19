@@ -1,5 +1,123 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/reports/summary:
+    get:
+      operationId: ReportsController_summary
+      parameters:
+        - name: from
+          required: false
+          in: query
+          description: Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+        - name: to
+          required: false
+          in: query
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportSummary'
+        '400':
+          description: Invalid inclusive IST range (max 366 days), unknown query field or pagination.
+        '403':
+          description: Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM.
+        '503':
+          description: REPORTS_UNAVAILABLE; no fabricated/cached totals.
+      tags:
+        - vendor-reports
+      security:
+        - bearer: []
+  /api/v1/vendor/reports/sales-daily:
+    get:
+      operationId: ReportsController_daily
+      parameters:
+        - name: from
+          required: false
+          in: query
+          description: Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+        - name: to
+          required: false
+          in: query
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportDailySales'
+        '400':
+          description: Invalid inclusive IST range (max 366 days), unknown query field or pagination.
+        '403':
+          description: Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM.
+        '503':
+          description: REPORTS_UNAVAILABLE; no fabricated/cached totals.
+      tags:
+        - vendor-reports
+      security:
+        - bearer: []
+  /api/v1/vendor/reports/products:
+    get:
+      operationId: ReportsController_products
+      parameters:
+        - name: from
+          required: false
+          in: query
+          description: Inclusive IST date. Supply from and to together; omit both for database Today. Max 366 days.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+        - name: to
+          required: false
+          in: query
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            maximum: 50
+            default: 20
+            type: integer
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            maximum: 2147483647
+            default: 0
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportProducts'
+        '400':
+          description: Invalid inclusive IST range (max 366 days), unknown query field or pagination.
+        '403':
+          description: Active/held vendor role, suspension or PLAN_FEATURE_LOCKED. Advanced tables require active BUSINESS/PREMIUM.
+        '503':
+          description: REPORTS_UNAVAILABLE; no fabricated/cached totals.
+      tags:
+        - vendor-reports
+      security:
+        - bearer: []
   /api/v1/vendor/dashboard:
     get:
       operationId: VendorDashboardController_get
@@ -5699,6 +5817,209 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    ReportSummary:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        serverTime:
+          type: string
+          format: date-time
+        businessDate:
+          type: string
+          format: date
+        totalSalesPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: >-
+            Gross delivered-order totals plus POS totals on actual completion/sale dates. Includes charges; not
+            receipts.
+        totalOrders:
+          type: integer
+          minimum: 0
+          description: Retained orders scheduled in range; POS is not an order.
+        deliveredOrders:
+          type: integer
+          minimum: 0
+          description: Scheduled-in-range orders now DELIVERED.
+        cancelledOrders:
+          type: integer
+          minimum: 0
+          description: Scheduled-in-range orders now CANCELLED; excludes REJECTED/FAILED.
+        milkSoldLitres:
+          type: string
+          pattern: ^[0-9]+(\.[0-9]+)?$
+          description: Known milk litres from immutable delivered/POS line snapshots in actual completion/sale range.
+        milkSoldUnmeasuredLines:
+          type: integer
+          minimum: 0
+          description: >-
+            Legacy zero-volume/unknown-classification or non-volume milk lines. Milk total is incomplete when nonzero;
+            never infer history from current catalog.
+        totalEarningsPaise:
+          type: string
+          pattern: ^-?[0-9]+$
+          description: >-
+            Net external receipts by ledger value date: payment/POS/confirmed-claim credit roots and reversal chains,
+            plus paid walk-ins once. Opening credits excluded. May be negative for corrections.
+        pendingPaymentsPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: >-
+            Current positive Khata due summed per customer, including archived/inactive links, as of serverTime;
+            independent of date range.
+        activeCustomers:
+          type: integer
+          minimum: 0
+          description: Current ACTIVE non-deleted customer links; independent of range.
+        productSalesPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: Range item sales excluding delivery charges; matches complete product table total.
+        deliveryChargesPaise:
+          type: string
+          pattern: ^[0-9]+$
+        discountPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: Stored order discounts; zero under current scope.
+        unitemizedSalesPaise:
+          type: string
+          pattern: ^-?[0-9]+$
+          description: Legacy missing/inconsistent item subtotal gap. Sales = products + charges - discounts + this gap.
+      required:
+        - from
+        - to
+        - serverTime
+        - businessDate
+        - totalSalesPaise
+        - totalOrders
+        - deliveredOrders
+        - cancelledOrders
+        - milkSoldLitres
+        - milkSoldUnmeasuredLines
+        - totalEarningsPaise
+        - pendingPaymentsPaise
+        - activeCustomers
+        - productSalesPaise
+        - deliveryChargesPaise
+        - discountPaise
+        - unitemizedSalesPaise
+    ReportSalesBucket:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        salesPaise:
+          type: string
+          pattern: ^[0-9]+$
+      required:
+        - from
+        - to
+        - salesPaise
+    ReportDailySales:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        serverTime:
+          type: string
+          format: date-time
+        businessDate:
+          type: string
+          format: date
+        bucket:
+          type: string
+          enum:
+            - DAY
+            - WEEK
+          description: >-
+            DAY through 62 inclusive days; otherwise Monday-based weeks clipped to requested range. Zero periods
+            included.
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportSalesBucket'
+      required:
+        - from
+        - to
+        - serverTime
+        - businessDate
+        - bucket
+        - items
+    ReportProduct:
+      type: object
+      properties:
+        productId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Immutable sold name; renamed/repacked products produce distinct snapshot groups.
+        unitValue:
+          type: string
+        unitType:
+          type: string
+        quantityPacks:
+          type: string
+          pattern: ^[0-9]+$
+          description: Integer packs, not litres. Exact aggregate string.
+        salesPaise:
+          type: string
+          pattern: ^[0-9]+$
+      required:
+        - productId
+        - name
+        - unitValue
+        - unitType
+        - quantityPacks
+        - salesPaise
+    ReportProducts:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        serverTime:
+          type: string
+          format: date-time
+        businessDate:
+          type: string
+          format: date
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportProduct'
+        total:
+          type: integer
+          minimum: 0
+        totalProductSalesPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: All product snapshot groups across the range, not just the current page.
+      required:
+        - from
+        - to
+        - serverTime
+        - businessDate
+        - items
+        - total
+        - totalProductSalesPaise
     VendorDashboard:
       type: object
       properties:

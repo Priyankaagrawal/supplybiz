@@ -1,5 +1,118 @@
 # Supply Biz API
 
+## T-100 report tables (2026-11-19): READY_FOR_VERIFY
+
+`GET /api/v1/vendor/reports/summary`, `/sales-daily`, `/products` implement
+FR-090–093/095. All accept inclusive IST `from=YYYY-MM-DD&to=YYYY-MM-DD`; omit both
+for database Today. Supply both or neither, max 366 inclusive days. Weekly/monthly/
+custom UI presets translate to date pairs in T-102. Products accepts limit 1–50
+(default 20), offset >=0. Reads derive vendor identity, recheck held/active role,
+suspension and audited server plan, use repeatable snapshots and return no-store.
+Summary uses existing READ_HISTORY policy: every assigned tier, plus valid expiry
+history exception; no paid access before assignment. Daily/product tables require
+active BUSINESS/PREMIUM ADVANCED_REPORTS, including after downgrade/expiry.
+
+Summary: gross `totalSalesPaise` (delivered-order totals + POS totals on actual IST
+completion/sale dates), scheduled-range `totalOrders`/`deliveredOrders`/
+`cancelledOrders`, immutable `milkSoldLitres`/`milkSoldUnmeasuredLines`, net external
+receipts `totalEarningsPaise`, current `pendingPaymentsPaise` and `activeCustomers`.
+Report earnings are receipts, unlike T-030 dashboard lifetime recorded-sales
+earnings. Ledger CREDIT roots PAYMENT/SALE/CLAIM and their reversal chains count
+once by entry/value date; only walk-in POS paid amounts are added outside ledger.
+Pending claims/opening credits are not receipts. Corrections can make period net
+receipts negative. Current pending = sum of positive customer dues (including
+archived/inactive balances), not netted against other customers' advances.
+
+Daily table includes zero days through 62 days; longer ranges use Monday-based
+weeks clipped to the requested edges. Product rows group immutable product ID/name/
+pack snapshots and exact pack quantities; name/pack edits split groups. Page total
+count and totalProductSalesPaise cover the whole range. Product sales exclude fees;
+summary exposes productSalesPaise + deliveryChargesPaise - discountPaise +
+unitemizedSalesPaise = totalSalesPaise. The gap discloses legacy missing/inconsistent
+item subtotals. Money/packs/volume are exact strings, never JS floats.
+
+Additive migration `202611190001_report_volume_snapshots` adds frozen milk volume/
+known status to POS lines and known status to order lines. New POS/checkout/
+generation writers set these fields from trusted product state. Positive legacy
+order volume stays usable; unknown legacy zero-volume lines and sold milk units
+without a volume conversion are disclosed, never reclassified using today's
+catalog. No financial backfill, receipt rewrite, grant or dependency change.
+**Applied only to isolated supplybiz_service_area_test.** Other runtime databases
+must deploy the migration before running this build. Old code tolerates the added
+defaulted columns; an application rollback can retain them without dropping history.
+Existing sale APIs/contracts are unchanged. CSV export is T-101; mobile is T-102.
+
+Executed PASS from `apps/api` (test URL privately derived; credentials never printed):
+
+```powershell
+$baseLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$reportUrl=[UriBuilder]::new(($baseLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$reportUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$reportUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$reportUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/reports/reports.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/orders/orders.postgres.spec.ts -t 'snapshots exact milk pack volumes'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/subscriptions/subscription-generation.postgres.spec.ts -t 'scheduler scans bounded pages to success'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/reports/reports.postgres.spec.ts -t 'immutable POS/order'
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/reports/*.ts src/modules/sales/sales.service.ts src/modules/orders/orders.service.ts src/modules/orders/orders.postgres.spec.ts src/modules/subscriptions/subscription-generation.service.ts src/modules/subscriptions/subscription-generation.postgres.spec.ts src/app.module.ts --max-warnings=0
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+```
+
+Executed from root with `C:\flutter\bin` on PATH for generation:
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+
+Executed from `apps/mobile` with the installed Flutter/Dart SDK:
+
+```powershell
+dart format test/core/network/reports_client_test.dart
+flutter test --no-pub test/core/network/reports_client_test.dart
+flutter analyze --no-pub test/core/network/reports_client_test.dart ../../packages/api_client/lib
+```
+
+Evidence: eight native report cases PASS plus two targeted checkout/generation
+snapshot regressions (other cases deliberately unselected); the added pagination
+assertion was rechecked in one report case. Real POS replay, linked/walk-in payments,
+claim confirmation, opening balances and reversal-of-reversal reconcile to SQL.
+Order range/boundary inputs are stored fixtures, not a claimed complete delivery
+UI journey. One simulated Dart transport smoke PASS covers signed huge receipts,
+exact milk/packs, calendar ranges, typed weekly bucket and pagination. API build/
+typecheck/lint/schema and TS/Dart checks PASS. Semantic diff: three new paths/five
+schemas, zero changed existing. Initial lint unused import and transport enum
+expectation were corrected; no check was weakened. Logs are under `%TEMP%` as
+`supplybiz-t100-{reports,order,generation,pages,codegen}.log`. All task-started
+Nest contexts/connections closed; no service/device was started for handoff.
+
+Manual verification (pending):
+1. With synthetic BASIC/STANDARD/BUSINESS/PREMIUM vendors, compare summary to stored
+   sales/receipts/Khata; tables must deny BASIC/STANDARD, expired and unassigned
+   access with PLAN_FEATURE_LOCKED. Verify suspension/role/tenant denials/no-store.
+2. Mix delivered orders, paid/unpaid linked POS and walk-ins; record a payment and
+   confirm/reject claims. Check gross versus net receipts without duplicate credits,
+   same-key replay, archived dues and advances. Reverse a backdated receipt: its
+   original period stays intact while correction period reflects the debit.
+3. Compare Today/7-day/month/custom IST ranges and midnight boundaries, 62 versus
+   63 days, zero buckets, clipped weeks, 366-day allowance and 367-day rejection.
+   Sum table rows and reconcile fees/discount/gap to summary gross sales.
+4. Sell milk, then rename/repack/change the catalog product. Product/milk snapshots
+   must retain sold values; unknown legacy/non-volume lines must flag incomplete
+   milk totals. Page product groups and verify stable global totals/exact amounts.
+
+Manual PASS and G4 integrated reconciliation remain pending. CSV/T-102 UI, live
+customer/vendor UI–API–DB journey and external providers NOT_RUN here; no Android
+build/device check is applicable to this API/client task. iOS remains deferred.
+
 ## T-030 vendor dashboard (2026-11-19): READY_FOR_VERIFY
 
 `GET /api/v1/vendor/dashboard?date=YYYY-MM-DD` returns a fresh, no-store,
