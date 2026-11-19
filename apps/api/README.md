@@ -1,5 +1,20 @@
 # Supply Biz API
 
+## T-162 admin accounts/platform CSV (2026-11-19): READY_FOR_VERIFY
+
+`modules/admin-accounts` adds SUPER_ADMIN-only paginated GET/POST admin/admins and
+PATCH admin/admins/:id (fixed role/status, expectedUpdatedAt, reason), plus
+SUPER_ADMIN/FINANCE POST admin/reports/exports (PLATFORM_SUMMARY JSON envelope with
+CSV content, filename and snapshotAt; admin BFF serves an attachment). Mandatory
+TOTP, CSRF, live role checks, safe atomic audit/replay, Argon2id/HIBP policy,
+self-change protection and session/challenge revocation apply. Existing schema
+and 24-hour idempotency cache are reused; no migration. Request HMAC excludes raw
+passwords from replay records; responses exclude hashes/secrets. Aggregate sales
+remain exact text paise, manual grants never become plan revenue. Seven isolated
+native security/runtime checks pass; API/admin checks/builds and regenerated Dart
+analysis pass. Exact commands, scope and four manual steps: admin README T-162.
+Live HIBP provisioning/browser/accessibility/HTTPS/manual PASS/G4 pending.
+
 ## T-126 owned profile (2026-11-19): READY_FOR_VERIFY
 
 GET/PUT /api/v1/me/profile reads/edits the authenticated account's personal name,

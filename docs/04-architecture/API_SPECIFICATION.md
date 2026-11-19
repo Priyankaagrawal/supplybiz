@@ -838,7 +838,7 @@ evidence. Existing low-stock domain events are not consumed without real entitle
 policy from T-084/T-103; this is not a module/event-coverage pass.
 
 ### 4.13 Admin (`/admin/**`, FR-400–FR-413)
-T-150 implements password login → five-minute challenge → mandatory TOTP verification/enrolment → session. `GET /admin/auth/challenge` reads enrolment setup using the pending bearer credential; `GET /admin/auth/me` returns only id/role/permissions. These are server-to-server BFF operations; the browser receives httpOnly Strict cookies (Secure over HTTPS), while the Next.js server supplies the opaque bearer to the API. Logout additionally requires `X-CSRF-Token`; all mutations require `Idempotency-Key`, but auth responses are never replay-cached. Five password/TOTP failures lock an account for 30 minutes; session expiry is 30 minutes idle/eight hours absolute. Unannotated admin routes and unlisted permissions are denied. Local operator provisioning uses breached-password checks; admin-account management remains T-162.
+T-150 implements password login → five-minute challenge → mandatory TOTP verification/enrolment → session. `GET /admin/auth/challenge` reads enrolment setup using the pending bearer credential; `GET /admin/auth/me` returns only id/role/permissions. These are server-to-server BFF operations; the browser receives httpOnly Strict cookies (Secure over HTTPS), while the Next.js server supplies the opaque bearer to the API. Logout additionally requires `X-CSRF-Token`; all mutations require `Idempotency-Key`, but auth responses are never replay-cached. Five password/TOTP failures lock an account for 30 minutes; session expiry is 30 minutes idle/eight hours absolute. Unannotated admin routes and unlisted permissions are denied. Local operator provisioning uses breached-password checks; T-162 adds account management below.
 
 `POST /admin/auth/login`, `/admin/auth/totp/verify`, `/admin/auth/logout`; `GET /admin/dashboard`; `GET /admin/kyc?beforeId=`, `GET /admin/kyc/{submissionId}`, `POST /admin/kyc/{submissionId}/decision` (T-022); document reads use `GET /admin/media/{mediaId}/content` (authorized private stream, audit-logged); `GET/PATCH /admin/vendors[/{id}]`, `POST /admin/vendors/{id}/suspend|reinstate`; `GET/PATCH /admin/customers[/{id}]`; CRUD `/admin/categories`, `/admin/plans`, `/admin/faqs`, `/admin/legal`, `/admin/config`; `GET /admin/audit-logs`; `GET/POST /admin/data-requests`; `POST /admin/reports/exports`; CRUD `/admin/admins`.
 
@@ -1086,3 +1086,34 @@ atomically; failed audit rolls back all. Both responses are no-store. Existing
 session/auth and public /me contracts remain unchanged. Photos continue through
 the existing owned media upload/content APIs. No schema migration/dependency.
 Mobile recovery/cache/photo/actual-device limitations are in mobile README T-126.
+
+### T-162 admin accounts and platform CSV
+
+GET `/admin/admins?offset=0` (20 rows, offset 0..100000) returns `{ items, total }`.
+POST `/admin/admins` accepts `{ email, password, role, reason }`, returns 200.
+PATCH `/admin/admins/{id}` accepts `{ role, status, expectedUpdatedAt, reason }`.
+Both return only `{ id, email, role, status, totpEnrolled, updatedAt }`. All three
+require admins.manage (SUPER_ADMIN). The four ADR-026 roles are fixed; status is
+ACTIVE/DISABLED. Disable is the removal operation; no hard-delete endpoint.
+Email is immutable, unknown fields are rejected. Password length 12..128, breached
+password rejection (400 PASSWORD_BREACHED), and fail-closed HIBP outages (503)
+apply. New accounts must enroll TOTP before receiving their first session.
+Self changes return 409 ADMIN_SELF_CHANGE_FORBIDDEN; stale updates 409
+ADMIN_CHANGED; missing targets 404; duplicate email 409 ADMIN_EMAIL_EXISTS.
+Actual role/status changes revoke all target sessions and pending challenges.
+
+POST `/admin/reports/exports` requires reports.export (SUPER_ADMIN/FINANCE) and
+`{ kind: PLATFORM_SUMMARY }`. Returns 200 `{ filename, csv, snapshotAt }`; the BFF
+serves this bounded UTF-8 BOM/CRLF content as a no-store CSV attachment. One SQL
+snapshot supplies current vendor/KYC/customer counts, retained order counts,
+delivered-order/POS/combined gross as exact integer paise, and manual assignment
+count. No personal records are exported; plan revenue is UNAVAILABLE, gross is
+not receipts. This is an aggregate retained-history snapshot, without date filters.
+
+Writes require Idempotency-Key and X-CSRF-Token and recheck current authorization
+inside the transaction, including retries. Existing idempotency_keys stores the
+safe response for 24 hours under an actor-scoped key and keyed canonical request
+digest (no raw passwords). Different path/body reuse returns 422; expired cache
+permits a fresh operation, still subject to email/version constraints. Account
+change/reason audit, session revocation, export audit and replay commit atomically.
+Private responses are no-store. No public export URLs or new retention policy.

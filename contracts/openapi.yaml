@@ -1,5 +1,122 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/admins:
+    get:
+      operationId: AdminAccountsController_list
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountsResponse'
+      tags:
+        - admin-accounts-reports
+      security:
+        - bearer: []
+    post:
+      operationId: AdminAccountsController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountResponse'
+      tags:
+        - admin-accounts-reports
+      security:
+        - bearer: []
+  /api/v1/admin/admins/{id}:
+    patch:
+      operationId: AdminAccountsController_change
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeAdminInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAccountResponse'
+      tags:
+        - admin-accounts-reports
+      security:
+        - bearer: []
+  /api/v1/admin/reports/exports:
+    post:
+      operationId: AdminAccountsController_export
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformExportInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformExportResponse'
+      tags:
+        - admin-accounts-reports
+      security:
+        - bearer: []
   /api/v1/me/profile:
     get:
       operationId: ProfileController_get
@@ -6285,6 +6402,109 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    AdminAccountResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+        totpEnrolled:
+          type: boolean
+        updatedAt:
+          type: string
+      required:
+        - id
+        - email
+        - role
+        - status
+        - totpEnrolled
+        - updatedAt
+    AdminAccountsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminAccountResponse'
+        total:
+          type: number
+      required:
+        - items
+        - total
+    CreateAdminInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+        role:
+          type: string
+          enum:
+            - SUPER_ADMIN
+            - OPS
+            - SUPPORT
+            - FINANCE
+        reason:
+          type: string
+      required:
+        - email
+        - password
+        - role
+        - reason
+    ChangeAdminInput:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+            - SUPER_ADMIN
+            - OPS
+            - SUPPORT
+            - FINANCE
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - DISABLED
+        expectedUpdatedAt:
+          type: string
+        reason:
+          type: string
+      required:
+        - role
+        - status
+        - expectedUpdatedAt
+        - reason
+    PlatformExportInput:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+            - PLATFORM_SUMMARY
+      required:
+        - kind
+    PlatformExportResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+        csv:
+          type: string
+        snapshotAt:
+          type: string
+      required:
+        - filename
+        - csv
+        - snapshotAt
     ProfileResponse:
       type: object
       properties:

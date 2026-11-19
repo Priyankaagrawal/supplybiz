@@ -123,7 +123,7 @@
 | T-159 | POST-DELIVERY: Admin broadcasts S-A-14 | ADM/API | FR-409 | T-032, T-150 | Future acceptance only; excluded from G0–G6 by SR-05. TC-409 | DEFERRED (SR-05; user approved 2026-10-29) |
 | T-160 | POST-DELIVERY: Admin review moderation S-A-15 | ADM/API | FR-410 | T-108, T-150 | Future acceptance only; excluded from G0–G6 by SR-05. TC-410 | DEFERRED (SR-05; user approved 2026-10-29) |
 | T-161 | Admin data-subject requests S-A-18 + privacy jobs | ADM/API | FR-412, FR-008 | T-019, T-150 | TC-012 | TODO |
-| T-162 | Admin users & roles S-A-17, reports export S-A-19 | ADM/API | FR-400, FR-413 | T-150 | RBAC tests | TODO |
+| T-162 | Admin users & roles S-A-17, reports export S-A-19 | ADM/API | FR-400, FR-413 | T-150 | RBAC tests | READY_FOR_VERIFY (7 focused native security/runtime checks including production Next/BFF/API/PostgreSQL account create/edit and aggregate CSV pass; API/admin typecheck/lint/build, generated clients and Dart analysis pass; fixed roles, TOTP enrollment, session revocation, self/stale-edit protection and safe audited replay; browser/accessibility/live HIBP/HTTPS/manual PASS/G4 pending; admin README T-162 handoff) |
 
 ## 7. M5 — Customer Extended
 | ID | Task | Layer | Refs | Deps | Done when | Status |

@@ -1,5 +1,69 @@
 # Admin — T-150 handoff
 
+## T-162 accounts, fixed roles and CSV (2026-11-19): READY_FOR_VERIFY
+
+Workspace `/admins` is SUPER_ADMIN-only. List accounts (20/page), create a staff
+account, or change another account's fixed ADR-026 role and ACTIVE/DISABLED status
+with a reason. Email is immutable; disabling preserves identity/audit history.
+Initial passwords are 12–128 characters, checked against HIBP and Argon2id-hashed;
+TOTP enrollment is mandatory at first login. Share initial credentials securely.
+No password/TOTP reset or hard deletion is exposed. Self role/status changes are
+refused. A global management lock precedes actor/target row locks, preventing
+reciprocal concurrent demotions from removing both actors' access. Actual role/
+status changes revoke all target sessions and pending authentication challenges.
+Expected updatedAt and monotonic timestamps reject stale edits. The existing
+database trigger records safe changes; a separate audit event records the reason.
+
+`/reports` is SUPER_ADMIN/FINANCE-only. Download is a current platform aggregate
+CSV: account/KYC counts, retained order counts, delivered-order gross and POS gross
+in exact integer paise, and plan assignment count. Plan revenue is UNAVAILABLE;
+gross sales are not receipts. No individual customer, vendor, KYC or staff data
+is exported. Snapshot metrics use one SQL statement. UTF-8 BOM, quoted CSV cells
+and CRLF support spreadsheets. There is no date filter or billing.
+
+Generated-client calls stay in the BFF with httpOnly cookies, same-origin/CSRF and
+signed session/action/record keys. Current permission is checked on every write
+and retry. Private responses are no-store. Exact accepted bodies/results replay
+for 24 hours via existing idempotency_keys; password-bearing request digests use
+HMAC, and responses never contain credentials. No new schema/dependency, retention
+policy, plan grant or main-database change. Expired keys may create a fresh export;
+duplicate account email/stale version still prevent duplicate account writes.
+Uncertain requests freeze their body/key in tab memory for explicit retry. Keep
+the tab open; passwords are never copied into recovery cookies/local storage.
+After reload, review saved accounts before starting another request.
+
+Executed checks (all passed; working directories indicated):
+- API (`apps/api`): `.\node_modules\.bin\tsc.cmd --noEmit`,
+  `.\node_modules\.bin\tsc.cmd -p tsconfig.build.json`,
+  `.\node_modules\.bin\eslint.cmd src/modules/admin-accounts src/app.module.ts --max-warnings=0`.
+- Admin (`apps/admin`): `.\node_modules\.bin\next.cmd typegen`,
+  `.\node_modules\.bin\tsc.cmd --noEmit`, `.\node_modules\.bin\eslint.cmd . --max-warnings=0`,
+  `.\node_modules\.bin\next.cmd build --webpack`.
+- `tools/codegen.sh` with installed Flutter/Git Bash; generated Dart client
+  `C:\flutter\bin\dart.bat analyze` (`packages/api_client`): no issues.
+- API: `.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/admin-accounts/admin-accounts.postgres.spec.ts`:
+  **7 passed** using NATIVE_TEST_DATABASE_URL restricted to local
+  supplybiz_service_area_test. Includes production Next → BFF → API → PostgreSQL
+  create/retry/edit/CSV smoke, RBAC/CSRF, breached-check failure, real hashing/TOTP,
+  stale/self edits, session/challenge revocation and reciprocal-super concurrency.
+  Breach checking uses an injected test checker; live HIBP provisioning NOT_RUN.
+- API: `.\node_modules\.bin\jest.cmd --runInBand src/modules/admin-auth/admin-password.spec.ts`:
+  **3 passed** (hash-prefix privacy, padding and fail-closed breach protocol).
+  Final API typecheck/lint and `git diff --check` also pass.
+
+Manual verification (pending):
+1. As SUPER_ADMIN open `/admins`, create a staff account and enroll TOTP at login.
+2. Change that staff account's role/status; confirm its current session ends and
+   stale editors/self changes fail. Review both safe change and reason in audit.
+3. As FINANCE download `/reports`; check exact paise, scope labels and unavailable
+   plan revenue. OPS/SUPPORT must have no account/export link or route access.
+4. Interrupt a save/download, retry the frozen request, then reload for a fresh
+   snapshot. Check keyboard navigation, 200% zoom and actual spreadsheet download.
+
+Browser interaction/accessibility/manual PASS, deployed HTTPS/Q-33 and G4 remain
+pending. No mobile source changed; Android build is not applicable, iOS deferred.
+Q-20 retention/deletion remains unresolved for T-019/T-161, outside this task.
+
 ## T-158 CMS/config handoff (2026-11-19): READY_FOR_VERIFY
 
 Workspace links open `/cms` (S-A-12, cms.manage: SUPER_ADMIN/OPS) and `/config`

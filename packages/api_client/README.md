@@ -48,13 +48,17 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 
 
-final api = SupplybizApiClient().getAdminAuthApi();
+final api = SupplybizApiClient().getAdminAccountsReportsApi();
+final String idempotencyKey = idempotencyKey_example; // String |
+final String id = id_example; // String |
+final String xCSRFToken = xCSRFToken_example; // String |
+final ChangeAdminInput changeAdminInput = ; // ChangeAdminInput |
 
 try {
-    final response = await api.adminAuthControllerChallenge();
+    final response = await api.adminAccountsControllerChange(idempotencyKey, id, xCSRFToken, changeAdminInput);
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling AdminAuthApi->adminAuthControllerChallenge: $e\n");
+    print("Exception when calling AdminAccountsReportsApi->adminAccountsControllerChange: $e\n");
 }
 
 ```
@@ -65,6 +69,10 @@ All URIs are relative to *http://localhost:3000*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerChange**](doc/AdminAccountsReportsApi.md#adminaccountscontrollerchange) | **PATCH** /api/v1/admin/admins/{id} |
+[*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerCreate**](doc/AdminAccountsReportsApi.md#adminaccountscontrollercreate) | **POST** /api/v1/admin/admins |
+[*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerExport**](doc/AdminAccountsReportsApi.md#adminaccountscontrollerexport) | **POST** /api/v1/admin/reports/exports |
+[*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerList**](doc/AdminAccountsReportsApi.md#adminaccountscontrollerlist) | **GET** /api/v1/admin/admins |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerChallenge**](doc/AdminAuthApi.md#adminauthcontrollerchallenge) | **GET** /api/v1/admin/auth/challenge |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogin**](doc/AdminAuthApi.md#adminauthcontrollerlogin) | **POST** /api/v1/admin/auth/login |
 [*AdminAuthApi*](doc/AdminAuthApi.md) | [**adminAuthControllerLogout**](doc/AdminAuthApi.md#adminauthcontrollerlogout) | **POST** /api/v1/admin/auth/logout |
@@ -258,6 +266,8 @@ Class | Method | HTTP request | Description
  - [AddressList](doc/AddressList.md)
  - [AddressPatch](doc/AddressPatch.md)
  - [AddressResponse](doc/AddressResponse.md)
+ - [AdminAccountResponse](doc/AdminAccountResponse.md)
+ - [AdminAccountsResponse](doc/AdminAccountsResponse.md)
  - [AdminChallengeResponse](doc/AdminChallengeResponse.md)
  - [AdminConfigResponse](doc/AdminConfigResponse.md)
  - [AdminDashboard](doc/AdminDashboard.md)
@@ -279,12 +289,14 @@ Class | Method | HTTP request | Description
  - [CategoryInput](doc/CategoryInput.md)
  - [CategoryList](doc/CategoryList.md)
  - [CategoryRow](doc/CategoryRow.md)
+ - [ChangeAdminInput](doc/ChangeAdminInput.md)
  - [CheckoutOptions](doc/CheckoutOptions.md)
  - [ClaimMutation](doc/ClaimMutation.md)
  - [ClaimRejection](doc/ClaimRejection.md)
  - [CompleteSaleInput](doc/CompleteSaleInput.md)
  - [ConfigInput](doc/ConfigInput.md)
  - [ConsentDto](doc/ConsentDto.md)
+ - [CreateAdminInput](doc/CreateAdminInput.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
  - [CustomerHome](doc/CustomerHome.md)
  - [CustomerInput](doc/CustomerInput.md)
@@ -388,6 +400,8 @@ Class | Method | HTTP request | Description
  - [PlanPriceResponse](doc/PlanPriceResponse.md)
  - [PlanVendorList](doc/PlanVendorList.md)
  - [PlanVendorRow](doc/PlanVendorRow.md)
+ - [PlatformExportInput](doc/PlatformExportInput.md)
+ - [PlatformExportResponse](doc/PlatformExportResponse.md)
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)
