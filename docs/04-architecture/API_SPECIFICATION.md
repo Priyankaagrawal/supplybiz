@@ -99,6 +99,21 @@ endpoint, user/session creation and tokens belong to T-015.
 | POST | `/vendor/delivery/pause` `{ until? }` ; POST `/vendor/delivery/resume` |
 | GET | `/vendor/dashboard?date=YYYY-MM-DD` |
 
+T-030 implements `GET /vendor/dashboard?date=YYYY-MM-DD` for the signed-in active
+vendor only, with no-store and repeatable database snapshot. Date defaults to DB
+current IST date; invalid dates and unknown selectors are rejected. Response:
+`serverTime`, `businessDate`, `date`, nullable `shopName`/`city`/`shopPhotoMediaId`,
+`verified`, `todayOrders`, `pendingOrders`, `completedOrders`, `todaySalesPaise`,
+`totalEarningsPaise`, `milkStockLitres`, `milkStockUnmeasuredProducts`, `activeCustomers`.
+Order counts use scheduled delivery date (pending = NEW/ACCEPTED/PREPARING/
+OUT_FOR_DELIVERY; completed = DELIVERED). Gross sales use actual completion IST
+date plus POS sale_date; lifetime recorded sales exclude duplicate payment/claim/
+ledger credit value. Money and stock are exact strings. Current active milk L/ML
+stock and customer links are independent of date; stocked non-volume milk units
+are separately flagged rather than assigned invented litres. Basic dashboard read
+survives expiry/pre-assignment, grants no feature, and denies suspended vendors.
+Mobile consumption/quick actions/offline display belong to T-031.
+
 T-075 implements `GET/PATCH /vendor/settings` for subscription controls and
 `GET /vendor/settings/subscription-customers?limit=&offset=` for owned customers
 with ACTIVE/PAUSED subscriptions. Other delivery/settings fields remain their

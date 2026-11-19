@@ -30,6 +30,7 @@ import 'package:supplybiz_api_client/src/api/media_api.dart';
 import 'package:supplybiz_api_client/src/api/notifications_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_availability_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_customers_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_dashboard_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_deliveries_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_khata_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
@@ -293,6 +294,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorCustomersApi getVendorCustomersApi() {
     return VendorCustomersApi(dio);
+  }
+
+  /// Get VendorDashboardApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorDashboardApi getVendorDashboardApi() {
+    return VendorDashboardApi(dio);
   }
 
   /// Get VendorDeliveriesApi instance, base route and serializer can be overridden by a given but be careful,

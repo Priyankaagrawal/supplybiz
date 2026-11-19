@@ -185,6 +185,7 @@ Class | Method | HTTP request | Description
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerGet**](doc/VendorCustomersApi.md#customerscontrollerget) | **GET** /api/v1/vendor/customers/{id} |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerList**](doc/VendorCustomersApi.md#customerscontrollerlist) | **GET** /api/v1/vendor/customers |
 [*VendorCustomersApi*](doc/VendorCustomersApi.md) | [**customersControllerPatch**](doc/VendorCustomersApi.md#customerscontrollerpatch) | **PATCH** /api/v1/vendor/customers/{id} |
+[*VendorDashboardApi*](doc/VendorDashboardApi.md) | [**vendorDashboardControllerGet**](doc/VendorDashboardApi.md#vendordashboardcontrollerget) | **GET** /api/v1/vendor/dashboard |
 [*VendorDeliveriesApi*](doc/VendorDeliveriesApi.md) | [**vendorDeliveriesControllerList**](doc/VendorDeliveriesApi.md#vendordeliveriescontrollerlist) | **GET** /api/v1/vendor/deliveries |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerAccounts**](doc/VendorKhataApi.md#vendorkhatacontrolleraccounts) | **GET** /api/v1/vendor/khata |
 [*VendorKhataApi*](doc/VendorKhataApi.md) | [**vendorKhataControllerCollections**](doc/VendorKhataApi.md#vendorkhatacontrollercollections) | **GET** /api/v1/vendor/khata/collections |
@@ -406,6 +407,7 @@ Class | Method | HTTP request | Description
  - [VendorCategoryResponse](doc/VendorCategoryResponse.md)
  - [VendorCollection](doc/VendorCollection.md)
  - [VendorCollectionList](doc/VendorCollectionList.md)
+ - [VendorDashboard](doc/VendorDashboard.md)
  - [VendorKhataAccount](doc/VendorKhataAccount.md)
  - [VendorKhataList](doc/VendorKhataList.md)
  - [VendorPaymentDetails](doc/VendorPaymentDetails.md)

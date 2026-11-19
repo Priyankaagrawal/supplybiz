@@ -1,5 +1,93 @@
 # Supply Biz API
 
+## T-030 vendor dashboard (2026-11-19): READY_FOR_VERIFY
+
+`GET /api/v1/vendor/dashboard?date=YYYY-MM-DD` returns a fresh, no-store,
+repeatable PostgreSQL snapshot for the authenticated held/active vendor role.
+Unknown selectors, suspended/blocked/switched-role identities are denied. This
+basic read works before plan assignment/after expiry and grants no paid operation.
+No cache service, migration, dependency, financial backfill or grant change.
+Existing admin dashboard is unchanged. Mobile UI/cache/quick actions remain T-031.
+
+Fields: database `serverTime`/current IST `businessDate`, selected `date`, nullable
+`shopName`/`city`/`shopPhotoMediaId`, `verified`, `todayOrders`, `pendingOrders`,
+`completedOrders`, `todaySalesPaise`, `totalEarningsPaise`, `milkStockLitres`,
+`milkStockUnmeasuredProducts`, `activeCustomers`. Photo uses the existing authorized
+media route. No private customer/vendor records or public photo URL are exposed.
+
+Order counts use selected scheduled delivery date; total includes terminal rows,
+pending means NEW/ACCEPTED/PREPARING/OUT_FOR_DELIVERY, completed means DELIVERED.
+Sales use actual completion within half-open IST midnight bounds plus POS sale_date.
+Lifetime earnings mean recorded gross delivered-order/POS totals including stored
+charges, rather than receipts/profit. Payments, claims, ledger corrections and plan
+assignments are not new sales. Discounts remain zero under existing active scope.
+Customer/stock counts are current regardless of date. Only active non-deleted MILK
+L/ML packs contribute litres; stocked G/KG/PCS products are counted separately so
+T-031 can disclose unknown volume. Money/stock use exact decimal strings.
+
+Executed PASS from `apps/api`:
+
+```powershell
+$dbLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl=[UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path='/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL=$taskUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/dashboard/vendor-dashboard.postgres.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/dashboard/vendor-dashboard.*.ts src/app.module.ts --max-warnings=0
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+```
+
+Executed from root (`C:\flutter\bin` on PATH for generation):
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+
+Executed from `apps/mobile` with `C:\flutter\bin\dart.bat` / `flutter.bat`:
+
+```powershell
+dart format test/core/network/vendor_dashboard_client_test.dart
+flutter test --no-pub test/core/network/vendor_dashboard_client_test.dart
+flutter analyze --no-pub test/core/network/vendor_dashboard_client_test.dart ../../packages/api_client/lib
+```
+
+Seven API checks PASS: six native HTTP/PostgreSQL cases plus redacted-failure
+injection/recovery. They cover TC-030 (5 orders, 2 pending, 3 completed, sales ₹450),
+IST boundaries, huge totals, exact current milk volume, active links, fresh header,
+tenant/role/date denials and actual POS/payment/replay/expiry writes and reads.
+Order fixtures are persisted synthetic rows, not a full delivery-writer journey.
+The failure injection is not a real DB outage. One generated Dart transport smoke
+PASS (simulated HTTP), exact large strings, nullable header and date query. API/TS
+build/typecheck/lint and Dart analysis PASS. Semantic diff: one new path/one new
+schema, zero changed existing. Initial fixture number/timestamp/discount constraints,
+scale and blocked-status expectations were corrected without weakening safeguards.
+An initial path-based edit command ran from the wrong directory and was corrected.
+Logs: `%TEMP%/supplybiz-t030-focused.log` and `supplybiz-t030-codegen.log`.
+All task-created Nest/DB test contexts closed; no long-running service started.
+
+Manual verification (pending):
+1. GET without date and with two dates. Match scheduled counts against stored
+   orders; two NEW + three DELIVERED of ₹150 each must yield 5 / 2 / 3 / ₹450.
+2. Complete a late order on a different IST date, make a POS sale and record payment.
+   Check actual completion/sale-day totals/lifetime gross, midnight bounds and
+   charges. Neither payment nor same-key POS replay adds sales again.
+3. Change active L/ML stock/customer status; refresh a past date and today. Current
+   counts must update on both. Check inactive/deleted/nonmilk exclusion and unknown
+   volume disclosure for stocked G/KG/PCS milk products.
+4. Check nullable header/photo/VERIFIED state, no-store, invalid date/forged vendorId
+   rejection and anonymous/customer/suspended/blocked/switched-role denials. Confirm
+   no foreign totals and continued basic reads at expiry.
+
+Manual PASS and G4 integration/reconciliation remain pending. No implementation
+blocker. Mobile screen/device/Android build not applicable to this API task; iOS
+validation deferred. No live-provider delivery or module-gate PASS is claimed.
+
 ## T-081 vendor Khata financial controls (2026-11-18): READY_FOR_VERIFY
 
 Added owned GET `/vendor/khata` and `/vendor/khata/collections`, POST

@@ -173,6 +173,7 @@ import 'package:supplybiz_api_client/src/model/vendor_category_dto.dart';
 import 'package:supplybiz_api_client/src/model/vendor_category_response.dart';
 import 'package:supplybiz_api_client/src/model/vendor_collection.dart';
 import 'package:supplybiz_api_client/src/model/vendor_collection_list.dart';
+import 'package:supplybiz_api_client/src/model/vendor_dashboard.dart';
 import 'package:supplybiz_api_client/src/model/vendor_khata_account.dart';
 import 'package:supplybiz_api_client/src/model/vendor_khata_list.dart';
 import 'package:supplybiz_api_client/src/model/vendor_payment_details.dart';
@@ -681,6 +682,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'VendorCollectionList':
       return VendorCollectionList.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'VendorDashboard':
+      return VendorDashboard.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'VendorKhataAccount':
       return VendorKhataAccount.fromJson(value as Map<String, dynamic>)

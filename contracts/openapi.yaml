@@ -1,5 +1,37 @@
 openapi: 3.0.0
 paths:
+  /api/v1/vendor/dashboard:
+    get:
+      operationId: VendorDashboardController_get
+      parameters:
+        - name: date
+          required: false
+          in: query
+          description: IST calendar date; omitted uses database current IST date.
+          schema:
+            pattern: ^\d{4}-\d{2}-\d{2}$
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VendorDashboard'
+        '400':
+          description: Invalid IST date or unknown query fields.
+        '401':
+          description: Missing/expired/revoked session.
+        '403':
+          description: Active/held vendor role required; suspended vendors denied.
+        '404':
+          description: Vendor onboarding not started.
+        '503':
+          description: DASHBOARD_UNAVAILABLE; no cached/fabricated metrics.
+      tags:
+        - vendor-dashboard
+      security:
+        - bearer: []
   /api/v1/customer/khata/vendors/{id}/settlement-options:
     get:
       operationId: CustomerKhataController_options
@@ -5667,6 +5699,90 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    VendorDashboard:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Database snapshot time for last-updated display.
+        businessDate:
+          type: string
+          format: date
+        date:
+          type: string
+          format: date
+          description: Selected IST date. Order counts use scheduled delivery date; sales use actual completion/sale date.
+        shopName:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        shopPhotoMediaId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Owned photo ID for the existing authorized media route.
+        verified:
+          type: boolean
+          description: Stored VERIFIED KYC only; no provider verification implied.
+        todayOrders:
+          type: integer
+          minimum: 0
+          description: All retained orders scheduled for selected date, including cancelled/rejected/failed.
+        pendingOrders:
+          type: integer
+          minimum: 0
+          description: NEW, ACCEPTED, PREPARING or OUT_FOR_DELIVERY on selected delivery date.
+        completedOrders:
+          type: integer
+          minimum: 0
+          description: DELIVERED on selected delivery date.
+        todaySalesPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: >-
+            Selected IST completion/sale date gross: delivered order totals plus POS totals. Stored discounts/delivery
+            charges included; not receipts, ledger credits or plan revenue.
+        totalEarningsPaise:
+          type: string
+          pattern: ^[0-9]+$
+          description: >-
+            Lifetime DELIVERED order totals plus POS totals. Recorded sales, not profit or money received; independent
+            payments/claims/reversals are not new sales.
+        milkStockLitres:
+          type: string
+          pattern: ^[0-9]+(\.[0-9]+)?$
+          description: >-
+            Current known milk litres: active non-deleted MILK stock times pack volume, L plus ML/1000. Exact decimal,
+            independent of date.
+        milkStockUnmeasuredProducts:
+          type: integer
+          minimum: 0
+          description: >-
+            Active stocked milk products in G/KG/PCS excluded from litres because volume is unknown. Disclose incomplete
+            volume when nonzero.
+        activeCustomers:
+          type: integer
+          minimum: 0
+          description: Current ACTIVE non-deleted vendor customer links including offline customers; independent of date.
+      required:
+        - serverTime
+        - businessDate
+        - date
+        - shopName
+        - city
+        - shopPhotoMediaId
+        - verified
+        - todayOrders
+        - pendingOrders
+        - completedOrders
+        - todaySalesPaise
+        - totalEarningsPaise
+        - milkStockLitres
+        - milkStockUnmeasuredProducts
+        - activeCustomers
     KhataBillingAccount:
       type: object
       properties:
