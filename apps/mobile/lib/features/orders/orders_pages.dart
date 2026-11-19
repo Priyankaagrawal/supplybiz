@@ -58,7 +58,9 @@ class OrderFeedback extends StatelessWidget {
 }
 
 class VendorOrdersPage extends ConsumerStatefulWidget {
-  const VendorOrdersPage({super.key});
+  const VendorOrdersPage({this.initialFilter, this.initialDate, super.key});
+  final String? initialFilter;
+  final DateTime? initialDate;
   @override
   ConsumerState<VendorOrdersPage> createState() => _VendorOrdersPageState();
 }
@@ -70,7 +72,8 @@ class _VendorOrdersPageState extends ConsumerState<VendorOrdersPage> {
     final m = ref.watch(vendorOrdersProvider), l = context.l10n;
     if (initialized != m) {
       initialized = m;
-      Future.microtask(m.load);
+      Future.microtask(
+          () => m.load(filter: widget.initialFilter, day: widget.initialDate));
     }
     return Scaffold(
         appBar: AppBar(title: Text(l.navOrders)),
@@ -98,6 +101,7 @@ class _VendorOrdersPageState extends ConsumerState<VendorOrdersPage> {
                               InputDecoration(labelText: l.ordersFilter),
                           items: [
                             'ALL',
+                            'PENDING',
                             'NEW',
                             'ACCEPTED',
                             'PREPARING',
@@ -111,7 +115,9 @@ class _VendorOrdersPageState extends ConsumerState<VendorOrdersPage> {
                                   child: Text(
                                       s == 'ALL'
                                           ? l.customersAll
-                                          : homeStatus(l, s),
+                                          : s == 'PENDING'
+                                              ? l.dashPending
+                                              : homeStatus(l, s),
                                       overflow: TextOverflow.ellipsis)))
                               .toList(),
                           onChanged: m.busy

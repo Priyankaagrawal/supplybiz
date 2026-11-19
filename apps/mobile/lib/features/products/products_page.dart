@@ -29,10 +29,13 @@ String productFailure(AppLocalizations l, AppFailure failure) =>
     };
 
 class ProductsPage extends ConsumerWidget {
-  const ProductsPage({super.key});
+  const ProductsPage({this.activeOnly = false, super.key});
+  final bool activeOnly;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final model = ref.watch(productsProvider), l = context.l10n;
+    final visible =
+        model.visible.where((p) => !activeOnly || p.isActive).toList();
     return Scaffold(
         appBar: AppBar(title: Text(l.productsTitle)),
         body: SafeArea(
@@ -43,6 +46,7 @@ class ProductsPage extends ConsumerWidget {
                 liveRegion: true,
                 child: Text(productFailure(l, model.failure!))),
           if (model.cached) Text(l.productsOffline),
+          if (activeOnly) Text(l.dashActiveProducts),
           if (model.pending != null) ...[
             Text(l.productsPending),
             SbButton(
@@ -82,11 +86,11 @@ class ProductsPage extends ConsumerWidget {
                   ? () => _editor(context, model)
                   : null),
           if (model.ready && model.types.isEmpty) Text(l.productsNoTypes),
-          if (model.ready && model.visible.isEmpty)
+          if (model.ready && visible.isEmpty)
             Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(l.productsEmpty)),
-          for (final product in model.visible)
+          for (final product in visible)
             Card(
                 key: ValueKey(product.id),
                 child: Padding(

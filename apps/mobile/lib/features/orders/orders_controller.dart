@@ -146,7 +146,8 @@ class VendorOrdersController extends ChangeNotifier {
 
   Future<void> _fetchList({bool more = false}) async {
     final page = (await api.vendorOrdersControllerList(
-            status: status,
+            status: status == 'PENDING' ? 'ALL' : status,
+            tab: status == 'PENDING' ? 'ONGOING' : null,
             q: search,
             date: date,
             limit: 20,

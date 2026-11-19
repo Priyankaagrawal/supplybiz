@@ -1,5 +1,100 @@
 # Supply Biz Mobile
 
+## T-031 vendor dashboard/shell/More (2026-11-19): READY_FOR_VERIFY
+
+Vendor Home now consumes the generated T-030 dashboard and existing current-plan
+APIs. Header shows owned shop name/city/photo (private authorized media or icon)
+and stored VERIFIED state. Seven tiles preserve exact server order counts, gross
+sales/lifetime recorded sales, decimal milk volume and active customers. Today is
+the server IST date; custom dates are validated, and cache misses never relabel a
+different date's values. Current stock/customer semantics and incomplete milk
+volume are explained. Gross sales are explicitly separate from payment receipts.
+
+Encrypted cache keys include API environment, account and role, retaining at most
+14 successful date snapshots. Offline reads show saved values and the server
+last-updated timestamp in IST. Authorization/ownership denial hides and clears
+cached metrics/plan/header; storage failure is reported separately from fresh
+network success. Late reads after disposal cannot publish/persist new private
+state. Refresh/resume, owned order notices and returns from destinations refresh
+server metrics; no financial mutation is introduced by the dashboard. Cached plan
+state never grants access; fresh plan failures remove old entitlements/banner state.
+
+Existing Home/Orders/Products/Customers/More navigation stacks remain. Order-count
+tiles open date-filtered lists; Pending maps to existing `status=ALL&tab=ONGOING`
+(NEW/ACCEPTED/PREPARING/OUT_FOR_DELIVERY). Active milk/customer destinations reuse
+their complete owned lists with initial filters; milk excludes inactive products.
+Add Product opens the existing owned editor, retaining its mutation/retry guards.
+Payments, Quick Sale, Khata, subscriptions, deliveries, availability, service area,
+notifications and account/security open existing real pages. Verification and
+expiry/unassigned/scheduled-plan banners offer status/support guidance, no purchase.
+Reports/sales-history drilldowns, plan catalog, vendor settings and Help/FAQ are
+disabled as Available soon until T-102/T-105/T-106/T-107; no placeholder route or
+deferred staff/wallet/reviews/campaign item was added. Dashboard sales/lifetime
+tiles currently display values; report history navigation belongs to T-102.
+
+Executed from `apps/mobile` with `C:\flutter\bin\flutter.bat` / `dart.bat`:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/dashboard lib/features/orders/orders_controller.dart lib/features/orders/orders_pages.dart lib/core/router/routes.dart lib/core/router/app_router.dart
+dart format test/features/dashboard/dashboard_test.dart lib/features/products/products_page.dart
+flutter test --no-pub test/features/dashboard/dashboard_test.dart test/core/router/app_router_test.dart test/core/network/vendor_dashboard_client_test.dart
+flutter test --no-pub test/features/orders/orders_test.dart --plain-name 'TC-045 list filters/search and pagination render at 200%'
+flutter test --no-pub test/features/dashboard/dashboard_test.dart --plain-name 'T-031 milk stock drill-down'
+flutter analyze --no-pub lib/features/dashboard lib/features/orders lib/features/products/products_page.dart lib/core/router test/features/dashboard/dashboard_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+21 focused mobile cases PASS: 13 new dashboard/controller/widget checks, six router,
+one T-030 transport and one existing order filter/pagination case. The first combined
+command passed the initial 12 dashboard cases plus router/transport; the later added
+active-milk case passed separately. Exact large paise/volume, per-date owner cache,
+bound/denial/disposal/cache failure, optional plan outage, pending query, header,
+offline expiry/banner, navigation, shared product editor and 200% layouts covered.
+HTTP/storage are simulated; native SQLCipher, logout key wipe and OS recreation are
+not claimed. Initial syntax/lint, locale setup and readable timestamp-format issues
+were corrected before final checks. Final analysis clean; normal dev APK PASS
+(25.2 s final build after active-milk correction; first build 58.7 s).
+
+Executed from `apps/api` against only the existing isolated local test DB:
+
+```powershell
+$baseLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$dashUrl=[UriBuilder]::new(($baseLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$dashUrl.Path='/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL=$dashUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/dashboard/vendor-dashboard.postgres.spec.ts -t 'TC-030 five'
+.\node_modules\.bin\eslint.cmd src/modules/dashboard/vendor-dashboard.postgres.spec.ts --max-warnings=0
+```
+
+One native HTTP/PostgreSQL check PASS proves Pending drilldown parity (five ongoing
+orders matching dashboard) and tenant/date scoping. Six other API cases unselected;
+no backend production/contract/schema/dependency change or client regeneration.
+English ARB source/generated localization updated. Root `git diff --check` passes.
+`adb devices` listed no attached devices; no emulator was started. Native device/
+encrypted-storage/process-restart/TalkBack/private-photo/live UI–API–DB checks are
+NOT_RUN, manual PASS/G4 pending; iOS deferred. No long-running app service started;
+test contexts closed. Task-started build daemon stopped; pre-existing adb preserved.
+Build/native logs: `%TEMP%/supplybiz-t031-apk.log`, `supplybiz-t031-pending.log`.
+
+Manual verification on Android (pending):
+1. With prior API migrations applied and synthetic vendor data, sign in and compare
+   header/verified/photo and all seven Home metrics to the API. Change date, restore
+   Today, check gross-sales/current-stock explanations and unknown-unit warning.
+2. Tap all/pending/completed order tiles, active milk and customers; compare filter
+   dates/status and counts. Add a product through Quick actions, then return and
+   refresh. Confirm Home/Orders/Products/Customers/More retain independent stacks.
+3. Open every enabled More/quick action and notification/account destination. Check
+   real verification/expired/scheduled/unassigned plan banners and support guidance;
+   future UI entries stay disabled and deferred items absent, with no purchase CTA.
+4. Cache two dates, enable airplane mode, restart and inspect last-updated/saved
+   values. An uncached date must show no borrowed metrics. Restore network; change
+   role/account/logout and verify cache isolation/wipe and suspended access denial.
+5. Check 200% text and TalkBack, labelled >=48dp controls, scrolling, empty/error/
+   loading/photo-failure states, invalid date and plan/network/storage failures.
+
 ## T-083 customer Khata (2026-11-19): READY_FOR_VERIFY
 
 Customer bottom navigation → Khata (`/customer/khata`) shows exact signed global

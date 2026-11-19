@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:flutter/material.dart';
 
 import 'deep_links.dart';
 import 'routes.dart';
@@ -10,12 +11,36 @@ import '../../features/availability/availability_page.dart';
 import '../../features/sales/sales_page.dart';
 import '../../features/khata/vendor_khata_page.dart';
 import '../../features/khata/customer_khata_page.dart';
+import '../../features/dashboard/dashboard_destinations.dart';
+import '../../features/orders/orders_pages.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(
+            path: '/vendor/products/new',
+            builder: (_, __) => const DashboardProductNewPage()),
+        GoRoute(
+            path: '/vendor/dashboard-milk',
+            builder: (_, __) => const DashboardListPage(milk: true)),
+        GoRoute(
+            path: '/vendor/dashboard-customers',
+            builder: (_, __) => const DashboardListPage(milk: false)),
+        GoRoute(
+            path: '/vendor/dashboard-orders',
+            builder: (_, s) {
+              final filter = s.uri.queryParameters['filter'],
+                  day = s.uri.queryParameters['date'];
+              return VendorOrdersPage(
+                  key: ValueKey(s.uri.toString()),
+                  initialFilter:
+                      const {'ALL', 'PENDING', 'DELIVERED'}.contains(filter)
+                          ? filter
+                          : 'ALL',
+                  initialDate: day == null ? null : orderFilterDate(day));
+            }),
         GoRoute(
             path: '/customer/personal-khata/:id',
             builder: (_, s) =>

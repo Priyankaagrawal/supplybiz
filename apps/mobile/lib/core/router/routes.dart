@@ -27,6 +27,7 @@ import '../../features/orders/customer_orders_pages.dart';
 import '../../features/subscriptions/vendor_subscriptions_pages.dart';
 import '../../features/subscriptions/customer_subscriptions_pages.dart';
 import '../../features/khata/customer_khata_page.dart';
+import '../../features/dashboard/dashboard_page.dart';
 
 part 'routes.g.dart';
 
@@ -225,8 +226,10 @@ class VendorHomeBranch extends StatefulShellBranchData {
 class VendorHomeRoute extends GoRouteData with _$VendorHomeRoute {
   const VendorHomeRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.home);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const VendorDashboardPage()
+          : const RoutePlaceholder(title: RouteTitle.home));
 }
 
 class VendorOrdersBranch extends StatefulShellBranchData {
@@ -318,8 +321,10 @@ class VendorMoreBranch extends StatefulShellBranchData {
 class VendorMoreRoute extends GoRouteData with _$VendorMoreRoute {
   const VendorMoreRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.more);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const VendorMorePage()
+          : const RoutePlaceholder(title: RouteTitle.more));
 }
 
 @TypedGoRoute<ServiceAreaRoute>(path: '/vendor/service-area')

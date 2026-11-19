@@ -4438,6 +4438,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'UPI'**
   String get customerKhataMethodUpi;
+
+  /// No description provided for @dashShopPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop photo'**
+  String get dashShopPhoto;
+
+  /// No description provided for @dashShopMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your shop'**
+  String get dashShopMissing;
+
+  /// No description provided for @dashCityMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'City not set'**
+  String get dashCityMissing;
+
+  /// No description provided for @dashSelectedDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected IST date: {date}'**
+  String dashSelectedDate(String date);
+
+  /// No description provided for @dashApplyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply date'**
+  String get dashApplyDate;
+
+  /// No description provided for @dashToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dashToday;
+
+  /// No description provided for @dashOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders for date'**
+  String get dashOrders;
+
+  /// No description provided for @dashPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending orders'**
+  String get dashPending;
+
+  /// No description provided for @dashCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed orders'**
+  String get dashCompleted;
+
+  /// No description provided for @dashSales.
+  ///
+  /// In en, this message translates to:
+  /// **'Recorded sales for date'**
+  String get dashSales;
+
+  /// No description provided for @dashLifetime.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime recorded sales'**
+  String get dashLifetime;
+
+  /// No description provided for @dashMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk stock'**
+  String get dashMilk;
+
+  /// No description provided for @dashCustomers.
+  ///
+  /// In en, this message translates to:
+  /// **'Active customers'**
+  String get dashCustomers;
+
+  /// No description provided for @dashLitres.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} L'**
+  String dashLitres(String value);
+
+  /// No description provided for @dashReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get dashReports;
+
+  /// No description provided for @dashReportsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports available soon'**
+  String get dashReportsSoon;
+
+  /// No description provided for @dashScheduledInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Order counts use the scheduled delivery date. Pending includes new, accepted, preparing and out-for-delivery orders.'**
+  String get dashScheduledInfo;
+
+  /// No description provided for @dashGrossInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Sales include delivered orders and Quick Sales, including delivery charges. They represent recorded sales, not payments received or profit.'**
+  String get dashGrossInfo;
+
+  /// No description provided for @dashCurrentInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Milk stock and active customers show the current state, regardless of selected date.'**
+  String get dashCurrentInfo;
+
+  /// No description provided for @dashUnknownMilk.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} stocked milk products have units that cannot be converted to litres. Shown volume is incomplete.'**
+  String dashUnknownMilk(int count);
+
+  /// No description provided for @dashActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get dashActions;
+
+  /// No description provided for @dashNoCache.
+  ///
+  /// In en, this message translates to:
+  /// **'No dashboard data saved for this date. Connect and refresh.'**
+  String get dashNoCache;
+
+  /// No description provided for @dashUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated {time} IST'**
+  String dashUpdated(String time);
+
+  /// No description provided for @dashOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved dashboard data. Connect and refresh for current values.'**
+  String get dashOffline;
+
+  /// No description provided for @dashCacheUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the dashboard for offline use.'**
+  String get dashCacheUnavailable;
+
+  /// No description provided for @dashVerification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification is incomplete. Your shop is hidden from customer discovery until verified.'**
+  String get dashVerification;
+
+  /// No description provided for @dashPlanUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan details are unavailable. Refresh to check your current access.'**
+  String get dashPlanUnavailable;
+
+  /// No description provided for @dashPlanExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan has expired. History and eligible settlement remain available.'**
+  String get dashPlanExpired;
+
+  /// No description provided for @dashPlanScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan is scheduled to start later. Paid features require an active assignment.'**
+  String get dashPlanScheduled;
+
+  /// No description provided for @dashPlanUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No plan is assigned. Setup allowance does not unlock paid features.'**
+  String get dashPlanUnassigned;
+
+  /// No description provided for @dashPlanSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support for plan assignment or renewal.'**
+  String get dashPlanSupport;
+
+  /// No description provided for @dashAvailableSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Available soon'**
+  String get dashAvailableSoon;
+
+  /// No description provided for @dashPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get dashPlans;
+
+  /// No description provided for @dashVendorSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor settings'**
+  String get dashVendorSettings;
+
+  /// No description provided for @dashHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Help and FAQ'**
+  String get dashHelp;
+
+  /// No description provided for @dashAccountSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Account and security'**
+  String get dashAccountSettings;
+
+  /// No description provided for @dashSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get dashSubscriptions;
+
+  /// No description provided for @dashDeliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get dashDeliveries;
+
+  /// No description provided for @dashActiveProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing active products'**
+  String get dashActiveProducts;
 }
 
 class _AppLocalizationsDelegate

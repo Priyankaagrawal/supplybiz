@@ -73,6 +73,9 @@ native('T-030 native vendor dashboard',()=>{
     expect(await metrics('?date=2020-01-01')).toMatchObject({todayOrders:1,pendingOrders:1,completedOrders:0,todaySalesPaise:'0',totalEarningsPaise:'45000'});
     for(const s of ['ACCEPTED','PREPARING','OUT_FOR_DELIVERY','CANCELLED','REJECTED','FAILED'])await order(s,day);
     expect(await metrics()).toMatchObject({todayOrders:11,pendingOrders:5,completedOrders:3,todaySalesPaise:'45000'});
+    const pending=await request(app.getHttpServer()).get(`/api/v1/vendor/orders?status=ALL&tab=ONGOING&date=${day}`).set('Authorization',`Bearer ${owner.token}`).expect(200);
+    expect(pending.body.total).toBe(5);
+    expect(pending.body.items.every((r:{status:string})=>['NEW','ACCEPTED','PREPARING','OUT_FOR_DELIVERY'].includes(r.status))).toBe(true);
   });
   it('IST sales boundaries use actual completion, exclusive next midnight, exact huge totals and delivery charges',async()=>{
     const amount=9007199254740993n;

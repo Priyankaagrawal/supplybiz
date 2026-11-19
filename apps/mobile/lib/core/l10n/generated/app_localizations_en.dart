@@ -2441,4 +2441,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customerKhataMethodUpi => 'UPI';
+
+  @override
+  String get dashShopPhoto => 'Shop photo';
+
+  @override
+  String get dashShopMissing => 'Your shop';
+
+  @override
+  String get dashCityMissing => 'City not set';
+
+  @override
+  String dashSelectedDate(String date) {
+    return 'Selected IST date: $date';
+  }
+
+  @override
+  String get dashApplyDate => 'Apply date';
+
+  @override
+  String get dashToday => 'Today';
+
+  @override
+  String get dashOrders => 'Orders for date';
+
+  @override
+  String get dashPending => 'Pending orders';
+
+  @override
+  String get dashCompleted => 'Completed orders';
+
+  @override
+  String get dashSales => 'Recorded sales for date';
+
+  @override
+  String get dashLifetime => 'Lifetime recorded sales';
+
+  @override
+  String get dashMilk => 'Milk stock';
+
+  @override
+  String get dashCustomers => 'Active customers';
+
+  @override
+  String dashLitres(String value) {
+    return '$value L';
+  }
+
+  @override
+  String get dashReports => 'Reports';
+
+  @override
+  String get dashReportsSoon => 'Reports available soon';
+
+  @override
+  String get dashScheduledInfo =>
+      'Order counts use the scheduled delivery date. Pending includes new, accepted, preparing and out-for-delivery orders.';
+
+  @override
+  String get dashGrossInfo =>
+      'Sales include delivered orders and Quick Sales, including delivery charges. They represent recorded sales, not payments received or profit.';
+
+  @override
+  String get dashCurrentInfo =>
+      'Milk stock and active customers show the current state, regardless of selected date.';
+
+  @override
+  String dashUnknownMilk(int count) {
+    return '$count stocked milk products have units that cannot be converted to litres. Shown volume is incomplete.';
+  }
+
+  @override
+  String get dashActions => 'Quick actions';
+
+  @override
+  String get dashNoCache =>
+      'No dashboard data saved for this date. Connect and refresh.';
+
+  @override
+  String dashUpdated(String time) {
+    return 'Last updated $time IST';
+  }
+
+  @override
+  String get dashOffline =>
+      'Showing saved dashboard data. Connect and refresh for current values.';
+
+  @override
+  String get dashCacheUnavailable =>
+      'Could not save the dashboard for offline use.';
+
+  @override
+  String get dashVerification =>
+      'Verification is incomplete. Your shop is hidden from customer discovery until verified.';
+
+  @override
+  String get dashPlanUnavailable =>
+      'Plan details are unavailable. Refresh to check your current access.';
+
+  @override
+  String get dashPlanExpired =>
+      'Your plan has expired. History and eligible settlement remain available.';
+
+  @override
+  String get dashPlanScheduled =>
+      'Your plan is scheduled to start later. Paid features require an active assignment.';
+
+  @override
+  String get dashPlanUnassigned =>
+      'No plan is assigned. Setup allowance does not unlock paid features.';
+
+  @override
+  String get dashPlanSupport =>
+      'Contact support for plan assignment or renewal.';
+
+  @override
+  String get dashAvailableSoon => 'Available soon';
+
+  @override
+  String get dashPlans => 'Plans';
+
+  @override
+  String get dashVendorSettings => 'Vendor settings';
+
+  @override
+  String get dashHelp => 'Help and FAQ';
+
+  @override
+  String get dashAccountSettings => 'Account and security';
+
+  @override
+  String get dashSubscriptions => 'Subscriptions';
+
+  @override
+  String get dashDeliveries => 'Deliveries';
+
+  @override
+  String get dashActiveProducts => 'Showing active products';
 }
