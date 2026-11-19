@@ -37,6 +37,7 @@ import 'package:supplybiz_api_client/src/api/vendor_onboarding_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_orders_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_payments_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_plans_api.dart';
+import 'package:supplybiz_api_client/src/api/vendor_report_exports_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_reports_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_sales_api.dart';
 import 'package:supplybiz_api_client/src/api/vendor_subscription_settings_api.dart';
@@ -337,6 +338,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   VendorPlansApi getVendorPlansApi() {
     return VendorPlansApi(dio);
+  }
+
+  /// Get VendorReportExportsApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  VendorReportExportsApi getVendorReportExportsApi() {
+    return VendorReportExportsApi(dio);
   }
 
   /// Get VendorReportsApi instance, base route and serializer can be overridden by a given but be careful,

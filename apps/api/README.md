@@ -1,5 +1,121 @@
 # Supply Biz API
 
+## T-101 CSV report exports (2026-11-19): READY_FOR_VERIFY
+
+`POST /api/v1/vendor/reports/exports` requires Idempotency-Key and
+`{ from: YYYY-MM-DD, to: YYYY-MM-DD, format: CSV }`, returning `{ exportId }`.
+`GET /vendor/reports/exports/:id` returns READY/EXPIRED, normalized dates, creation/
+expiry instants, CSV format, byte size, SHA-256 checksum and nullable authenticated
+`downloadPath`. `GET /vendor/reports/exports/:id/download` returns an attachment
+with text/csv UTF-8, no-store and nosniff. No public URL/filesystem path is exposed.
+All three routes, including replay, recheck held active vendor role, suspension,
+ownership and current BUSINESS/PREMIUM ADVANCED_REPORTS. Downgrade/expiry denies
+existing artifact access; foreign actor/vendor IDs return 404. PDF is rejected.
+
+Generation is synchronous for bounded ranges: max 366 inclusive IST days, 10,000
+complete product snapshot groups, 8 MiB UTF-8. Oversize export returns 413
+REPORT_EXPORT_TOO_LARGE with no truncated/ready artifact; narrow the range.
+Existing SQL selectors were extracted without changing their GET behavior. One
+repeatable transaction obtains summary, daily/clipped weekly and complete product
+tables, creates the artifact/replay key and a minimal USER REPORT_EXPORTED audit.
+Advisory locks and bounded serialization/unique-conflict retries preserve one
+artifact/audit for simultaneous identical requests. Changed input under the same
+key returns 422 IDEMPOTENCY_MISMATCH. Download bytes remain unchanged after source
+sales change or application recreation.
+
+Migration `202611190002_report_exports` stores private derived CSV bytes, owner,
+range, checksum/size and hashed key/body in PostgreSQL. Artifact/retry validity is
+24 hours (the existing retry-cache window), not source financial retention policy.
+Expired downloads immediately return 410; metadata reports EXPIRED/null path until
+cleanup, then 404. The existing worker cleanup cycle removes expired derived rows
+in bounded SKIP LOCKED batches; no financial source/audit retention is changed.
+Q-20 remains unchanged. Migration applied **only to supplybiz_service_area_test**;
+runtime environments must deploy it before export use. Old code can ignore the
+additive table during app rollback; no source backfill/grant/dependency change.
+
+CSV has a BOM, CRLF and a uniform eleven-column section table: metadata, summary,
+daily/weekly totals and all product groups. Values are exact paise/pack/volume
+strings, with units and report basis/as-of metadata. Current due/customer counts,
+known/unknown milk, fees/discount/unitemized gap and net receipts retain T-100
+semantics. All cells are quoted, internal quotes doubled, and formula-like text
+after whitespace/control/BOM/full-width prefixes gets a protective tab inside the
+quoted cell. Only validated decimal literals use numeric cells, including negative
+receipt corrections. Text prefixes remain part of CSV data; spreadsheet behavior
+varies. Import large value/quantity columns as text to preserve every digit.
+Encoding references: [RFC 4180](https://www.rfc-editor.org/rfc/rfc4180) and
+[OWASP CSV injection guidance](https://owasp.org/www-community/attacks/CSV_Injection).
+
+Executed from `apps/api` (private URL derivation, isolated local test DB only):
+
+```powershell
+$baseLine=Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$exportUrl=[UriBuilder]::new(($baseLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$exportUrl.Path='/supplybiz_service_area_test'
+$env:DATABASE_URL=$exportUrl.Uri.AbsoluteUri
+$env:NATIVE_TEST_DATABASE_URL=$exportUrl.Uri.AbsoluteUri
+$env:NODE_ENV='test'
+$env:OTP_DELIVERY_MODE='disabled'
+.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma
+.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/reports/report-exports.postgres.spec.ts src/modules/reports/report-csv.spec.ts src/modules/reports/reports.postgres.spec.ts
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=90000 --runTestsByPath src/modules/reports/report-exports.postgres.spec.ts -t 'rechecks owner'
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src/modules/reports/*.ts test/fixtures/report-csv.ts src/app.module.ts src/worker.ts --max-warnings=0
+.\node_modules\.bin\prisma.cmd validate --schema src/prisma/schema.prisma
+node -r ts-node/register test/fixtures/contract-compare-t082.ts
+```
+
+Executed from root (`C:\flutter\bin` on PATH for generation):
+
+```powershell
+& 'C:/Program Files/Git/bin/bash.exe' tools/codegen.sh
+.\apps\api\node_modules\.bin\tsc.cmd --noEmit --strict --skipLibCheck packages/ts-client/src/generated/openapi.ts
+git diff --check
+```
+
+Executed from `apps/mobile` using the installed Flutter/Dart SDK:
+
+```powershell
+dart format test/core/network/report_exports_client_test.dart
+flutter test --no-pub test/core/network/report_exports_client_test.dart
+flutter analyze --no-pub test/core/network/report_exports_client_test.dart ../../packages/api_client/lib
+```
+
+Evidence: seven native export cases, four CSV exactness/safety/capacity unit cases,
+eight existing native report regressions and one simulated generated-Dart binary
+transport smoke pass (20 unique focused checks). Native export cases cover 52
+product snapshot groups, UTF-8/control/quote/newline text, >JS-safe paise, hash/
+size/headers, source changes, same-key concurrency, real application-context
+recreation, mismatch, faults, ownership/current plan/role/suspension and TTL cleanup.
+The first combined run passed 18/19 API cases; one test pre-created ephemeral HTTP
+requests against a closing server. Its corrected focused rerun, with explicit
+expired-plan assertions, passed. Typecheck/lint, API build/schema and TS/Dart
+checks pass; initial parser-type/control-regex/test lint issues were corrected
+without disabling safeguards. Semantic contract diff: three paths/three schemas
+added, zero existing changes. Logs: `%TEMP%/supplybiz-t101-{focused,auth,codegen}.log`.
+Nest test contexts/connections closed; no long-running service was started.
+
+Manual verification (pending):
+1. As a synthetic BUSINESS/PREMIUM vendor, create CSV for Today/week/month/custom
+   ranges, inspect status and authenticated attachment headers/checksum/size; parse
+   summary/daily-or-weekly/product sections and reconcile every numeric value with
+   the report endpoints at generation time, including receipts/fees/unknown milk.
+2. Import UTF-8 CSV using comma delimiter and text numeric columns in the intended
+   spreadsheet app. Check quotes/newlines/Unicode/formula-prefix handling and exact
+   large/negative values. There must be no PDF option or publicly readable path.
+3. Replay/concurrently submit one key, recreate API context and download again.
+   Verify one artifact/audit, unchanged bytes after new sales and mismatch rejection.
+4. Check anonymous/customer/foreign/suspended/downgraded/expired-plan denial on all
+   routes. At artifact expiry check EXPIRED/null path, download 410 and eventual
+   cleanup 404; source orders/sales/ledger/audits must remain untouched.
+
+Spreadsheet interoperability, Android share sheet/mobile UI (T-102), actual worker
+cleanup timer/restart operational drill, manual PASS and G4 remain NOT_RUN/pending.
+The cleanup method and API context recreation were tested, not a real OS-process
+kill or live-provider action. No Android build needed for this API/client task;
+iOS remains deferred.
+
 ## T-100 report tables (2026-11-19): READY_FOR_VERIFY
 
 `GET /api/v1/vendor/reports/summary`, `/sales-daily`, `/products` implement

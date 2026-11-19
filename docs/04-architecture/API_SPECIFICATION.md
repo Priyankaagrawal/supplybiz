@@ -738,6 +738,25 @@ These endpoints are future reference only; no routes, credentials or tests are r
 | GET | `/vendor/plans` ; GET `/vendor/plan` (current, entitlements) |
 | GET | `/content/faqs?topic=` ; `/content/legal/{type}` |
 
+T-101 implements POST `/vendor/reports/exports` with required Idempotency-Key and
+`{ from, to, format: CSV }` (inclusive valid IST dates, max 366 days), returning
+`{ exportId }`. Generation completes synchronously under 10,000 product groups /
+8 MiB; 413 REPORT_EXPORT_TOO_LARGE never creates a truncated ready file. GET
+`/vendor/reports/exports/{id}` returns READY/EXPIRED, dates, createdAt/expiresAt,
+format, sizeBytes, sha256 and a nullable same-API authenticated downloadPath. GET
+`/vendor/reports/exports/{id}/download` streams immutable UTF-8 CSV bytes as an
+attachment with no-store/nosniff. Active BUSINESS/PREMIUM, held vendor role,
+suspension and actor/vendor ownership are rechecked on create/replay/status/
+download; foreign IDs are 404, expired artifact download 410. Artifact/retry cache
+expires after 24 hours and is removed by bounded worker cleanup, independently
+of source financial retention. Same-key mismatch is 422 IDEMPOTENCY_MISMATCH;
+identical concurrent requests reuse one artifact/audit. Summary/daily-or-weekly/
+all product groups share one repeatable snapshot, including numeric semantics
+and unknown/gap metadata. Uniform quoted CSV sections preserve exact paise/pack/
+volume strings; untrusted formula/control prefixes are neutralized as text. No
+public filesystem URL, PDF, share provider or new financial mutation is introduced.
+T-102 owns actual mobile download/share interaction.
+
 T-100 implements the three report GET routes above. `from`/`to` are inclusive IST
 dates supplied together (max 366 days), or both omitted for server Today. Vendor
 identity is session-derived; unknown selectors are rejected. No-store/repeatable

@@ -211,6 +211,9 @@ Class | Method | HTTP request | Description
 [*VendorPaymentsApi*](doc/VendorPaymentsApi.md) | [**paymentsControllerSummary**](doc/VendorPaymentsApi.md#paymentscontrollersummary) | **GET** /api/v1/vendor/payments/summary |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCatalog**](doc/VendorPlansApi.md#vendorplanscontrollercatalog) | **GET** /api/v1/vendor/plans |
 [*VendorPlansApi*](doc/VendorPlansApi.md) | [**vendorPlansControllerCurrent**](doc/VendorPlansApi.md#vendorplanscontrollercurrent) | **GET** /api/v1/vendor/plan |
+[*VendorReportExportsApi*](doc/VendorReportExportsApi.md) | [**reportExportsControllerCreate**](doc/VendorReportExportsApi.md#reportexportscontrollercreate) | **POST** /api/v1/vendor/reports/exports |
+[*VendorReportExportsApi*](doc/VendorReportExportsApi.md) | [**reportExportsControllerDownload**](doc/VendorReportExportsApi.md#reportexportscontrollerdownload) | **GET** /api/v1/vendor/reports/exports/{id}/download |
+[*VendorReportExportsApi*](doc/VendorReportExportsApi.md) | [**reportExportsControllerStatus**](doc/VendorReportExportsApi.md#reportexportscontrollerstatus) | **GET** /api/v1/vendor/reports/exports/{id} |
 [*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerDaily**](doc/VendorReportsApi.md#reportscontrollerdaily) | **GET** /api/v1/vendor/reports/sales-daily |
 [*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerProducts**](doc/VendorReportsApi.md#reportscontrollerproducts) | **GET** /api/v1/vendor/reports/products |
 [*VendorReportsApi*](doc/VendorReportsApi.md) | [**reportsControllerSummary**](doc/VendorReportsApi.md#reportscontrollersummary) | **GET** /api/v1/vendor/reports/summary |
@@ -373,6 +376,9 @@ Class | Method | HTTP request | Description
  - [ReorderLine](doc/ReorderLine.md)
  - [ReorderUnavailable](doc/ReorderUnavailable.md)
  - [ReportDailySales](doc/ReportDailySales.md)
+ - [ReportExportCreated](doc/ReportExportCreated.md)
+ - [ReportExportInput](doc/ReportExportInput.md)
+ - [ReportExportStatus](doc/ReportExportStatus.md)
  - [ReportProduct](doc/ReportProduct.md)
  - [ReportProducts](doc/ReportProducts.md)
  - [ReportSalesBucket](doc/ReportSalesBucket.md)

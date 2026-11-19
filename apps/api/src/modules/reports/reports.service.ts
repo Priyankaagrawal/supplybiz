@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException, PayloadTooLargeException, ServiceUnavailableException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { homeClock } from '../home/home.service';
@@ -7,6 +7,8 @@ import { PlanEntitlementsService } from '../plans/plan-entitlements.service';
 import { dateOnly } from '../subscriptions/subscription-policy';
 import { ReportDailySales, ReportProducts, ReportProductsQuery, ReportQuery, ReportRange, ReportSummary } from './reports.dto';
 type Tx=Prisma.TransactionClient;
+export type ReportSnapshot={summary:ReportSummary;daily:ReportDailySales;products:ReportProducts};
+export const MAX_EXPORT_PRODUCTS=10000;
 export function reportRange(query:ReportQuery,today:string){
   if((query.from===undefined)!==(query.to===undefined))throw new BadRequestException({code:'REPORT_RANGE_REQUIRED'});
   const from=query.from??today,to=query.to??today;
@@ -33,7 +35,7 @@ export function reportSources(id:string,range:{from:string;to:string}){return Pr
 @Injectable()
 export class ReportsService {
   constructor(private readonly db:PrismaService,private readonly plans:PlanEntitlementsService){}
-  private read<T>(userId:string,q:ReportQuery,advanced:boolean,select:(tx:Tx,id:string,range:ReportRange,days:number)=>Promise<T>){
+  private read<T>(userId:string,q:ReportQuery,advanced:boolean,select:(tx:Tx,id:string,range:ReportRange,days:number)=>Promise<T>,retries=0):Promise<T>{
     return this.db.$transaction(async tx=>{
       const actor=await tx.users.findUnique({where:{id:userId},include:{roles:true,vendor:true}});
       if(!actor||actor.status!=='ACTIVE'||actor.active_role!=='VENDOR'||!actor.roles.some(r=>r.role==='VENDOR'))throw new ForbiddenException({code:'VENDOR_ROLE_REQUIRED'});
@@ -46,10 +48,12 @@ export class ReportsService {
       const clock=await homeClock(tx),{from,to,days}=reportRange(q,clock.day);
       return select(tx,id,{from,to,serverTime:clock.now.toISOString(),businessDate:clock.day},days);
     },{isolationLevel:'RepeatableRead',timeout:30000}).catch((e:unknown)=>{
+      if(retries>0 && e instanceof Prisma.PrismaClientKnownRequestError && ['P2034','P2002'].includes(e.code))return this.read(userId,q,advanced,select,retries-1);
       if(e instanceof HttpException)throw e;throw new ServiceUnavailableException({code:'REPORTS_UNAVAILABLE'});
     });
   }
-  summary(userId:string,q:ReportQuery):Promise<ReportSummary>{return this.read(userId,q,false,async(tx,id,range)=>{
+  summary(userId:string,q:ReportQuery):Promise<ReportSummary>{return this.read(userId,q,false,(tx,id,range)=>this.summaryIn(tx,id,range));}
+  private async summaryIn(tx:Tx,id:string,range:ReportRange):Promise<ReportSummary>{
     const [metrics]=await tx.$queryRaw<Omit<ReportSummary,keyof ReportRange>[]>`${ledgerRoots(id)},${reportSources(id,range)},
       earnings AS (SELECT COALESCE(SUM(CASE WHEN e.type='CREDIT' THEN e.amount_paise::numeric ELSE -e.amount_paise::numeric END),0) AS amount
         FROM ledger_entries e JOIN ledger_roots r ON r.id=e.id CROSS JOIN bounds b
@@ -71,8 +75,9 @@ export class ReportsService {
         (goods.amount-item_metrics.amount-charges.amount+charges.discount)::text AS "unitemizedSalesPaise"
       FROM goods CROSS JOIN charges CROSS JOIN item_metrics CROSS JOIN earnings`;
     return {...range,...metrics!};
-  });}
-  daily(userId:string,q:ReportQuery):Promise<ReportDailySales>{return this.read(userId,q,true,async(tx,id,range,days)=>{
+  }
+  daily(userId:string,q:ReportQuery):Promise<ReportDailySales>{return this.read(userId,q,true,(tx,id,range,days)=>this.dailyIn(tx,id,range,days));}
+  private async dailyIn(tx:Tx,id:string,range:ReportRange,days:number):Promise<ReportDailySales>{
     const bucket=days>62?'WEEK':'DAY';
     const items=await tx.$queryRaw<ReportDailySales['items']>`WITH ${reportSources(id,range)},
       dates AS (SELECT generate_series(first_day::timestamp,last_day::timestamp,interval '1 day')::date AS day FROM bounds),
@@ -82,13 +87,24 @@ export class ReportsService {
       SELECT to_char(p.first_day,'YYYY-MM-DD') AS "from",to_char(p.last_day,'YYYY-MM-DD') AS "to",COALESCE(SUM(v.amount),0)::text AS "salesPaise"
       FROM periods p LEFT JOIN values_by_day v ON v.day>=p.first_day AND v.day<=p.last_day GROUP BY p.period,p.first_day,p.last_day ORDER BY p.period`;
     return {...range,bucket,items};
-  });}
-  products(userId:string,q:ReportProductsQuery):Promise<ReportProducts>{return this.read(userId,q,true,async(tx,id,range)=>{
+  }
+  products(userId:string,q:ReportProductsQuery):Promise<ReportProducts>{return this.read(userId,q,true,(tx,id,range)=>this.productsIn(tx,id,range,q));}
+  private async productsIn(tx:Tx,id:string,range:ReportRange,q:ReportProductsQuery):Promise<ReportProducts>{
     const cte=Prisma.sql`WITH ${reportSources(id,range)}, product_groups AS (
       SELECT product_id,name,unit_value,unit_type,SUM(qty) AS qty,SUM(amount) AS amount FROM lines GROUP BY product_id,name,unit_value,unit_type)`;
     const items=await tx.$queryRaw<ReportProducts['items']>`${cte} SELECT product_id AS "productId",name,COALESCE(unit_value,'') AS "unitValue",COALESCE(unit_type,'') AS "unitType",qty::text AS "quantityPacks",amount::text AS "salesPaise"
       FROM product_groups ORDER BY lower(name),product_id,name,unit_value,unit_type LIMIT ${q.limit??20} OFFSET ${q.offset??0}`;
     const [totals]=await tx.$queryRaw<{total:number;totalProductSalesPaise:string}[]>`${cte} SELECT COUNT(*)::int AS total,COALESCE(SUM(amount),0)::text AS "totalProductSalesPaise" FROM product_groups`;
     return {...range,items,...totals!};
-  });}
+  }
+  authorizedExport<T>(userId:string,q:ReportQuery,select:(tx:Tx,id:string,range:ReportRange,days:number)=>Promise<T>):Promise<T>{
+    return this.read(userId,q,true,select,2);
+  }
+  async exportSnapshot(tx:Tx,id:string,range:ReportRange,days:number):Promise<ReportSnapshot>{
+    const summary=await this.summaryIn(tx,id,range),daily=await this.dailyIn(tx,id,range,days),
+      products=await this.productsIn(tx,id,range,{limit:MAX_EXPORT_PRODUCTS+1,offset:0});
+    if(products.total>MAX_EXPORT_PRODUCTS)throw new PayloadTooLargeException({code:'REPORT_EXPORT_TOO_LARGE'});
+    return {summary,daily,products};
+  }
+
 }

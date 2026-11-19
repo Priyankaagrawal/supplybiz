@@ -436,6 +436,17 @@ deduplicate by assignment/stage; normal notification preferences/push rules appl
 | `media_files` | id, owner_user_id, purpose (PRODUCT_IMAGE/SHOP_PHOTO/PROFILE/KYC_DOC), relative_storage_key, mime, size, sha256, status (READY), request_key/hash, created_at |
 | `audit_logs` | id, actor_type (USER/ADMIN/SYSTEM), actor_id, action, entity, entity_id, before JSONB, after JSONB (PII redacted), ip, at — append-only |
 | `outbox_events`, `idempotency_keys` (key, user_id, request_hash, response JSONB, expires_at), `data_requests` | |
+| `report_exports` | T-101 transient generated CSV: id, user_id, vendor_id, hashed request_key/request_hash, from_date/to_date, bounded content BYTEA, byte_size/sha256, created_at/expires_at; unique request_key and expiry index |
+
+T-101 migration 202611190002_report_exports is additive. Generated artifacts share
+the 24-hour retry-cache window, not source financial retention policy. One
+repeatable transaction commits the complete report snapshot, artifact and minimal
+USER REPORT_EXPORTED audit. Downloads recheck current advanced-report entitlement
+and exact actor/vendor ownership; expiry is enforced before cleanup. Worker cleanup
+deletes up to 500 expired derived rows per batch using SKIP LOCKED. No source
+orders/sales/ledger/audits are rewritten or purged, and Q-20 is unchanged. Artifact
+bytes are private PostgreSQL data, never a public path; max 8 MiB / 10,000 complete
+product snapshot groups. Application rollback can leave the additive table intact.
 
 T-152 adds `(at,id)` indexing and database rejection of audit UPDATE/DELETE/TRUNCATE. Current admin-account writes project only role/status, failure count, lock/login times and TOTP-enrolled boolean; credentials/contact fields are excluded. Auth events and private-media access events mirror into audit atomically and backfill historical actor/time without invented IP/snapshots. Transaction-local authenticated actor/socket-IP context does not leak through pooled connections; context-free operator account changes are SYSTEM. Later business modules add their atomic audit writes/redacted contracts when implemented. Retention/purge remains undecided under Q-20.
 

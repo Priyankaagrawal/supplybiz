@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/api/v1/vendor/reports/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReportExportsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/reports/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportExportsController_status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/vendor/reports/exports/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ReportExportsController_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/vendor/reports/summary": {
         parameters: {
             query?: never;
@@ -2141,6 +2189,39 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ReportExportInput: {
+            from: string;
+            to: string;
+            /** @enum {string} */
+            format: "CSV";
+        };
+        ReportExportCreated: {
+            /** Format: uuid */
+            exportId: string;
+        };
+        ReportExportStatus: {
+            /** Format: uuid */
+            exportId: string;
+            /**
+             * @description Generated synchronously within operational limits. Download always rechecks live access.
+             * @enum {string}
+             */
+            status: "READY" | "EXPIRED";
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** @enum {string} */
+            format: "CSV";
+            sizeBytes: number;
+            sha256: string;
+            /** @description Same-API authenticated route only, never a filesystem path/public URL. Null after 24-hour artifact/retry window. */
+            downloadPath: string | null;
+        };
         ReportSummary: {
             /** Format: date */
             from: string;
@@ -3997,6 +4078,157 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    ReportExportsController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportExportInput"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportExportCreated"];
+                };
+            };
+            /** @description Live vendor role/suspension/active BUSINESS+ entitlement required, including replay/status/download. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_NOT_FOUND; includes exports owned by another actor/vendor. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_EXPIRED; use a new key for a fresh snapshot. */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_TOO_LARGE; narrow date range. No truncated file created. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReportExportsController_status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportExportStatus"];
+                };
+            };
+            /** @description Live vendor role/suspension/active BUSINESS+ entitlement required, including replay/status/download. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_NOT_FOUND; includes exports owned by another actor/vendor. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_EXPIRED; use a new key for a fresh snapshot. */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_TOO_LARGE; narrow date range. No truncated file created. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ReportExportsController_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description Live vendor role/suspension/active BUSINESS+ entitlement required, including replay/status/download. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_NOT_FOUND; includes exports owned by another actor/vendor. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_EXPIRED; use a new key for a fresh snapshot. */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description REPORT_EXPORT_TOO_LARGE; narrow date range. No truncated file created. */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ReportsController_summary: {
         parameters: {
             query?: {

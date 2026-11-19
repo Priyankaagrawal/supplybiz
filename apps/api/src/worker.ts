@@ -5,6 +5,7 @@ import { PinoLogger } from "./common/logging/pino.logger";
 import { OutboxDispatcherService } from "./outbox/outbox-dispatcher.service";
 import { NotificationsService } from './modules/notifications/notifications.service';
 import { LedgerJobsService } from './modules/ledger/ledger-jobs.service';
+import { ReportExportsService } from './modules/reports/report-exports.service';
 import { SubscriptionGenerationService } from './modules/subscriptions/subscription-generation.service';
 
 async function bootstrapWorker(): Promise<void> {
@@ -21,10 +22,13 @@ async function bootstrapWorker(): Promise<void> {
   const subscriptionJobs = app.get(SubscriptionGenerationService);
   subscriptionJobs.start();
   const notifications = app.get(NotificationsService);
+  const reportExports = app.get(ReportExportsService);
   let cleanupRun: Promise<void> | undefined;
   const cleanup = () => cleanupRun ??= (async () => {
     for (let i = 0; i < 100; i++) if (await notifications.cleanupExpired() < 500) break;
   })().catch(() => { logger.warn('NOTIFICATION_CLEANUP_FAILED', 'Worker'); })
+    .then(async () => { for (let i = 0; i < 100; i++) if (await reportExports.cleanupExpired() < 500) break; })
+    .catch(() => { logger.warn('REPORT_EXPORT_CLEANUP_FAILED', 'Worker'); })
     .finally(() => { cleanupRun = undefined; });
   void cleanup();
   const cleanupTimer = setInterval(() => { void cleanup(); }, 3600000);

@@ -136,6 +136,9 @@ import 'package:supplybiz_api_client/src/model/refresh_dto.dart';
 import 'package:supplybiz_api_client/src/model/reorder_line.dart';
 import 'package:supplybiz_api_client/src/model/reorder_unavailable.dart';
 import 'package:supplybiz_api_client/src/model/report_daily_sales.dart';
+import 'package:supplybiz_api_client/src/model/report_export_created.dart';
+import 'package:supplybiz_api_client/src/model/report_export_input.dart';
+import 'package:supplybiz_api_client/src/model/report_export_status.dart';
 import 'package:supplybiz_api_client/src/model/report_product.dart';
 import 'package:supplybiz_api_client/src/model/report_products.dart';
 import 'package:supplybiz_api_client/src/model/report_sales_bucket.dart';
@@ -582,6 +585,15 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'ReportDailySales':
       return ReportDailySales.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportExportCreated':
+      return ReportExportCreated.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportExportInput':
+      return ReportExportInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'ReportExportStatus':
+      return ReportExportStatus.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'ReportProduct':
       return ReportProduct.fromJson(value as Map<String, dynamic>)
