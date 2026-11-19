@@ -291,6 +291,8 @@ class DashboardBanners extends StatelessWidget {
           _ => l.dashPlanUnavailable
         }),
         Text(l.dashPlanSupport),
+        SbButton(
+            label: l.plansView, onPressed: () => context.push('/vendor/plans')),
       ]
     ]);
   }
@@ -381,7 +383,7 @@ class _MoreState extends ConsumerState<VendorMorePage> {
                       row(l.availabilityTitle, '/vendor/availability'),
                       row(l.areaTitle, const ServiceAreaRoute().location),
                       row(l.dashReports, null, subtitle: l.dashAvailableSoon),
-                      row(l.dashPlans, null, subtitle: l.dashAvailableSoon),
+                      row(l.dashPlans, '/vendor/plans'),
                       row(l.dashVendorSettings, null,
                           subtitle: l.dashAvailableSoon),
                       row(l.dashHelp, null, subtitle: l.dashAvailableSoon),

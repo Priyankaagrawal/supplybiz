@@ -389,6 +389,10 @@ void main() {
     final row = t.widget<ListTile>(find.ancestor(
         of: find.text('Reports'), matching: find.byType(ListTile)));
     expect(row.onTap, isNull);
+    await reveal(t, find.text('Plans'));
+    final plansRow = t.widget<ListTile>(
+        find.ancestor(of: find.text('Plans'), matching: find.byType(ListTile)));
+    expect(plansRow.onTap, isNotNull);
     await reveal(t, find.text('Account and security'));
     expect(find.text('Account and security'), findsOneWidget);
     expect(find.text('Staff'), findsNothing);

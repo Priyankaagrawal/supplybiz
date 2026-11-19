@@ -190,6 +190,11 @@ String notificationLocation(InboxItem item) {
   const id =
       r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
   if (path == '/common/settings') return path;
+  if (role == 'vendor' &&
+      path == '/vendor/plans' &&
+      const {'PLAN_EXPIRING', 'PLAN_EXPIRED'}.contains(item.type)) {
+    return path;
+  }
   if (role == 'vendor' && RegExp('^/vendor/khata/$id\$').hasMatch(path)) {
     return path;
   }

@@ -4672,6 +4672,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Showing active products'**
   String get dashActiveProducts;
+
+  /// No description provided for @plansView.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans'**
+  String get plansView;
+
+  /// No description provided for @plansCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current assignment'**
+  String get plansCurrent;
+
+  /// No description provided for @plansCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Available plan tiers'**
+  String get plansCatalog;
+
+  /// No description provided for @plansSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support to request a plan assignment, extension or change. Support will arrange an authorized admin update. Catalog prices are for reference.'**
+  String get plansSupport;
+
+  /// No description provided for @plansNoTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no automatic free trial or grace period. Plan access is checked by the server.'**
+  String get plansNoTrial;
+
+  /// No description provided for @plansActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get plansActive;
+
+  /// No description provided for @plansUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get plansUnassigned;
+
+  /// No description provided for @plansScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get plansScheduled;
+
+  /// No description provided for @plansExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get plansExpired;
+
+  /// No description provided for @plansUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment unavailable'**
+  String get plansUnavailable;
+
+  /// No description provided for @plansCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Active customers: {count} / {limit}'**
+  String plansCapacity(int count, int limit);
+
+  /// No description provided for @plansSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup allows up to {limit} active customers without assigning a plan. This does not unlock paid features or customer discovery.'**
+  String plansSetup(int limit);
+
+  /// No description provided for @plansStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts: {time} IST'**
+  String plansStarts(String time);
+
+  /// No description provided for @plansEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Access ends: {time} IST'**
+  String plansEnds(String time);
+
+  /// No description provided for @plansAtLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The active customer limit has been reached or exceeded. Additions and reactivations are blocked until below the limit.'**
+  String get plansAtLimit;
+
+  /// No description provided for @plansGrowthBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer additions and reactivations are currently blocked. Refresh or contact support.'**
+  String get plansGrowthBlocked;
+
+  /// No description provided for @plansRetained.
+  ///
+  /// In en, this message translates to:
+  /// **'Your existing customers and history are retained. Downgrading does not automatically delete or deactivate customers; permitted existing-customer business continues under the assigned tier.'**
+  String get plansRetained;
+
+  /// No description provided for @plansExpiryRules.
+  ///
+  /// In en, this message translates to:
+  /// **'After expiry, history, payment recording, claim decisions and normally permitted completion or cancellation of existing orders remain. New orders, Quick Sales, subscriptions, generation and customer additions or reactivations are blocked until renewal.'**
+  String get plansExpiryRules;
+
+  /// No description provided for @plansAssignedFeatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid features in the current assignment'**
+  String get plansAssignedFeatures;
+
+  /// No description provided for @plansIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Included'**
+  String get plansIncluded;
+
+  /// No description provided for @plansLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in this assignment'**
+  String get plansLocked;
+
+  /// No description provided for @plansFeatureNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog features describe each tier. The server controls current access; saved information cannot grant features. Expiry exceptions for existing records and eligible settlement still apply.'**
+  String get plansFeatureNotice;
+
+  /// No description provided for @plansBasicReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic report summaries'**
+  String get plansBasicReports;
+
+  /// No description provided for @plansOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic order management'**
+  String get plansOrders;
+
+  /// No description provided for @plansDelivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery management and holidays'**
+  String get plansDelivery;
+
+  /// No description provided for @plansAutoAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic subscription approval'**
+  String get plansAutoAccept;
+
+  /// No description provided for @plansStock.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock management'**
+  String get plansStock;
+
+  /// No description provided for @plansStockAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-stock alerts'**
+  String get plansStockAlerts;
+
+  /// No description provided for @plansAdvancedReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily/product reports and CSV export'**
+  String get plansAdvancedReports;
+
+  /// No description provided for @plansAdditionalFeature.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional catalog feature'**
+  String get plansAdditionalFeature;
+
+  /// No description provided for @plansSavedCurrent.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved assignment information. Refresh for current status, limits and access.'**
+  String get plansSavedCurrent;
+
+  /// No description provided for @plansSavedCatalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved catalog information. Refresh for current prices and features.'**
+  String get plansSavedCatalog;
+
+  /// No description provided for @plansCacheUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save plan information for offline viewing.'**
+  String get plansCacheUnavailable;
+
+  /// No description provided for @plansCurrentMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Current assignment information is unavailable. Connect and refresh.'**
+  String get plansCurrentMissing;
+
+  /// No description provided for @plansEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No active catalog plans are available. Contact support.'**
+  String get plansEmpty;
+
+  /// No description provided for @plansCatalogLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Active customer limit: {limit}'**
+  String plansCatalogLimit(int limit);
+
+  /// No description provided for @plansPriceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference price unavailable. Contact support.'**
+  String get plansPriceUnavailable;
+
+  /// No description provided for @plansMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get plansMonthly;
+
+  /// No description provided for @plansHalfYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Half-yearly'**
+  String get plansHalfYearly;
+
+  /// No description provided for @plansYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get plansYearly;
+
+  /// No description provided for @plansCatalogPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration}: {price}'**
+  String plansCatalogPrice(String duration, String price);
 }
 
 class _AppLocalizationsDelegate

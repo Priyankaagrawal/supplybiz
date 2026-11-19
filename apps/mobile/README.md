@@ -1,5 +1,81 @@
 # Supply Biz Mobile
 
+## T-105 vendor Plans (2026-11-19): READY_FOR_VERIFY
+
+More → Plans, dashboard plan guidance → View plans and owned PLAN_EXPIRING/
+PLAN_EXPIRED inbox items open `/vendor/plans` (S-V-27/28). This enables the Plans
+entry recorded as future UI in the earlier T-031 handoff. The existing generated
+`GET /vendor/plan` and `GET /vendor/plans` display assigned tier, server status,
+start/end instants in IST, active-customer usage/cap/canAddCustomer, available/
+locked features, admin-managed catalog names/features/reference duration prices
+and the server's Most popular flag. Money uses integer paise via BigInt formatting.
+
+The screen explains support-assisted assignment/extension, no trial/grace,
+unassigned setup allowance, scheduled activation, expiry history/settlement/
+existing-order exceptions and blocked new business. At/over-cap downgrades retain
+customers/history and explain the server growth denial. It sends GET requests only:
+no local plan grant, tier upgrade/deactivation, checkout, payment link, invoice,
+receipt verification or fabricated payment/provider state. Status is taken from
+the server, never inferred from device date, catalog price or a selected tier.
+
+Bounded encrypted environment/account/role cache supports offline reading; current
+assignment and catalog have separate stale/error states. A fresh EXPIRED assignment
+is retained if catalog loading fails, and old ACTIVE data never replaces it. Auth/
+ownership denial from either endpoint hides/clears both cached parts. Disposal
+fences late reads and writes. Refresh/resume obtains current server policy; saved
+features never grant an operation. Reminder routing accepts only the exact owned
+vendor plan reminder type/path; arbitrary push paths still fall back to the inbox.
+Existing 7/3/1-day/expiry scheduling, server grants/limits and FCM are unchanged.
+
+Executed from `apps/mobile` using `C:\flutter\bin\flutter.bat` / `dart.bat`:
+
+```powershell
+flutter gen-l10n
+dart format lib/features/plans lib/features/dashboard/dashboard_page.dart lib/features/notifications/notifications_controller.dart lib/core/router/app_router.dart
+dart format test/features/plans/plans_test.dart test/features/dashboard/dashboard_test.dart
+flutter test --no-pub test/features/plans/plans_test.dart test/core/router/app_router_test.dart
+flutter test --no-pub test/features/dashboard/dashboard_test.dart --plain-name 'T-031 More shows working active destinations'
+flutter test --no-pub test/features/notifications/notifications_test.dart --plain-name 'TC-104 paths allow only implemented destinations and normalize subscriptions'
+flutter analyze --no-pub lib/features/plans lib/features/dashboard/dashboard_page.dart lib/features/notifications/notifications_controller.dart lib/core/router/app_router.dart test/features/plans/plans_test.dart test/features/dashboard/dashboard_test.dart
+flutter build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+Nineteen focused cases PASS: 11 new plan controller/widget/reminder cases, six
+existing router cases, one More entry and one notification-path compatibility
+case. TC-120/124–126 cover all four catalog caps/features, exact reference prices,
+server status independent of device clock, support/expiry/over-cap/unassigned
+guidance, 200% scrolling/empty/offline states, cache owner isolation, partial
+failure, denial purge and disposal. The reminder case proves local safe routing,
+not reminder dispatch or provider delivery. HTTP and storage are simulated; the
+existing T-103 real DB/plan-policy evidence is unchanged and was not rerun here.
+Initial 200% widget assertion needed scrolling before locating off-screen state;
+that check and focused brace lint issues were corrected. Final analysis clean and
+normal Android dev APK PASS (63.1 seconds); build log `%TEMP%/supplybiz-t105-apk.log`.
+
+No API/contract/schema/dependency change or API-client regeneration; English ARB/
+localization regenerated. Root `git diff --check` passes. `adb devices` listed no
+attached device; no emulator/service started. Native SQLCipher/restart/logout wipe,
+TalkBack, actual plan-reminder/FCM delivery and live mobile→API→DB→admin refresh are
+NOT_RUN, manual PASS/G4 pending; iOS deferred. Task-created Gradle daemon stopped;
+pre-existing adb preserved.
+
+Manual verification on Android (pending):
+1. Open More → Plans as a synthetic vendor. Compare all four catalog prices/
+   durations/caps/features/popular flags and current assignment/status/IST validity
+   to API/admin values. Only informational prices and support guidance should show.
+2. Use the authorized admin workflow to assign/extend/change a tier; refresh/resume
+   mobile and verify limits/features/status update from the server. Check scheduled,
+   unassigned, expired and unavailable states; no local trial or automatic upgrade.
+3. Downgrade above the customer cap: all customer/history records remain, growth is
+   blocked and guidance appears. Verify actual server expiry/locked operations and
+   permitted existing-record/settlement exceptions using their owning screens.
+4. Open an owned plan-expiry reminder and the dashboard View plans action. Wrong-
+   role, spoofed/external/suffixed paths must not navigate. Real 7/3/1-day/expiry
+   provider delivery remains a separate manual/server operational check.
+5. Cache, disconnect, restart, refresh and switch role/account/logout; check stale
+   labels, isolation/wipe and denial purge. Verify partial failures, 200% text,
+   TalkBack, scrolling and labelled 48dp controls, with no purchase/invoice action.
+
 ## T-031 vendor dashboard/shell/More (2026-11-19): READY_FOR_VERIFY
 
 Vendor Home now consumes the generated T-030 dashboard and existing current-plan

@@ -2578,4 +2578,152 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashActiveProducts => 'Showing active products';
+
+  @override
+  String get plansView => 'View plans';
+
+  @override
+  String get plansCurrent => 'Current assignment';
+
+  @override
+  String get plansCatalog => 'Available plan tiers';
+
+  @override
+  String get plansSupport =>
+      'Contact support to request a plan assignment, extension or change. Support will arrange an authorized admin update. Catalog prices are for reference.';
+
+  @override
+  String get plansNoTrial =>
+      'There is no automatic free trial or grace period. Plan access is checked by the server.';
+
+  @override
+  String get plansActive => 'Active';
+
+  @override
+  String get plansUnassigned => 'Unassigned';
+
+  @override
+  String get plansScheduled => 'Scheduled';
+
+  @override
+  String get plansExpired => 'Expired';
+
+  @override
+  String get plansUnavailable => 'Assignment unavailable';
+
+  @override
+  String plansCapacity(int count, int limit) {
+    return 'Active customers: $count / $limit';
+  }
+
+  @override
+  String plansSetup(int limit) {
+    return 'Setup allows up to $limit active customers without assigning a plan. This does not unlock paid features or customer discovery.';
+  }
+
+  @override
+  String plansStarts(String time) {
+    return 'Starts: $time IST';
+  }
+
+  @override
+  String plansEnds(String time) {
+    return 'Access ends: $time IST';
+  }
+
+  @override
+  String get plansAtLimit =>
+      'The active customer limit has been reached or exceeded. Additions and reactivations are blocked until below the limit.';
+
+  @override
+  String get plansGrowthBlocked =>
+      'Customer additions and reactivations are currently blocked. Refresh or contact support.';
+
+  @override
+  String get plansRetained =>
+      'Your existing customers and history are retained. Downgrading does not automatically delete or deactivate customers; permitted existing-customer business continues under the assigned tier.';
+
+  @override
+  String get plansExpiryRules =>
+      'After expiry, history, payment recording, claim decisions and normally permitted completion or cancellation of existing orders remain. New orders, Quick Sales, subscriptions, generation and customer additions or reactivations are blocked until renewal.';
+
+  @override
+  String get plansAssignedFeatures => 'Paid features in the current assignment';
+
+  @override
+  String get plansIncluded => 'Included';
+
+  @override
+  String get plansLocked => 'Not available in this assignment';
+
+  @override
+  String get plansFeatureNotice =>
+      'Catalog features describe each tier. The server controls current access; saved information cannot grant features. Expiry exceptions for existing records and eligible settlement still apply.';
+
+  @override
+  String get plansBasicReports => 'Basic report summaries';
+
+  @override
+  String get plansOrders => 'Basic order management';
+
+  @override
+  String get plansDelivery => 'Delivery management and holidays';
+
+  @override
+  String get plansAutoAccept => 'Automatic subscription approval';
+
+  @override
+  String get plansStock => 'Stock management';
+
+  @override
+  String get plansStockAlerts => 'Low-stock alerts';
+
+  @override
+  String get plansAdvancedReports => 'Daily/product reports and CSV export';
+
+  @override
+  String get plansAdditionalFeature => 'Additional catalog feature';
+
+  @override
+  String get plansSavedCurrent =>
+      'Showing saved assignment information. Refresh for current status, limits and access.';
+
+  @override
+  String get plansSavedCatalog =>
+      'Showing saved catalog information. Refresh for current prices and features.';
+
+  @override
+  String get plansCacheUnavailable =>
+      'Could not save plan information for offline viewing.';
+
+  @override
+  String get plansCurrentMissing =>
+      'Current assignment information is unavailable. Connect and refresh.';
+
+  @override
+  String get plansEmpty =>
+      'No active catalog plans are available. Contact support.';
+
+  @override
+  String plansCatalogLimit(int limit) {
+    return 'Active customer limit: $limit';
+  }
+
+  @override
+  String get plansPriceUnavailable =>
+      'Reference price unavailable. Contact support.';
+
+  @override
+  String get plansMonthly => 'Monthly';
+
+  @override
+  String get plansHalfYearly => 'Half-yearly';
+
+  @override
+  String get plansYearly => 'Yearly';
+
+  @override
+  String plansCatalogPrice(String duration, String price) {
+    return '$duration: $price';
+  }
 }

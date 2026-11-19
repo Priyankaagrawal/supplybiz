@@ -13,12 +13,14 @@ import '../../features/khata/vendor_khata_page.dart';
 import '../../features/khata/customer_khata_page.dart';
 import '../../features/dashboard/dashboard_destinations.dart';
 import '../../features/orders/orders_pages.dart';
+import '../../features/plans/plans_page.dart';
 
 GoRouter createAppRouter(RoutingController controller,
         {String? initialLocation}) =>
     GoRouter(
       navigatorKey: rootNavigatorKey,
       routes: [
+        GoRoute(path: '/vendor/plans', builder: (_, __) => const PlansPage()),
         GoRoute(
             path: '/vendor/products/new',
             builder: (_, __) => const DashboardProductNewPage()),
