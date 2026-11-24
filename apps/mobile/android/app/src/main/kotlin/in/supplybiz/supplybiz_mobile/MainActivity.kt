@@ -45,6 +45,13 @@ class MainActivity : FlutterActivity() {
         }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "in.supplybiz/app").setMethodCallHandler { call, result ->
             when (call.method) {
+                "diagnosticBuild" -> {
+                    @Suppress("DEPRECATION")
+                    val info = packageManager.getPackageInfo(packageName, 0)
+                    @Suppress("DEPRECATION")
+                    val build = if (android.os.Build.VERSION.SDK_INT >= 28) info.longVersionCode else info.versionCode.toLong()
+                    result.success(mapOf("version" to info.versionName, "build" to build.toString()))
+                }
                 "version" -> {
                     @Suppress("DEPRECATION")
                     val info = packageManager.getPackageInfo(packageName, 0)

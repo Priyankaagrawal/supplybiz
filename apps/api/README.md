@@ -1,5 +1,27 @@
 # Supply Biz API
 
+## T-018 safe unhandled diagnostics (2026-11-24): READY_FOR_VERIFY
+
+The central Problem Details filter logs API_UNHANDLED_EXCEPTION through existing
+Pino with only UUID-shaped request ID, allowlisted NODE_ENV and hexadecimal BUILD_SHA
+(otherwise unavailable). It never logs exception/stack, request URL/body/headers or
+arbitrary stringification. Generic 500 and typed HTTP/validation responses remain.
+This is not an exhaustive log audit. No endpoint/contract/schema/dependency or DB
+change. Mobile local diagnostics/four manual steps are in [its handoff](../mobile/README.md).
+
+Executed in `apps/api` (all passed):
+```powershell
+.\node_modules\.bin\jest.cmd --runInBand src/common/problem-details.diagnostics.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\eslint.cmd src/common/problem-details.filter.ts src/common/problem-details.diagnostics.spec.ts src/bootstrap.ts --max-warnings=0
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+```
+Three real loopback HTTP cases use a test-only controller/captured logger: generic
+500/redaction, opaque exceptions/hostile header/build values and unchanged typed
+validation. No DB/live provider involved; the test application closes. No diagnostic
+fixture route is registered in AppModule. Manual PASS/G5 remain pending; remote
+crash capture is unavailable. Basic business-specific logging remains unchanged.
+
 ## T-161 administrative privacy (2026-11-24): READY_FOR_VERIFY
 
 SUPER_ADMIN `/admin/data-requests` queue, versioned legal holds and owner-bound

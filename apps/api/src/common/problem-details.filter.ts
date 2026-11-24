@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { Request, Response } from "express";
 import { REQUEST_ID_HEADER } from "./request-id.middleware";
 import { BusinessRuleException } from './business-rule.exception';
+import { PinoLogger } from './logging/pino.logger';
 
 type ValidationErrorEntry = {
   field: string;
@@ -11,6 +12,7 @@ type ValidationErrorEntry = {
 
 @Catch()
 export class ProblemDetailsFilter implements ExceptionFilter {
+  constructor(private readonly logger: Pick<PinoLogger, 'error'>) {}
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -52,7 +54,11 @@ export class ProblemDetailsFilter implements ExceptionFilter {
       return;
     }
 
-    console.error("Unhandled exception", exception);
+    // Never serialize the exception, stack, request body/URL or arbitrary header.
+    const safeId = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(requestId) ? requestId : 'unavailable';
+    const environment = ['production', 'development', 'test'].includes(process.env.NODE_ENV ?? '') ? process.env.NODE_ENV : 'unavailable';
+    const build = /^[a-f0-9]{7,40}$/i.test(process.env.BUILD_SHA ?? '') ? process.env.BUILD_SHA : 'unavailable';
+    this.logger.error(JSON.stringify({event:'API_UNHANDLED_EXCEPTION',requestId:safeId,environment,build}),undefined,'ProblemDetails');
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       type: "https://docs.supplybiz.app/errors/INTERNAL",
       title: "Internal server error",

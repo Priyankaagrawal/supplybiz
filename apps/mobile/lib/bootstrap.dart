@@ -6,18 +6,19 @@ import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'core/config/app_environment.dart';
+import 'core/diagnostics/basic_diagnostics.dart';
 import 'core/storage/app_storage.dart';
 import 'core/utils/dates.dart';
 
 Future<void> bootstrap(AppEnvironment environment) async {
+  final diagnostics = BasicDiagnostics(environment);
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      FlutterError.onError = (_) {
-        debugPrint('Supply Biz: framework error.');
-      };
+      diagnostics.install();
 
       try {
+        await diagnostics.identifyBuild();
         environment.validateCompileTimeConfig(nativeFlavor: appFlavor);
         await initializeDateFormatters();
         await AppStorage.instance.initialize();
@@ -36,14 +37,16 @@ Future<void> bootstrap(AppEnvironment environment) async {
         }
         runApp(SupplyBizApp(
             environment: environment, enableAuth: true, enableConfig: true));
-      } catch (_) {
+        diagnostics.selfTest(
+            requested: const bool.fromEnvironment('DIAGNOSTICS_SELF_TEST'));
+      } catch (error) {
         // Error payloads can contain tokens, URLs or provider details.
-        debugPrint('Supply Biz: application startup failed.');
+        diagnostics.record(DiagnosticSource.startup, error);
         runApp(const StartupFailureApp());
       }
     },
-    (_, __) {
-      debugPrint('Supply Biz: uncaught application error.');
+    (error, _) {
+      diagnostics.record(DiagnosticSource.zone, error);
     },
   );
 }

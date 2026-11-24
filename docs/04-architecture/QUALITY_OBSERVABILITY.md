@@ -8,6 +8,18 @@ Preserve Problem Details, request IDs, typed client error mapping, useful loadin
 ## 2. Basic crash reporting
 T-018 wires existing basic Android crash/error diagnostics where configured, with environment/build identification and no PII. Report an unavailable backend honestly; local structured diagnostic evidence is distinct from a captured Crashlytics report. Basic crash-free/ANR targets remain, measured on observed Android runs rather than invented beta statistics. API/admin logs capture sanitized errors. iOS dSYMs/APNs/native crash validation is deferred to T-185 after Android release.
 
+T-018 handoff (2026-11-24): main-isolate framework/platform/zone/startup errors now
+produce bounded local JSON with fixed source/coarse kind/environment/platform/time
+and allowlisted Android version/build. Exception/stack/account/device/request data
+are omitted. Metadata timeout is two seconds; failures use unavailable. Explicit
+DIAGNOSTICS_SELF_TEST is nonfatal, off by default and disabled in prod/release.
+The API's central unhandled filter uses sanitized Pino metadata instead of printing
+raw exceptions. No collector or remote crash SDK was added. Native fatal/ANR and
+background-isolate/remote Crashlytics capture remain unavailable; local evidence
+cannot establish crash-free statistics. API/mobile READMEs record exact commands,
+17 focused checks, Android APK and device/manual limitations. This is task evidence,
+not a module-gate pass or exhaustive production log audit.
+
 ## 3. Deferred telemetry
 Firebase product analytics funnels/event catalogs, custom Firebase Performance traces, OTel exporters/dashboards, Sentry expansion, attestation, experimentation and Remote Config campaigns are POST-DELIVERY under approved SR-06. Existing source wrappers may be reused; do not add new telemetry dependencies/infrastructure or make campaign event coverage a task gate. Business dashboard numbers come from actual SQL records; plan grants are not paid revenue. No events for deferred finance, billing, grocery, reviews or marketing are required.
 

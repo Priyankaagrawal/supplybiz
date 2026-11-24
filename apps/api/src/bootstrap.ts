@@ -4,7 +4,7 @@ import { ProblemDetailsFilter } from "./common/problem-details.filter";
 
 export function configureHttpApp(app: INestApplication): void {
   app.useLogger(app.get(PinoLogger));
-  app.useGlobalFilters(new ProblemDetailsFilter());
+  app.useGlobalFilters(new ProblemDetailsFilter(app.get(PinoLogger)));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

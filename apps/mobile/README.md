@@ -1,5 +1,52 @@
 # Supply Biz Mobile
 
+## T-018 basic diagnostics (2026-11-24): READY_FOR_VERIFY
+
+Bootstrap records framework, platform-dispatcher, guarded-zone and startup errors
+as bounded local JSON. Only fixed event/source, coarse kind, environment/platform,
+allowlisted native Android version/build, UTC time and `backend: local_log` are
+included. Exception text/stack, request details and account/device identifiers are
+excluded. Native metadata has a two-second timeout and safe unavailable fallback;
+sink failures cannot recurse/crash the app. No persistent store/dependency is added.
+
+Explicit `DIAGNOSTICS_SELF_TEST=true` emits one nonfatal selfTest record after startup
+in non-production, non-release builds only. It is off by default and adds no product
+button. Firebase core/messaging does not enable remote crash capture: no Crashlytics
+package/backend exists. Native fatal/ANR/background-isolate capture, remote delivery
+and crash-free rates are not claimed. iOS source/configuration remains unchanged.
+
+Changed: `lib/core/diagnostics/basic_diagnostics.dart`, bootstrap, Android MainActivity,
+focused tests and the API central error filter. Executed in `apps/mobile` using
+installed `C:\flutter\bin` tools (all passed):
+```powershell
+dart.bat format lib/core/diagnostics/basic_diagnostics.dart lib/bootstrap.dart test/core/diagnostics/basic_diagnostics_test.dart
+flutter.bat test --no-pub test/core/diagnostics/basic_diagnostics_test.dart test/core/config/app_environment_test.dart
+flutter.bat analyze --no-pub
+flutter.bat build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --dart-define=DIAGNOSTICS_SELF_TEST=true --no-pub
+```
+Fourteen mobile cases pass: eight privacy/hook/metadata/zone/sink/self-test checks
+and six existing flavor regressions. Native metadata is mocked; hooks/async zones
+execute in the Flutter test host. Analysis and Android dev APK pass. API has three
+focused loopback cases, static checks and build (see API README). `adb devices`
+reported no attached device; pre-existing adb/services were preserved. No temporary
+server remains. Root `git diff --check` passes.
+
+Manual verification (pending; suggested commands were not executed):
+1. Attach Android and run `flutter run --flavor dev -t lib/main_dev.dart
+   --dart-define-from-file=config/dev.json --dart-define=DIAGNOSTICS_SELF_TEST=true`.
+   Filter `adb logcat` for MOBILE_DIAGNOSTIC; expect local selfTest with actual
+   dev/version/build and no account/request/error payload.
+2. Relaunch without the define; confirm no self-test. Production/release builds
+   must not enable it. Inspect logs using synthetic accounts only.
+3. Exercise a synthetic framework/async error in a disposable debug harness;
+   inspect source/kind and normal failure UI/startup behavior.
+4. Rerun the API fixture command in its README and inspect generic 500/request ID
+   and sanitized log output. No diagnostic fixture endpoint exists in the real API.
+
+Actual Android native metadata/logcat/error capture, manual PASS and G5 are NOT_RUN
+because no device is attached. Remote crash capture is unavailable, not PASS.
+Advanced telemetry stays deferred; iOS checks remain deferred under ADR-025.
+
 ## T-122 Services directory (2026-11-24): READY_FOR_VERIFY
 
 Customer Services tab `/customer/services` now opens S-C-04. It reuses the existing
