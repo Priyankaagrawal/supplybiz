@@ -1,5 +1,5 @@
 import { auditContext } from '../audit/audit-context';
-import { BadRequestException, HttpException, Injectable, NotFoundException, PayloadTooLargeException, ServiceUnavailableException, StreamableFile, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException, PayloadTooLargeException, ServiceUnavailableException, StreamableFile, UnprocessableEntityException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomUUID } from 'node:crypto';
 import { constants } from 'node:fs';
@@ -37,6 +37,9 @@ export class MediaService {
       const requestHash = hash(`${purpose}:${staged.mime}:${hash(source)}`);
       const requestKey = hash(key);
       const result = await this.prisma.$transaction(async tx => {
+        // Fence a request authenticated before a concurrent account deletion.
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${owner},0))::text`;
+        if ((await tx.users.findUnique({where:{id:owner}}))?.status !== 'ACTIVE') throw new ForbiddenException({code:'ACCOUNT_UNAVAILABLE'});
         // Includes owner and serializes competing retries across API processes.
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`media:${owner}:${requestKey}`}, 0))`;
         const existing = await tx.media_files.findUnique({ where: { owner_user_id_request_key: {

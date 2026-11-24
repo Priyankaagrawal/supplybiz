@@ -53,6 +53,8 @@ String? guardRedirect(RouteAccess access, String path) {
   if (!access.signedIn) {
     return {'/login', '/otp'}.contains(path) ? null : '/login';
   }
+  // Deletion is available even before role selection/vendor onboarding completes.
+  if (path == '/account/delete') return null;
   if (access.activeRole == null) return unlessHere('/role');
   if (path == '/common/settings') return null;
   if (access.activeRole == AppRole.vendor && !access.onboardingComplete) {

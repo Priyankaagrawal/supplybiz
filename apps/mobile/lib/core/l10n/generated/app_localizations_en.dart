@@ -3117,4 +3117,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPublishedLegal => 'Published legal documents';
+
+  @override
+  String get deletionExplanation =>
+      'Deleting your account signs you out of every device and removes access immediately. This applies to both vendor and customer roles.';
+
+  @override
+  String get deletionRetention =>
+      'Profile and KYC erasure is due within 30 days, except documented legal holds. Financial records remain restricted for 8 completed financial years, audit logs for 3 years, and backups for up to 90 days. Deletion does not cancel existing financial obligations.';
+
+  @override
+  String deletionReceivables(String paise) {
+    return 'Warning: you have $paise paise of outstanding vendor receivables. Deletion does not collect or cancel these dues.';
+  }
+
+  @override
+  String get deletionAcknowledge =>
+      'I understand that I will lose access, including access to my dues, orders and history, and that retained records follow the stated policy.';
+
+  @override
+  String get deletionSend => 'Send deletion OTP';
+
+  @override
+  String get deletionResend => 'Resend deletion OTP';
+
+  @override
+  String get deletionOtpNotice =>
+      'Enter the deletion code sent to your registered mobile. A login OTP will not work here. Wait 30 seconds before resending.';
+
+  @override
+  String get deletionOtp => 'Deletion OTP';
+
+  @override
+  String get deletionConfirm => 'Delete my account';
+
+  @override
+  String get deletionFinalWarning =>
+      'Confirm account deletion? You will be signed out immediately. This action cannot be undone in the app.';
+
+  @override
+  String get deletionUncertain =>
+      'The previous result is uncertain. Keep this page open to retry the same confirmation. If your session has ended, sign out locally. Do not assume deletion succeeded from a connection error.';
+
+  @override
+  String get deletionRetry => 'Retry same confirmation';
 }

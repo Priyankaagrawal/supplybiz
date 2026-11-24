@@ -1,3 +1,4 @@
+import '../../features/privacy/account_deletion.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -34,6 +35,14 @@ part 'routes.g.dart';
 
 // Details opened from discovery sit above the existing customer shell.
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
+@TypedGoRoute<AccountDeletionRoute>(path: '/account/delete')
+class AccountDeletionRoute extends GoRouteData with _$AccountDeletionRoute {
+  const AccountDeletionRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const AccountDeletionPage();
+}
 
 @TypedGoRoute<CustomerCartRoute>(path: '/customer/cart')
 class CustomerCartRoute extends GoRouteData with _$CustomerCartRoute {

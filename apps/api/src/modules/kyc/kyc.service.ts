@@ -112,6 +112,7 @@ export class KycService {
     return this.mutate(admin.id, key, `decision:${id}`, input, async tx => {
       // Shared with onboarding, role changes and vendor resubmission.
       await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtextextended(${vendor.user_id}, 0))::text`;
+      if((await tx.users.findUniqueOrThrow({where:{id:vendor.user_id}})).status==='DELETED') throw new ConflictException({code:'KYC_ACCOUNT_DELETED'});
       const row = await tx.vendor_kyc.findUniqueOrThrow({ where: { id } });
       const latest = await tx.vendor_kyc.findFirstOrThrow({ where: { vendor_id: row.vendor_id }, orderBy: [{ submitted_at: 'desc' }, { id: 'desc' }] });
       if (!['MANUAL_REVIEW', 'PENDING'].includes(row.status) || latest.id !== row.id) throw new ConflictException({ code: 'KYC_STATE_CONFLICT' });

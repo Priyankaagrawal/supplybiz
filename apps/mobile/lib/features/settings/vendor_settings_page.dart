@@ -276,7 +276,8 @@ class _SettingsState extends ConsumerState<VendorSettingsPage> {
                                                   Text(failure.toMessage(l))));
                                     }
                                   }),
-                        row(l.settingsDelete, null),
+                        row(l.settingsDelete,
+                            const AccountDeletionRoute().location),
                       ] else if (p != null)
                         Form(
                             key: form,

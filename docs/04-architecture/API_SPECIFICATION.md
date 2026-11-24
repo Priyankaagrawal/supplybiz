@@ -1117,3 +1117,37 @@ digest (no raw passwords). Different path/body reuse returns 422; expired cache
 permits a fresh operation, still subject to email/version constraints. Account
 change/reason audit, session revocation, export audit and replay commit atomically.
 Private responses are no-store. No public export URLs or new retention policy.
+
+### T-019 self-service deletion (FR-008 / US-006 / ADR-035)
+
+GET `/me/deletion` returns `{ vendor, outstandingReceivablesPaise }` for the live
+session owner. Positive vendor balances are summed individually as exact text
+paise (advances do not hide another customer's debt). POST `/me/deletion/otp`
+requires X-Device-Id/Idempotency-Key and sends an SMS code to the server-owned
+mobile, with the existing provider policy, 30-second resend and five-minute TTL.
+Deletion challenges are bound to DELETE_ACCOUNT:userId and cannot serve as login
+or another account's OTP. Shared mobile/IP/device send budgets remain intact.
+No client mobile/owner/role is accepted. Responses are no-store.
+
+POST `/me/deletion` accepts `{ code, acknowledgeReceivables }` and requires
+Idempotency-Key. If current vendor receivables are positive and acknowledgement
+is false, returns 409 RECEIVABLES_ACK_REQUIRED before consuming the OTP. Fresh OTP
+verification is single-use. The transaction rechecks active account/session and
+dues, records the request/deadline and audit, changes the user to DELETED, revokes
+all sessions/push tokens and suspends its vendor. Returns 200
+`{ requestId, requestedAt, eraseBy, status: PENDING_ERASURE }`. It never cancels
+financial obligations or changes ledger totals. Old/revoked credentials cannot
+replay a success; duplicate/concurrent confirmations cannot create extra requests.
+Failed durable writes roll back deactivation and return 503 DELETION_UNAVAILABLE;
+the consumed OTP may require resend. OTPs are not persisted in replay bodies/logs.
+
+The worker's bounded personal-erasure stage starts on day 29, skips HELD requests,
+atomically tombstones the user/profile, clears vendor/KYC personal fields and
+marks media ERASING. File removal uses fixed private roots/server-generated keys,
+retries missing files idempotently and finishes ERASED/audit only after cleanup.
+KYC ordinary mutation guards remain; the retention exception requires the deleted
+owner, a due ERASING request and transaction-local retention context, and permits
+only exact erasure values. Financial/counterparty identity required for retained
+records remains access-controlled; a new registration gets a distinct identity.
+Admin privacy/hold review and long-term financial/audit expiry are T-161;
+90-day backups and deletion replay before restore serves traffic remain T-175.

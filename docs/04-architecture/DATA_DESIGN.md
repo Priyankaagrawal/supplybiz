@@ -471,16 +471,22 @@ T-152 adds `(at,id)` indexing and database rejection of audit UPDATE/DELETE/TRUN
 | `kv` | small key-values (last role, recent searches) | Both |
 DB is wiped on logout and on role switch only for that role's caches.
 
-## 6. Data Lifecycle & Retention (proposed, Q-20)
+## 6. Data Lifecycle & Retention (approved Q-20, ADR-035)
 | Data | Retention |
 |---|---|
-| KYC documents | Until vendor account deleted + legal period TBD; access-logged |
-| Ledger, orders, sales, plan payments | Retained per financial record-keeping law (period TBD); anonymized on account deletion |
+| Account access | Disabled immediately after deletion OTP confirmation; all sessions/push tokens revoked |
+| Profile and KYC documents | Erase within 30 days after confirmation, except documented legal holds |
+| Ledger, orders, sales | Retain for 8 completed Indian financial years; restrict retained personal details; preserve balances and counterparties' records |
+| Audit logs | 3 years; ordinary application writes remain append-only; expiry requires guarded retention operations |
+| Backups | Expire within 90 days; replay deletion records before restored data serves traffic (T-175) |
 | Notifications | 90 days |
 | Idempotency keys | 24 hours |
 | OTP | PostgreSQL digest/expiry rows, 5 min |
-| Audit logs | TBD (proposed ≥ 3 years) |
-| Analytics | Firebase default retention configured to 14 months |
+
+Legal holds override erasure and require a recorded reason, actor and timestamp.
+Q-30 grievance/support contact remains TBD. This approved product policy is not
+legal-compliance or production backup/restore evidence. T-161 owns admin privacy
+review/holds and long-term privacy job operations; T-019 owns self-service deletion.
 
 ## 7. Migrations & Seed
 - Prisma Migrate; every migration reviewed; destructive changes use expand → migrate → contract across two releases.
@@ -545,3 +551,20 @@ private media references and mandatory decision notices are preserved. Business
 and delivery settings increment shared vendor_settings.version with actor/vendor
 locking and audit/idempotent replay in the same transaction. No ledger/order
 snapshot backfill, source-record deletion or retention-policy change.
+
+## T-019 account-deletion persistence (2026-11-24)
+
+account_deletions has a unique user_id/FK and actor-scoped request_key, keyed request
+digest, database-clock requested_at/erase_by (30 days), PENDING_ERASURE/HELD/ERASING/
+ERASED state, recorded hold reason/admin/time and completion timestamp. Holds need
+nonempty reason and actor/time; erased_at is set only for ERASED. Existing ordinary
+financial/audit immutability remains. T-019 worker starts a day before deadline,
+locks owner then request, clears live profile/address/preferences and vendor/KYC
+personal fields, and retains pseudonymous identity/FKs for counterparties. Media
+status expands READY -> ERASING -> ERASED; reads require READY. Crash-safe private
+file unlink is bounded and happens after durable ERASING marking. A narrow KYC
+trigger exception requires due deleted-owner ERASING context and exact redaction
+values; ordinary deletes/edits still fail. No financial amount/history is purged
+or rewritten here. T-161 owns administrative holds and long-term retention jobs;
+T-175 owns backup expiry/deletion replay. Policy approval alone supplies neither
+of those release checks. Two additive migrations; no existing-data backfill.

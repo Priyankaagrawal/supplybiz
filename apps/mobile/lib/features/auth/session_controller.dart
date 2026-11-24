@@ -263,6 +263,12 @@ class SessionController extends Notifier<AuthState> implements NetworkSession {
         }
         await clear();
       });
+
+  /// A delayed deletion response must never wipe a different, newly signed-in account.
+  Future<void> clearDeletedAccount(String userId) async {
+    if (!_disposed && state.user?.id == userId) await clear();
+  }
+
   @override
   Future<void> clear({AppFailure? reason}) async {
     _generation++;

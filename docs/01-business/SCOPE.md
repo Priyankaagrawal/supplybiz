@@ -122,7 +122,7 @@ See [README](../../README.md#document-dependencies).
 | Q-17 | Can a vendor operate multiple categories (A-15)? | FR-010 | PO |
 | Q-18 | Visibility before KYC verification (A-04)? | FR-017 | PO |
 | Q-19 | RESOLVED (user, 2026-11-16; ADR-033): postpaid through Khata; each delivered subscription order debits the ledger. Monthly totals are estimates. | FR-233 | PO |
-| Q-20 | Data retention periods (KYC docs, ledger, deleted accounts)? | AUTH_SECURITY | Legal |
+| Q-20 | RESOLVED (user, 2026-11-24; ADR-035): OTP-confirmed immediate deactivation; profile/KYC erasure within 30 days; financial history retained for 8 completed financial years; audit 3 years; backups expire within 90 days; documented legal holds override erasure. | AUTH_SECURITY, DATA_DESIGN section 6; implementation and release evidence remain required; grievance contact stays TBD (Q-30) | PO + Legal |
 | Q-21 | Money tracker: auto-import Supply Biz payments as expenses? | POST-DELIVERY SR-01; auto-import deferred | PO |
 | Q-22 | "Payment Methods" screen meaning under direct payments (saved UPI IDs? preferred method?) | POST-DELIVERY SR-02; saved payment-method management deferred | PO |
 | Q-23 | Report download formats (PDF, CSV, both)? | RESOLVED (SR-04): CSV only; PDF deferred | PO |

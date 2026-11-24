@@ -1,3 +1,4 @@
+import { PersonalErasureService } from './modules/privacy/personal-erasure.service';
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
@@ -23,12 +24,15 @@ async function bootstrapWorker(): Promise<void> {
   subscriptionJobs.start();
   const notifications = app.get(NotificationsService);
   const reportExports = app.get(ReportExportsService);
+  const personalErasure = app.get(PersonalErasureService);
   let cleanupRun: Promise<void> | undefined;
   const cleanup = () => cleanupRun ??= (async () => {
     for (let i = 0; i < 100; i++) if (await notifications.cleanupExpired() < 500) break;
   })().catch(() => { logger.warn('NOTIFICATION_CLEANUP_FAILED', 'Worker'); })
     .then(async () => { for (let i = 0; i < 100; i++) if (await reportExports.cleanupExpired() < 500) break; })
     .catch(() => { logger.warn('REPORT_EXPORT_CLEANUP_FAILED', 'Worker'); })
+    .then(async () => { for(let i=0;i<100;i++)if(await personalErasure.runBatch()<10)break; })
+    .catch(() => { logger.warn('PERSONAL_ERASURE_FAILED', 'Worker'); })
     .finally(() => { cleanupRun = undefined; });
   void cleanup();
   const cleanupTimer = setInterval(() => { void cleanup(); }, 3600000);

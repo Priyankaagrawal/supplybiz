@@ -1,5 +1,70 @@
 openapi: 3.0.0
 paths:
+  /api/v1/me/deletion:
+    get:
+      operationId: AccountDeletionController_preview
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionPreview'
+      tags:
+        - account-deletion
+      security:
+        - bearer: []
+    post:
+      operationId: AccountDeletionController_confirm
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmDeletionInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletionReceipt'
+      tags:
+        - account-deletion
+      security:
+        - bearer: []
+  /api/v1/me/deletion/otp:
+    post:
+      operationId: AccountDeletionController_send
+      parameters:
+        - name: X-Device-Id
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendOtpResponse'
+      tags:
+        - account-deletion
+      security:
+        - bearer: []
   /api/v1/admin/admins:
     get:
       operationId: AdminAccountsController_list
@@ -6402,6 +6467,60 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    DeletionPreview:
+      type: object
+      properties:
+        outstandingReceivablesPaise:
+          type: string
+          description: Exact positive vendor receivables in paise; deletion does not settle dues.
+        vendor:
+          type: boolean
+      required:
+        - outstandingReceivablesPaise
+        - vendor
+    SendOtpResponse:
+      type: object
+      properties:
+        resendAfterSec:
+          type: integer
+          minimum: 30
+          maximum: 30
+          example: 30
+        expiresInSec:
+          type: integer
+          minimum: 300
+          maximum: 300
+          example: 300
+      required:
+        - resendAfterSec
+        - expiresInSec
+    ConfirmDeletionInput:
+      type: object
+      properties:
+        code:
+          type: string
+          pattern: ^\d{6}$
+        acknowledgeReceivables:
+          type: boolean
+      required:
+        - code
+        - acknowledgeReceivables
+    DeletionReceipt:
+      type: object
+      properties:
+        requestId:
+          type: string
+        requestedAt:
+          type: string
+        eraseBy:
+          type: string
+        status:
+          type: string
+      required:
+        - requestId
+        - requestedAt
+        - eraseBy
+        - status
     AdminAccountResponse:
       type: object
       properties:
@@ -11495,22 +11614,6 @@ components:
           pattern: ^[A-Za-z0-9+/]{11}$
       required:
         - mobile
-    SendOtpResponse:
-      type: object
-      properties:
-        resendAfterSec:
-          type: integer
-          minimum: 30
-          maximum: 30
-          example: 30
-        expiresInSec:
-          type: integer
-          minimum: 300
-          maximum: 300
-          example: 300
-      required:
-        - resendAfterSec
-        - expiresInSec
     DeviceDto:
       type: object
       properties:

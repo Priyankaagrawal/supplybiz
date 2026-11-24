@@ -1,5 +1,25 @@
 # Supply Biz API
 
+## T-019 deletion/retention (2026-11-24): READY_FOR_VERIFY
+
+GET/POST `/api/v1/me/deletion`, POST `/api/v1/me/deletion/otp`; SessionGuard,
+server-owned target/mobile, purpose-bound single-use OTP and shared send budgets.
+Confirmation atomically records the 30-day request/deadline, deactivates the whole
+account, suspends its vendor, revokes all sessions/push tokens and audits safe
+metadata. Exact positive receivables require acknowledgement; no balances change.
+Revoked credentials cannot replay a success. Failed durable writes roll back
+deactivation; OTP may be consumed, requiring a new code. No raw OTP is cached/logged.
+
+The hourly worker processes bounded due personal-erasure batches on day 29, skips
+HELD rows, and resumes ERASING file cleanup after failures. KYC erasure is narrowly
+guarded; ordinary edits remain immutable. Profile/KYC/media identity is removed,
+financial FKs/totals and legally retained counterparties' records remain. T-161
+owns admin holds and long-term financial/audit expiry, T-175 backup expiry/restore.
+Two additive migrations applied only to isolated test DB. Six native HTTP/worker
+cases plus 16 OTP cases and 22 mobile cases pass across final focused runs;
+API/mobile/client checks/builds and Android APK pass. Full commands, behavior,
+four manual checks and remaining release limitations: mobile README T-019.
+
 ## T-162 admin accounts/platform CSV (2026-11-19): READY_FOR_VERIFY
 
 `modules/admin-accounts` adds SUPER_ADMIN-only paginated GET/POST admin/admins and

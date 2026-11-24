@@ -28,7 +28,8 @@ export class OtpService {
 
   async send(
     input: { mobile: string; channel?: OtpChannel; appHash?: string },
-    context: { ip: string; deviceId: string }
+    context: { ip: string; deviceId: string },
+    purpose?: string
   ): Promise<{ resendAfterSec: number; expiresInSec: number }> {
     const mobile = this.mobile(input.mobile);
     const channel = input.channel ?? "SMS";
@@ -44,7 +45,8 @@ export class OtpService {
     }
     const provider = this.providers[channel];
     provider.assertAvailable();
-    const key = this.key("mobile", mobile);
+    const budgetKey = this.key("mobile", mobile);
+    const key = purpose ? this.key("purpose", `${purpose}:${mobile}`) : budgetKey;
     const code = randomInt(0, 1_000_000).toString().padStart(6, "0");
     const salt = randomBytes(16).toString("hex");
     const revision = randomUUID();
@@ -53,7 +55,8 @@ export class OtpService {
       await this.safe(() =>
         this.store.reserve(
           {
-            mobile: key,
+            mobile: budgetKey,
+            ...(purpose ? { subject: key } : {}),
             ip: this.key("ip", context.ip),
             device: this.key("device", context.deviceId),
           },
@@ -83,12 +86,12 @@ export class OtpService {
   /** T-015 calls this before issuing tokens. Success atomically consumes the OTP.
    * No public verify endpoint returns a fake session in T-014.
    */
-  async verify(mobileInput: string, code: string): Promise<void> {
+  async verify(mobileInput: string, code: string, purpose?: string): Promise<void> {
     const mobile = this.mobile(mobileInput);
     if (typeof code !== "string" || !/^\d{6}$/.test(code)) {
       throw new BadRequestException({ code: "VALIDATION_FAILED", detail: "Invalid OTP request." });
     }
-    const key = this.key("mobile", mobile);
+    const key = purpose ? this.key("purpose", `${purpose}:${mobile}`) : this.key("mobile", mobile);
     const challenge = await this.safe(() => this.store.read(key));
     if (!challenge) {
       throw new HttpException({ code: "OTP_EXPIRED", detail: "OTP verification failed." }, 410);

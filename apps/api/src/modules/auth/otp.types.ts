@@ -26,7 +26,7 @@ export type OtpDecision =
   | { result: "OTP_INVALID" | "OTP_EXPIRED" | "OTP_ATTEMPTS_EXCEEDED" };
 export interface OtpStore {
   reserve(
-    keys: { mobile: string; ip: string; device: string },
+    keys: { mobile: string; ip: string; device: string; subject?: string },
     challenge: OtpChallenge,
     policy: Omit<OtpPolicy, "pepper">
   ): Promise<OtpDecision>;

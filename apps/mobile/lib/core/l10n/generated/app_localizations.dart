@@ -5614,6 +5614,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Published legal documents'**
   String get helpPublishedLegal;
+
+  /// No description provided for @deletionExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting your account signs you out of every device and removes access immediately. This applies to both vendor and customer roles.'**
+  String get deletionExplanation;
+
+  /// No description provided for @deletionRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile and KYC erasure is due within 30 days, except documented legal holds. Financial records remain restricted for 8 completed financial years, audit logs for 3 years, and backups for up to 90 days. Deletion does not cancel existing financial obligations.'**
+  String get deletionRetention;
+
+  /// No description provided for @deletionReceivables.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning: you have {paise} paise of outstanding vendor receivables. Deletion does not collect or cancel these dues.'**
+  String deletionReceivables(String paise);
+
+  /// No description provided for @deletionAcknowledge.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand that I will lose access, including access to my dues, orders and history, and that retained records follow the stated policy.'**
+  String get deletionAcknowledge;
+
+  /// No description provided for @deletionSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send deletion OTP'**
+  String get deletionSend;
+
+  /// No description provided for @deletionResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend deletion OTP'**
+  String get deletionResend;
+
+  /// No description provided for @deletionOtpNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the deletion code sent to your registered mobile. A login OTP will not work here. Wait 30 seconds before resending.'**
+  String get deletionOtpNotice;
+
+  /// No description provided for @deletionOtp.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion OTP'**
+  String get deletionOtp;
+
+  /// No description provided for @deletionConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deletionConfirm;
+
+  /// No description provided for @deletionFinalWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm account deletion? You will be signed out immediately. This action cannot be undone in the app.'**
+  String get deletionFinalWarning;
+
+  /// No description provided for @deletionUncertain.
+  ///
+  /// In en, this message translates to:
+  /// **'The previous result is uncertain. Keep this page open to retry the same confirmation. If your session has ended, sign out locally. Do not assume deletion succeeded from a connection error.'**
+  String get deletionUncertain;
+
+  /// No description provided for @deletionRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry same confirmation'**
+  String get deletionRetry;
 }
 
 class _AppLocalizationsDelegate

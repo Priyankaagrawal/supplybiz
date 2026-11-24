@@ -27,6 +27,19 @@ void main() {
     await session.verify('123456');
   }
 
+  test('T-019 delayed deletion clears only its original account', () async {
+    await login();
+    final userId = container.read(sessionProvider).user!.id;
+    await session.clearDeletedAccount('different-account');
+    expect(session.accessToken, isNotNull);
+    expect(storage.wipes, 0);
+    await session.clearDeletedAccount(userId);
+    expect(session.accessToken, isNull);
+    expect(storage.token, isNull);
+    expect(container.read(sessionProvider).user, isNull);
+    expect(storage.wipes, 1);
+  });
+
   test(
       'TC-001/013 refuses invalid mobile and missing consent before any network mutation',
       () async {

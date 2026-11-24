@@ -89,6 +89,7 @@ enum outbox_event_status {
 }
 
 model users {
+  deletion account_deletions?
   report_exports report_exports[]
   personal_contacts personal_contacts[]
   personal_entries personal_entries[]
@@ -1073,4 +1074,21 @@ model khata_requests {
   response Json
   created_at DateTime @default(now()) @db.Timestamptz(6)
   user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+}
+
+// T-019: durable personal-erasure deadline and legal-hold queue for T-161.
+model account_deletions {
+ id String @id @default(uuid()) @db.Uuid
+ user_id String @unique @db.Uuid
+ request_key String @unique @db.VarChar(64)
+ request_hash String @db.VarChar(64)
+ requested_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+ erase_by DateTime @default(dbgenerated("(clock_timestamp() + '30 days'::interval)")) @db.Timestamptz(6)
+ status String @default("PENDING_ERASURE") @db.VarChar(24)
+ hold_reason String? @db.VarChar(500)
+ hold_actor String? @db.Uuid
+ hold_at DateTime? @db.Timestamptz(6)
+ erased_at DateTime? @db.Timestamptz(6)
+ user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
+ @@index([status,erase_by,id],map:"account_deletions_due")
 }

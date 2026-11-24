@@ -7,6 +7,7 @@ part of 'routes.dart';
 // **************************************************************************
 
 List<RouteBase> get $appRoutes => [
+      $accountDeletionRoute,
       $customerCartRoute,
       $customerNewOrderRoute,
       $customerDiscoveryRoute,
@@ -25,6 +26,34 @@ List<RouteBase> get $appRoutes => [
       $customerShell,
       $linkRoute,
     ];
+
+RouteBase get $accountDeletionRoute => GoRouteData.$route(
+      path: '/account/delete',
+      factory: _$AccountDeletionRoute._fromState,
+    );
+
+mixin _$AccountDeletionRoute on GoRouteData {
+  static AccountDeletionRoute _fromState(GoRouterState state) =>
+      const AccountDeletionRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/account/delete',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $customerCartRoute => GoRouteData.$route(
       path: '/customer/cart',

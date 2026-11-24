@@ -123,8 +123,8 @@ Additional controls:
 |---|---|
 | Notice & consent | Versioned consent at signup (FR-009) in English; purpose-specific; re-consent on material change |
 | Purpose limitation & minimization | Collect only fields in SRS; KYC only for vendors |
-| Data principal rights | Access/export (FR-412), correction (profile edit), erasure (FR-008), grievance contact in app (TBD officer, Q-20) |
-| Retention | Per [DATA_DESIGN §6](DATA_DESIGN.md#6-data-lifecycle--retention-proposed-q-20) |
+| Data principal rights | Access/export (FR-412), correction (profile edit), erasure (FR-008, ADR-035), grievance contact in app (TBD, Q-30) |
+| Retention | Per [DATA_DESIGN §6](DATA_DESIGN.md#6-data-lifecycle--retention-approved-q-20-adr-035) |
 | Breach response | Incident runbook ([DEPLOYMENT_OPERATIONS §8](../08-deployment-operations/DEPLOYMENT_OPERATIONS.md)); notify Board & users per DPDP Rules |
 | Children | App for 18+ users (account creation asserts age) — TBD confirm |
 | Third parties | DPAs with SMS, KYC, cloud, Firebase; data residency India where available |
@@ -149,7 +149,7 @@ All requests use a pre-permission rationale and handle "denied" / "permanently d
 - Threat model (STRIDE) reviewed per milestone; top threats: OTP abuse, IDOR on ledger, KYC data leakage, admin account takeover, webhook spoofing.
 
 ## 10. Open Questions
-Active: Q-20 (retention, grievance officer); production domains remain Q-33. Q-25 admin permissions are resolved by ADR-026 (user, 2026-11-04). Q-08 provider automation and ADR-020 pinning additions are deferred by approved ADR-024; manual KYC is active, not awaiting repeat approval.
+Q-20 retention is resolved by ADR-035; grievance contact remains TBD under Q-30; production domains remain Q-33. Q-25 admin permissions are resolved by ADR-026 (user, 2026-11-04). Q-08 provider automation and ADR-020 pinning additions are deferred by approved ADR-024; manual KYC is active, not awaiting repeat approval.
 
 ## 10. Local-file and shared-state baseline
 ADR-023 and [LOCAL_FILE_STORAGE](LOCAL_FILE_STORAGE.md) govern configurable persistent paths, streamed validation, quarantine, masking before persistence, authenticated access, PDF download safety, quotas and paired DB/file restore. OTP/rate controls use PostgreSQL atomic state/time, purpose-hashed keys and cleanup; preserve all existing abuse limits and fail closed on database errors. JSON body limits do not override the separately bounded multipart route. T-180–T-182 implement this target; source remains unchanged in this revision.

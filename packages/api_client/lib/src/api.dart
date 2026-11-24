@@ -7,6 +7,7 @@ import 'package:supplybiz_api_client/src/auth/api_key_auth.dart';
 import 'package:supplybiz_api_client/src/auth/basic_auth.dart';
 import 'package:supplybiz_api_client/src/auth/bearer_auth.dart';
 import 'package:supplybiz_api_client/src/auth/oauth.dart';
+import 'package:supplybiz_api_client/src/api/account_deletion_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_accounts_reports_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_auth_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_content_api.dart';
@@ -162,6 +163,12 @@ class SupplybizApiClient {
           .apiKeys
           .remove(name);
     }
+  }
+
+  /// Get AccountDeletionApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AccountDeletionApi getAccountDeletionApi() {
+    return AccountDeletionApi(dio);
   }
 
   /// Get AdminAccountsReportsApi instance, base route and serializer can be overridden by a given but be careful,

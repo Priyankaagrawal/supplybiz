@@ -32,6 +32,7 @@ import 'package:supplybiz_api_client/src/model/claim_mutation.dart';
 import 'package:supplybiz_api_client/src/model/claim_rejection.dart';
 import 'package:supplybiz_api_client/src/model/complete_sale_input.dart';
 import 'package:supplybiz_api_client/src/model/config_input.dart';
+import 'package:supplybiz_api_client/src/model/confirm_deletion_input.dart';
 import 'package:supplybiz_api_client/src/model/consent_dto.dart';
 import 'package:supplybiz_api_client/src/model/create_admin_input.dart';
 import 'package:supplybiz_api_client/src/model/current_plan_response.dart';
@@ -42,6 +43,8 @@ import 'package:supplybiz_api_client/src/model/customer_patch.dart';
 import 'package:supplybiz_api_client/src/model/customer_response.dart';
 import 'package:supplybiz_api_client/src/model/customer_settlement_options.dart';
 import 'package:supplybiz_api_client/src/model/customer_subscription_input.dart';
+import 'package:supplybiz_api_client/src/model/deletion_preview.dart';
+import 'package:supplybiz_api_client/src/model/deletion_receipt.dart';
 import 'package:supplybiz_api_client/src/model/delivery_counts.dart';
 import 'package:supplybiz_api_client/src/model/delivery_impact.dart';
 import 'package:supplybiz_api_client/src/model/delivery_list.dart';
@@ -322,6 +325,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'ConfigInput':
       return ConfigInput.fromJson(value as Map<String, dynamic>) as ReturnType;
+    case 'ConfirmDeletionInput':
+      return ConfirmDeletionInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ConsentDto':
       return ConsentDto.fromJson(value as Map<String, dynamic>) as ReturnType;
     case 'CreateAdminInput':
@@ -348,6 +354,12 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'CustomerSubscriptionInput':
       return CustomerSubscriptionInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DeletionPreview':
+      return DeletionPreview.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'DeletionReceipt':
+      return DeletionReceipt.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'DeliveryCounts':
       return DeliveryCounts.fromJson(value as Map<String, dynamic>)

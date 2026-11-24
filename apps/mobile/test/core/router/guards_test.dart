@@ -9,6 +9,22 @@ const vendor = RouteAccess(
 
 void main() {
   test(
+      'T-019 deletion stays authenticated but is available before role/onboarding',
+      () {
+    expect(guardRedirect(const RouteAccess(), '/account/delete'), '/login');
+    expect(guardRedirect(const RouteAccess(signedIn: true), '/account/delete'),
+        isNull);
+    expect(
+        guardRedirect(
+            const RouteAccess(signedIn: true, activeRole: AppRole.vendor),
+            '/account/delete'),
+        isNull);
+    expect(
+        guardRedirect(const RouteAccess(signedIn: true, forceUpdate: true),
+            '/account/delete'),
+        '/common/update');
+  });
+  test(
       'T-107 public legal preserves a pending sign-in link and force-update priority',
       () {
     final controller = RoutingController();

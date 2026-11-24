@@ -48,17 +48,15 @@ Please follow the [installation procedure](#installation--usage) and then run th
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 
 
-final api = SupplybizApiClient().getAdminAccountsReportsApi();
+final api = SupplybizApiClient().getAccountDeletionApi();
 final String idempotencyKey = idempotencyKey_example; // String |
-final String id = id_example; // String |
-final String xCSRFToken = xCSRFToken_example; // String |
-final ChangeAdminInput changeAdminInput = ; // ChangeAdminInput |
+final ConfirmDeletionInput confirmDeletionInput = ; // ConfirmDeletionInput |
 
 try {
-    final response = await api.adminAccountsControllerChange(idempotencyKey, id, xCSRFToken, changeAdminInput);
+    final response = await api.accountDeletionControllerConfirm(idempotencyKey, confirmDeletionInput);
     print(response);
 } on DioException catch (e) {
-    print("Exception when calling AdminAccountsReportsApi->adminAccountsControllerChange: $e\n");
+    print("Exception when calling AccountDeletionApi->accountDeletionControllerConfirm: $e\n");
 }
 
 ```
@@ -69,6 +67,9 @@ All URIs are relative to *http://localhost:3000*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+[*AccountDeletionApi*](doc/AccountDeletionApi.md) | [**accountDeletionControllerConfirm**](doc/AccountDeletionApi.md#accountdeletioncontrollerconfirm) | **POST** /api/v1/me/deletion |
+[*AccountDeletionApi*](doc/AccountDeletionApi.md) | [**accountDeletionControllerPreview**](doc/AccountDeletionApi.md#accountdeletioncontrollerpreview) | **GET** /api/v1/me/deletion |
+[*AccountDeletionApi*](doc/AccountDeletionApi.md) | [**accountDeletionControllerSend**](doc/AccountDeletionApi.md#accountdeletioncontrollersend) | **POST** /api/v1/me/deletion/otp |
 [*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerChange**](doc/AdminAccountsReportsApi.md#adminaccountscontrollerchange) | **PATCH** /api/v1/admin/admins/{id} |
 [*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerCreate**](doc/AdminAccountsReportsApi.md#adminaccountscontrollercreate) | **POST** /api/v1/admin/admins |
 [*AdminAccountsReportsApi*](doc/AdminAccountsReportsApi.md) | [**adminAccountsControllerExport**](doc/AdminAccountsReportsApi.md#adminaccountscontrollerexport) | **POST** /api/v1/admin/reports/exports |
@@ -295,6 +296,7 @@ Class | Method | HTTP request | Description
  - [ClaimRejection](doc/ClaimRejection.md)
  - [CompleteSaleInput](doc/CompleteSaleInput.md)
  - [ConfigInput](doc/ConfigInput.md)
+ - [ConfirmDeletionInput](doc/ConfirmDeletionInput.md)
  - [ConsentDto](doc/ConsentDto.md)
  - [CreateAdminInput](doc/CreateAdminInput.md)
  - [CurrentPlanResponse](doc/CurrentPlanResponse.md)
@@ -305,6 +307,8 @@ Class | Method | HTTP request | Description
  - [CustomerResponse](doc/CustomerResponse.md)
  - [CustomerSettlementOptions](doc/CustomerSettlementOptions.md)
  - [CustomerSubscriptionInput](doc/CustomerSubscriptionInput.md)
+ - [DeletionPreview](doc/DeletionPreview.md)
+ - [DeletionReceipt](doc/DeletionReceipt.md)
  - [DeliveryCounts](doc/DeliveryCounts.md)
  - [DeliveryImpact](doc/DeliveryImpact.md)
  - [DeliveryList](doc/DeliveryList.md)

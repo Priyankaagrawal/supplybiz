@@ -1,5 +1,79 @@
 # Supply Biz Mobile
 
+## T-019 account deletion (2026-11-24): READY_FOR_VERIFY
+
+Q-20 retention is approved in ADR-035/SCOPE/DATA_DESIGN. Vendor/customer settings,
+common account/role settings and `/account/delete` open S-COM-10. Authentication
+and force-update guards apply, but unfinished role/vendor onboarding does not
+prevent deletion. The generated-client screen previews exact vendor receivables,
+states loss of access for both roles and the retention policy, requires explicit
+acknowledgement, sends a purpose-bound deletion OTP to the server-owned mobile,
+then requires a separate final confirmation. No arbitrary target/mobile is sent.
+Login OTPs cannot authorize deletion, and resend shares the existing mobile/IP/
+device budgets. Countdown updates enable resend after 30 seconds. Wrong/expired
+codes allow correction; no offline success or automatic destructive retry.
+
+Confirmation immediately deactivates the account and revokes all sessions and
+push tokens; discovery and future generation stop through existing active-account
+checks. Existing obligations/ledger entries/balances are retained, never settled
+by deletion. Successful confirmation wipes local secrets/cache. A delayed response
+can only clear its original account. An uncertain response freezes the exact
+code/body/key in tab memory; no OTP is persisted to disk. A revoked-session retry
+is denied, not a success replay. Reload requires fresh authentication/OTP; a
+network error alone is never reported as completed deletion.
+
+The API records an immutable ownership tombstone and 30-day deadline. The worker
+starts personal erasure on day 29 (one day of retry headroom): clears live profile,
+addresses/preferences and vendor/KYC personal fields, disables media reads, and
+unlinks server-generated private media paths in bounded batches. ERASING state
+survives failures; missing files are idempotent and the final ERASED/audit record
+commits only after files are gone. Documented HELD requests are skipped. Ordinary
+KYC mutation protection remains; a narrow due/deleted/authorized-retention-context
+exception permits only field erasure. Financial/counterparty records and immutable
+audit history retain their protected access. A later registration receives a new
+ID and no old ownership. T-161 owns admin holds/privacy operations and long-term
+financial/audit expiry; T-175 owns 90-day backups and deletion replay after restore.
+Those release checks remain pending. No main database/source financial backfill,
+new dependency or iOS change. Two additive migrations applied only to isolated
+local supplybiz_service_area_test; tests create/erase only synthetic media files.
+
+Executed checks (PASS):
+- API (`apps/api`): `.\node_modules\.bin\prisma.cmd generate --schema src/prisma/schema.prisma`,
+  `.\node_modules\.bin\prisma.cmd migrate deploy --schema src/prisma/schema.prisma`
+  with DATABASE_URL restricted to the isolated test DB; `tsc.cmd --noEmit`,
+  `tsc.cmd -p tsconfig.build.json` via `.\node_modules\.bin\`.
+- API: `.\node_modules\.bin\eslint.cmd src/modules/privacy src/modules/media/media.service.ts src/modules/kyc/kyc.service.ts src/modules/auth/otp.service.ts src/modules/auth/otp.types.ts src/modules/auth/postgres-otp.store.ts src/app.module.ts src/worker.ts --max-warnings=0`.
+- API: `.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/privacy/account-deletion.postgres.spec.ts src/modules/auth/otp.service.spec.ts src/modules/auth/postgres-otp.store.spec.ts`:
+  22 unique cases across final runs (6 native HTTP/PostgreSQL/worker and 16 OTP).
+  The final 6-case native rerun also checks deleted-account KYC denial/immutability.
+  OTP delivery is captured in test memory, not live SMS/WhatsApp.
+- Mobile (`apps/mobile`): `C:\flutter\bin\flutter.bat test --no-pub test/features/privacy/account_deletion_test.dart test/core/router/guards_test.dart test/features/profile/profile_test.dart`:
+  21 passed; `flutter.bat test --no-pub test/features/auth/session_controller_test.dart --plain-name T-019`:
+  1 passed; `flutter.bat analyze --no-pub`: clean. Commands use the installed SDK.
+- `tools/codegen.sh` (Git Bash/Flutter PATH), `flutter.bat gen-l10n`,
+  `dart.bat run build_runner build --build-filter=lib/core/router/routes.g.dart`:
+  generated from source; existing OpenAPI paths/schemas compared unchanged,
+  two new paths/three schemas. Generated Dart analysis and admin `tsc --noEmit` pass.
+- `C:\flutter\bin\flutter.bat build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub`:
+  built `build/app/outputs/flutter-apk/app-dev-debug.apk`. Diff whitespace check passes.
+
+Manual verification (pending; synthetic accounts only):
+1. Open account deletion as a customer/vendor, including unfinished onboarding;
+   review consequences and vendor dues. Cancel the final dialog; nothing deletes.
+2. Send deletion OTP, reject a login/wrong code, then confirm the deletion code.
+   Verify all devices sign out, local data clears and old tokens cannot read data.
+3. In the isolated test environment, inspect the request/deadline and worker
+   ERASING/ERASED audit; exercise a recorded hold/file failure and retry. Confirm
+   financial balances remain identical and a fresh identity owns no old records.
+4. Check actual Android keyboard/TalkBack/200% scroll, offline/uncertain retry,
+   native secure-storage cleanup and real UI → API → DB → UI behavior.
+
+Live OTP delivery remains NOT_RUN: provider delivery is simulated in native tests.
+Physical-device secure storage/TalkBack and live UI/API journey are NOT_RUN: adb
+devices reported no attached Android device. Manual PASS/G4 remain pending. iOS
+validation is deferred. No standalone app service was started. The newly started
+adb daemon was stopped after the device check; pre-existing services were preserved.
+
 ## T-107 Help/FAQ/legal (2026-11-19): READY_FOR_VERIFY
 
 Vendor More/settings and customer Profile/settings now open `/account/help`

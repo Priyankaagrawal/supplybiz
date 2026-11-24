@@ -23,10 +23,10 @@ export class PostgresOtpStore implements OtpStore {
     return this.state.atomic(keys, operation);
   }
 
-  async reserve(keys: { mobile: string; ip: string; device: string },
+  async reserve(keys: { mobile: string; ip: string; device: string; subject?: string },
     challenge: OtpChallenge, policy: Policy): Promise<OtpDecision> {
-    const challengeKey = this.key("challenge", keys.mobile);
-    const lockoutKey = this.key("lockout", keys.mobile);
+    const challengeKey = this.key("challenge", keys.subject ?? keys.mobile);
+    const lockoutKey = this.key("lockout", keys.subject ?? keys.mobile);
     const budgets = [
       { key: this.key("mobile", keys.mobile), limit: 5 },
       { key: this.key("ip", keys.ip), limit: 20 },

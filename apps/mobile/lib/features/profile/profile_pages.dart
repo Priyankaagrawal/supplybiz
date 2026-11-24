@@ -234,7 +234,8 @@ class _ProfileState extends ConsumerState<AccountProfilePage> {
                                                 ]));
                                     if (yes == true) await m.clearCache();
                                   }),
-                        row(l.settingsDelete, null),
+                        row(l.settingsDelete,
+                            const AccountDeletionRoute().location),
                         SbButton(
                             label: l.authLogout,
                             onPressed: m.busy ? null : logout),

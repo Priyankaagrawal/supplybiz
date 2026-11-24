@@ -159,6 +159,14 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             onPressed: state.busy ? null : controller.clear,
                             variant: SbButtonVariant.secondary),
                       ] else if (state.user != null || role) ...[
+                        if (state.user != null)
+                          SbButton(
+                              label: l10n.settingsDelete,
+                              onPressed: state.busy
+                                  ? null
+                                  : () => const AccountDeletionRoute()
+                                      .push<void>(context),
+                              variant: SbButtonVariant.tertiary),
                         if (widget.title == RouteTitle.switchRole)
                           SbButton(
                               label: l10n.routeHomeAction,
