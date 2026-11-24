@@ -1,5 +1,57 @@
 # Supply Biz Mobile
 
+## T-122 Services directory (2026-11-24): READY_FOR_VERIFY
+
+Customer Services tab `/customer/services` now opens S-C-04. It reuses the existing
+account/role-scoped home category source and selected discovery location. Enabled,
+available supply categories open the real vendor list with the exact category ID;
+without a location that list offers the existing location picker. Coming-soon or
+unavailable categories are disabled. There are no bill-payment, recognition, promo
+or other deferred actions. No API/schema/client/dependency or iOS-source changes.
+
+Loading disables category/refresh actions; empty results provide refresh; failures
+show safe localized feedback. Offline refresh retains last-loaded labels in memory
+with an explicit stale message and disables category navigation until an online
+refresh succeeds. Authorization denial clears the prior directory through the
+existing controller. Account/role changes dispose its old source. Pull-to-refresh
+and Refresh services use the same controller; no new persisted category cache.
+English strings are generated from ARB. Vertical scrolling and wrapping button text
+support long names/200% text with the existing labeled 48dp UI-kit controls.
+
+Changed: `lib/features/services/services_page.dart`, `lib/core/router/routes.dart`,
+English ARB/generated localization files and `test/features/services/services_test.dart`.
+Executed from `apps/mobile` with the installed `C:\flutter\bin` toolchain:
+
+```powershell
+flutter.bat gen-l10n
+dart.bat format lib/features/services/services_page.dart lib/core/router/routes.dart test/features/services/services_test.dart
+flutter.bat test --no-pub test/features/services/services_test.dart test/core/router/app_router_test.dart
+flutter.bat analyze --no-pub
+dart.bat analyze lib/features/services/services_page.dart lib/core/router/routes.dart test/features/services/services_test.dart
+flutter.bat build apk --debug --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --no-pub
+```
+
+All checks pass: **14 focused tests** (eight Services scenarios and six existing
+router regressions), clean full mobile and final affected-file analysis, Android dev
+APK `build/app/outputs/flutter-apk/app-dev-debug.apk`. Tests exercise real generated
+client serialization/controllers through simulated HTTP, not live API/PostgreSQL.
+`adb devices` reported no attached device; the pre-existing adb daemon was preserved.
+Root `git diff --check` passes. No new application/check server is left running.
+
+Manual Android verification (pending):
+1. Run the dev app against the configured API using a synthetic customer. Open
+   Services; compare enabled/coming-soon categories with the administrator's catalog.
+2. Tap an enabled category; confirm only that category's eligible vendors appear
+   near the selected location. With no saved location, select one and return.
+3. Disconnect, refresh and confirm stale labels cannot open discovery; reconnect
+   and refresh successfully. Check empty/error handling and account/role isolation.
+4. Check back/tab navigation, real TalkBack labels/disabled states, 200% text and
+   long category names. Confirm unsupported entries have no payment action.
+
+Actual Android UI/API/DB journey, native account-switch behavior, TalkBack, manual
+PASS and G5 remain NOT_RUN/pending because no device is attached. iOS checks remain
+deferred under ADR-025. Day 12 diagnostics T-018 is a separate task.
+
 ## T-019 account deletion (2026-11-24): READY_FOR_VERIFY
 
 Q-20 retention is approved in ADR-035/SCOPE/DATA_DESIGN. Vendor/customer settings,

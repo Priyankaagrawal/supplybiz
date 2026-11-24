@@ -14,6 +14,7 @@ import '../../features/addresses/addresses_page.dart';
 import '../../features/addresses/address_editor.dart';
 import '../../features/notifications/notifications_page.dart';
 import '../../features/home/home_page.dart';
+import '../../features/services/services_page.dart';
 import '../../features/home/location_page.dart';
 import '../../features/home/search_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -471,8 +472,10 @@ class CustomerServicesBranch extends StatefulShellBranchData {
 class CustomerServicesRoute extends GoRouteData with _$CustomerServicesRoute {
   const CustomerServicesRoute();
   @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const RoutePlaceholder(title: RouteTitle.services);
+  Widget build(BuildContext context, GoRouterState state) => Consumer(
+      builder: (context, ref, _) => ref.watch(authEnabledProvider)
+          ? const ServicesPage()
+          : const RoutePlaceholder(title: RouteTitle.services));
 }
 
 class CustomerProfileBranch extends StatefulShellBranchData {

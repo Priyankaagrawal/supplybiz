@@ -2279,6 +2279,24 @@ abstract class AppLocalizations {
   /// **'Services'**
   String get navServices;
 
+  /// No description provided for @servicesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a supply category to find vendors near your selected location.'**
+  String get servicesDescription;
+
+  /// No description provided for @servicesRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh services'**
+  String get servicesRefresh;
+
+  /// No description provided for @servicesStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the last loaded services. Refresh online before opening a category.'**
+  String get servicesStale;
+
   /// No description provided for @navProfile.
   ///
   /// In en, this message translates to:

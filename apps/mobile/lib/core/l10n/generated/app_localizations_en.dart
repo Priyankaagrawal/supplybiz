@@ -1235,6 +1235,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navServices => 'Services';
 
   @override
+  String get servicesDescription =>
+      'Choose a supply category to find vendors near your selected location.';
+
+  @override
+  String get servicesRefresh => 'Refresh services';
+
+  @override
+  String get servicesStale =>
+      'Showing the last loaded services. Refresh online before opening a category.';
+
+  @override
   String get navProfile => 'Profile';
 
   @override
