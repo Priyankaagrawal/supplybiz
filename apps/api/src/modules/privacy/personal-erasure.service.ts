@@ -18,7 +18,7 @@ export class PersonalErasureService {
    const user=await tx.users.findUniqueOrThrow({where:{id:item.user_id}});
    if(user.status!=='DELETED'||current.hold_reason||!['PENDING_ERASURE','ERASING'].includes(current.status)||current.erase_by.getTime()>Date.now()+86400000)return;
    if(current.status==='ERASING')return;
-   await tx.account_deletions.update({where:{id:item.id},data:{status:'ERASING'}});
+   await tx.account_deletions.update({where:{id:item.id},data:{status:'ERASING',version:{increment:1}}});
    await tx.$queryRaw`SELECT set_config('supplybiz.retention_user',${item.user_id},true)`;
    const vendor=await tx.vendors.findUnique({where:{user_id:item.user_id}});
    if(vendor){
@@ -33,6 +33,20 @@ export class PersonalErasureService {
    await tx.user_preferences.deleteMany({where:{user_id:item.user_id}});
    await tx.devices.updateMany({where:{user_id:item.user_id},data:{push_token:null,push_enabled:false,app_version:null,os_version:null}});
    await tx.consents.updateMany({where:{user_id:item.user_id},data:{ip:null}});
+   // Remove expired response copies of the same profile/KYC data, even while an
+   // unrelated shared-audit hold pauses global cache cleanup.
+   const vendorId=vendor?.id??'';
+   await tx.$executeRaw`DELETE FROM idempotency_keys WHERE expires_at<clock_timestamp() AND
+    (user_id=${item.user_id}::uuid OR response_body->>'id'=${item.user_id} OR response_body->>'id'=${vendorId}
+     OR response_body->>'vendorId'=${vendorId} OR response_body#>>'{account,id}'=${item.user_id})`;
+   // Keep replay identities/statuses, minimizing only cached nonfinancial profile fields.
+   await tx.$executeRaw`UPDATE management_requests SET response=response
+    || CASE WHEN response->>'id'=${item.user_id} THEN jsonb_build_object('name',NULL,'mobile','') ELSE '{}'::jsonb END
+    || CASE WHEN response->>'id'=${vendorId} THEN jsonb_build_object('businessName','Deleted account','city',NULL) ELSE '{}'::jsonb END
+    || CASE WHEN response#>>'{account,id}'=${item.user_id} THEN jsonb_build_object('account',(response->'account')||jsonb_build_object('name',NULL,'mobile','')) ELSE '{}'::jsonb END
+    WHERE (response->>'id'=${item.user_id} AND NOT response @> jsonb_build_object('name',NULL,'mobile',''))
+     OR (response->>'id'=${vendorId} AND NOT response @> jsonb_build_object('businessName','Deleted account','city',NULL))
+     OR (response#>>'{account,id}'=${item.user_id} AND NOT (response->'account') @> jsonb_build_object('name',NULL,'mobile',''))`;
    await tx.media_files.updateMany({where:{owner_user_id:item.user_id,status:'READY'},data:{status:'ERASING'}});
    await tx.audit_logs.create({data:{actor_type:'SYSTEM',action:'ACCOUNT_PERSONAL_ERASURE_STARTED',entity:'account_deletions',entity_id:item.id}});
   },{timeout:15000}).catch((error:unknown)=>{failure??=error;});
@@ -54,7 +68,7 @@ export class PersonalErasureService {
     await tx.media_files.update({where:{id:file.id},data:{status:'ERASED'}});
    }
    if(await tx.media_files.count({where:{owner_user_id:userId,status:{not:'ERASED'}}})===0){
-    await tx.account_deletions.update({where:{id},data:{status:'ERASED',erased_at:new Date()}});
+    await tx.account_deletions.update({where:{id},data:{status:'ERASED',erased_at:new Date(),version:{increment:1}}});
     await tx.audit_logs.create({data:{actor_type:'SYSTEM',action:'ACCOUNT_PERSONAL_ERASED',entity:'account_deletions',entity_id:id}});
    }
   },{timeout:15000});

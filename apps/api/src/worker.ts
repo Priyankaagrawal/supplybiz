@@ -1,3 +1,4 @@
+import { ExpiredRetentionService } from './modules/privacy/expired-retention.service';
 import { PersonalErasureService } from './modules/privacy/personal-erasure.service';
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
@@ -25,6 +26,7 @@ async function bootstrapWorker(): Promise<void> {
   const notifications = app.get(NotificationsService);
   const reportExports = app.get(ReportExportsService);
   const personalErasure = app.get(PersonalErasureService);
+  const expiredRetention = app.get(ExpiredRetentionService);
   let cleanupRun: Promise<void> | undefined;
   const cleanup = () => cleanupRun ??= (async () => {
     for (let i = 0; i < 100; i++) if (await notifications.cleanupExpired() < 500) break;
@@ -33,6 +35,8 @@ async function bootstrapWorker(): Promise<void> {
     .catch(() => { logger.warn('REPORT_EXPORT_CLEANUP_FAILED', 'Worker'); })
     .then(async () => { for(let i=0;i<100;i++)if(await personalErasure.runBatch()<10)break; })
     .catch(() => { logger.warn('PERSONAL_ERASURE_FAILED', 'Worker'); })
+    .then(async () => { await expiredRetention.runFinancialBatch(); for(let i=0;i<100;i++)if(await expiredRetention.runAuditBatch()===0)break; })
+    .catch(() => { logger.warn('EXPIRED_PRIVACY_RETENTION_FAILED', 'Worker'); })
     .finally(() => { cleanupRun = undefined; });
   void cleanup();
   const cleanupTimer = setInterval(() => { void cleanup(); }, 3600000);

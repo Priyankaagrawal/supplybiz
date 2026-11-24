@@ -103,6 +103,10 @@ Class | Method | HTTP request | Description
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerHistory**](doc/AdminPlansApi.md#adminplanscontrollerhistory) | **GET** /api/v1/admin/vendors/{id}/plan-history |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerSave**](doc/AdminPlansApi.md#adminplanscontrollersave) | **PUT** /api/v1/admin/plans/{id} |
 [*AdminPlansApi*](doc/AdminPlansApi.md) | [**adminPlansControllerVendors**](doc/AdminPlansApi.md#adminplanscontrollervendors) | **GET** /api/v1/admin/plan-vendors |
+[*AdminPrivacyApi*](doc/AdminPrivacyApi.md) | [**adminPrivacyControllerCreate**](doc/AdminPrivacyApi.md#adminprivacycontrollercreate) | **POST** /api/v1/admin/data-requests |
+[*AdminPrivacyApi*](doc/AdminPrivacyApi.md) | [**adminPrivacyControllerDownload**](doc/AdminPrivacyApi.md#adminprivacycontrollerdownload) | **GET** /api/v1/admin/data-requests/{id}/export |
+[*AdminPrivacyApi*](doc/AdminPrivacyApi.md) | [**adminPrivacyControllerHold**](doc/AdminPrivacyApi.md#adminprivacycontrollerhold) | **POST** /api/v1/admin/data-requests/{id}/hold |
+[*AdminPrivacyApi*](doc/AdminPrivacyApi.md) | [**adminPrivacyControllerList**](doc/AdminPrivacyApi.md#adminprivacycontrollerlist) | **GET** /api/v1/admin/data-requests |
 [*AuditApi*](doc/AuditApi.md) | [**auditControllerList**](doc/AuditApi.md#auditcontrollerlist) | **GET** /api/v1/admin/audit-logs |
 [*AuthApi*](doc/AuthApi.md) | [**otpControllerSend**](doc/AuthApi.md#otpcontrollersend) | **POST** /api/v1/auth/otp/send | Send OTP (development simulation until Q-09 is resolved)
 [*AuthApi*](doc/AuthApi.md) | [**sessionsControllerJwks**](doc/AuthApi.md#sessionscontrollerjwks) | **GET** /api/v1/auth/.well-known/jwks.json |
@@ -406,6 +410,10 @@ Class | Method | HTTP request | Description
  - [PlanVendorRow](doc/PlanVendorRow.md)
  - [PlatformExportInput](doc/PlatformExportInput.md)
  - [PlatformExportResponse](doc/PlatformExportResponse.md)
+ - [PrivacyExportInput](doc/PrivacyExportInput.md)
+ - [PrivacyHoldInput](doc/PrivacyHoldInput.md)
+ - [PrivacyRequestRow](doc/PrivacyRequestRow.md)
+ - [PrivacyRequestsPage](doc/PrivacyRequestsPage.md)
  - [ProductDeleted](doc/ProductDeleted.md)
  - [ProductInput](doc/ProductInput.md)
  - [ProductList](doc/ProductList.md)
@@ -436,6 +444,7 @@ Class | Method | HTTP request | Description
  - [SendOtpResponse](doc/SendOtpResponse.md)
  - [ServiceAreaDto](doc/ServiceAreaDto.md)
  - [StockAdjustment](doc/StockAdjustment.md)
+ - [SubjectExportResponse](doc/SubjectExportResponse.md)
  - [SubscriptionCustomer](doc/SubscriptionCustomer.md)
  - [SubscriptionCustomerList](doc/SubscriptionCustomerList.md)
  - [SubscriptionDelivery](doc/SubscriptionDelivery.md)

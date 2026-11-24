@@ -568,3 +568,52 @@ values; ordinary deletes/edits still fail. No financial amount/history is purged
 or rewritten here. T-161 owns administrative holds and long-term retention jobs;
 T-175 owns backup expiry/deletion replay. Policy approval alone supplies neither
 of those release checks. Two additive migrations; no existing-data backfill.
+
+## T-161 administrative privacy and expiry (2026-11-24)
+
+account_deletions gains monotonic version and separate retention_hold_reason/actor/at
+for evidence remaining after ERASED; existing hold fields protect pending erasure.
+Worker transitions also increment version. privacy_exports stores only request/admin/
+subject identifiers, reason and database-clock 24-hour expiry, with restricted foreign
+keys; verified-identity attestation is recorded in the request audit event. Download
+content is never persisted. Existing
+management_requests stores safe actor-scoped metadata replay; canonical request
+digests are HMAC-keyed. Explicit subject snapshots use repeatable-read and bounded
+field projections. No admin operation can substitute for the subject's OTP.
+
+Nine migrations (`202611240003` through `202611240011`) expand schema and install
+narrowly guarded retention functions without changing amounts or financial IDs.
+The hourly worker scans bounded erased/unheld subjects with a wrapping cursor in
+private app_config key privacy:financial-cursor. privacy_financial_cutoff() computes
+eight completed Indian fiscal years in Asia/Kolkata. Timestamp cutoff and IST DATE
+cutoff are distinct; April 1 is not treated as March 31 due to UTC conversion.
+Only expired personal annotations/contact snapshots are minimized: ledger/payment
+notes, order/subscription addresses/reasons, claim references/reasons and personal
+Khata contacts/notes. Current/recent records and held subjects remain protected.
+Payment client_ref, request keys/hashes, integer amounts, balances and foreign keys
+remain intact. Ledger note redaction uses a nonempty sentinel to preserve constraints.
+
+vendor_customers gains privacy_erased_at. Expired contact tombstones use an empty
+mobile, inactive status and erased name/address/email, leaving deleted_at unchanged:
+counterparties retain access to their financial history/balance. The partial live
+phone uniqueness index excludes empty tombstones. Candidates are locked/rechecked
+before mutation. Immutable ledger/payment/claim edits require due deleted-owner
+transaction context plus exact permitted redactions; ordinary updates still fail.
+
+privacy_expire_audits() deletes unreferenced events older than three years, minimizes
+private payload/IP on referenced grant proofs, and preserves actor/action/entity/time
+needed for retained-history authorization. privacy_expire_sources() expires old
+auth/media/KYC-notice source events, three-year export metadata/privacy replay reasons
+and expired TTL response caches. Any pending or remaining-evidence hold conservatively
+pauses shared audit/source expiry. A global advisory lock serializes hold changes with
+expiry; financial erasure uses the subject/request locks. Personal erasure removes
+its own expired profile/KYC response copies and minimizes nonfinancial cached profile
+fields, preserving permanent operation identities even during unrelated shared holds.
+
+`tools/privacy-grants.sql` must be run by a database operator after migration. It
+creates/validates a dedicated non-login, non-superuser function owner, fixes function
+search paths, revokes PUBLIC execution and grants only narrow EXECUTE to the runtime.
+It grants no ordinary runtime ledger UPDATE or role membership. The operator must
+apply owner-protected function migrations; operator credentials never run the API.
+Only the isolated local test database has been migrated in this handoff. Real backup
+expiry and deletion replay before restored traffic remain T-175, not proved here.

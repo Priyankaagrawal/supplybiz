@@ -6,7 +6,7 @@ function schedule():SubscriptionRead {
   return {id,vendor_id:id,vendor_customer_id:id,product_id:id,start_date:dateOnly('2026-10-01'),end_date:null,
     address_snapshot:{},payment_method:'CASH',created_by:'VENDOR',creator_user_id:id,version:1,created_at:new Date(),
     product:{id,vendor_id:id,name:'Synthetic',product_type:'MILK',milk_type:'COW',unit_value:new Prisma.Decimal('1'),unit_type:'L',selling_price_paise:4800,subscription_price_paise:null,stock_qty:1,moq:1,description:'',image_media_id:null,is_active:true,deleted_at:null,version:1,created_at:new Date(),updated_at:new Date()},
-    customer:{id,vendor_id:id,user_id:null,name:'Synthetic',mobile:'+919000000000',email:null,address_text:'',preferred_payment:'CASH',status:'ACTIVE',deleted_at:null,created_at:new Date(),updated_at:new Date()},
+    customer:{privacy_erased_at:null,id,vendor_id:id,user_id:null,name:'Synthetic',mobile:'+919000000000',email:null,address_text:'',preferred_payment:'CASH',status:'ACTIVE',deleted_at:null,created_at:new Date(),updated_at:new Date()},
     revisions:[{subscription_id:id,version:1,effective_from:dateOnly('2026-10-01'),qty:1,weekdays:127,time_slot:'AM',status:'ACTIVE',action:'CREATE',reason:null,actor_id:id,created_at:new Date()}],pauses:[],skips:[]};
 }
 describe('T-072 pure subscription policy',()=>{

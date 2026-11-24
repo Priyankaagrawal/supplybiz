@@ -22,6 +22,7 @@ export default async function Home() {
  {data.permissions.includes('config.manage') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/config">Manage app configuration</a>}
  {data.permissions.includes('admins.manage') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/admins">Manage admin accounts</a>}
  {data.permissions.includes('reports.export') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/reports">Export platform CSV</a>}
+ {data.permissions.includes('privacy.manage') && <a className="mx-4 inline-flex min-h-12 items-center underline" href="/privacy">Manage privacy requests</a>}
  <h2 className="text-xl font-semibold">Your account permissions</h2><ul className="my-4 list-inside list-disc">{data.permissions.map(permission => <li key={permission}>{labels[permission]}</li>)}</ul>
  <form action="/auth/logout" method="post"><input type="hidden" name="csrf" value={csrf(token)} /><button className="min-h-12 rounded bg-slate-800 px-6 text-white">Sign out</button></form></>;
 }

@@ -1151,3 +1151,39 @@ only exact erasure values. Financial/counterparty identity required for retained
 records remains access-controlled; a new registration gets a distinct identity.
 Admin privacy/hold review and long-term financial/audit expiry are T-161;
 90-day backups and deletion replay before restore serves traffic remain T-175.
+
+### T-161 administrative privacy (FR-412 / FR-008 / ADR-035)
+
+All `/admin/data-requests` operations require a live SUPER_ADMIN session with
+privacy.manage and return no-store. No administrator deletion-confirmation bypass.
+GET returns `{items,total}` with offset 0..100000, 20 rows/page; mixed deletion/export
+rows contain id, userId, kind, status, createdAt, deadline, nullable reason and version.
+POST accepts `{userId,identityVerified:true,reason}` (trimmed 3..500 characters),
+requires Idempotency-Key/X-CSRF-Token and creates metadata only. Subject existence
+and live authorization are checked within the transaction. It returns a request row.
+
+POST `/{id}/hold` accepts `{action:HOLD|RELEASE,expectedVersion,reason}` with the same
+write headers. Locks serialize with the worker; stale edits or ERASING state return
+409. Pending holds pause personal erasure; release restores eligibility, including
+overdue work. ERASED rows may receive remaining-evidence holds (ERASED_HELD); these
+never restore personal data. Every change increments version and audits the reason.
+Any hold conservatively pauses shared audit/source expiry. Owner-scoped financial
+erasure checks the individual request. Requests remain visible while held.
+
+GET `/{id}/export` returns `{filename,json}` for the requesting administrator only;
+another administrator gets 404, expiry after 24 hours returns 410. Every successful
+read builds a fresh repeatable-read snapshot and audit event; no artifact/public
+URL or prior content is persisted/replayed. The admin BFF turns this envelope into
+an attachment. Explicit projections include own profile/consents/addresses/settings,
+owned transaction and subscription records, personal Khata and masked KYC metadata.
+Credentials, document bytes, full encrypted bank/PAN values, third-party contacts
+and free-text notes are excluded. Exact paise are JSON strings. More than 1,000 rows
+per collection or 4 MiB returns 413 without partial output. A manifest describes
+this structured subset; authorized private delivery to the verified subject is manual.
+
+Write replay is permanent actor-scoped metadata in management_requests; path/body
+mismatch returns 422. Canonical request hashes are HMAC-keyed by ADMIN_TOTP_KEY;
+raw request bodies are never stored alongside digests or logged. Live role/CSRF
+checks apply to retries. Generic idempotency response caching is disabled for these
+routes. Invalid bodies/keys return 400, missing/forbidden sessions 401/403. Existing
+OpenAPI definitions remain unchanged; three paths/five schemas are additive.

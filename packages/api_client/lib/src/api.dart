@@ -14,6 +14,7 @@ import 'package:supplybiz_api_client/src/api/admin_content_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_dashboard_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_management_api.dart';
 import 'package:supplybiz_api_client/src/api/admin_plans_api.dart';
+import 'package:supplybiz_api_client/src/api/admin_privacy_api.dart';
 import 'package:supplybiz_api_client/src/api/audit_api.dart';
 import 'package:supplybiz_api_client/src/api/auth_api.dart';
 import 'package:supplybiz_api_client/src/api/catalog_api.dart';
@@ -205,6 +206,12 @@ class SupplybizApiClient {
   /// by doing that all interceptors will not be executed
   AdminPlansApi getAdminPlansApi() {
     return AdminPlansApi(dio);
+  }
+
+  /// Get AdminPrivacyApi instance, base route and serializer can be overridden by a given but be careful,
+  /// by doing that all interceptors will not be executed
+  AdminPrivacyApi getAdminPrivacyApi() {
+    return AdminPrivacyApi(dio);
   }
 
   /// Get AuditApi instance, base route and serializer can be overridden by a given but be careful,

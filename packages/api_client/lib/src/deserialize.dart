@@ -142,6 +142,10 @@ import 'package:supplybiz_api_client/src/model/plan_vendor_list.dart';
 import 'package:supplybiz_api_client/src/model/plan_vendor_row.dart';
 import 'package:supplybiz_api_client/src/model/platform_export_input.dart';
 import 'package:supplybiz_api_client/src/model/platform_export_response.dart';
+import 'package:supplybiz_api_client/src/model/privacy_export_input.dart';
+import 'package:supplybiz_api_client/src/model/privacy_hold_input.dart';
+import 'package:supplybiz_api_client/src/model/privacy_request_row.dart';
+import 'package:supplybiz_api_client/src/model/privacy_requests_page.dart';
 import 'package:supplybiz_api_client/src/model/product_deleted.dart';
 import 'package:supplybiz_api_client/src/model/product_input.dart';
 import 'package:supplybiz_api_client/src/model/product_list.dart';
@@ -172,6 +176,7 @@ import 'package:supplybiz_api_client/src/model/send_otp_dto.dart';
 import 'package:supplybiz_api_client/src/model/send_otp_response.dart';
 import 'package:supplybiz_api_client/src/model/service_area_dto.dart';
 import 'package:supplybiz_api_client/src/model/stock_adjustment.dart';
+import 'package:supplybiz_api_client/src/model/subject_export_response.dart';
 import 'package:supplybiz_api_client/src/model/subscription_customer.dart';
 import 'package:supplybiz_api_client/src/model/subscription_customer_list.dart';
 import 'package:supplybiz_api_client/src/model/subscription_delivery.dart';
@@ -624,6 +629,18 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
     case 'PlatformExportResponse':
       return PlatformExportResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
+    case 'PrivacyExportInput':
+      return PrivacyExportInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PrivacyHoldInput':
+      return PrivacyHoldInput.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PrivacyRequestRow':
+      return PrivacyRequestRow.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'PrivacyRequestsPage':
+      return PrivacyRequestsPage.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
     case 'ProductDeleted':
       return ProductDeleted.fromJson(value as Map<String, dynamic>)
           as ReturnType;
@@ -703,6 +720,9 @@ ReturnType deserialize<ReturnType, BaseType>(dynamic value, String targetType,
           as ReturnType;
     case 'StockAdjustment':
       return StockAdjustment.fromJson(value as Map<String, dynamic>)
+          as ReturnType;
+    case 'SubjectExportResponse':
+      return SubjectExportResponse.fromJson(value as Map<String, dynamic>)
           as ReturnType;
     case 'SubscriptionCustomer':
       return SubscriptionCustomer.fromJson(value as Map<String, dynamic>)

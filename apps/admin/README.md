@@ -1,5 +1,95 @@
 # Admin — T-150 handoff
 
+## T-161 privacy requests and retention (2026-11-24): READY_FOR_VERIFY
+
+`/privacy` is SUPER_ADMIN-only (`privacy.manage`). It combines the paginated
+self-service deletion queue with administrator-created subject-export requests.
+Deletion still requires the user's OTP; administrators cannot bypass confirmation.
+Documented, versioned holds/releases serialize with the erasure worker. ERASING
+cannot be held or reversed. After ERASED, holds protect only remaining retained
+financial/audit evidence. Any hold conservatively pauses shared audit/source
+expiry; personal and financial erasure otherwise check the individual subject.
+
+Export creation requires an exact user ID, verified-identity attestation and reason.
+Only the requesting administrator may download, for 24 hours. Each download is a
+fresh, audited, repeatable-read JSON snapshot; no artifact or public URL is stored.
+Explicit projections exclude credentials, document bytes, full encrypted PAN/bank
+identifiers, third-party contact details and free-text notes. Integer paise remain
+exact strings. More than 1,000 rows per collection or 4 MiB fails without partial
+content; this structured export is not a raw database dump. Sharing with the
+verified subject is a manual operation through an appropriate private channel.
+
+Writes recheck current authorization/CSRF and use permanent actor-scoped metadata
+replay with keyed request digests. Downloads never replay cached content. The BFF
+keeps credentials in httpOnly cookies; uncertain writes freeze body/key in tab
+memory for explicit retry. Reloading discards that tab intent: review the queue.
+
+The hourly worker resumes personal/KYC/file erasure, scans up to 100 erased subjects
+per financial cycle with a persistent wrapping cursor, and expires old audit data.
+After eight completed Indian fiscal years, narrowly guarded jobs remove personal
+annotations/contact snapshots, retaining pseudonymous transaction/FK/proof shells.
+Amounts, balances, payment client_ref and replay identities are unchanged; expired
+customer contacts stay visible in counterparty financial history. DATE cutoffs use
+the IST calendar date, separately from timestamp cutoffs. Three-year audit expiry
+deletes unreferenced events and minimizes referenced grant proofs without breaking
+retained-history authorization. Source auth/media/KYC-notice events, expired export
+metadata and privacy-only replay reasons expire under the same hold protection.
+Personal erasure also removes its own expired profile caches and minimizes cached
+profile fields while preserving permanent operation IDs/statuses.
+
+Operator setup (required before API/worker restart in a verification environment):
+- Apply migrations `202611240003_admin_privacy` through
+  `202611240011_profile_replay_erasure` using the existing database operator, then run
+  `psql -v runtime_role=<application_role> -f tools/privacy-grants.sql` from root.
+  Do not put operator credentials into API/worker runtime configuration.
+- The script installs a non-login retention-function owner and grants runtime only
+  EXECUTE on narrow fixed-search-path functions. It grants no ordinary runtime
+  ledger UPDATE. Existing append-only guards remain enabled. These migrations and
+  grants were applied **only** to local `supplybiz_service_area_test`; the main
+  database was untouched. All nine migrations must precede worker restart. Preserve
+  the existing ADMIN_TOTP_KEY: it also keys privacy
+  metadata request digests. No new dependencies or financial balance backfill.
+
+Executed checks (all passed):
+- API (`apps/api`): `.\node_modules\.bin\tsc.cmd --noEmit`,
+  `.\node_modules\.bin\tsc.cmd -p tsconfig.build.json`, and
+  `.\node_modules\.bin\eslint.cmd src/modules/privacy src/modules/subscriptions/subscription-policy.spec.ts src/modules/subscriptions/subscription-generation.policy.spec.ts src/app.module.ts src/worker.ts --max-warnings=0`.
+- Admin (`apps/admin`): `.\node_modules\.bin\next.cmd typegen`,
+  `.\node_modules\.bin\tsc.cmd --noEmit`, `.\node_modules\.bin\eslint.cmd . --max-warnings=0`,
+  `.\node_modules\.bin\next.cmd build --webpack`.
+- Root: `tools/codegen.sh` via Git Bash with Flutter on PATH; generated Dart client
+  (`packages/api_client`): `C:\flutter\bin\dart.bat analyze`, no issues. Structural
+  contract comparison: three new paths/five schemas, existing definitions unchanged.
+- API: `.\node_modules\.bin\jest.cmd --runInBand --testTimeout=60000 src/modules/privacy/admin-privacy.postgres.spec.ts src/modules/privacy/account-deletion.postgres.spec.ts src/modules/subscriptions/subscription-policy.spec.ts src/modules/subscriptions/subscription-generation.policy.spec.ts`:
+  **22 focused cases** against isolated local PostgreSQL. Nine T-161 cases cover
+  RBAC/CSRF/current permission, concurrent replay, owner-only/expired/oversized
+  exports, exact large paise, hold/worker races, stale versions, financial retention
+  and IST fiscal boundaries, unchanged balances/client_ref, and source/audit expiry.
+  Audit expiry is exercised inside a rollback-only transaction, preserving existing
+  holds/history. Production Next -> BFF -> API -> PostgreSQL create/retry/hold/
+  release/download smoke passes; its temporary loopback server is stopped.
+  Six T-019 erasure/OTP regressions and seven subscription-policy cases also pass.
+
+Manual verification (pending):
+1. Apply the operator setup to the intended disposable verification database and
+   restart API/worker/admin together. As SUPER_ADMIN open `/privacy`; OPS, SUPPORT
+   and FINANCE must have neither link nor direct access.
+2. Confirm deletion with a synthetic user's OTP. Place/release a documented hold;
+   check stale edits fail and due worker processing stops/resumes. After erasure,
+   verify a new hold is explicitly limited to remaining evidence.
+3. Attest identity, create/download an export, inspect exact paise/exclusions and
+   audit events. Retry an interrupted write; confirm another SUPER_ADMIN cannot
+   download it. Check expired/oversized errors without partial private content.
+4. Using aged synthetic records, run worker cycles and compare balances, payment
+   replay references and counterparty history before/after. Check keyboard flow,
+   200% zoom, actual file saving and clear feedback for failures in the browser.
+
+Actual browser interaction/accessibility, deployed HTTPS/Q-33, live subject-file
+transfer, manual PASS and G4 are NOT_RUN/pending. No mobile source changed, so an
+Android APK is not applicable; iOS remains deferred. Q-30 contacts remain unpublished
+TBD by user decision. Backup expiry (90 days) and deletion replay before a restored
+backup serves traffic remain T-175; this handoff does not certify backup restoration.
+
 ## T-162 accounts, fixed roles and CSV (2026-11-19): READY_FOR_VERIFY
 
 Workspace `/admins` is SUPER_ADMIN-only. List accounts (20/page), create a staff

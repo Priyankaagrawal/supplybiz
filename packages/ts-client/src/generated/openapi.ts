@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/api/v1/admin/data-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminPrivacyController_list"];
+        put?: never;
+        post: operations["AdminPrivacyController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/data-requests/{id}/hold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AdminPrivacyController_hold"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/data-requests/{id}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AdminPrivacyController_download"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/me/deletion": {
         parameters: {
             query?: never;
@@ -2445,6 +2493,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        PrivacyRequestRow: {
+            id: string;
+            userId: string;
+            kind: string;
+            status: string;
+            createdAt: string;
+            deadline: string;
+            reason: string | null;
+            version: number;
+        };
+        PrivacyRequestsPage: {
+            items: components["schemas"]["PrivacyRequestRow"][];
+            total: number;
+        };
+        PrivacyExportInput: {
+            userId: string;
+            identityVerified: boolean;
+            reason: string;
+        };
+        PrivacyHoldInput: {
+            /** @enum {string} */
+            action: "HOLD" | "RELEASE";
+            expectedVersion: number;
+            reason: string;
+        };
+        SubjectExportResponse: {
+            filename: string;
+            json: string;
+        };
         DeletionPreview: {
             /** @description Exact positive vendor receivables in paise; deletion does not settle dues. */
             outstandingReceivablesPaise: string;
@@ -4510,6 +4587,102 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    AdminPrivacyController_list: {
+        parameters: {
+            query?: {
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestsPage"];
+                };
+            };
+        };
+    };
+    AdminPrivacyController_create: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrivacyExportInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestRow"];
+                };
+            };
+        };
+    };
+    AdminPrivacyController_hold: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PrivacyHoldInput"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyRequestRow"];
+                };
+            };
+        };
+    };
+    AdminPrivacyController_download: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectExportResponse"];
+                };
+            };
+        };
+    };
     AccountDeletionController_preview: {
         parameters: {
             query?: never;

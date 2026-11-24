@@ -512,6 +512,7 @@ model vendors {
 
 // FR-060–FR-064. Inactivation retains ownership, linkage and all future history.
 model vendor_customers {
+  privacy_erased_at DateTime? @db.Timestamptz(6)
   payment_claims payment_claims[]
   sales sales[]
   subscriptions subscriptions[]
@@ -1078,6 +1079,10 @@ model khata_requests {
 
 // T-019: durable personal-erasure deadline and legal-hold queue for T-161.
 model account_deletions {
+ retention_hold_reason String? @db.VarChar(500)
+ retention_hold_actor String? @db.Uuid
+ retention_hold_at DateTime? @db.Timestamptz(6)
+ version Int @default(1)
  id String @id @default(uuid()) @db.Uuid
  user_id String @unique @db.Uuid
  request_key String @unique @db.VarChar(64)
@@ -1091,4 +1096,17 @@ model account_deletions {
  erased_at DateTime? @db.Timestamptz(6)
  user users @relation(fields:[user_id],references:[id],onDelete:Restrict)
  @@index([status,erase_by,id],map:"account_deletions_due")
+}
+
+// T-161: export request metadata; personal export content is not persisted.
+model privacy_exports {
+ id String @id @default(uuid()) @db.Uuid
+ user_id String @db.Uuid
+ admin_id String @db.Uuid
+ reason String @db.VarChar(500)
+ request_key String @unique @db.VarChar(64)
+ request_hash String @db.VarChar(64)
+ created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+ expires_at DateTime @default(dbgenerated("(clock_timestamp() + '24 hours'::interval)")) @db.Timestamptz(6)
+ @@index([created_at,id],map:"privacy_exports_created")
 }

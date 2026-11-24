@@ -1,5 +1,21 @@
 # Supply Biz API
 
+## T-161 administrative privacy (2026-11-24): READY_FOR_VERIFY
+
+SUPER_ADMIN `/admin/data-requests` queue, versioned legal holds and owner-bound
+24-hour structured subject exports; current authorization/CSRF, safe durable replay,
+exact paise and no cached export content. Worker honors holds and expires personal
+financial annotations after eight completed IST fiscal years and audit data after
+three years, preserving balances, replay IDs and necessary proof tombstones.
+Nine additive/guard migrations and operator-only `tools/privacy-grants.sql` were
+applied only to local `supplybiz_service_area_test`. Runtime receives narrow function
+EXECUTE, no ordinary ledger UPDATE. Apply using an operator before coordinated
+API/worker restart. Never use operator credentials as application credentials.
+All 22 focused native/policy checks, API/admin checks/builds, codegen and generated
+Dart analysis pass. Exact commands, operator setup and four manual steps are in
+[the admin T-161 handoff](../admin/README.md#t-161-privacy-requests-and-retention-2026-11-24-ready_for_verify).
+Manual/browser/HTTPS/G4 remain pending; Q-30 stays TBD, backup/restore remains T-175.
+
 ## T-019 deletion/retention (2026-11-24): READY_FOR_VERIFY
 
 GET/POST `/api/v1/me/deletion`, POST `/api/v1/me/deletion/otp`; SessionGuard,

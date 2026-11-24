@@ -1,5 +1,111 @@
 openapi: 3.0.0
 paths:
+  /api/v1/admin/data-requests:
+    get:
+      operationId: AdminPrivacyController_list
+      parameters:
+        - name: offset
+          required: false
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyRequestsPage'
+      tags:
+        - admin-privacy
+      security:
+        - bearer: []
+    post:
+      operationId: AdminPrivacyController_create
+      parameters:
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyExportInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyRequestRow'
+      tags:
+        - admin-privacy
+      security:
+        - bearer: []
+  /api/v1/admin/data-requests/{id}/hold:
+    post:
+      operationId: AdminPrivacyController_hold
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Idempotency-Key
+          required: true
+          in: header
+          schema:
+            type: string
+        - name: X-CSRF-Token
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrivacyHoldInput'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyRequestRow'
+      tags:
+        - admin-privacy
+      security:
+        - bearer: []
+  /api/v1/admin/data-requests/{id}/export:
+    get:
+      operationId: AdminPrivacyController_download
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubjectExportResponse'
+      tags:
+        - admin-privacy
+      security:
+        - bearer: []
   /api/v1/me/deletion:
     get:
       operationId: AccountDeletionController_preview
@@ -6467,6 +6573,86 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
+    PrivacyRequestRow:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        kind:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+        deadline:
+          type: string
+        reason:
+          type: string
+          nullable: true
+        version:
+          type: number
+      required:
+        - id
+        - userId
+        - kind
+        - status
+        - createdAt
+        - deadline
+        - reason
+        - version
+    PrivacyRequestsPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrivacyRequestRow'
+        total:
+          type: number
+      required:
+        - items
+        - total
+    PrivacyExportInput:
+      type: object
+      properties:
+        userId:
+          type: string
+        identityVerified:
+          type: boolean
+        reason:
+          type: string
+      required:
+        - userId
+        - identityVerified
+        - reason
+    PrivacyHoldInput:
+      type: object
+      properties:
+        action:
+          type: string
+          enum:
+            - HOLD
+            - RELEASE
+        expectedVersion:
+          type: number
+        reason:
+          type: string
+      required:
+        - action
+        - expectedVersion
+        - reason
+    SubjectExportResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+        json:
+          type: string
+      required:
+        - filename
+        - json
     DeletionPreview:
       type: object
       properties:
