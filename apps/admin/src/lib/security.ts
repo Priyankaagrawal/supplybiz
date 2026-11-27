@@ -2,7 +2,8 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 export function adminOrigin(): string {
  const origin = process.env.ADMIN_ORIGIN ?? 'http://127.0.0.1:3100';
  const url = new URL(origin);
- if (url.origin !== origin || (url.protocol !== 'https:' && !['127.0.0.1', 'localhost'].includes(url.hostname))) throw new Error('Invalid admin origin');
+ if (url.origin !== origin || !(url.protocol === 'https:' ||
+  (url.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(url.hostname)))) throw new Error('Invalid admin origin');
  return origin;
 }
 function key(): string {

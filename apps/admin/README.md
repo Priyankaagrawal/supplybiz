@@ -1,5 +1,7 @@
 # Admin — T-150 handoff
 
+T-173 (2026-11-27): reject FTP/WebSocket admin origins while preserving HTTPS/local HTTP, strict cookies and session-bound CSRF. Seven focused admin cases and typecheck/lint/production build pass. See [security findings and manual checks](../../docs/07-testing/T173_SECURITY_REVIEW.md) for dependency advisories and pending release verification.
+
 ## T-161 privacy requests and retention (2026-11-24): READY_FOR_VERIFY
 
 `/privacy` is SUPER_ADMIN-only (`privacy.manage`). It combines the paginated

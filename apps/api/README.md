@@ -1,5 +1,13 @@
 # Supply Biz API
 
+## T-173 security (2026-11-27): READY_FOR_VERIFY
+
+Patch Node dependency advisories, migrate Zod record schemas and constrain API
+correlation to UUIDs. Final audit: 0 high/critical, 3 production / 5 total moderate
+findings remain open. Forty-one API, seven admin and 28 mobile focused cases pass;
+API/admin static checks and builds pass. Canonical frozen-install verification and full
+release scanners remain NOT_RUN. See [findings, commands and four manual checks](../../docs/07-testing/T173_SECURITY_REVIEW.md).
+
 ## T-171 representative API load (2026-11-27): READY_FOR_VERIFY
 
 Adds a bounded native HTTP/PostgreSQL diagnostic harness and four measurement/

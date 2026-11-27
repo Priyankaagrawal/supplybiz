@@ -5,7 +5,7 @@ import { z } from "zod";
 import { PrismaService } from "../../prisma/prisma.service";
 
 const version = z.string().regex(/^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})$/);
-export const appConfigPolicy = z.object({ minVersionAndroid: version, flags: z.record(z.boolean()) }).strict();
+export const appConfigPolicy = z.object({ minVersionAndroid: version, flags: z.record(z.string(), z.boolean()) }).strict();
 export function isOlderVersion(current: string, minimum: string): boolean {
   const a = version.parse(current).split(".").map(Number);
   const b = version.parse(minimum).split(".").map(Number);

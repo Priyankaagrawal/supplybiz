@@ -38,7 +38,7 @@ describe('T-018 sanitized unhandled diagnostics',()=>{
   try{
    await request(app.getHttpServer()).get('/api/v1/diagnostic-fixture/opaque').set('X-Request-Id','synthetic-private-header').expect(500);
    const row=JSON.parse(String(logger.error.mock.calls[0][0]));
-   expect(row.requestId).toBe('unavailable');expect(row.build).toBe('unavailable');
+   expect(row.requestId).toMatch(/^[a-f0-9-]{36}$/);expect(row.build).toBe('unavailable');
    expect(JSON.stringify(row)).not.toContain('synthetic');
   }finally{if(original===undefined)delete process.env.BUILD_SHA;else process.env.BUILD_SHA=original;}
  });

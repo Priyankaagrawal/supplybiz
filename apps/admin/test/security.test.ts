@@ -16,3 +16,15 @@ void test('TC-400 cookies are httpOnly/strict, Secure on HTTPS, HTTP restricted 
  process.env.ADMIN_ORIGIN = 'http://admin.example.invalid'; assert.throws(adminOrigin);
  process.env.ADMIN_ORIGIN = 'http://127.0.0.1:3100'; assert.equal(cookieOptions().secure, false);
 });
+void test('T-173 admin origin rejects non-HTTP protocols even on loopback', () => {
+ const original = process.env.ADMIN_ORIGIN;
+ try {
+  for (const origin of ['ftp://localhost:3100', 'ws://127.0.0.1:3100', 'wss://admin.example.invalid']) {
+   process.env.ADMIN_ORIGIN = origin;
+   assert.throws(adminOrigin);
+  }
+ } finally {
+  if (original === undefined) delete process.env.ADMIN_ORIGIN;
+  else process.env.ADMIN_ORIGIN = original;
+ }
+});

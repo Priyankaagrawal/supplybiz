@@ -13,7 +13,7 @@ export const envSchema = z
     AUTH_SIGNING_KEY_ID: z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/).default("development"),
     AUTH_PREVIOUS_PUBLIC_KEYS: z.string().default("{}").transform((value, context) => {
       try {
-        return z.record(z.string()).parse(JSON.parse(value));
+        return z.record(z.string(), z.string()).parse(JSON.parse(value));
       } catch {
         context.addIssue({ code: z.ZodIssueCode.custom, message: "Must be a JSON object of public PEM keys." });
         return z.NEVER;
