@@ -93,7 +93,7 @@ class SbStepper extends StatelessWidget {
                       : Icons.radio_button_checked_rounded,
                   color: SbColors.primaryStrong,
                 ),
-                Text(steps[i]),
+                Text(steps[i], style: Theme.of(context).textTheme.bodyLarge),
               ],
             ),
           ),

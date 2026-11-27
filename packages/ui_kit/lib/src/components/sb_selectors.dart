@@ -207,6 +207,10 @@ class SbDialog {
     return AlertDialog(
       title: Text(title),
       content: Text(message),
+      contentTextStyle: Theme.of(context)
+          .textTheme
+          .bodyLarge
+          ?.copyWith(color: SbColors.onSurface),
       scrollable: true,
       actions: [
         SbButton(

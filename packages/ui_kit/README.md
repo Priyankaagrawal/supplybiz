@@ -1,5 +1,11 @@
 # Supply Biz UI kit (T-009)
 
+T-172 (2026-11-27) uses the existing 16dp body style for Android confirmation
+messages and step labels, resolving the rendered 4.19:1/4.11:1 contrast failures.
+`flutter test --no-pub test/src/components_test.dart --name TC-61` passes both
+shared accessibility/200% checks; focused Dart analysis passes. See the mobile
+README T-172 handoff for native evidence and pending manual TalkBack journeys.
+
 Shared Flutter components from UI_UX_GUIDELINES. Import `package:ui_kit/ui_kit.dart`, install `SbLocalizations.delegates` and `SbLocalizations.supportedLocales` on MaterialApp, and use the shared light theme. Consumers supply feature labels through English strings; currency calculations use integer paise and accessible charts include table alternatives. Selection widgets remain controlled by callers. Server validation is authoritative for uploads.
 
 ADR-023 sets an English-only baseline using `lib/l10n/ui_en.arb` and Noto Sans, with INR/IST formatting and accessibility intact. T-183 removes extra locale/font assets and visual snapshot generation/refresh code, dependencies and baselines. T-183 implements that cleanup; eight focused English widget/accessibility/200% checks pass on Flutter 3.35.7. Manual visual/TalkBack verification remains pending.

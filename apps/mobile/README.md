@@ -1,5 +1,77 @@
 # Supply Biz Mobile
 
+## T-172 Android accessibility (2026-11-27): READY_FOR_VERIFY
+
+The targeted NFR-010 / TC-610–613 audit increases shared Android confirmation
+dialog body text and step labels from inherited 14dp to the existing 16dp body
+style. Rendered contrast checks previously reported 4.19:1 and 4.11:1 respectively;
+both now pass the 4.5:1 guideline and 200% layout check. No API, schema, business
+rule, dependency, localization or native iOS configuration changes.
+
+Coverage uses real onboarding business fields (J-01), vendor order detail/rejection
+sheet (J-02), customer subscription editor (J-03), and vendor Khata/cash settlement
+dialog (J-06). Visible viewports are audited through the bottom at 100%/200%,
+including modal labels/targets and cash-only payment settings. HTTP and drafts
+use existing synthetic fixtures/memory stores, not live API/DB/financial journeys.
+
+The 48dp audit uses root-space scroll bounds so a field partly hidden behind an
+app bar is not misreported as a short control. It also checks full-width controls,
+which the SDK's broad edge exemption can overlook. Calibration inside an
+app-bar/scroll viewport rejects a fully visible 24dp target and accepts 48dp.
+SDK label and rendered-contrast checks remain enabled. Contrast is evaluated in
+widget tests with bundled fonts; native checks cover semantics/targets/layout.
+
+Executed checks:
+
+- `apps/mobile`: `flutter test --no-pub test/accessibility/accessibility_test.dart`
+  — **9 passed** (eight representative screen cases plus target calibration).
+- `packages/ui_kit`: `flutter test --no-pub test/src/components_test.dart --name TC-61`
+  — **2 passed**, shared controls' labels/targets/contrast and 320dp/200% layout.
+- `apps/mobile`: `flutter test --no-pub test/features/auth/auth_pages_test.dart --plain-name TC-013`
+  — **1 passed**, 200% sign-in with fail-closed legal consent.
+- `flutter analyze --no-pub` in mobile and `dart analyze lib/src/components/sb_navigation.dart lib/src/components/sb_selectors.dart test/src/components_test.dart`
+  in ui_kit — **PASS**. Formatting and `git diff --check` pass.
+- Existing isolated `build/t170-sdk` SDK view, build command:
+  `flutter build apk --debug --target-platform android-arm64 --flavor dev -t integration_test/accessibility_test.dart --dart-define-from-file=config/dev.json --android-project-arg=kotlin.incremental=false --no-android-gradle-daemon`
+  — **PASS**, preserved as `build/t172-audit-debug.apk`.
+- On the connected realme 6 Pro / Android 11:
+  `flutter drive --debug --no-dds --flavor dev -d <connected-device> --target=integration_test/accessibility_test.dart --driver=test_driver/performance_driver.dart --use-application-binary=build/t172-audit-debug.apk --dart-define-from-file=config/dev.json --no-pub`
+  — **8 native scenarios passed**. The existing driver is generic integration_test
+  transport; no performance acceptance is inferred. Report/logs are ignored
+  `build/t172-native-response.json` / `build/t172-native-run.log`.
+- Main app: `flutter build apk --debug --target-platform android-arm64 --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --dart-define=API_BASE_URL=http://127.0.0.1:3000/api/v1 --android-project-arg=kotlin.incremental=false --no-android-gradle-daemon`
+  — **PASS**, preserved as `build/t172-main-dev-debug.apk`, installed successfully.
+  Targeted `adb shell am start -W -n in.supplybiz.mobile.dev/in.supplybiz.supplybiz_mobile.MainActivity`
+  returned `Status: ok`, `LaunchState: COLD`; this debug launch is not T-170
+  performance evidence. The main app replaces the temporary audit entrypoint and
+  is force-stopped. No test compiler/driver/backend/USB mapping is left running;
+  pre-existing adb/user processes and the connected phone are preserved.
+
+SHA-256: audit APK `0954531A156A65CA7EF6F0F83097986BD2940D55C6D70B8B0F009FEFF520CB11`;
+main APK `D03ECAD9A346FF401C0713274938EAAF9A9FFF2F508603968F5D08B0D7FE65B6`.
+
+TalkBack was installed but disabled; **TC-612 manual screen-reader completion is
+NOT_RUN**, not an automated PASS. G4/G6, full-screen/all-state coverage and manual
+approval remain pending. iOS/VoiceOver checks are DEFERRED (ADR-025). G4 constituent
+tasks are READY_FOR_VERIFY; ADR-030 permits this audit without claiming gate PASS.
+
+Manual setup (suggested, not executed as a live backend check): start the existing
+API against its intended test DB/accounts, then map the physical phone with
+`adb -s <connected-device> reverse tcp:3000 tcp:3000`. The prepared main development
+APK uses `http://127.0.0.1:3000/api/v1`; no backend or USB mapping is left running
+by this audit. Use synthetic accounts; no real payments/uploads. Enable TalkBack
+manually and repeat at normal/200% OS font size:
+
+1. J-01: traverse onboarding fields/validation/upload labels and step order;
+   verify every action/disabled state is announced and focus is retained.
+2. J-02: open an order, traverse accept/reject and its reason sheet, then complete
+   the authorized test delivery journey; check focus order and announcements.
+3. J-03: select a plan, quantity/weekdays/address, create/approve a test
+   subscription and inspect pause/skip confirmation; verify no clipping.
+4. J-06: open linked vendor Khata, enter a cash claim, inspect confirmation and
+   vendor review; verify amounts/status/error speech. Record manual PASS only
+   after these flows and remaining acceptance checks succeed.
+
 ## T-170 physical-phone checks (2026-11-27): READY_FOR_VERIFY
 
 Both ARM64 profile builds, ten complete cold startups and the native 500-order

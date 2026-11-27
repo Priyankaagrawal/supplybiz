@@ -135,7 +135,9 @@ void main() {
         expect(find.byType(widget.runtimeType), findsWidgets);
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline),
+            reason: '${widget.runtimeType}'
+                '${widget is SbButton ? ' ${widget.variant} ${widget.size} loading=${widget.loading} enabled=${widget.onPressed != null}' : ''}');
       }
       semantics.dispose();
     });
