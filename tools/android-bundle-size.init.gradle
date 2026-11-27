@@ -1,0 +1,14 @@
+// T-170: measurement tool only; --offline reuses the installed Android toolchain.
+// aapt2-proto matches this repository's AGP 8.9.1. No app dependency is added.
+gradle.projectsEvaluated {
+    rootProject.tasks.register('t170BundletoolClasspath') {
+        doLast {
+            def target = new File(rootProject.projectDir.parentFile, 'build/t170-bundletool-classpath.txt')
+            def tool = rootProject.configurations.detachedConfiguration(
+                rootProject.dependencies.create('com.android.tools.build:bundletool:1.18.1'))
+            tool.resolutionStrategy.force('com.android.tools.build:aapt2-proto:8.9.1-12782657')
+            target.text = tool.asPath
+            println('T170 cached build-tools classpath captured')
+        }
+    }
+}

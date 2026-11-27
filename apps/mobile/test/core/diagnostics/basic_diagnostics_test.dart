@@ -67,6 +67,24 @@ void main() {
     expect(jsonDecode(lines.single), containsPair('kind', 'format'));
   });
 
+  test(
+      'T-170 pending metadata permits diagnostics and updates after completion',
+      () async {
+    final response = Completer<Map<String, String>>();
+    messenger.setMockMethodCallHandler(
+        BasicDiagnostics.channel, (_) => response.future);
+    final lines = <String>[];
+    final d = BasicDiagnostics(AppEnvironment.dev, sink: lines.add);
+    final lookup = d.identifyBuild();
+    d.record(DiagnosticSource.startup, StateError('synthetic'));
+    expect(jsonDecode(lines.single)['version'], 'unavailable');
+    response.complete({'version': '0.1.0', 'build': '12'});
+    await lookup;
+    d.record(DiagnosticSource.startup, StateError('synthetic'));
+    expect(jsonDecode(lines.last)['version'], '0.1.0');
+    expect(jsonDecode(lines.last)['build'], '12');
+  });
+
   test('invalid native identity is omitted without leaking it', () async {
     messenger.setMockMethodCallHandler(
         BasicDiagnostics.channel,

@@ -80,117 +80,132 @@ class _VendorOrdersPageState extends ConsumerState<VendorOrdersPage> {
         body: SafeArea(
             child: RefreshIndicator(
                 onRefresh: m.load,
-                child: ListView(
+                child: ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16),
-                    children: [
-                      OrderFeedback(m),
-                      SbButton(
-                          label: l.deliveryTitle,
-                          onPressed: () => context.push('/vendor/deliveries')),
-                      if (m.failure != null)
-                        SbButton(
-                            label: l.authRetry,
-                            variant: SbButtonVariant.secondary,
-                            onPressed: m.busy ? null : m.load),
-                      DropdownButtonFormField<String>(
-                          key: ValueKey('filter:${m.status}'),
-                          initialValue: m.status,
-                          isExpanded: true,
-                          decoration:
-                              InputDecoration(labelText: l.ordersFilter),
-                          items: [
-                            'ALL',
-                            'PENDING',
-                            'NEW',
-                            'ACCEPTED',
-                            'PREPARING',
-                            'OUT_FOR_DELIVERY',
-                            'DELIVERED',
-                            'CANCELLED',
-                            'FAILED'
-                          ]
-                              .map((s) => DropdownMenuItem(
-                                  value: s,
-                                  child: Text(
-                                      s == 'ALL'
-                                          ? l.customersAll
-                                          : s == 'PENDING'
-                                              ? l.dashPending
-                                              : homeStatus(l, s),
-                                      overflow: TextOverflow.ellipsis)))
-                              .toList(),
-                          onChanged: m.busy
-                              ? null
-                              : (s) {
-                                  if (s != null) m.load(filter: s);
-                                }),
-                      TextFormField(
-                          key: ValueKey('search:${m.search}'),
-                          initialValue: m.search,
-                          enabled: !m.busy,
-                          maxLength: 120,
-                          textInputAction: TextInputAction.search,
-                          decoration:
-                              InputDecoration(labelText: l.ordersSearch),
-                          onFieldSubmitted: (q) => m.load(query: q)),
-                      TextFormField(
-                          key: ValueKey('day:${m.date}'),
-                          initialValue: m.date == null
-                              ? ''
-                              : DateFormat('yyyy-MM-dd').format(m.date!),
-                          enabled: !m.busy,
-                          decoration: InputDecoration(labelText: l.ordersDate),
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: (v) => v == null ||
-                                  v.isEmpty ||
-                                  orderFilterDate(v) != null
-                              ? null
-                              : l.ordersInvalidDate,
-                          onFieldSubmitted: (v) {
-                            if (v.isEmpty) {
-                              m.load(clearDate: true);
-                            } else if (orderFilterDate(v) != null) {
-                              m.load(day: orderFilterDate(v));
-                            }
-                          }),
-                      if (m.date != null)
-                        SbButton(
-                            label: l.ordersAllDates,
-                            variant: SbButtonVariant.secondary,
-                            onPressed:
-                                m.busy ? null : () => m.load(clearDate: true)),
-                      if (m.ready && m.items.isEmpty)
-                        SbEmpty(message: l.ordersEmpty),
-                      for (final row in m.items)
-                        Card(
-                            child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Text(row.orderNo,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium),
-                                      Text(homeStatus(l, row.status)),
-                                      Text(
-                                          '${DateFormat('yyyy-MM-dd').format(row.deliveryDate)} · ${row.timeSlot}'),
-                                      Text(
-                                          formatInr(int.parse(row.totalPaise))),
-                                      SbButton(
-                                          label: l.ordersOpen,
-                                          onPressed: () =>
-                                              VendorOrderRoute(row.id)
-                                                  .push<void>(context)),
-                                    ]))),
-                      if (m.offset < m.total)
-                        SbButton(
+                    itemCount:
+                        1 + m.items.length + (m.offset < m.total ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              OrderFeedback(m),
+                              SbButton(
+                                  label: l.deliveryTitle,
+                                  onPressed: () =>
+                                      context.push('/vendor/deliveries')),
+                              if (m.failure != null)
+                                SbButton(
+                                    label: l.authRetry,
+                                    variant: SbButtonVariant.secondary,
+                                    onPressed: m.busy ? null : m.load),
+                              DropdownButtonFormField<String>(
+                                  key: ValueKey('filter:${m.status}'),
+                                  initialValue: m.status,
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                      labelText: l.ordersFilter),
+                                  items: [
+                                    'ALL',
+                                    'PENDING',
+                                    'NEW',
+                                    'ACCEPTED',
+                                    'PREPARING',
+                                    'OUT_FOR_DELIVERY',
+                                    'DELIVERED',
+                                    'CANCELLED',
+                                    'FAILED'
+                                  ]
+                                      .map((s) => DropdownMenuItem(
+                                          value: s,
+                                          child: Text(
+                                              s == 'ALL'
+                                                  ? l.customersAll
+                                                  : s == 'PENDING'
+                                                      ? l.dashPending
+                                                      : homeStatus(l, s),
+                                              overflow: TextOverflow.ellipsis)))
+                                      .toList(),
+                                  onChanged: m.busy
+                                      ? null
+                                      : (s) {
+                                          if (s != null) m.load(filter: s);
+                                        }),
+                              TextFormField(
+                                  key: ValueKey('search:${m.search}'),
+                                  initialValue: m.search,
+                                  enabled: !m.busy,
+                                  maxLength: 120,
+                                  textInputAction: TextInputAction.search,
+                                  decoration: InputDecoration(
+                                      labelText: l.ordersSearch),
+                                  onFieldSubmitted: (q) => m.load(query: q)),
+                              TextFormField(
+                                  key: ValueKey('day:${m.date}'),
+                                  initialValue: m.date == null
+                                      ? ''
+                                      : DateFormat('yyyy-MM-dd')
+                                          .format(m.date!),
+                                  enabled: !m.busy,
+                                  decoration:
+                                      InputDecoration(labelText: l.ordersDate),
+                                  autovalidateMode:
+                                      AutovalidateMode.onUserInteraction,
+                                  validator: (v) => v == null ||
+                                          v.isEmpty ||
+                                          orderFilterDate(v) != null
+                                      ? null
+                                      : l.ordersInvalidDate,
+                                  onFieldSubmitted: (v) {
+                                    if (v.isEmpty) {
+                                      m.load(clearDate: true);
+                                    } else if (orderFilterDate(v) != null) {
+                                      m.load(day: orderFilterDate(v));
+                                    }
+                                  }),
+                              if (m.date != null)
+                                SbButton(
+                                    label: l.ordersAllDates,
+                                    variant: SbButtonVariant.secondary,
+                                    onPressed: m.busy
+                                        ? null
+                                        : () => m.load(clearDate: true)),
+                              if (m.ready && m.items.isEmpty)
+                                SbEmpty(message: l.ordersEmpty),
+                            ]);
+                      }
+                      if (index > m.items.length) {
+                        return SbButton(
                             label: l.ordersMore,
                             onPressed:
-                                m.busy ? null : () => m.load(more: true)),
-                    ]))));
+                                m.busy ? null : () => m.load(more: true));
+                      }
+                      final row = m.items[index - 1];
+                      return Card(
+                          key: ValueKey('order:${row.id}'),
+                          child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(row.orderNo,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium),
+                                    Text(homeStatus(l, row.status)),
+                                    Text(
+                                        '${DateFormat('yyyy-MM-dd').format(row.deliveryDate)} · ${row.timeSlot}'),
+                                    Text(formatInr(int.parse(row.totalPaise))),
+                                    SbButton(
+                                        label: l.ordersOpen,
+                                        onPressed: () =>
+                                            VendorOrderRoute(row.id)
+                                                .push<void>(context)),
+                                  ])));
+                    }))));
   }
 }
 

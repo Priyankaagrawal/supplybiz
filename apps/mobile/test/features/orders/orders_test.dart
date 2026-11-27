@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supplybiz_api_client/supplybiz_api_client.dart';
 import 'package:supplybiz_mobile/core/l10n/l10n.dart';
 import 'package:supplybiz_mobile/core/network/network_client.dart';
@@ -375,5 +376,68 @@ void main() {
     expect(find.text('ORD00000001'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
+  });
+  testWidgets('T-170 500-row list preserves end-of-list selection and search',
+      (tester) async {
+    final f = OrdersFixture(), client = ordersClient(f), store = MemoryDrafts();
+    f.rows.clear();
+    f.rows.addAll(List.generate(
+        500,
+        (i) => orderJson(
+            id: '88888888-8888-4888-8888-${i.toString().padLeft(12, '0')}',
+            number: 'SYN-${i.toString().padLeft(4, '0')}')));
+    addTearDown(client.close);
+    final m =
+        VendorOrdersController(VendorOrdersApi(client.dio), store, 'lazy-list');
+    final router = GoRouter(routes: [
+      GoRoute(path: '/', builder: (_, __) => const VendorOrdersPage()),
+      GoRoute(
+          path: '/vendor/orders/:id',
+          builder: (_, s) =>
+              Scaffold(body: Text('opened:${s.pathParameters['id']}'))),
+    ]);
+    addTearDown(router.dispose);
+    await tester.pumpWidget(ProviderScope(
+        overrides: [vendorOrdersProvider.overrideWith((ref) => m)],
+        child: MaterialApp.router(
+            routerConfig: router,
+            theme: sbLightTheme(const Locale('en')),
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              ...SbLocalizations.delegates
+            ],
+            supportedLocales: AppLocalizations.supportedLocales)));
+    await tester.pumpAndSettle();
+    await tester.runAsync(() async {
+      while (m.items.length < 500) {
+        await m.load(more: true);
+      }
+    });
+    await tester.pumpAndSettle();
+    final scroll =
+        tester.state<ScrollableState>(find.byType(Scrollable).first).position;
+    scroll.jumpTo(scroll.maxScrollExtent);
+    await tester.pumpAndSettle();
+    final lastId = f.rows.last['id'] as String;
+    final lastCard = find.byKey(ValueKey('order:$lastId'));
+    await tester.ensureVisible(lastCard);
+    await tester
+        .tap(find.descendant(of: lastCard, matching: find.byType(SbButton)));
+    await tester.pumpAndSettle();
+    expect(find.text('opened:$lastId'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    tester
+        .state<ScrollableState>(find.byType(Scrollable).first)
+        .position
+        .jumpTo(0);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('search:')), 'SYN-0499');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    expect(m.items.map((r) => r.id), [lastId]);
+    expect(find.descendant(of: lastCard, matching: find.text('SYN-0499')),
+        findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

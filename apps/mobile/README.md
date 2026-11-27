@@ -1,5 +1,223 @@
 # Supply Biz Mobile
 
+## T-170 physical-phone checks (2026-11-27): READY_FOR_VERIFY
+
+Both ARM64 profile builds, ten complete cold startups and the native 500-order
+scrolling collection pass on an authorized realme 6 Pro (Android 11, approximately
+6 GB RAM; reported MemTotal 5,713,400 KiB). During the probe, Android reports
+active mode 60.000004 Hz and primary/app refresh ranges [60,60]; the stored peak
+setting still reads 90 Hz. This is representative physical-device evidence, not
+the specified Android 10 / 4 GB reference configuration. **Implementation/runtime
+checks are ready for manual verification; no exact time-to-interactive, reference
+device, NFR acceptance, module gate or DONE claim is made.**
+
+| Phone metric | Observed result |
+|---|---:|
+| Initial-display p90 (Android TotalTime; not interactive time) | 2,102 ms |
+| Enabled sign-in observed p90 upper bound (includes accessibility polling) | 4,231 ms |
+| Idle PSS, real signed-out dev app | 271.20 MiB |
+| Frames / build-budget misses / raster-budget misses | 590 / 0 / 1 (0.17%) |
+| Build / raster p90 | 2.794 / 4.847 ms |
+| RSS baseline / 500 loaded / after scroll / peak | 204.68 / 221.76 / 240.12 / 240.12 MiB |
+
+Cold initial-display samples, all included in nearest-rank p90:
+`[2550,1900,1875,2102,1839,1874,1912,1974,1852,1899]` ms. One earlier attempt
+timed out with a sleeping display; another series was rejected at run seven
+because Android omitted its launch-time metric. Neither is mixed into this
+complete ten-run series. Sign-in input was observed enabled in every successful
+run, but polling overhead prevents interpreting 4,231 ms as exact interactive
+time. The SDK frame-budget counters meet the numerical <1% target in this
+synthetic journey; they do not establish a complete production jank-trace or
+reference-device pass. One RSS sequence cannot establish retained growth/leaks.
+
+The collector now checks `dumpsys power` before installation and each cold launch.
+`node --test tools/android-performance.spec.mjs` passes six cases; an actual
+sleeping-phone preflight rejection also passed without installing/launching.
+The phone denied ADB stay-awake writes (original value 0, verified unchanged).
+The user adjusted the display manually; automation did not change device settings
+or bypass the lock. The local test server, app and USB reverse mapping were
+cleaned up, and the phone remains connected. Existing emulator evidence below is
+historical and remains distinct.
+The exact tested main development profile APK was reinstalled successfully after
+the probe and force-stopped; tapping the app no longer reruns the synthetic
+scrolling-test entrypoint. No local test backend is left running.
+
+Executed from `apps/mobile`, with the existing isolated SDK view:
+
+- Main profile: the main-build command below with `--target-platform android-arm64`;
+  preserved as `build/t170-phone-startup-profile.apk`, SHA-256
+  `989A71B59D886F16B73DBA56728546A1FE31EEF09D4DB46958258285C7B5BA18`.
+- Orders profile: `flutter build apk --profile --target-platform android-arm64 --flavor dev -t integration_test/performance_test.dart --dart-define-from-file=config/dev.json --android-project-arg=kotlin.incremental=false --no-android-gradle-daemon`;
+  preserved as `build/t170-phone-orders-profile.apk`, SHA-256
+  `6BB8B509D846EDF7071524A0FA668B3F244BF801B8106A45353E0754042D1442`.
+- Main APK copied back to `build/app/outputs/flutter-apk/app-dev-profile.apk` before
+  root `node tools/android-performance.mjs`, with explicit connected ANDROID_SERIAL,
+  installed SDK ADB_PATH and host STARTUP_TIMING_PROBE=1. Result preserved as
+  `build/t170-phone-startup.json`.
+- `flutter drive --profile --no-dds --flavor dev -d <connected-device> --target=integration_test/performance_test.dart --driver=test_driver/performance_driver.dart --use-application-binary=build/t170-phone-orders-profile.apk --dart-define-from-file=config/dev.json --no-pub`;
+  result `build/t170-phone-frames.json`, numeric mode check `build/t170-phone-display.json`.
+
+Manual/reference verification still required (do not finalize from these runs):
+
+1. Measure ten cold launches to actual usable input on reference Android 10 / 4 GB;
+   verify p90 <=2.5 s. Initial display and accessibility-poll timing are insufficient.
+2. Check real order scroll/open/search/filter/refresh/pagination at normal and
+   200% text scale; verify <1% jank with reference-device frame evidence.
+3. Repeat customer/vendor navigation while checking retained memory growth; the
+   synthetic transport does not prove a live API/DB/financial journey.
+4. Confirm production-variant delivery size and provide task-specific manual PASS
+   only when required acceptance evidence is satisfied. G4/G6 and iOS remain pending.
+
+## T-170 historical emulator checks (2026-11-25): measured fixes
+
+The Android runtime/SDK blockage is resolved. Actual startup/PSS and native
+500-order profile probes now execute, and the release AAB passes Flutter's final
+native-symbol check and bundletool validation. **Performance acceptance remains
+open:** these emulator readings do not meet the frame-budget target, and no
+reference Android 10 / 4 GB time-to-interactive or NFR/gate PASS is claimed.
+
+`tools/start-performance-emulator.ps1` creates/reuses SupplyBizT170 only inside
+ignored `build/t170-avds`, copying template configuration, not user data. The
+working baseline is Android 14 x64, 1536 MB RAM, two cores, 480x960 at 240 dpi;
+Vulkan is disabled. Emulator settings also live in ignored `build/t170-emulator-home`
+through ANDROID_USER_HOME/ANDROID_EMULATOR_HOME, avoiding user-home lock writes.
+The original user AVDs were not wiped/modified. The helper
+refuses an occupied transport and restores its caller's environment. A workspace
+SDK view selects complete Build Tools 36.0.0 instead of the incomplete 36.1.0
+installer directory. The pre-existing adb daemon and user applications remain.
+
+Missing command-line tools were installed only into that SDK view from
+[Google's official package](https://developer.android.com/studio#command-tools):
+`commandlinetools-win-15859902_latest.zip`, revision 22.0, verified SHA-256
+`90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a`.
+No shared SDK replacement, app dependency, API/schema or iOS source change.
+
+Startup uses the real dev app with a local synthetic config service, ten
+force-stop/relaunches and a verified absent process before each launch. The UI
+detector now accepts Flutter's text or accessibility-description sign-in label,
+and still requires an enabled input; loading/disabled fields cannot pass. It
+retains numeric results/known label keys, never UI trees or field contents.
+
+| Captured startup metric | Earlier run | Phase baseline | Async diagnostics |
+|---|---:|---:|---:|
+| Initial-display p90 (Android TotalTime, not time-to-interactive) | 3,023 ms | 5,523 ms | 4,302 ms |
+| Enabled sign-in observation p90 upper bound (includes UI polling) | 5,744 ms | 8,354 ms | 6,868 ms |
+| Idle process PSS | 134.53 MiB | 133.32 MiB | 131.31 MiB |
+
+Every reported series contains ten successful, verified force-stop cold launches.
+Initial post-boot attempts with unsuccessful Android launch status were rejected,
+then the complete ten-run series restarted after boot settled. Host load and
+native initialization differ between runs, as the earlier series illustrates;
+these observations do not prove an exact speedup or true interactive-time PASS.
+
+The profile probe uses actual vendor order widgets/controllers, 500 synthetic
+rows and an in-memory transport, with one warm-up then eight gestures. Native
+metadata/timing execute on Android. No live API/DB/auth/financial or full production
+memory-footprint claim. SDK budget counters are not a dropped-frame trace or a
+reference-device acceptance result. Hardware GLES was verified as NVIDIA GTX 1650
+through the emulator translator; changing renderer did not resolve budget misses.
+
+| Captured profile metric | Software baseline | Host baseline | Host lazy list |
+|---|---:|---:|---:|
+| Frames | 811 | 804 | 821 |
+| Missed build budgets | 1 | 1 | 0 |
+| Missed raster budgets | 132 (16.28%) | 189 (23.51%) | 112 (13.64%) |
+| Build p90, ms | 1.617 | 1.824 | 1.159 |
+| Raster p90, ms | 18.655 | 22.118 | 16.865 |
+| RSS baseline / 500 loaded / after scroll, MiB | 180.7 / 206.2 / 208.7 | 171.9 / 196.9 / 203.7 | 178.6 / 198.3 / 207.4 |
+| Peak RSS, MiB | 218.5 | 208.6 | 212.2 |
+
+`VendorOrdersPage` now constructs rows on demand with `ListView.builder`, instead
+of constructing all 500 card trees for every update. Existing filters, pagination,
+refresh and row actions remain. A regression check scrolls to/open the last order
+and searches it. The same native gesture probe improved build/raster timings;
+loaded-minus-baseline RSS fell from 25.0 to 19.6 MiB, while absolute peak RSS rose.
+These single runs are diagnostic comparisons, not statistical or reference-device
+acceptance. RSS snapshots alone do not establish a leak or a memory-budget pass.
+
+An opt-in `STARTUP_TIMING_PROBE=true` development/profile build records seven fixed
+numeric phase timings locally; production/release builds cannot emit them. Ten
+phase-baseline runs exposed 1.840–2.663 s waiting for optional diagnostic version
+metadata (p90 2.559 s). Bootstrap now schedules that bounded lookup without waiting;
+early error records use `unavailable` until it completes. Required storage, config
+and authentication checks retain their ordering. `diagnosticsScheduled` measures
+dispatch, not completion; `firstFrame` is not an input-ready measurement.
+The final phase run dispatches diagnostics in 0.365–1.096 ms; native storage then
+takes 2.438–2.715 s, so moving the await does not remove all native startup delay.
+Encryption, key validation and session/config guards were retained.
+
+The final dev release AAB is locally debug-signed, with no publishing/deployment.
+Bundletool 1.18.1 validates it and estimates compressed download bytes per ABI:
+
+| ABI | Minimum bytes | Maximum bytes |
+|---|---:|---:|
+| armeabi-v7a | 11,760,546 | 11,767,734 |
+| arm64-v8a | 12,495,183 | 12,502,371 |
+| x86_64 | 12,880,190 | 12,887,378 |
+
+All estimates are below 40,000,000 bytes; these are bundletool estimates, not
+observed Play downloads. The raw 52.7 MiB AAB/profile APK size is a different metric.
+The final AAB contains both fixes, is 55,216,064 bytes and has SHA-256
+`06E483E84ADC1D07AB8172F43A766D52222C4898A01308521446ABAD7806E5E0`.
+Flutter's native-symbol check and symbol metadata for all three ABIs pass.
+
+Executed checks and commands (installed Flutter at `C:\flutter\bin`):
+
+- Root `node --test tools/android-performance.spec.mjs`: **5 passed**;
+  `node --check tools/android-performance.mjs`, helper PowerShell syntax and
+  final `git diff --check` pass. The emulator helper was run with `-Renderer host`.
+- `apps/mobile`: final `flutter analyze --no-pub` passes; `flutter test --no-pub test/features/orders/orders_test.dart test/core/diagnostics/startup_timing_test.dart test/core/diagnostics/basic_diagnostics_test.dart`
+  passes **21 cases**, including 200% orders, delayed metadata and probe privacy/gates.
+  Profile APK builds and native collection scenarios in both renderers
+  pass; collection success is distinct from meeting performance thresholds.
+- Root collector: explicit `ANDROID_SERIAL=emulator-5580` and SDK `ADB_PATH`,
+  then `node tools/android-performance.mjs` (ten complete cold runs per result).
+  Phase builds add `--dart-define=STARTUP_TIMING_PROBE=true`; collector phase parsing
+  additionally requires host `STARTUP_TIMING_PROBE=1` and rejects incomplete traces.
+  Main profile build: `flutter build apk --profile --target-platform android-x64 --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --dart-define=API_BASE_URL=http://127.0.0.1:18770/api/v1 --dart-define=STARTUP_TIMING_PROBE=true --android-project-arg=kotlin.incremental=false --no-android-gradle-daemon`.
+- `apps/mobile`, with ANDROID_HOME/ANDROID_SDK_ROOT set to `build/t170-sdk`:
+  `flutter drive --profile --no-dds --flavor dev -d emulator-5580 --target=integration_test/performance_test.dart --driver=test_driver/performance_driver.dart --use-application-binary=build/t170-orders-profile.apk --dart-define-from-file=config/dev.json --no-pub`.
+  The software run used `build/app/outputs/flutter-apk/app-dev-profile.apk` before
+  preserving the identical probe as `build/t170-orders-profile.apk`.
+  The post-fix host run used `build/t170-lazy-orders-profile.apk` with the same command;
+  its SHA-256 is `F544D90C272F337972CEB42F9453F7A03858D549C6EA00C094AC8E4CC599347A`.
+- Final AAB: `flutter build appbundle --release --flavor dev -t lib/main_dev.dart --dart-define-from-file=config/dev.json --android-project-arg=kotlin.incremental=false --no-android-gradle-daemon`.
+  Allow Flutter's normal tooling regeneration when switching from integration
+  to release: --no-pub leaves a stale test-plugin registrant in this SDK. Generated
+  registrants were regenerated by Flutter, never edited. Local SDK settings restored.
+- `apps/mobile/android`: `gradlew.bat --offline --no-daemon -I ../../../tools/android-bundle-size.init.gradle t170BundletoolClasspath` passes. This reuses cached
+  bundletool and this project's AGP aapt2-proto; it adds no app dependency.
+- With Java `-cp` from `build/t170-bundletool-classpath.txt`, executed BundleToolMain
+  `validate --bundle=<final AAB>`, `build-apks --bundle=<final AAB> --output=build/t170-dev.apks --aapt2=<installed 36.0.0 aapt2> --ks=<existing debug.keystore> --ks-key-alias=androiddebugkey --ks-pass=pass:android --key-pass=pass:android --overwrite`, then
+  `get-size total --apks=build/t170-dev.apks --dimensions=ABI`; all pass.
+
+Artifacts (ignored build output): `t170-startup-baseline.json` (earlier run),
+`t170-startup-phased.json` (awaited metadata), `t170-startup-fixed.json` (async),
+`t170-frames-software.json`, `t170-frames-host.json`, `t170-frames-lazy-host.json`,
+`t170-download-size.csv`, profile APKs and final AAB. Final startup profile SHA-256:
+`19E0D052C6DB8E94506B3B868A671841567F2577AF509C307A0E024DAD27F947`.
+The temporary emulator/test servers/compilers were stopped; no user app was closed.
+To restart the isolated runtime from root, use `tools/start-performance-emulator.ps1`
+and wait for `adb -s emulator-5580 shell getprop sys.boot_completed` to return 1.
+Build the main profile app before rerunning startup; the order probe is a separate
+APK entrypoint. Flutter timing collection requires --no-dds on this SDK.
+
+Remaining manual/reference work:
+
+1. With 500 synthetic vendor orders, scroll to/open the last row, return, search
+   and change filters; repeat at 200% text scale and confirm pagination/refresh.
+2. On reference Android 10 / 4 GB hardware, measure ten profile cold starts to
+   actual usable input (not initial display/polling overhead); verify p90 <=2.5 s.
+3. Repeat the 500-order/native journey at 60 Hz, profile raster bottlenecks and fix
+   demonstrated app defects until <1% jank. Emulator runs above do not pass this.
+4. Review RSS/PSS and repeated real customer/vendor navigation for retained growth;
+   neither synthetic transport nor one scrolling sequence proves a live journey.
+5. Confirm production-variant delivery-size estimates/manual acceptance before
+   finalization. This emulator-only baseline remained IN_PROGRESS; the current
+   physical-device READY_FOR_VERIFY handoff is above. Manual PASS/G4/G6 and iOS
+   remain pending.
+
+
 ## T-018 basic diagnostics (2026-11-24): READY_FOR_VERIFY
 
 Bootstrap records framework, platform-dispatcher, guarded-zone and startup errors
