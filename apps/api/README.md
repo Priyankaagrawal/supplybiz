@@ -1,5 +1,86 @@
 # Supply Biz API
 
+## T-171 representative API load (2026-11-27): READY_FOR_VERIFY
+
+Adds a bounded native HTTP/PostgreSQL diagnostic harness and four measurement/
+safety unit cases. No application query/index tuning was justified: the observed
+burst is within NFR-003's latency budgets. This is **not production-capacity or
+NFR-005 target-scale acceptance**; the broader scale campaign is DEFERRED by SR-06.
+
+Three authenticated workers each execute 30 requests: catalog/customer pages and
+idempotent stock adjustments. Each worker owns a separate synthetic vendor with
+200 products and 100 customers (600/300 total). Warm-up checks actual totals/page
+sizes before timing. Real auth/roles, plans, validation, PostgreSQL transactions,
+stock movements, idempotency and the DB-backed HTTP limiter remain active. JWTs
+and audited plan grants are direct test fixtures; OTP/provider throughput is not
+measured. OTP delivery/FCM are disabled; no real contacts or payments are involved.
+
+| Final measured burst | Count | p95 | Budget | Errors |
+|---|---:|---:|---:|---:|
+| Authenticated reads | 60 | 37.35 ms | 500 ms | 0 |
+| Stock-adjustment writes | 30 | 45.13 ms | 800 ms | 0 |
+
+The 90-request burst lasted 840.67 ms. This short sample is not a sustained RPS,
+soak, real-network, financial/order workload or full production dataset claim.
+The generator shares the Nest/Jest process. Observed host: Windows x64, i7-9750H,
+12 logical CPUs, ~16 GiB RAM, Node 23.11.0 and PostgreSQL 18.3; these differ from
+canonical Node 22/CI PostgreSQL 16. Repeat on the agreed host/runtime before
+capacity acceptance. The earlier run (34.57/58.98 ms read/write p95) is preserved
+as `build/t171-load-first.json`; no optimization or speedup is claimed between runs.
+
+Outside measured samples, checks confirm ten movements and stock 110 per hot
+product, two concurrent retries of the final key without another increment, and
+404 for another tenant's product. A separate 88-request exhaustion probe reaches
+429 with the unchanged 120 requests/60 seconds policy. Expected denial/throttling
+responses are not mixed into the successful workload's latency population.
+Unexpected measured status codes remain counted as errors; missing/invalid
+samples cannot pass. Raw response bodies, tokens, connection URLs, mobiles,
+fixture IDs, hostnames and private paths are absent from the aggregate report.
+
+The harness accepts only loopback `supplybiz_service_area_test`, the existing
+documented isolated test DB. Normal app credentials could not create a new DB;
+no role changes, admin credentials, schema migrations or resets were used.
+Fixtures are uniquely scoped and retained for inspection; their category is
+hidden on cleanup. Existing rows and immutable history are preserved. A UUID
+upload directory under `~/SupplyBizT171` is created with the real private Windows
+ACL checks, then removed through a validated direct-child cleanup path. The
+60-second HTTP deadline, app/DB shutdown and environment restoration bound the
+run; old reports are invalidated before a new attempt. API/server/worker services
+started elsewhere are preserved.
+
+Executed from `apps/api` (credentials stay in the child environment):
+
+```powershell
+$dbLine = Get-Content .env | Where-Object { $_ -match '^DATABASE_URL=' } | Select-Object -First 1
+$taskUrl = [UriBuilder]::new(($dbLine -replace '^DATABASE_URL=', '').Trim('"', "'"))
+$taskUrl.Path = '/supplybiz_service_area_test'
+$env:NATIVE_TEST_DATABASE_URL = $taskUrl.Uri.AbsoluteUri
+$env:DATABASE_URL = $env:NATIVE_TEST_DATABASE_URL
+$env:NODE_ENV = 'test'
+$env:OTP_DELIVERY_MODE = 'disabled'
+.\node_modules\.bin\jest.cmd --runInBand --testTimeout=180000 --runTestsByPath test/api-load.postgres.spec.ts test/api-load.utils.spec.ts
+.\node_modules\.bin\tsc.cmd --noEmit
+.\node_modules\.bin\tsc.cmd -p tsconfig.build.json
+.\node_modules\.bin\eslint.cmd src test scripts jest.config.ts --max-warnings=0
+```
+
+**PASS:** 5 cases (4 safety/accounting + 1 native HTTP/DB scenario), API
+typecheck/build/lint and root `git diff --check`. No new dependency, API contract,
+app behavior, bypassed controls or mobile changes. Final numeric report:
+`build/t171-load.json`; production acceptance explicitly `NOT_RUN`.
+
+Manual verification before finalization:
+
+1. Confirm the profile/host is representative of approved capacity; record the
+   canonical-runtime/staging comparison separately, not as already executed.
+2. Wait at least the configured rate-limit window (60 s here), then repeat the
+   exact isolated-DB command; inspect all 90 samples, status counts and p95.
+3. Inspect synthetic fixture stock/movement counts, concurrent replay, cross-tenant
+   denial and the separate 429 result; verify existing fixtures remain intact.
+4. Confirm local private storage/test HTTP processes are cleaned up; record manual
+   PASS and gate evidence separately. G4/G6, production capacity and broad campaigns
+   remain pending/deferred as applicable.
+
 ## T-018 safe unhandled diagnostics (2026-11-24): READY_FOR_VERIFY
 
 The central Problem Details filter logs API_UNHANDLED_EXCEPTION through existing
